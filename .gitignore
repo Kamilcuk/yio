@@ -1,0 +1,7 @@
+*.stackdump
+Debug
+*.settings
+*.project
+Release
+*.cproject
+
