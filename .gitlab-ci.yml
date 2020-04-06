@@ -1,0 +1,24 @@
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+on_archlinux:
+  image: archlinux/base
+  script:
+  - pacman --noconfirm -Suy cmake make gcc cppcheck ninja valgrind
+  - make gitlab-ci
+  when: manual
+  
+on_gcc:
+  image: gcc
+  script:
+  - apt-get update -y
+  - apt-get install -y cmake make gcc cppcheck valgrind m4
+  - make gitlab-ci
+  
+on_alpine:
+  image: alpine
+  script:
+  - apk update
+  - apk add gcc cmake musl-dev make bsd-compat-headers linux-headers
+  - make gitlab-ci
+  when: manual

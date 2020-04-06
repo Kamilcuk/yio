@@ -4,4 +4,7 @@ Debug
 *.project
 Release
 *.cproject
+_build
+public
+old
 
