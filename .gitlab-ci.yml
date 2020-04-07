@@ -22,3 +22,11 @@ on_alpine:
   - apk add gcc cmake musl-dev make bsd-compat-headers linux-headers
   - make gitlab-ci
   when: manual
+
+pages:
+  image: alpine
+  script:
+  - apk update
+  - apk add make doxygen
+  - make doxygen
+
