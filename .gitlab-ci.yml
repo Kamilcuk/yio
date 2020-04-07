@@ -29,4 +29,7 @@ pages:
   - apk update
   - apk add make doxygen
   - make doxygen
+  artifacts:
+    paths:
+    - public
 
