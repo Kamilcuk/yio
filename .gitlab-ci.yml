@@ -12,7 +12,7 @@ on_gcc:
   image: gcc
   script:
   - apt-get update -y
-  - apt-get install -y cmake make gcc cppcheck valgrind m4
+  - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build
   - make gitlab-ci
   
 on_alpine:
