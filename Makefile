@@ -47,8 +47,9 @@ sanitize:
 	cd $(B)/sanitize && $(CTEST) -j $(shell nproc) $(CTESTFLAGS)
 
 doxygen:
-	# rm -fr ./public
+	rm -fr ./public
 	doxygen ./doc/Doxyfile
+	mv ./public/html/* ./public/
 
 clean:
 	rm -vrf _build
