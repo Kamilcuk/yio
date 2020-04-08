@@ -4,17 +4,21 @@
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-builtin-variables
 MAKEFLAGS += --warn-undefined-variables
+MAKEFLAGS += --no-print-directories
 
 CMAKE_BUILD_TYPE ?= Debug
 # CMAKE_BUILD_TYPE ?= Release
  
-B = _build/$(CMAKE_BUILD_TYPE)
+B ?= _build/$(CMAKE_BUILD_TYPE)
 
 NICE += $(shell hash nice 2>/dev/null >/dev/null && echo nice)
 NICE += $(shell hash ionice 2>/dev/null >/dev/null && echo ionice)
 
 CTEST := $(NICE) ctest
-CTESTFLAGS += --output-on-failure # --verbose --rerun-failed
+CTESTFLAGS += --output-on-failure 
+CTESTFLAGS += -j $(shell nproc) # --verbose --rerun-failed
+
+CMAKE_C_FLAGS ?= 
 
 CMAKE := $(NICE) cmake
 CMAKEFLAGS += -S test
@@ -24,7 +28,8 @@ CMAKEFLAGS += -D CMAKE_RUNTIME_OUTPUT_DIRECTORY=bin
 CMAKEFLAGS += -D CMAKE_LIBRARY_OUTPUT_DIRECTORY=lib
 CMAKEFLAGS += -D CMAKE_EXECUTABLE_SUFFIX=.out
 CMAKEFLAGS += -D CMAKE_VERBOSE_MAKEFILE=ON
- 
+CMAKEFLAGS += -D CMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
+
 all: test
 
 build:
@@ -32,25 +37,30 @@ build:
 	$(CMAKE) --build $(B)
 	
 test: build
-	cd $(B) && $(CTEST) $(CTESTFLAGS) # -R yio_test_custom_callback_2
+	cd $(B) && $(CTEST) $(CTESTFLAGS)
 
 gitlab-ci:
-	+$(MAKE) CMAKE_BUILD_TYPE=Release memcheck
-	+$(MAKE) CMAKE_BUILD_TYPE=Release sanitize
+	+$(MAKE) -k CMAKE_BUILD_TYPE=Release memcheck sanitize coverage
 	
 memcheck: build
-	cd $(B) && $(CTEST) -j $(shell nproc) -T memcheck $(CTESTFLAGS)
+	cd $(B) && $(CTEST) -T memcheck $(CTESTFLAGS)
 
 sanitize:
-	$(CMAKE) -B $(B)/sanitize $(CMAKEFLAGS) -D "CMAKE_C_FLAGS=-fsanitize=address -fno-omit-frame-pointer"
-	$(CMAKE) --build $(B)/sanitize
-	cd $(B)/sanitize && $(CTEST) -j $(shell nproc) $(CTESTFLAGS)
+	+$(MAKE) B=$(B)_sanitize CMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" test
 
 doxygen:
-	rm -fr ./public
 	doxygen ./doc/Doxyfile
 	mv ./public/html/* ./public/
 
+coverage:
+	+$(MAKE) B=$(B)_coverage CMAKE_C_FLAGS="-fprofile-arcs -ftest-coverage -g" .coverage
+
+.coverage: test
+	gcovr -r . -e test -e _build $(B)
+
 clean:
-	rm -vrf _build
+	if [ -e _build ]; then rm -r _build; fi
+
+distclean: clean
+	if [ -e public ]; then rm -r public; fi
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 list(APPEND CMAKE_MODULE_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
-project(yio_tests)
+project(yio_tests C)
 
 include(CTest)
 include(subdirlist)
@@ -35,9 +35,11 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	endif()
 endif(CMAKE_COMPILER_IS_GNUCC)
 
+if(0)
 foreach(i IN ITEMS CMAKE_BUILD_TYPE BUILD_TESTING CMAKE_C_FLAGS)
 	message(STATUS "${i}=${${i}}")
 endforeach()
+endif()
 
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/.. yio)
 
