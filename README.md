@@ -5,6 +5,10 @@
 > A misplaced decimal point will always end up where it will do the greatest damage.  
 > -- unknown  :fire: :ambulance:
 
+![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
+
+![coverage report](https://gitlab.com/kamcuk/yio/badges/master/coverage.svg)
+
 ### Namespaces:
 
  - `y*` - Many common symbols.
