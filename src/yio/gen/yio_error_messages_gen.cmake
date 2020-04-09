@@ -43,9 +43,9 @@ file(WRITE ${CMAKE_CURRENT_LIST_DIR}/yio_error_messages_gen.h "
  * from yio_error.h file.
  */
 #if 0
-#include \"../yio_error.h\"
 #include \"yio_error_messages_gen.cmake\"
 #endif
+#include \"../yio_error.h\"
 
 static const char * const _yIO_error_messages[] = {
 ${str}};
