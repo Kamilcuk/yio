@@ -41,8 +41,6 @@ foreach(i IN ITEMS CMAKE_BUILD_TYPE BUILD_TESTING CMAKE_C_FLAGS)
 endforeach()
 endif()
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/.. yio)
-
 file(GLOB srcs *.c)
 
 subdirlist(dirs ${CMAKE_CURRENT_SOURCE_DIR})
