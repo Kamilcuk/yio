@@ -5,7 +5,7 @@
 
 :star: `Yio Input Output` library is aiming to be python-like type-safe `printf` and `scanf` replacement for C language.
 
-![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg) ![coverage report](https://gitlab.com/kamcuk/yio/badges/master/coverage.svg)
+![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg) ![coverage report](https://gitlab.com/kamcuk/yio/badges/master/coverage.svg) [cdash dashboard](https://cdash.karta.dyzio.pl/index.php?project=Yio)
 
 ### Namespaces:
 
