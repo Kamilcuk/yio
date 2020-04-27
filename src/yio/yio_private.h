@@ -13,7 +13,7 @@
 #include <string.h>
 
 #define _yIO_STATIC_ASSERT(x)  ((void)sizeof(struct _yIO_sTaTiS_aSsErT{int _yIO_sTaTiS_aSsErT : (x)?1:-1;}))
-		
+
 // https://www.wolframalpha.com/input/?i=ceiling%28log_10%282%5Ex%29%29+for+x+%3D+1+to+256
 #define _yIO_LOG10_POW2(x) ( \
 		(x) == 1 ? 1 : 		(x) == 2 ? 1 : 		(x) == 3 ? 1 : 		(x) == 4 ? 2 : 		(x) == 5 ? 2 : \
@@ -73,7 +73,7 @@
 #define _yIO_MAXDIGITS_IN(type)     _yIO_LOG10_POW2(sizeof(type) * CHAR_BIT)
 
 #define _yIO_MAXHEXDIGITS_IN(type)  (sizeof(type) * CHAR_BIT / 4)
-				
+
 #define _yIO_INTEGERS_LIST2() \
 		(short, short), \
 		(ushort, unsigned short), \

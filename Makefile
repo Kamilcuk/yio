@@ -39,14 +39,26 @@ CMAKEFLAGS += -D CMAKE_VERBOSE_MAKEFILE=ON
 CMAKEFLAGS += -D CMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
 CMAKEFLAGS += -D BUILD_TESTING=ON
 
-all: test
+SHELL = bash
+
+all: build # test
 
 configure:
+	$(CMAKE) -P cmake/_test.cmake
 	$(CMAKE) -B $(B) $(CMAKEFLAGS)
 build: configure
-	$(CMAKE) --build $(B)
+	@echo $(CMAKE) --build $(B)
+	@stdbuf -oL $(CMAKE) --build $(B) 2> >( \
+		sed -u 's@^[^ ]*/gen/@src/@' >&2) | \
+		sed -u 's@^[^ ]*/gen/@src/@'
 test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
+
+cmake-gui:
+	cmake-gui -B $(B) $(CMAKEFLAGS)
+	
+ccmake:
+	ccmake -B $(B) $(CMAKEFLAGS)
 
 gitlab-ci:
 	+$(MAKE) -k CMAKE_BUILD_TYPE=Release memcheck sanitize coverage cdash

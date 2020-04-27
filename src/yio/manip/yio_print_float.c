@@ -5,7 +5,7 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-include(`lib.m4')m4_lib_header()
+m4_include(lib.m4)m4_lib_header_tildequote();
 #define __STDC_WANT_IEC_60559_BFP_EXT__ 1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__ 1
 #define __STDC_WANT_DEC_FP__  1
@@ -39,10 +39,9 @@ const char *_yIO_printfmt_to_cfmt_for_floats_in(
 				fmt, \
 				default_width)
 
+m4_divert(-1)
 #define m4__yIO_print_generic(FUNCTION_NAME, type, MAX_RESOLUTION, strfrom, ...)
-changequote(`[', `]')dnl;
-changequote([`], [~])dnl;
-define(`m4__yIO_print_generic~,`
+m4_define(`m4__yIO_print_generic~,`
 #ifdef $3
 static inline
 int $1_in(yio_printctx_t *t, $2 f) {
@@ -61,14 +60,15 @@ int $1_in(yio_printctx_t *t, $2 f) {
 	free(str);
 	return format_err;
 }
-ifelse($5,,
+m4_ifelse($5,,
 int $1(yio_printctx_t *t) {
 	const $2 f = yio_printctx_va_arg_num(t, $2);
 	return _yIO_print_double_in(t, f);
 }
-)dnl
+)m4_dnl
 #endif
-~)dnl;
+~)
+m4_divert(0)m4_dnl;
 
 m4__yIO_print_generic(_yIO_print_float, float, FLT_DECIMAL_DIG, strfromf, NO)
 #ifdef DBL_DECIMAL_DIG

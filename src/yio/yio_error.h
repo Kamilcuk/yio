@@ -2,7 +2,7 @@
  * @file yio_error.h
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
- * @copyright GPL-3.0-only
+ * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #pragma once
@@ -18,21 +18,22 @@ extern "C" {
  * yio_error_messages_gen.h are generated.
  * See yio_error_messages_gen.cmake script
  */
-enum {
+enum _yIO_errors_e {
 	YIO_ERROR_OK = 0,
 	YIO_ERROR_ENOMEM = -ENOMEM,    /// "Not enough memory", the same as ENOMEM
 	YIO_ERROR_ENOSYS = -ENOSYS,    /// "Function not implemented", basically the same as ENOSYS
 	YIO_ERROR_EIO = -EIO,          /// "Input/output error", means something wrong with FILE*
+	YIO_ERROR_ENOBUFS = -ENOBUFS,  /// "No buffer space available", snprintf has nowhere to write to
 	_yIO_ERROR_START = -2100,      /// Start of custom errors - 2100
-	YIO_ERROR_FMT_INVALID,         ///GEN "Invalid format specifier"
-	YIO_ERROR_PYFMT_INVALID,       ///GEN "Invalid python format specifier"
-	YIO_ERROR_CFMT_INVALID,        ///GEN "Invalid C format specifier"
-	YIO_ERROR_SCANFMT_INVALID,     ///GEN "Invalid scan format specifier"
-	YIO_ERROR_SCAN_NOT_MATCHED,    ///GEN "Scanned character not matched"
-	YIO_ERROR_SCAN_OVERFLOW,       ///GEN "Scanning overflowed"
-	YIO_ERROR_SCAN_UNDERFLOW,      ///GEN "Scanning underflowed"
-	YIO_ERROR_TOO_MANY_FMT,        ///GEN "Too many format strings for arguments"
-	YIO_ERROR_SCAN_NOTHING,        ///GEN "No matching characters scanned"
+	YIO_ERROR_FMT_INVALID,         /// GEN "Invalid format specifier"
+	YIO_ERROR_PYFMT_INVALID,       /// GEN "Invalid python format specifier"
+	YIO_ERROR_CFMT_INVALID,        /// GEN "Invalid C format specifier"
+	YIO_ERROR_SCANFMT_INVALID,     /// GEN "Invalid scan format specifier"
+	YIO_ERROR_SCAN_NOT_MATCHED,    /// GEN "Scanned character not matched"
+	YIO_ERROR_SCAN_OVERFLOW,       /// GEN "Scanning overflowed"
+	YIO_ERROR_SCAN_UNDERFLOW,      /// GEN "Scanning underflowed"
+	YIO_ERROR_TOO_MANY_FMT,        /// GEN "Too many format strings for arguments"
+	YIO_ERROR_SCAN_NOTHING,        /// GEN "No matching characters scanned"
 	_yIO_ERROR_STOP,               /// End of custom errors
 };
 

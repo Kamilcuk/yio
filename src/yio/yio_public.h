@@ -361,8 +361,8 @@ struct yio_scanfmt_s *yio_scanctx_get_fmt(yio_scanctx_t *t);
 
 /**
  * Get the buffer destination size of the current argument.
- * When for example `char pnt[20]; yscan(pnt);`
- * Then this function will return `20`.
+ * When for example <tt>char pnt[20]; yscan(pnt);</tt>
+ * Then this function will return <tt>20</tt>.
  * @param t
  * @return
  */
@@ -390,10 +390,11 @@ int _yIO_scanctx_scan(yio_scanctx_t *t, yio_scandata_t *data, ...);
  * @param scanctx Context to yio_scanctx_t
  * @param type Type
  * @return A variable of passed type from va_list.
- * Get next argument from variadic arguments stack. The argument has type `type`.
+ * Get next argument from variadic arguments stack. The argument has type @c type.
  * The type argument undergoes implicit conversion when calling a variadic function,
  * so char, short is converted to int, float is converted to double.
- * If it errors on you, that means that `type` is not a promoted type, see _yIO_IS_PROMOTED_TYPE
+ * If it errors on you, that means that @c type is not a promoted type,
+ * see #_yIO_IS_PROMOTED_TYPE
  */
 #define yio_scanctx_va_arg(scanctx, type)  \
 		va_arg(*_yIO_scanctx_inc_va_list(scanctx, sizeof(type)), type)

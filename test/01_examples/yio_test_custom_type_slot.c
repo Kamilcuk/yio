@@ -10,8 +10,8 @@
 // The slots are macro substituted and currently
 // slots are generated from 100 to 199. So you can use any number in that region,
 // so take a random number and use it.
-#define YIO_PRINT_SLOT_111()  struct A: _yprint_A, const struct A: _yprint_A,
-#define YIO_SCAN_SLOT_112()   struct A *: _yscan_A,
+#define YIO_PRINT_SLOT_100()  struct A: _yprint_A, const struct A: _yprint_A,
+#define YIO_SCAN_SLOT_100()   struct A *: _yscan_A,
 
 // Remember, as with feature_test_macros(5), first macro, then includes
 #include <yio.h>
@@ -42,12 +42,14 @@ int main() {
 			2000,
 	};
 	char *str = yformat(var_a, "\n");
+	if (str == NULL) exit(EXIT_FAILURE);
 	struct A var_b;
-	if (ysscan(str, &var_b).error != 0) {
-		yfprint(stderr, "ERROR: scanning error\n");
+	int err;
+	if ((err = ysscan(str, &var_b).error) != 0) {
+		yfprintf(stderr, "ERROR: scanning error {}\n", yio_strerror(err));
 		exit(EXIT_FAILURE);
 	}
-	yprint(var_b.a, " ", var_b.b, "\n");
+	yprintf("{} {}\n", var_b.a, var_b.b);
 	free(str);
 }
 // PASS_REGULAR_EXPRESSION 1000 2000

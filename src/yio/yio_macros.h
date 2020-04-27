@@ -8,25 +8,25 @@
 #pragma once
 #include "yio_config.h"
 
-#if _yIO_USE__FLOATN
+#if _yIO_USE__FLOATN && !defined(__STDC_WANT_IEC_60559_TYPES_EXT__)
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
 #endif
-#if _yIO_USE__DECIMALN
+#if _yIO_USE__DECIMALN && !defined(__STDC_WANT_DEC_FP__)
 #define __STDC_WANT_DEC_FP__  1
 #endif
 #if _yIO_USE__FLOATN || _yIO_USE__DECIMALN
 #include <float.h>
 #endif
 
-#include "gen/yio_macros_gen.h"
+#include "yio_macros_gen.h"
 #include <stddef.h>
 
 /* ----------------------------------------------------------------------------------------------- */
 
 // As of now (2020-03) eclipse doesn't understand _Generic, so disable it.
-//#ifdef __CDT_PARSER__
-//#define _Generic(a, ...)   _G(a)
-//#endif
+#ifdef __CDT_PARSER__
+#define _Generic(a, ...)   _G(a)
+#endif
 
 /**
  * @def _yIO_GENERIC
@@ -97,9 +97,9 @@ int _yIO__is_wide_string_literal(const char * const x, const size_t sizeof_x) {
 	return sizeof_x > 3 && x[0] == 'L' && x[1] == '"' && x[sizeof_x - 2] == '"';
 }
 /**
- * Detect if `x` is a wide string literal.
+ * Detect if @b x is a wide string literal.
  * @param x a wide string literal like L"abc" or anything else
- * @return nonzero if `x` is a wide string literal, anything else otherwise
+ * @return nonzero if @b x is a wide string literal, anything else otherwise
  */
 #define _yIO_IS_WIDE_STRING_LITERAL(x)  _yIO__is_wide_string_literal(#x, sizeof(#x))
 

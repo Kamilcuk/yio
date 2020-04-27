@@ -66,23 +66,23 @@ foreach(file IN LISTS srcs)
 	string(REPLACE "\\" "_" name "${name}")
 	string(REGEX REPLACE "\\..*$" "" name "${name}")
 	string(PREPEND name "yio_")
-			 
+
 	# message(STATUS "Adding test ${name} ${file}")
 	add_executable(${name} ${file})
 	target_link_libraries(${name} PUBLIC yio)
-	
+
 	file(STRINGS ${file} input REGEX "^// INPUT ")
 	if(NOT input)
 		set(command ${name})
 	else()
 		string(REGEX REPLACE "^[ \t]*// INPUT " "" input "${input}")
 		string(REGEX REPLACE ";[ \t]*// INPUT " "\n" input "${input}")
-		set(command bash --noprofile --norc -c "exec \"$2\" <<<\"$1\"" _ ${input} $<TARGET_FILE:${name}>) 
+		set(command bash --noprofile --norc -c "exec \"$2\" <<<\"$1\"" _ ${input} $<TARGET_FILE:${name}>)
 	endif()
 	add_test(NAME ${name} COMMAND ${command})
 
 	set_tests_properties(${name} PROPERTIES TIMEOUT 5)
-	
+
 	foreach(i IN ITEMS
 		PASS_REGULAR_EXPRESSION
 		FAIL_REGULAR_EXPRESSION
@@ -102,4 +102,4 @@ foreach(file IN LISTS srcs)
 
 endforeach()
 
- 
+

@@ -1,10 +1,12 @@
 /**
  * @file yio.c
- * @date 5 kwi 2020
+ * @date 05/04/2020
  * @author Kamil Cukrowski
- * @copyright GPL-3.0-only
+ * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
+m4_include(cfg_yio.m4)
+#include "yio.h"
 #include "yio_private.h"
 #include <limits.h>
 #include <string.h>
@@ -43,7 +45,7 @@ int _yIO_yfprintf(FILE *file, const struct _yIO_printdata_s *data, ...) {
 	return ret;
 }
 
-int _yIO_ysprintf(char *dest, size_t size, yio_printdata_t *data, ...) {
+int _yIO_ysprintf(Ychar *dest, size_t size, yio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	const int ret = yvsprintf(dest, size, data, &va);
@@ -51,7 +53,7 @@ int _yIO_ysprintf(char *dest, size_t size, yio_printdata_t *data, ...) {
 	return ret;
 }
 
-int _yIO_yaprintf(char **strp, yio_printdata_t *data, ...) {
+int _yIO_yaprintf(Ychar **strp, yio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	const int ret = yvaprintf(strp, data, &va);
@@ -59,7 +61,7 @@ int _yIO_yaprintf(char **strp, yio_printdata_t *data, ...) {
 	return ret;
 }
 
-int _yIO_yreaprintf(char **strp, yio_printdata_t *data, ...) {
+int _yIO_yreaprintf(Ychar **strp, yio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	const int ret = yvreaprintf(strp, data, &va);
@@ -67,7 +69,7 @@ int _yIO_yreaprintf(char **strp, yio_printdata_t *data, ...) {
 	return ret;
 }
 
-char *_yIO_yformatf(yio_printdata_t *data, ...) {
+Ychar *_yIO_yformatf(yio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	char * const ret = yvformatf(data, &va);
@@ -75,7 +77,7 @@ char *_yIO_yformatf(yio_printdata_t *data, ...) {
 	return ret;
 }
 
-char *_yIO_yreformatf(char *str, yio_printdata_t *data, ...) {
+Ychar *_yIO_yreformatf(Ychar *str, yio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	char * const ret = yvreformatf(str, data, &va);
@@ -86,7 +88,7 @@ char *_yIO_yreformatf(char *str, yio_printdata_t *data, ...) {
 /* Callbacks and contexts ----------------------------------------------------- */
 
 static
-int _yIO_yvfprintf_cb(void *arg, const char *ptr, size_t size) {
+int _yIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	FILE *f = arg;
 	const size_t cnt = fwrite(ptr, 1, size, f);
 	if (cnt != size) {
@@ -96,36 +98,38 @@ int _yIO_yvfprintf_cb(void *arg, const char *ptr, size_t size) {
 }
 
 struct _yIO_yvsprintf_ctx_s {
-	char *dest;
-	char *end;
+	Ychar *dest;
+	Ychar *end;
 };
 
 static
-int _yIO_yvsprintf_cb(void *arg, const char *ptr, size_t size) {
+int _yIO_yvsprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	struct _yIO_yvsprintf_ctx_s *c = arg;
 	if (c->dest == NULL) {
 		return 0;
 	}
 	assert(SIZE_MAX - 1 > size);
 	assert(c->end > c->dest);
-	if ((size_t)(c->end - c->dest) < size + 1) {
-		return YIO_ERROR_ENOMEM;
-	}
+	const bool not_enough_space =
+			(size_t)(c->end - c->dest) < size + 1;
+	size = not_enough_space ? (size_t)(c->end - c->dest) - 1 : size;
 	(void)memcpy(c->dest, ptr, size);
 	c->dest += size;
 	assert(c->dest < c->end);
-	return 0;
+	return not_enough_space ? YIO_ERROR_ENOBUFS : 0;
 }
 
 struct _yIO_yreaprintf_ctx_s {
-	char *str;
+	Ychar *str;
 	size_t size;
 };
 
 static
-int _yIO_yreaprintf_cb(void *arg, const char *ptr, size_t size) {
+int _yIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	struct _yIO_yreaprintf_ctx_s *p = arg;
-	void *pnt = realloc(p->str, p->size + size + 1);
+	const size_t count = p->size + size + 1;
+	assert(count < SIZE_MAX / sizeof(*p->str));
+	void * const pnt = realloc(p->str, sizeof(*p->str) * count);
 	if (pnt == NULL) {
 		free(p->str);
 		p->str = NULL;
@@ -134,6 +138,7 @@ int _yIO_yreaprintf_cb(void *arg, const char *ptr, size_t size) {
 	}
 	p->str = pnt;
 	memcpy(p->str + p->size, ptr, size);
+	assert(p->size < SIZE_MAX - size);
 	p->size += size;
 	return 0;
 }
@@ -149,24 +154,24 @@ int yvfprintf(FILE *file, yio_printdata_t *data, va_list *va) {
 	return yvbprintf(_yIO_yvfprintf_cb, file, data, va);
 }
 
-int yvsprintf(char *dest, size_t size, yio_printdata_t *data, va_list *va) {
+int yvsprintf(Ychar *dest, size_t size, yio_printdata_t *data, va_list *va) {
 	struct _yIO_yvsprintf_ctx_s ctx = {
 			.dest = dest,
 			.end = dest + size,
 	};
-	const int ret = yvbprintf(_yIO_yvsprintf_cb, (void*)&ctx, data, va);
+	const int ret = yvbprintf(_yIO_yvsprintf_cb, &ctx, data, va);
 	if (size > 0) {
 		ctx.dest[0] = '\0';
 	}
 	return ret;
 }
 
-int yvaprintf(char **strp, yio_printdata_t *data, va_list *va) {
+int yvaprintf(Ychar **strp, yio_printdata_t *data, va_list *va) {
 	*strp = NULL;
 	return yvreaprintf(strp, data, va);
 }
 
-int yvreaprintf(char **strp, yio_printdata_t *data, va_list *va) {
+int yvreaprintf(Ychar **strp, yio_printdata_t *data, va_list *va) {
 	struct _yIO_yreaprintf_ctx_s ctx = {
 			.str = *strp,
 			.size = (*strp != NULL ? strlen(*strp) : 0),
@@ -179,11 +184,11 @@ int yvreaprintf(char **strp, yio_printdata_t *data, va_list *va) {
 	return ret;
 }
 
-char *yvformatf(yio_printdata_t *data, va_list *va) {
+Ychar *yvformatf(yio_printdata_t *data, va_list *va) {
 	return yvreformatf(NULL, data, va);
 }
 
-char *yvreformatf(char *str, yio_printdata_t *data, va_list *va) {
+Ychar *yvreformatf(Ychar *str, yio_printdata_t *data, va_list *va) {
 	const int ret = yvreaprintf(&str, data, va);
 	if (ret < 0) {
 		return NULL;
@@ -193,10 +198,10 @@ char *yvreformatf(char *str, yio_printdata_t *data, va_list *va) {
 
 /* Private Scan Callback --------------------------------------------------- */
 
-int _yIO_yfscanf_cb(void *arg, int *data) {
+int _yIO_yfscanf_cb(void *arg, Yint *data) {
 	FILE *f = arg;
 	*data = fgetc(f);
-	if (*data == EOF) {
+	if (*data == YEOF) {
 		if (ferror(f)) {
 			return YIO_ERROR_EIO;
 		}
@@ -207,8 +212,8 @@ int _yIO_yfscanf_cb(void *arg, int *data) {
 int _yIO_ysscanf_cb(void *arg, int *data) {
 	char * restrict * restrict src = arg;
 	*data = (*src)[0];
-	if (*data == '\0') {
-		*data = EOF;
+	if (*data == Ychar_constant('\0')) {
+		*data = YEOF;
 	} else {
 		++(*src);
 	}
@@ -266,9 +271,9 @@ struct yio_scanret_s yvsscanf(char *src, yio_scandata_t *data, va_list *va) {
 /* yvbprintf and yvbscanf helpers ------------------------------------------------------ */
 
 static inline _yIO_wur _yIO_nn() _yIO_rnn
-const char *_yIO_strpbrk_braces(const char *str) {
+const Ychar *_yIO_strpbrk_braces(const Ychar *str) {
 	while (*str) {
-		if (*str == '{' || *str == '}') {
+		if (*str == Ychar_constant('{') || *str == Ychar_constant('}')) {
 			break;
 		}
 		++str;
@@ -277,24 +282,24 @@ const char *_yIO_strpbrk_braces(const char *str) {
 }
 
 static inline
-int _yIO_yvbgeneric_iterate_until_format(const char *fmt, const char **endptr,
-		int (*callback)(void *arg, const char *begin, const char *end), void *arg) {
+int _yIO_yvbgeneric_iterate_until_format(const Ychar *fmt, const Ychar **endptr,
+		int (*callback)(void *arg, const Ychar *begin, const Ychar *end), void *arg) {
 	bool double_braces_found = false;
 	while (fmt[0]) {
-		const char * const after_brace = fmt + double_braces_found;
-		const char * const brace = _yIO_strpbrk_braces(after_brace);
+		const Ychar * const after_brace = fmt + double_braces_found;
+		const Ychar * const brace = _yIO_strpbrk_braces(after_brace);
 		if (after_brace != brace) {
 			const int err = callback(arg, fmt, brace);
 			if (err) return err;
 			fmt = brace;
 
-			if (fmt[0] == '\0') {
+			if (fmt[0] == Ychar_constant('\0')) {
 				break;
 			}
 		}
 		fmt = brace;
 
-		assert(fmt[0] == '{' || fmt[0] == '}');
+		assert(fmt[0] == Ychar_constant('{') || fmt[0] == Ychar_constant('}'));
 		double_braces_found = fmt[0] == fmt[1];
 		if (double_braces_found) {
 			++fmt;
@@ -307,7 +312,7 @@ int _yIO_yvbgeneric_iterate_until_format(const char *fmt, const char **endptr,
 }
 
 static inline
-int yvbprintf_iterate_until_format_callback(void *arg, const char *begin, const char *end) {
+int yvbprintf_iterate_until_format_callback(void *arg, const Ychar *begin, const Ychar *end) {
 	yio_printctx_t *t = arg;
 	return yio_printctx_out(t, begin, end - begin);
 }
@@ -334,7 +339,7 @@ int yvbprintf_in(yio_printctx_t *t) {
 		int err = _yIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
 				yvbprintf_iterate_until_format_callback, t);
 		if (err) return err;
-		if (t->fmt[0] == '\0') break;
+		if (t->fmt[0] == Ychar_constant('\0')) break;
 
 		err = _yIO_pfmt_parse(&t->c, &t->pf, t->fmt, &t->fmt);
 		if (err) return err;
@@ -396,7 +401,7 @@ int _yIO_yvbscanf_in(yio_scanctx_t *t) {
 		int err = _yIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
 				_yIO_yvbscanf_iterate_until_format_callback, t);
 		if (err) return err;
-		if (t->fmt[0] == '\0') break;
+		if (t->fmt[0] == Ychar_constant('\0')) break;
 
 		err = _yIO_scan_parse_scanfmt(&t->c, &t->sf, t->fmt, &t->fmt);
 		if (err) return err;

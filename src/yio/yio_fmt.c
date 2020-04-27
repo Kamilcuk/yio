@@ -69,11 +69,9 @@ int _yIO_pfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
 
 	*pf = _yIO_printfmt_default;
 
-	if (fmt[0] != '{') {
-		ret = -EINVAL;
-		goto EXIT;
+	if (fmt[0] == '{') {
+		fmt++;
 	}
-	fmt++;
 	if (fmt[0] == '}') {
 		fmt++;
 		goto EXIT;

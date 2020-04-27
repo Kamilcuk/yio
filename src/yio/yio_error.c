@@ -2,11 +2,11 @@
  * @file yio_error.c
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
- * @copyright GPL-3.0-only
+ * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "yio_error.h"
-#include "gen/yio_error_messages_gen.h"
+#include "yio_error_messages.h"
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
@@ -36,3 +36,4 @@ const char *yio_strerror(int error) {
 	assert(error < (int)(sizeof(_yIO_error_messages)/sizeof(_yIO_error_messages[0])));
 	return _yIO_error_messages[error];
 }
+

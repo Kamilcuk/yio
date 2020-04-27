@@ -2,18 +2,26 @@
  * @file yio_config.h
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
- * @copyright GPL-3.0-only
+ * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #pragma once
 
-#include "gen/yio_config_gen.h"
-
 /**
+ * @def _yIO_COMPILES_PEDANTIC
  * Set to 1 if compiling with -pedantic flag.
  */
 #ifndef _yIO_COMPILES_PEDANTIC
-#define _yIO_COMPILES_PEDANTIC  1
+#define _yIO_COMPILES_PEDANTIC  @YIO_COMPILES_PEDANTIC@
+#endif
+
+/**
+ * @def _yIO_HAVE_INT128
+ * Set by cmake if the compiler supports __int128 type
+ * Like gcc: https://gcc.gnu.org/onlinedocs/gcc/_005f_005fint128.html
+ */
+#ifndef _yIO_HAVE_INT128
+#define _yIO_HAVE_INT128  @HAVE_INT128@
 #endif
 
 /**
