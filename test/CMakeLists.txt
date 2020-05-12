@@ -69,7 +69,7 @@ foreach(file IN LISTS srcs)
 
 	# message(STATUS "Adding test ${name} ${file}")
 	add_executable(${name} ${file})
-	target_link_libraries(${name} PUBLIC yio)
+	target_link_libraries(${name} PUBLIC _yio_testlib)
 
 	file(STRINGS ${file} input REGEX "^// INPUT ")
 	if(NOT input)
@@ -83,23 +83,8 @@ foreach(file IN LISTS srcs)
 
 	set_tests_properties(${name} PROPERTIES TIMEOUT 5)
 
-	foreach(i IN ITEMS
-		PASS_REGULAR_EXPRESSION
-		FAIL_REGULAR_EXPRESSION
-		SKIP_REGULAR_EXPRESSION
-		WILL_FAIL
-	)
-		file(STRINGS ${file} expr REGEX "^// ${i} ")
-		if(expr)
-			string(REGEX REPLACE "^[ \t]*// ${i} " "" expr "${expr}")
-			if("${expr}" MATCHES  ";[ \t]*// ${i} " AND ("${expr}" MATCHES ".^" OR "${expr}" MATCHES "$."))
-				message(FATAL_ERROR "Problem with item ${i} in ${file}")
-			endif()
-			string(REGEX REPLACE ";// ${i} " "[^\n]*\n" expr "${expr}")
-			set_tests_properties(${name} PROPERTIES ${i} "${expr}")
-		endif()
-	endforeach()
-
+	test_extract_properties_from_file(${name} ${file})
+	
 endforeach()
 
 

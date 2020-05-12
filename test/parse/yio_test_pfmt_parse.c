@@ -4,7 +4,7 @@
  *  Created on: 3 kwi 2020
  *      Author: kamil
  */
-#include <yio/yio_private.h>
+#include <yio_test_private.h>
 #include <string.h>
 
 static inline

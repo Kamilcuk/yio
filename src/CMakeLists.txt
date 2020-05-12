@@ -3,6 +3,7 @@ project(yio C)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 include(CheckTypeSize)
+include(CheckIncludeFile)
 include(m4)
 include(list_filter)
 include(var_to_0_or_1)
@@ -13,8 +14,7 @@ macro(dbg)
 endmacro()
 
 set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(GENDIR ${CMAKE_CURRENT_BINARY_DIR})
-set(GENDIR ${CMAKE_CURRENT_SOURCE_DIR}/../gen)
+set(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 get_filename_component(GENDIR "${GENDIR}" ABSOLUTE)
 
 # Configuration options #############################################
@@ -29,13 +29,15 @@ var_to_0_or_1(YIO_COMPILES_PEDANTIC)
 # generate config.m4 #################################################
 configure_file(
 	${SRCDIR}/config.m4.in
-	${GENDIR}/config.m4
+	${GENDIR}/m4/config.m4
 	@ONLY
 )
 
 # generate yio_config.h file #########################################
 check_type_size_bool(__int128  INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
 check_type_size_bool(_Float32 FLOAT32 BUILTIN_TYPES_ONLY LANGUAGE C)
+check_type_size_bool(int64_t  INT64_T LANGUAGE C)
+check_include_file("unistd.h" HAVE_UNISTD_H)
 configure_file(
 	${SRCDIR}/yio/yio_config.h.in
 	${GENDIR}/yio/yio_config.h
@@ -43,8 +45,9 @@ configure_file(
 )
 
 # generate .m4 files ##################################################
-m4_add_include_directories(${GENDIR})
-m4_add_file_dependencies(${GENDIR}/config.m4)
+m4_add_options(lib.m4)
+m4_add_include_directories(${SRCDIR} ${GENDIR}/m4)
+m4_add_file_dependencies(${GENDIR}/m4/config.m4)
 file(GLOB_RECURSE m4srcs *.c *.h)
 foreach(source IN LISTS m4srcs)
 	file(RELATIVE_PATH sourcenice ${SRCDIR} ${source})
@@ -67,10 +70,35 @@ add_custom_command(
 		-P ${CMAKE_CURRENT_SOURCE_DIR}/yio/yio_error_messages.cmake
 	COMMENT "Generate yio/yio_error_messages.h file"
 )
-list(APPEND srcs ${GENDIR}/yio/yio_error_messages.h)
 
 # Generate all files target ###########################################
-add_custom_target(_yio_gen DEPENDS ${m4_outputs} ${srcs})
+set(gensrcs
+	${m4_outputs}
+	${GENDIR}/yio/yio_config.h
+	${GENDIR}/yio/yio_error_messages.h
+	${GENDIR}/m4/config.m4
+)
+add_custom_target(_yio_gen DEPENDS ${gensrcs})
+
+# Remove files in GENDIR not in gensrcs ###############################
+file(GLOB_RECURSE files ${GENDIR}/*.c ${GENDIR}/*.h ${GENDIR}/*.m4)
+function(list_exclude result listin listexclude)
+	set(tmp)
+	foreach(i IN LISTS ${listin})
+		list(FIND "${listexclude}" "${i}" index)
+		if (${index} EQUAL -1)
+			list(APPEND tmp "${i}")
+		endif()
+	endforeach()
+	set(${result} "${tmp}" PARENT_SCOPE)
+endfunction()
+list_exclude(files_not_in_gensrcs files gensrcs)
+if(files_not_in_gensrcs)
+	foreach(i IN LISTS files_not_in_gensrcs)
+		message(STATUS "Yio:Removing: ${i}")
+	endforeach()
+	file(REMOVE ${files_not_in_gensrcs})
+endif()
 
 # Compile options #######################################################
 set(properties
@@ -86,17 +114,21 @@ set(compile_options
 		-Wwrite-strings
 		-Wno-unused-function
 		-Wno-unused-argument
+		-Wno-unused-parameter
 	>
 )
 macro(yio_add_library name)
 	add_library(${name} ${ARGN})
-	target_include_directories(${name} PUBLIC ${GENDIR})
 	set_property(TARGET ${name} PROPERTY ${properties})
 	target_compile_options(${name} PRIVATE ${compile_options})
+	if (NOT ${name} STREQUAL "_yio_common")
+		target_link_libraries(${name} _yio_common)
+	endif()
 endmacro()
 
 # add yio executable ##############################################
-set(common_srcs
+yio_add_library(_yio_common OBJECT
+	${GENDIR}/yio/intprops.h
 	${GENDIR}/yio/yio_error.c
 	${GENDIR}/yio/yio_error.h
 	${GENDIR}/yio/yio_error_messages.h
@@ -104,26 +136,45 @@ set(common_srcs
 	${GENDIR}/yio/yio_config.h
 	${GENDIR}/yio/yio_common.h
 	${GENDIR}/yio/yio_macros.h
-	${GENDIR}/yio/intprops.h
+	${GENDIR}/yio/yio_private.h
+	${GENDIR}/yio/yio_private.c
+	${GENDIR}/yio/yio_public.h
 )
+target_include_directories(_yio_common PUBLIC ${GENDIR})
+add_dependencies(_yio_common _yio_gen)
+
 yio_add_library(yio
 	${common_srcs}
 	${GENDIR}/yio.h
-	${GENDIR}/yio/yio.c
-	${GENDIR}/yio/yio.h
-	${GENDIR}/yio/yio_public.h
-	${GENDIR}/yio/yio_private.c
-	${GENDIR}/yio/yio_private.h
-	${GENDIR}/yio/yio_ctx.c
-	${GENDIR}/yio/yio_ctx.h
-	${GENDIR}/yio/yio_fmt.c
-	${GENDIR}/yio/yio_fmt.h
-	${GENDIR}/yio/manip/yio_print_chars.c
-	${GENDIR}/yio/manip/yio_print_int.c
-	${GENDIR}/yio/manip/yio_print_modifiers.c
-	${GENDIR}/yio/manip/yio_print_float.c
-	${GENDIR}/yio/manip/yio_scan_int.c
-	${GENDIR}/yio/manip/yio_scan_modifiers.c
-	${GENDIR}/yio/manip/yio_scan_string.c
+
+	${GENDIR}/yio/yio/ctx.h
+	${GENDIR}/yio/yio/commonctx.h
+	${GENDIR}/yio/yio/commonctx.c
+	${GENDIR}/yio/yio/fmt_public.h
+	${GENDIR}/yio/yio/fmt.h
+	${GENDIR}/yio/yio/fmt.c
+	${GENDIR}/yio/yio/ctx_public.h
+	${GENDIR}/yio/yio/ctx.h
+	${GENDIR}/yio/yio/ctx.c
+	${GENDIR}/yio/yio/io.h
+	${GENDIR}/yio/yio/io.c
+	${GENDIR}/yio/yio/io_fd.c
+	${GENDIR}/yio/yio/io_vb.c
+	${GENDIR}/yio/yio/private.h
+	${GENDIR}/yio/yio/public.h
+	
+	${GENDIR}/yio/yio/manip/manip.h
+	${GENDIR}/yio/yio/manip/print_chars.c
+	${GENDIR}/yio/yio/manip/print_int.c
+	${GENDIR}/yio/yio/manip/print_modifiers.c
+	${GENDIR}/yio/yio/manip/print_float.c
+	${GENDIR}/yio/yio/manip/scan_int.c
+	${GENDIR}/yio/yio/manip/scan_modifiers.c
+	${GENDIR}/yio/yio/manip/scan_string.c
 )
+
+#yio_add_library(ywio
+#	${common_srcs}
+#)
+
 

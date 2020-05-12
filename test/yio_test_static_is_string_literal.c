@@ -4,8 +4,7 @@
  *  Created on: 30 mar 2020
  *      Author: Kamil
  */
-#include <yio.h>
-#include <yio/yio_private.h>
+#include <yio_test_private.h>
 int main() {
 	_yIO_TEST(_yIO_IS_STRING_LITERAL("abc"));
 	_yIO_TEST(_yIO_IS_STRING_LITERAL(u8"abc"));

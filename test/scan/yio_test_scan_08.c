@@ -4,8 +4,7 @@
  *  Created on: 1 kwi 2020
  *      Author: Kamil
  */
-#include <yio.h>
-#include <yio/yio_private.h>
+#include <yio_test_private.h>
 #include <string.h>
 int main() {
 	char str[200];

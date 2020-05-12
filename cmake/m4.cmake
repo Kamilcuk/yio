@@ -89,6 +89,10 @@ function(m4_target_include_directories target)
 	endforeach()
 endfunction()
 
+function(m4_get_command output)
+	set(${output} ${_M4_EXECUTABLE} "${_M4_OPTIONS_INIT}" PARENT_SCOPE)
+endfunction()
+
 function(_m4_add_command_in output opts)
 	file(RELATIVE_PATH outputnice ${CMAKE_SOURCE_DIR} ${output})
 	list(GET ARGN -1 _last)

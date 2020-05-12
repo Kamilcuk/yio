@@ -9,26 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
-static
-void _yIO__test_failed_atexit(void) {
-	_Exit(EXIT_FAILURE);
-}
-
-void _yIO__test_failed(const char *expr, const char *file, int line,
-		const char *fmt, ...) {
-	fprintf(stderr, "%s:%d: error: %s ", file, line, expr);
-	va_list va;
-	va_start(va, fmt);
-	vfprintf(stderr, fmt, va);
-	va_end(va);
-	fprintf(stderr, "\n");
-	static bool registered = false;
-	if (registered == false) {
-		registered = true;
-		atexit(_yIO__test_failed_atexit);
-	}
-}
+#include <stdarg.h>
+#include <stdio.h>
 
 const char *_yIO_char_to_printstr_in(char dest[5], unsigned char c) {
 	if (isprint(c)) {

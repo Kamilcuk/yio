@@ -7,6 +7,8 @@
  */
 #pragma once
 
+/* -------------------------------------------------------------- */
+
 /**
  * @def _yIO_COMPILES_PEDANTIC
  * Set to 1 if compiling with -pedantic flag.
@@ -23,6 +25,24 @@
 #ifndef _yIO_HAVE_INT128
 #define _yIO_HAVE_INT128  @HAVE_INT128@
 #endif
+
+/**
+ * @def _yIO_HAVE_INT64_T
+ * Set by cmake if the compiler supports uint64_t and int64_t types
+ */
+#ifndef _yIO_HAVE_INT64_T
+#define _yIO_HAVE_INT64_T  @HAVE_INT64_T@
+#endif
+
+/**
+ * @def _yIO_HAVE_UNISTD_H
+ * Set by cmake if the compiler is posix.
+ */
+#ifndef _yIO_HAVE_UNISTD_H
+#define _yIO_HAVE_UNISTD_H  @HAVE_UNISTD_H@
+#endif
+
+/* -------------------------------------------------------------- */
 
 /**
  * Enable compilation of format specifiers that use:
@@ -49,6 +69,11 @@
 #define _yIO_USE___INT128  _yIO_HAVE_INT128_T
 #endif
 
-
+/**
+ * Enable compilation of int64_t and uint64_t types
+ */
+#ifndef _yIO_USE_INT64_T
+#define _yIO_USE_INT64_T  _yIO_HAVE_INT64_T
+#endif
 
 

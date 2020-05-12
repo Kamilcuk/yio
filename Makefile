@@ -41,17 +41,23 @@ CMAKEFLAGS += -D BUILD_TESTING=ON
 
 SHELL = bash
 
-all: build # test
+SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
+GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
+STDBUF = $(shell hash stdbuf 2>/dev/null >/dev/null && echo stdbuf -oL -eL) 
+
+all: build test
 
 configure:
-	$(CMAKE) -P cmake/_test.cmake
-	$(CMAKE) -B $(B) $(CMAKEFLAGS)
+	$(STDBUF) $(CMAKE) -B $(B) $(CMAKEFLAGS)
+build_gen: configure
+	ln -vfs $(B)/src/gen gen
+	$(STDBUF) $(CMAKE) --build $(B) --target _yio_gen $(GEN_TO_SRC)
+build_yio: configure
+	$(STDBUF) $(CMAKE) --build $(B) --target yio $(GEN_TO_SRC)
 build: configure
-	@echo $(CMAKE) --build $(B)
-	@stdbuf -oL $(CMAKE) --build $(B) 2> >( \
-		sed -u 's@^[^ ]*/gen/@src/@' >&2) | \
-		sed -u 's@^[^ ]*/gen/@src/@'
+	$(STDBUF) $(CMAKE) --build $(B) --target all $(GEN_TO_SRC)
 test: build
+	$(CMAKE) -P cmake/_test.cmake
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
 
 cmake-gui:
@@ -69,10 +75,18 @@ memcheck: build
 sanitize:
 	+$(MAKE) B_SUFFIX=_sanitize CMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" test
 
-doxygen:
-	doxygen ./doc/Doxyfile
-	mv ./public/html/* ./public/
+_build/Doxyfile: doc/Doxyfile build_gen
+	sed \
+		-e "/STRIP_FROM_PATH/s@<ABSOLUTE_GEN_SEE_MAKEFILE>@$$(readlink -f ./gen)@" \
+		doc/Doxyfile > _build/Doxyfile
+public/html:
+	mkdir -p public
+	ln -s . ./public/html
+.PHONY: doxygen
+doxygen: build_gen public/html _build/Doxyfile
+	doxygen _build/Doxyfile
 
+.PHONY: coverage
 coverage:
 	+$(MAKE) B_SUFFIX=_coverage CMAKE_C_FLAGS="--coverage -g" .coverage
 

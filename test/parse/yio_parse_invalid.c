@@ -4,8 +4,7 @@
  *  Created on: 4 kwi 2020
  *      Author: kamil
  */
-#include <yio.h>
-#include <yio/yio_private.h>
+#include <yio_test_private.h>
 int main() {
 	// {:[[fill]><=^][+- ][#][0][width][_,][.precision][bcdeEfFgGnosxX%]}
 	_yIO_TEST(yprintf("text {", 1) != 0);

@@ -5,7 +5,7 @@
  *      Author: Kamil
  */
 #include <yio.h>
-#include <yio/yio_private.h>
+#include <yio_test_private.h>
 #include <ctype.h>
 int main() {
 	int a;

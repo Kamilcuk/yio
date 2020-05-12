@@ -8,4 +8,5 @@ _build
 public
 old
 gen
+*.bak
 

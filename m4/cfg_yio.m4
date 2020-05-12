@@ -1,4 +1,3 @@
-m4_include(lib.m4)
 m4_divert(-1)
 /**
  * @file cfg_yio.m4
@@ -6,15 +5,21 @@ m4_divert(-1)
  * @date 25.05.2020
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
- */
+ **/
+m4_define_name(`m4_lib_header_suffix~, `~)
+m4_define_name(`YTYPE~, `YTYPE_YIO~)
+m4_define_name(`Y_IO~, `_yIO_$@~)
+m4_define_name(`YIO~, `YIO_$@~)
+m4_define_name(`Yio~, `yio_$@~)
+m4_define_name(`Ychar~, `char~)
+m4_define_name(`Yint~, `int~)
+m4_define_name(`YEOF~, `EOF~)
+m4_define_func(`Yc~, `$@~)
+m4_define_func(`Yisprint~, `isprint((unsigned char)$@)~)
+m4_define_func(`Yisupper~, `isupper((unsigned char)$@)~)
+m4_define_func(`Ystrlen~, `strlen($@)~)
+m4_define_func(`Yfgetc~, `fgetc($@)~)
+m4_define_func(`Ystrchr~, `strchr($@)~)
+m4_define_func(`Yisdigit~, `isdigit($@)~)
 
-m4_define(`m4_lib_header_suffix', `')
-m4_define(`YIO', `_yIO_$@')
-m4_define(`Yio', `yio_$@')
-m4_define(`Ychar', `char')
-m4_define(`Yint', `int')
-m4_define(`YEOF', `EOF')
-m4_define(`Ychar_constant', `$1')
-m4_define(`Ystrlen', `strlen($@)')
-
-m4_divert()m4_dnl
+m4_divert(0)m4_dnl

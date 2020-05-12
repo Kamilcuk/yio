@@ -11,11 +11,11 @@
  * @def m4_MLVLS
  * The count of macro levels to generate
  */
-m4_define(`m4_MLVLS', `@YIO_M4_MLVLS@')m4_dnl
+m4_define(`m4_MLVLS~, `@YIO_M4_MLVLS@~)m4_dnl
 
 /**
  * @def m4_SLOTS_END
  * The ending count of overloading slots to generate
  */
-m4_define(`m4_SLOTS_END', `@YIO_M4_SLOTS_END@')m4_dnl
+m4_define(`m4_SLOTS_END~, `@YIO_M4_SLOTS_END@~)m4_dnl
 

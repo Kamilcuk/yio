@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #pragma once
-#include "yio.h"
-#include "yio_fmt.h"
-#include "yio_ctx.h"
+#include "yio_public.h"
 #include "intprops.h"
+#include "yio_common.h"
+#include "yio_macros_priv.h"
 #include <string.h>
 
 #define _yIO_STATIC_ASSERT(x)  ((void)sizeof(struct _yIO_sTaTiS_aSsErT{int _yIO_sTaTiS_aSsErT : (x)?1:-1;}))
@@ -91,16 +91,6 @@
 		(uchar, unsigned char), \
 		_yIO_INTEGERS_LIST2()
 
-
-void _yIO__test_failed(const char *expr, const char *file, int line,
-		const char *fmt, ...);
-
-#define _yIO_TEST(expr) _yIO_TEST_MSG(expr, "")
-#define _yIO_TEST_MSG(expr, str, ...)  do{ \
-		if (!(expr)) { \
-			_yIO__test_failed(#expr, __FILE__, __LINE__, str, ##__VA_ARGS__); \
-		} \
-}while(0)
 
 #define _yIO_dbgln(str, ...)  do{ \
 		fflush(stdout); \
