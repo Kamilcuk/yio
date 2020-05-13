@@ -2,7 +2,7 @@ m4_divert(-1)
 m4_include(lib/changequote_to_tilde.m4)
 m4_changecom(`/*~, `*/~)
 
-m4_include(config.m4)
+m4_include(yio_config.m4)
 
 m4_include(lib/define_blind.m4)
 m4_include(lib/define_name.m4)
@@ -74,9 +74,5 @@ m4_define(`_m4_config_in~,`m4_ifdef(
 m4_include(`cfg_$1.m4~)
 m4_lib_header($1) 
 m4_dnl ~)~)~)
-
-
-
-
 
 m4_divert(0)m4_dnl

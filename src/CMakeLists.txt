@@ -28,8 +28,8 @@ var_to_0_or_1(YIO_COMPILES_PEDANTIC)
 
 # generate config.m4 #################################################
 configure_file(
-	${SRCDIR}/config.m4.in
-	${GENDIR}/m4/config.m4
+	${SRCDIR}/yio_config.m4.in
+	${GENDIR}/m4/yio_config.m4
 	@ONLY
 )
 
@@ -47,7 +47,7 @@ configure_file(
 # generate .m4 files ##################################################
 m4_add_options(lib.m4)
 m4_add_include_directories(${SRCDIR} ${GENDIR}/m4)
-m4_add_file_dependencies(${GENDIR}/m4/config.m4)
+m4_add_file_dependencies(${GENDIR}/m4/yio_config.m4)
 file(GLOB_RECURSE m4srcs *.c *.h)
 foreach(source IN LISTS m4srcs)
 	file(RELATIVE_PATH sourcenice ${SRCDIR} ${source})
@@ -76,7 +76,7 @@ set(gensrcs
 	${m4_outputs}
 	${GENDIR}/yio/yio_config.h
 	${GENDIR}/yio/yio_error_messages.h
-	${GENDIR}/m4/config.m4
+	${GENDIR}/m4/yio_config.m4
 )
 add_custom_target(_yio_gen DEPENDS ${gensrcs})
 
