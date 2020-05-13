@@ -201,12 +201,15 @@ function(file_glob_relative_to_gendir glob var)
 endfunction()
 
 # add yio executable ##############################################
-file_glob_relative_to_gendir(GLOB generic_srcs yio/*.h yio/*.c)
-file_glob_relative_to_gendir(GLOB_RECURSE yio_srcs yio/yio/*.h yio/yio/*.c)
+file_glob_relative_to_gendir(GLOB auto_generic_srcs yio/*.h yio/*.c)
+file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
 yio_add_library(yio
-	${generic_srcs}
+	${auto_generic_srcs}
+	yio/yio_config.h
+	yio/yio_error_messages.h
+	
 	yio.h
-	${yio_srcs}
+	${auto_yio_srcs}
 )
 
 # install config.cmakecmake 
