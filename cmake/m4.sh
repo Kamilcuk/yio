@@ -23,6 +23,9 @@ f="$2"
 opts="$3"
 shift 3
 
+if ! mkdir -p "$(dirname "$f")"; then
+	exit 2
+fi
 if ! err=$( { IFS=';'; "$m4" $opts "$@" > "$f" ;} 2>&1 ); then
 	# remove the initial executable name from the error message
 	# for eclipse for fast navigation
