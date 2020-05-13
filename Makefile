@@ -66,7 +66,8 @@ ccmake:
 	ccmake -B $(B) $(CMAKEFLAGS)
 
 gitlab-ci:
-	+$(MAKE) -k CMAKE_BUILD_TYPE=Release memcheck sanitize coverage cdash
+	+$(MAKE) -k CMAKE_BUILD_TYPE=Release \
+		memcheck sanitize coverage test_project cdash
 
 memcheck: build
 	cd $(B) && $(CTEST) -T memcheck $(CTESTFLAGS)
@@ -115,6 +116,16 @@ install: build
 	
 uninstall: build
 	$(CMAKE) --build $(B) --target yio_uninstall
+
+test_project: B = _build/test_project
+test_project: export YIODIR = $(PWD)/$(B)/testinstall
+test_project: build
+	$(CMAKE) -B $(B) $(CMAKEFLAGS) -D CMAKE_INSTALL_PREFIX=$(B)/testinstall
+	$(CMAKE) --build $(B) --target all
+	$(CMAKE) --build $(B) --target install
+	
+	$(MAKE) -C test/cmake_example
+	$(CMAKE) --build $(B) --target uninstall
 
 .PHONY: all $(MAKECMDGOALS)
 

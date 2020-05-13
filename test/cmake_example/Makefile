@@ -4,4 +4,5 @@ all:
 	cmake -H. -B$(B)
 	cmake --build $(B)
 	./$(B)/yio_test
+	cd $(B) && ctest
 
