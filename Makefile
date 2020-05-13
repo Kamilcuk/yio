@@ -57,7 +57,6 @@ build_yio: configure
 build: configure
 	$(STDBUF) $(CMAKE) --build $(B) --target all $(GEN_TO_SRC)
 test: build
-	$(CMAKE) -P cmake/_test.cmake
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
 
 cmake-gui:

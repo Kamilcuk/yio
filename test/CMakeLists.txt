@@ -90,4 +90,10 @@ foreach(file IN LISTS srcs)
 	
 endforeach()
 
+# test cmake too!
+add_test(NAME yio_test_cmake
+	COMMAND ${CMAKE_COMMAND} -P test/test.cmake
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+)
+
 
