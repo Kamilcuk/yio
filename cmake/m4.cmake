@@ -62,12 +62,18 @@ macro(m4_add_file_dependencies)
 	list(APPEND _M4_OPTIONS_DEPENDS_INIT ${ARGN})
 endmacro()
 
+# @def m4_target_options(target options...)
+# @param target The name of the target
+# @param options Options to add to m4 program
 function(m4_target_options target)
 	set_property(TARGET ${target} APPEND
 		PROPERTY M4_OPTIONS ${ARGN}
 	)
 endfunction()
 
+# @def m4_target_include_directories(target directories...)
+# @param target The name of the target
+# @param directories Directories to add as m4 include directories
 function(m4_target_include_directories target)
 	foreach(arg IN LISTS ARGN)
 		if("${arg}" STREQUAL "PUBLIC" OR
@@ -89,6 +95,10 @@ function(m4_target_include_directories target)
 	endforeach()
 endfunction()
 
+# @def m4_get_command(output)
+# @param output Output variable
+# @brief Get's the command to run m4 with options into 
+# variable ${output}
 function(m4_get_command output)
 	set(${output} ${_M4_EXECUTABLE} "${_M4_OPTIONS_INIT}" PARENT_SCOPE)
 endfunction()
