@@ -50,7 +50,7 @@ all: build test
 configure:
 	$(STDBUF) $(CMAKE) -B $(B) $(CMAKEFLAGS)
 build_gen: configure
-	ln -vfs $(B)/src/gen gen
+	ln -vfs $(B)/src/gen gen ||:
 	$(STDBUF) $(CMAKE) --build $(B) --target _yio_gen $(GEN_TO_SRC)
 build_yio: configure
 	$(STDBUF) $(CMAKE) --build $(B) --target yio $(GEN_TO_SRC)
