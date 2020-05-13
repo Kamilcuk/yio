@@ -92,12 +92,16 @@ coverage:
 .coverage: test
 	gcovr -r . -e test -e _build $(B)
 
-cdash: D=_build/cdash
+cdash: export ROOT = $(PWD)/_build/cdash
+cdash: export D = ${ROOT}/source
+cdash: export B = ${ROOT}/_build
 cdash:
-	mkdir -p "$(D)"
-	find . -maxdepth 1 -mindepth 1 '!' -name _build | xargs -t -d'\n' cp -at $(D)
-	+$(MAKE) -C "$(D)" B=$(D) CMAKE_BUILD_TYPE=Release CMAKEFLAGS_GENERATOR="" CMAKE_C_FLAGS="--coverage -O" .cdash
+	rm -rf $(ROOT)
+	mkdir -p $(D)
+	git ls-tree -r --name-only @ | xargs -t -d'\n' cp --parents -a -t $(D)
+	+$(MAKE) -C "$(D)" B=$(B) CMAKE_BUILD_TYPE=Release CMAKE_C_FLAGS="--coverage -O" .cdash
 .cdash: configure
+	# cmake --build $(B)
 	cd "$(B)" && pwd && ctest -T all
 
 clean:
