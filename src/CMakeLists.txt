@@ -224,6 +224,6 @@ install(EXPORT yio
 add_custom_target(
 	yio_uninstall 
 	COMMAND sh -c "xargs rm -f -v < install_manifest.txt"
-	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	VERBATIM
 )

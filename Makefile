@@ -110,6 +110,12 @@ clean:
 distclean: clean
 	if [ -e public ]; then rm -r public; fi
 
+install: build
+	$(CMAKE) --build $(B) --target install
+	
+uninstall: build
+	$(CMAKE) --build $(B) --target yio_uninstall
+
 .PHONY: all $(MAKECMDGOALS)
 
 
