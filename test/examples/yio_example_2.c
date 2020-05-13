@@ -51,6 +51,7 @@ int formatted() {
 
 int main() {
 	normal();
+	fflush(stdout);
 	streamed();
 	formatted();
 	return 0;

@@ -1,5 +1,5 @@
 /**
- * @file yio_ctx.h
+ * @file ctx.h
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright GPL-3.0-only
@@ -7,7 +7,7 @@
  */
 m4_config();
 #pragma once
-#include "../yio_common.h"
+#include "yio/yio_common.h"
 #include "commonctx.h"
 #include "ctx_public.h"
 #include "fmt_public.h"

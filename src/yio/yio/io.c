@@ -1,5 +1,5 @@
 /**
- * @file yio.c
+ * @file io.c
  * @date 05/04/2020
  * @author Kamil Cukrowski
  * @copyright
@@ -157,7 +157,11 @@ int _yIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 /* yv*printf except yvbprintf ------------------------------------------------------ */
 
 int yvprintf(yio_printdata_t *data, va_list *va) {
+#if YIO_USE_OUTPUT_FD
+	return yvdprintf(1, data, va);
+#else
 	return yvfprintf(stdout, data, va);
+#endif
 }
 
 int yvfprintf(FILE *file, yio_printdata_t *data, va_list *va) {
@@ -269,7 +273,11 @@ struct yio_scanret_s _yIO_ysscanf(char *src, yio_scandata_t *data, ...) {
 /* Exported Print Symbols Except yvbscanf -------------------------------------- */
 
 struct yio_scanret_s yvscanf(yio_scandata_t *data, va_list *va) {
+#if YIO_USE_INPUT_FD
+	return _yIO_ydscanf(0, data, va);
+#else
 	return _yIO_yfscanf(stdin, data, va);
+#endif
 }
 
 struct yio_scanret_s yvfscanf(FILE *file, yio_scandata_t *data, va_list *va) {

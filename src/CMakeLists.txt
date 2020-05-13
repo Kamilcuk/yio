@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.2)
-project(yio C)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 include(CheckTypeSize)
 include(CheckIncludeFile)
+include(CMakeDependentOption)
 include(m4)
 include(list_filter)
 include(var_to_0_or_1)
@@ -17,14 +17,38 @@ set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 get_filename_component(GENDIR "${GENDIR}" ABSOLUTE)
 
+# Environment checks ###############################################
+check_type_size_bool(__int128  INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
+check_type_size_bool(_Float32 FLOAT32 BUILTIN_TYPES_ONLY LANGUAGE C)
+check_type_size_bool(int64_t  INT64_T LANGUAGE C)
+check_include_file("unistd.h" HAVE_UNISTD_H)
+check_include_file("float.h"  HAVE_FLOAT_H)
+
 # Configuration options #############################################
-set(YIO_M4_MLVLS 10 CACHE STRING
+
+set(YIO_M4_MLVLS 62 CACHE STRING
 	"The count of levels variadic macros expand to")
 set(YIO_M4_SLOTS_END 110 CACHE STRING
 	"The upper count of slots available in overloads")
-set(YIO_COMPILES_PEDANTIC 0 CACHE BOOL
+
+if(${CMAKE_C_FLAGS_INIT} MATCHES "pedantic") 
+	set(YIO_COMPILES_PEDANTIC_INIT 1)
+else()
+	set(YIO_COMPILES_PEDANTIC_INIT 0)
+endif()
+set(YIO_COMPILES_PEDANTIC ${YIO_COMPILES_PEDANTIC_INIT}
+	CACHE BOOL
 	"Set to true if compiling with pedantic")
 var_to_0_or_1(YIO_COMPILES_PEDANTIC)
+
+if(HAVE_UNISTD_H)
+cmake_dependent_option(YIO_USE_INPUT_FD 1 CACHE BOOL
+	"When set to true, yscan will read from file descriptor 0 instead of FILE *stdin")
+var_to_0_or_1(YIO_USE_INPUT_FD)
+cmake_dependent_option(YIO_USE_OUTPUT_FD 1 CACHE BOOL
+	"When set to true, yprint will read from file descriptor 1 instead of FILE *stdout")
+var_to_0_or_1(YIO_USE_OUTPUT_FD)
+endif()
 
 # generate config.m4 #################################################
 configure_file(
@@ -33,11 +57,7 @@ configure_file(
 	@ONLY
 )
 
-# generate yio_config.h file #########################################
-check_type_size_bool(__int128  INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
-check_type_size_bool(_Float32 FLOAT32 BUILTIN_TYPES_ONLY LANGUAGE C)
-check_type_size_bool(int64_t  INT64_T LANGUAGE C)
-check_include_file("unistd.h" HAVE_UNISTD_H)
+# generate yio_config.h
 configure_file(
 	${SRCDIR}/yio/yio_config.h.in
 	${GENDIR}/yio/yio_config.h
@@ -101,80 +121,109 @@ if(files_not_in_gensrcs)
 endif()
 
 # Compile options #######################################################
-set(properties
-	C_EXTENSIONS YES
-	C_STANDARD 11
-	C_STANDARD_REQUIRED NO
-	# INTERPROCEDURAL_OPTIMIZATION TRUE
-)
-set(compile_options
-	$<$<C_COMPILER_ID:GNU>:
-		-Wall
-		-Wextra
-		-Wwrite-strings
-		-Wno-unused-function
-		-Wno-unused-argument
-		-Wno-unused-parameter
-	>
-)
-macro(yio_add_library name)
-	add_library(${name} ${ARGN})
-	set_property(TARGET ${name} PROPERTY ${properties})
-	target_compile_options(${name} PRIVATE ${compile_options})
-	if (NOT ${name} STREQUAL "_yio_common")
-		target_link_libraries(${name} _yio_common)
+
+# yio_add_library(name sources)
+# adds the library with the name <name>
+# that has the sources <sources>
+# enables warnings if needed
+# generates install target for the library
+function(yio_add_library name)
+	set(argn ${ARGN})
+	list(SORT argn)
+
+	# create list of sources by appending GENDIR
+	set(srcs)
+	foreach(i IN LISTS argn)
+		list(APPEND srcs "${GENDIR}/${i}")
+	endforeach()
+
+
+	# extract list of headers
+	set(headers "${argn}")
+	list(FILTER headers INCLUDE REGEX "\\.h$")
+	
+	# add the library
+	add_library(${name} ${srcs})
+	set_property(TARGET ${name} PROPERTY
+		C_EXTENSIONS YES
+		C_STANDARD 11
+		C_STANDARD_REQUIRED NO
+		$<$<NOT:$<CONFIG:DEBUG>>:
+			INTERPROCEDURAL_OPTIMIZATION TRUE
+		>	
+		DEBUG_POSTFIX "d"
+	)
+	target_include_directories(${name} PUBLIC
+		$<BUILD_INTERFACE:${GENDIR}>
+	)
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		target_compile_options(${name} PRIVATE
+			$<$<CONFIG:Debug>:-ggdb3>
+			-Wall
+			-Wextra
+			-Wwrite-strings
+			-Wno-unused-function
+			-Wno-unused-argument
+			-Wno-unused-parameter
+		)
 	endif()
-endmacro()
+	add_dependencies(${name} _yio_gen)
+	if (NOT ${name} STREQUAL "yio")
+		target_link_libraries(${name} yio)
+	endif()
+
+	# install the library
+	install(TARGETS ${name}
+		EXPORT yio
+		LIBRARY DESTINATION lib
+		ARCHIVE DESTINATION lib
+		INCLUDES DESTINATION include
+	)
+
+	# install the headers
+	foreach(h IN LISTS headers)
+        	get_filename_component(dir ${h} DIRECTORY)
+        	install(FILES "${GENDIR}/${h}" DESTINATION include/${dir}/)
+	endforeach()
+
+endfunction()
+
+# file(GLOB) but results in files with 
+# substituted ${SRCDIR} for ${GENDIR}
+function(file_glob_relative_to_gendir glob var)
+	file(${glob} tmp ${ARGN})
+	set(tmp2)
+	foreach(i IN LISTS tmp)
+		file(RELATIVE_PATH j ${SRCDIR} ${i})
+		list(APPEND tmp2 ${j})
+	endforeach()
+	set(${var} "${tmp2}" PARENT_SCOPE)
+endfunction()
 
 # add yio executable ##############################################
-yio_add_library(_yio_common OBJECT
-	${GENDIR}/yio/intprops.h
-	${GENDIR}/yio/yio_error.c
-	${GENDIR}/yio/yio_error.h
-	${GENDIR}/yio/yio_error_messages.h
-	${GENDIR}/yio/yio_macros_gen.h
-	${GENDIR}/yio/yio_config.h
-	${GENDIR}/yio/yio_common.h
-	${GENDIR}/yio/yio_macros.h
-	${GENDIR}/yio/yio_private.h
-	${GENDIR}/yio/yio_private.c
-	${GENDIR}/yio/yio_public.h
-)
-target_include_directories(_yio_common PUBLIC ${GENDIR})
-add_dependencies(_yio_common _yio_gen)
-
+file_glob_relative_to_gendir(GLOB generic_srcs yio/*.h yio/*.c)
+file_glob_relative_to_gendir(GLOB_RECURSE yio_srcs yio/yio/*.h yio/yio/*.c)
 yio_add_library(yio
-	${common_srcs}
-	${GENDIR}/yio.h
-
-	${GENDIR}/yio/yio/ctx.h
-	${GENDIR}/yio/yio/commonctx.h
-	${GENDIR}/yio/yio/commonctx.c
-	${GENDIR}/yio/yio/fmt_public.h
-	${GENDIR}/yio/yio/fmt.h
-	${GENDIR}/yio/yio/fmt.c
-	${GENDIR}/yio/yio/ctx_public.h
-	${GENDIR}/yio/yio/ctx.h
-	${GENDIR}/yio/yio/ctx.c
-	${GENDIR}/yio/yio/io.h
-	${GENDIR}/yio/yio/io.c
-	${GENDIR}/yio/yio/io_fd.c
-	${GENDIR}/yio/yio/io_vb.c
-	${GENDIR}/yio/yio/private.h
-	${GENDIR}/yio/yio/public.h
-	
-	${GENDIR}/yio/yio/manip/manip.h
-	${GENDIR}/yio/yio/manip/print_chars.c
-	${GENDIR}/yio/yio/manip/print_int.c
-	${GENDIR}/yio/yio/manip/print_modifiers.c
-	${GENDIR}/yio/yio/manip/print_float.c
-	${GENDIR}/yio/yio/manip/scan_int.c
-	${GENDIR}/yio/yio/manip/scan_modifiers.c
-	${GENDIR}/yio/yio/manip/scan_string.c
+	${generic_srcs}
+	yio.h
+	${yio_srcs}
 )
 
-#yio_add_library(ywio
-#	${common_srcs}
-#)
+# install config.cmakecmake 
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/yioConfig.cmake
+	DESTINATION lib/yio/
+)
 
+# and install the targets
+install(EXPORT yio
+	FILE yioTargets.cmake
+	NAMESPACE yio::
+	DESTINATION lib/yio
+)
 
+add_custom_target(
+	yio_uninstall 
+	COMMAND sh -c "xargs rm -f -v < install_manifest.txt"
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	VERBATIM
+)

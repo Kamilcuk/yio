@@ -1,5 +1,5 @@
 /**
- * @file yio_intf.h
+ * @file private.h
  * @date 2020-05-10
  * @author Kamil Cukrowski
  * @copyright 

@@ -24,7 +24,7 @@ enum _yIO_errors_e {
 	YIO_ERROR_ENOSYS = -ENOSYS,    /// "Function not implemented", basically the same as ENOSYS
 	YIO_ERROR_EIO = -EIO,          /// "Input/output error", means something wrong with FILE*
 	YIO_ERROR_ENOBUFS = -ENOBUFS,  /// "No buffer space available", snprintf has nowhere to write to
-	_yIO_ERROR_START = -2100,      /// Start of custom errors - 2100
+	_yIO_ERROR_START = -2100,      /// Start of custom errors
 	YIO_ERROR_FMT_INVALID,         /// GEN "Invalid format specifier"
 	YIO_ERROR_PYFMT_INVALID,       /// GEN "Invalid python format specifier"
 	YIO_ERROR_CFMT_INVALID,        /// GEN "Invalid C format specifier"

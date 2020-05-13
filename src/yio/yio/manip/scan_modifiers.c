@@ -1,5 +1,5 @@
 /**
- * @file yio_scan_modifiers.c
+ * @file scan_modifiers.c
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright GPL-3.0-only

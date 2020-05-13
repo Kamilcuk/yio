@@ -1,5 +1,5 @@
 /**
- * @file yio_manip.h
+ * @file manip.h
  * @date 2020-05-10
  * @author Kamil Cukrowski
  * @copyright 
@@ -8,7 +8,7 @@
  */
 m4_config();
 #pragma once
-#include "../ctx_public.h"
+#include "yio/yio/ctx_public.h"
 
 /* ---------------------------------------------------------------- */
 

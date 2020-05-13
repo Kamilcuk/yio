@@ -1,5 +1,5 @@
 /**
- * @file yio_macros.h
+ * @file yio_macros_priv.h
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright GPL-3.0-only
@@ -8,6 +8,7 @@
 #pragma once
 #include "yio_config.h"
 
+#if _yIO_HAVE_FLOAT_H
 #if _yIO_USE__FLOATN && !defined(__STDC_WANT_IEC_60559_TYPES_EXT__)
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
 #endif
@@ -16,6 +17,7 @@
 #endif
 #if _yIO_USE__FLOATN || _yIO_USE__DECIMALN
 #include <float.h>
+#endif
 #endif
 
 #include "yio_macros_gen.h"

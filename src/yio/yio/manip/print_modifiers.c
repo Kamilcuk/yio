@@ -1,5 +1,5 @@
 /**
- * @file yio_print_modifiers.c
+ * @file print_modifiers.c
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright GPL-3.0-only

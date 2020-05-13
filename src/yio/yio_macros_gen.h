@@ -155,7 +155,7 @@ m4_forloopX(3, m4_MLVLS,
 
 /**
  * @def _yIO_WCSLEN(string)
- * @brief Constant expression strlen
+ * @brief Constant expression wcslen
  */
 #define _yIO_WCSLEN(s) (\
 		(s)[0]==L'\0'?0:(s)[1]==L'\0'?1:\

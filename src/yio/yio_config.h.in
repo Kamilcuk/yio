@@ -38,8 +38,29 @@
  * @def _yIO_HAVE_UNISTD_H
  * Set by cmake if the compiler is posix.
  */
-#ifndef _yIO_HAVE_UNISTD_H
 #define _yIO_HAVE_UNISTD_H  @HAVE_UNISTD_H@
+
+/**
+ * @def _yIO_HAVE_FLOAT_H
+ */
+#define _yIO_HAVE_FLOAT_H  @HAVE_FLOAT_H@
+
+/**
+ * @def YIO_USE_INPUT_FD
+ * If set, yprint will use file descriptor 1 instead of FILE *stdout
+ * Only set, if system has unistd.h
+ */
+#if _yIO_HAVE_UNISTD_H
+#define YIO_USE_INPUT_FD  @YIO_USE_INPUT_FD@
+#endif
+
+/**
+ * @def YIO_USE_OUTPUT_FD
+ * @brief If set, yscan will use file descriptor 0 instead of FILE *stdin
+ * Only set, if system has unistd.h
+ */
+#if _yIO_HAVE_UNISTD_H
+#define YIO_USE_OUTPUT_FD  @YIO_USE_OUTPUT_FD@
 #endif
 
 /* -------------------------------------------------------------- */
@@ -50,7 +71,7 @@
  * - _FloatNx
  */
 #ifndef _yIO_USE__FLOATN
-#define _yIO_USE__FLOATN  !_yIO_COMPILES_PEDANTIC
+#define _yIO_USE__FLOATN  (_yIO_HAVE_FLOAT_H && !_yIO_COMPILES_PEDANTIC)
 #endif
 
 /**
@@ -59,7 +80,7 @@
  * - _DecimalNx
  */
 #ifndef _yIO_USE__DECIMALN
-#define _yIO_USE__DECIMALN  !_yIO_COMPILES_PEDANTIC
+#define _yIO_USE__DECIMALN  (_yIO_HAVE_FLOAT_H && !_yIO_COMPILES_PEDANTIC)
 #endif
 
 /**

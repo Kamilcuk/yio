@@ -1,5 +1,5 @@
 /**
- * @file common.h
+ * @file yio_common.h
  * @date 21 kwi 2020
  * @author Kamil Cukrowski
  * @copyright SPDX-License-Identifier: GPL-3.0-only
