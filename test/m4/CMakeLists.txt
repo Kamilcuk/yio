@@ -1,4 +1,4 @@
-project(yio_m4_tests)
+project(yio_m4_tests LANGUAGES)
 
 list(APPEND CMAKE_MODULE_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 include(test_extract_properties_from_file)

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.1)
-project(yio_test)
+project(yio_test LANGUAGES C)
 find_package(yio HINTS 
 		../../_build/Debug/mytest/ 
 		../../_build/Release/mytest/
