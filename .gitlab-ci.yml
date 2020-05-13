@@ -12,7 +12,7 @@ pages:
   image: alpine
   script:
   - apk update
-  - apk add make doxygen
+  - apk add make doxygen bash m4 cmake make gcc graphviz
   - make doxygen
   artifacts:
     paths:
