@@ -17,9 +17,9 @@ m4_define_name(`YEOF~, `EOF~)
 m4_define_func(`Yc~, `$@~)
 m4_define_func(`Yisprint~, `isprint((unsigned char)$@)~)
 m4_define_func(`Yisupper~, `isupper((unsigned char)$@)~)
+m4_define_func(`Yisdigit~, `isdigit((unsigned char)$@)~)
 m4_define_func(`Ystrlen~, `strlen($@)~)
 m4_define_func(`Yfgetc~, `fgetc($@)~)
 m4_define_func(`Ystrchr~, `strchr($@)~)
-m4_define_func(`Yisdigit~, `isdigit($@)~)
 
 m4_divert(0)m4_dnl
