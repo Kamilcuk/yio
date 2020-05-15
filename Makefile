@@ -19,7 +19,7 @@ B_SUFFIX ?=
 B ?= _build/$(CMAKE_BUILD_TYPE)$(B_SUFFIX)
 
 NICE += $(shell hash nice 2>/dev/null >/dev/null && echo nice)
-NICE += $(shell hash ionice 2>/dev/null >/dev/null && echo ionice)
+NICE += $(shell hash ionice 2>/dev/null >/dev/null && ionice --version 2>&1 | grep -q util-linux && echo ionice)
 
 CTEST := $(NICE) ctest
 CTESTFLAGS += --output-on-failure 
