@@ -76,13 +76,14 @@ foreach(file IN LISTS srcs)
 
 	file(STRINGS ${file} input REGEX "^// INPUT ")
 	if(NOT input)
-		set(command ${name})
+		add_test(NAME ${name} COMMAND ${name})
 	else()
 		string(REGEX REPLACE "^[ \t]*// INPUT " "" input "${input}")
 		string(REGEX REPLACE ";[ \t]*// INPUT " "\n" input "${input}")
-		set(command bash --noprofile --norc -c "exec \"$2\" <<<\"$1\"" _ ${input} $<TARGET_FILE:${name}>)
+		add_test(NAME ${name} COMMAND 
+			bash --noprofile --norc -c "exec \"$2\" <<<\"$1\"" _ ${input} $<TARGET_FILE:${name}>)
+		set_tests_properties(${name} PROPERTIES LABELS nomemcheck)
 	endif()
-	add_test(NAME ${name} COMMAND ${command})
 
 	set_tests_properties(${name} PROPERTIES TIMEOUT 5)
 

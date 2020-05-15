@@ -17,5 +17,6 @@ foreach(file IN LISTS srcs)
 		COMMAND ${m4cmd} ${file}
 	)
 	set_tests_properties(${name} PROPERTIES TIMEOUT 1)
-	test_extract_properties_from_file(${name} ${file})	
+	test_extract_properties_from_file(${name} ${file})
+	set_tests_properties(${name} PROPERTIES LABELS nomemcheck)
 endforeach()

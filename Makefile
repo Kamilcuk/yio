@@ -67,16 +67,29 @@ cmake-gui:
 ccmake:
 	ccmake -B $(B) $(CMAKEFLAGS)
 
+gitlab-ci: export CMAKE_BUILD_TYPE=Release
 gitlab-ci:
-	+$(MAKE) -k CMAKE_BUILD_TYPE=Release \
-		memcheck sanitize coverage test_project cdash
+	@+$(MAKE) -k memcheck sanitize test_project coverage gitlab_cdash
+
+# Tests ######################################
 
 memcheck: build
-	cd $(B) && $(CTEST) -T memcheck $(CTESTFLAGS)
+	cd $(B) && $(CTEST) -T memcheck $(CTESTFLAGS) -LE nomemcheck
 
+sanitize: export CMAKE_C_FLAGS = -D_FORTIFY_SOURCE=2 -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection
+sanitize: export B_SUFFIX = _sanitize
 sanitize:
-	+$(MAKE) B_SUFFIX=_sanitize CMAKE_C_FLAGS="-fsanitize=address -fno-omit-frame-pointer" test
+	@+$(MAKE) test
 
+.PHONY: coverage
+coverage: export CMAKE_C_FLAGS = --coverage -g
+coverage: export B_SUFFIX = _coverage
+coverage:
+	@+$(MAKE) .coverage
+.coverage: test
+	gcovr -r . -e test -e _build $(B)
+
+# Doxygen #####################################
 _build/Doxyfile: doc/Doxyfile build_gen
 	sed \
 		-e "/STRIP_FROM_PATH/s@<ABSOLUTE_GEN_SEE_MAKEFILE>@$$(readlink -f ./gen)@" \
@@ -88,25 +101,45 @@ public/html:
 doxygen: build_gen public/html _build/Doxyfile
 	doxygen _build/Doxyfile
 
-.PHONY: coverage
-coverage:
-	+$(MAKE) B_SUFFIX=_coverage CMAKE_C_FLAGS="--coverage -g" .coverage
-
-.coverage: test
-	gcovr -r . -e test -e _build $(B)
-
-cdash: export ROOT = $(PWD)/_build/cdash
-cdash: export D = ${ROOT}/source
-cdash: export B = ${ROOT}/_build
-cdash:
-	rm -rf $(ROOT)
-	mkdir -p $(D)
-	git ls-tree -r --name-only @ | xargs -t -d'\n' cp --parents -a -t $(D)
-	+$(MAKE) -C "$(D)" B=$(B) CMAKE_BUILD_TYPE=Release CMAKE_C_FLAGS="--coverage -O" .cdash
-.cdash: configure
-	# cmake --build $(B)
-	cd "$(B)" && pwd && ctest -T all
-
+# cdash ##########################
+CDASHROOT   = _build/cdash
+CDASHSOURCE = $(CDASHROOT)/source
+CDASHBUILD  = $(CDASHROOT)/_build
+cdash: export CDASH_ARGS = -D MODEL=Experimental
+cdash: .cdash ;
+gitlab_cdash: export CDASH_ARGS = -D MODEL=Continous -D DO_SUBMIT=ON
+gitlab_cdash: .cdash ;
+cdash_submit: export CDASH_ARGS = -D MODEL=Experimental -D DO_SUBMIT=ON
+cdash_submit: .cdash ;
+.cdash: $(CDASHSOURCE)
+	cd $(CDASHSOURCE) && ctest \
+		$(CDASH_ARGS) \
+		-D CTEST_BINARY_DIRECTORY=$(PWD)/$(CDASHBUILD) \
+		-D CTEST_SOURCE_DIRECTORY=$(PWD)/$(CDASHSOURCE) \
+		-S ./dashboard_chors.cmake -V
+# create a separate source directory for cdash
+# so that ctest_update() doesn't overwrite my files!
+$(CDASHSOURCE): $(shell git ls-files . --exclude-standard --others --cached)
+	# rm -rf $(CDASHSOURCE)
+	mkdir -p $(CDASHSOURCE)
+	{ echo .git; git ls-files . --exclude-standard --others --cached; } | \
+	if hash rsync >/dev/null 2>&1; then \
+		rsync --files-from=/dev/stdin -av . $(CDASHSOURCE) ; \
+	else \
+		xargs -t -d'\n' cp --parents -a -t $(CDASHSOURCE) ; \
+	fi
+		
+# test building cmake project ##########################
+test_project: B = _build/test_project
+test_project: export YIODIR = $(PWD)/$(B)/testinstall
+test_project: build
+	$(CMAKE) -B $(B) $(CMAKEFLAGS) -D CMAKE_INSTALL_PREFIX=$(B)/testinstall
+	$(CMAKE) --build $(B) --target all
+	$(CMAKE) --build $(B) --target install
+	$(MAKE) -C test/cmake_example
+	$(CMAKE) --build $(B) --target uninstall
+	
+# standard ################################################
 clean:
 	if [ -e _build ]; then rm -r _build; fi
 
@@ -118,16 +151,6 @@ install: build
 	
 uninstall: build
 	$(CMAKE) --build $(B) --target yio_uninstall
-
-test_project: B = _build/test_project
-test_project: export YIODIR = $(PWD)/$(B)/testinstall
-test_project: build
-	$(CMAKE) -B $(B) $(CMAKEFLAGS) -D CMAKE_INSTALL_PREFIX=$(B)/testinstall
-	$(CMAKE) --build $(B) --target all
-	$(CMAKE) --build $(B) --target install
-	
-	$(MAKE) -C test/cmake_example
-	$(CMAKE) --build $(B) --target uninstall
 
 .PHONY: all $(MAKECMDGOALS)
 
