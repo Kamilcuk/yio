@@ -1,147 +1,155 @@
 /**
  * @file yio_macros_gen.h
- * @date 5 kwi 2020
+ * @date 2020-05-15
  * @author Kamil Cukrowski
- * @copyright GPL-3.0-only
+ * @copyright 
  * SPDX-License-Identifier: GPL-3.0-only
+ * @brief
  */
 #pragma once
-#include "yio_config.h"
+
+/* --------------------------------------------------------------------------------------------- */
 
 /**
- * @def _yIO_GENERIC_GEN_0(type, value, type, value, ...)
- * Transform each pair into \c type:value suitable for _Generic call.
- * So it results in \b type:value,type:value,...
+ * Re-evaulate the arguments
  */
-#define _yIO_GENERIC_GEN_0()
-#define _yIO_GENERIC_GEN_2(_1a,_1b)          _1a:_1b
-#define _yIO_GENERIC_GEN_4(_1a,_1b,_2a,_2b)  _1a:_1b,_2a:_2b
-m4_forloopX(6, m4_MLVLS, `m4_ifelse(m4_eval(X % 2), 0, `
-#define _yIO_GENERIC_GEN_`~X`~(m4_forloopY(1, m4_eval(X / 2), `_`~Y`~a,_`~Y`~b~, `,~))  `\~
-		m4_forloopY(1, m4_eval(X / 2), `_`~Y`~a:_`~Y`~b~, `,~)~)~)
-m4_dnl()
-#define _yIO_GENERIC_GEN_N(m4_seqdashcomma(1,m4_MLVLS),N,...)  \
-		_yIO_GENERIC_GEN_##N
-#define _yIO_GENERIC_GEN(...)  \
-		_yIO_GENERIC_GEN_N(__VA_ARGS__,m4_seqcomma(m4_MLVLS,0))(__VA_ARGS__)
+#define _yIO_ESC(...)  __VA_ARGS__
 
 /**
- * @def _yIO_APPLYFOREACH(callback, args...)
- * Apply a function for each argument.
+ * @def _yIO_IGNORE1
+ * Ignore first argument
  */
-#define _yIO_APPLYFOREACH_0(f)
-#define _yIO_APPLYFOREACH_1(f, _1)     f(_1)
-#define _yIO_APPLYFOREACH_2(f, _1,_2)  f(_1)f(_2)
-m4_forloopX(3, m4_MLVLS,
-		``#define _yIO_APPLYFOREACH_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
-		m4_forloopX(1, X, ``f(_~X`)~~, `~)~
-)m4_dnl()
-#define _yIO_APPLYFOREACH_N(m4_seqdashcomma(0,m4_MLVLS),N,...)  \
-		_yIO_APPLYFOREACH_##N
-#define _yIO_APPLYFOREACH(...)  \
-		_yIO_APPLYFOREACH_N(__VA_ARGS__,m4_seqcomma(m4_MLVLS,0))(__VA_ARGS__)
+#define _yIO_IGNORE1_IN(_1,...)  __VA_ARGS__
+#define _yIO_IGNORE1(...)        _yIO_IGNORE1_IN(__VA_ARGS__,0)
+
 
 /**
- * @def _yIO_APPLYFOREACHCOMMA(callback, args...)
- * Apply a function for each argument with a comma as a separator
+ * Only first argument
  */
-#define _yIO_APPLYFOREACHCOMMA_0(f)
-#define _yIO_APPLYFOREACHCOMMA_1(f, _1)     f(_1)
-#define _yIO_APPLYFOREACHCOMMA_2(f, _1,_2)  f(_1),f(_2)
-m4_forloopX(3, m4_MLVLS,
-		``#define _yIO_APPLYFOREACHCOMMA_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
-		m4_forloopX(1, X, ``f(_~X`)~~, `,~)~
-)m4_dnl()
-#define _yIO_APPLYFOREACHCOMMA_N(m4_seqdashcomma(0, m4_MLVLS),N,...)  \
-		_yIO_APPLYFOREACHCOMMA_##N
-#define _yIO_APPLYFOREACHCOMMA(...)  \
-		_yIO_APPLYFOREACHCOMMA_N(__VA_ARGS__,m4_seqcomma(m4_MLVLS, 0))(__VA_ARGS__)
+#define _yIO_FIRST(_1, ...)  _1
+
 
 /**
- * @def _yIO_APPLYFOREACHSEP(callback, separator, args...)
- * Apply a function for each argument with a separator
+ * Just 61 commas if you're wondering.
  */
-#define _yIO_APPLYFOREACHSEP_0(f, s)
-#define _yIO_APPLYFOREACHSEP_1(f, s, _1)     f(_1)
-#define _yIO_APPLYFOREACHSEP_2(f, s, _1,_2)  f(_1)s f(_2)
-m4_forloopX(3, m4_MLVLS,
-		``#define _yIO_APPLYFOREACHSEP_~X`(f, s, ~m4_seqdashcomma(1,X)`)~  `\~
-		m4_forloopX(1, X, ``f(_~X`)~~, `s ~)~
-)m4_dnl()
-#define _yIO_APPLYFOREACHSEP_N(m4_seqdashcomma(0, m4_MLVLS),N,...)  \
-		_yIO_APPLYFOREACHSEP_##N
-#define _yIO_APPLYFOREACHSEP(callback, ...)  \
-		_yIO_APPLYFOREACHSEP_N(__VA_ARGS__,m4_seqcomma(m4_MLVLS, 0))(callback, __VA_ARGS__)
+#define _yIO_61COMMAS  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
 /**
- * @def _yIO_JAPPLYFOREACH(before, after, function, args...)
- * _yIO_JAPPLYFOREACH(before, after, function, args...)
- * Same as APPLYFOREACH but join operators ~after~ and ~before~ are carried over.
+ * Print the arguments using a custom callback function.
+ * Actually we could name it: "register" function to print those arguments.
+ * void yiocb(int callback(yio_scanctx_t *), ...);
+ * void yiocb(int callback(yio_printctx_t *), ...);
+ * @param callback The callback to call.
+ * @param ... Additional arguments to call.
+ */
+#define yiocb(callback, ...)  ((callback, ##__VA_ARGS__),_yIO_61COMMAS)
+
+/* -------------------------------------------------------------------------------------------- */
+
+/**
+ * _yIO_IFBA62A(expr, then, else)
+ * If braces and 62 or more arguments in @c expr then @c then else @c else
+ */
+#define _yIO_IFBA62A_0(then, else)   else
+#define _yIO_IFBA62A_62(then, else)  then
+#define _yIO_IFBA62A_N(m4_seqdashcomma(1, 70), N, ...)  _yIO_IFBA62A_##N
+#define _yIO_IFBA62A_IN(expr) _yIO_IFBA62A_N(expr, m4_seqcommaX(64, 74, `62~), m4_seqcommaX(1, 61, `0~))
+// m4_define(`m4_yIO_IFBA62A~, ``_yIO_IFBA62A_IN(_yIO_ESC ~$1`)(~$2`, ~$3`)~~)
+#define _yIO_IFBA62A(expr, then, else)  m4_yIO_IFBA62A(expr, then, else)
+
+/* ----------------------------------------------------------------------------------------------- */
+
+/**
+ * @def _yIO_EMPTY
+ */
+#define _yIO_EMPTY(...)
+
+/**
+ * @def _yIO_SECOND
+ * Extract second
+ */
+#define _yIO_SECOND(_1, _2, ...)  _2
+
+/**
+ * @def _yIO_SECONDX
+ * Expand and extract second
+ */
+#define _yIO_SECONDX_IN2(_2, ...)   _2
+#define _yIO_SECONDX_IN(_2, ...)    _yIO_SECONDX_IN2(_2)
+#define _yIO_SECONDX(_1, _2, ...)   _yIO_SECONDX_IN(_2)
+
+/**
+ * @def m4_SIZEOFDECAY
+ * Applies sizeof on decayed argument on m4 stage.
+ */
+// m4_define(`m4_SIZEOFDECAY~, `sizeof(((void)0),($1))~)
+
+/**
+ * @def _yIO_SIZEOFDECAY
+ * Applies sizeof on decayed argument
+ */
+#define _yIO_SIZEOFDECAY(a, ...)  m4_SIZEOFDECAY(a)
+
+/**
+ * @def _yIO_FIRSTSIZEOFDECAYPOSTCOMMA
+ * Force one level of expansion, then
+ * apply decaying sizeof to the first argument, ignore the rest.
+ * And add a trailing comma.
+ */
+#define _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX(a, ...)  _yIO_SIZEOFDECAY(a),
+
+/**
+ * @def _yIO_FIRSTSIZEOFDECAYPOSTCOMMA
+ * Apply decaying sizeof to the first argument, ignore the rest.
+ * And add a trailing comma.
+ */
+#define _yIO_FIRSTSIZEOFDEREFPOSTCOMMA(a, ...)  sizeof(*(a)),
+
+/**
+ * @def _yIO_PRECOMMAIGNORE1
+ * Forward the arguments with a leading comma and ignore first argument.
+ */
+#define _yIO_PRECOMMAIGNORE1_0(...)
+#define _yIO_PRECOMMAIGNORE1_2(_1, ...)  ,__VA_ARGS__
+#define _yIO_PRECOMMAIGNORE1_N(m4_forloopdashX(0, m4_MLVLS, `X~, `,~), N, ...)  _yIO_PRECOMMAIGNORE1_##N
+#define _yIO_PRECOMMAIGNORE1(...)  _yIO_PRECOMMAIGNORE1_N(__VA_ARGS__, m4_forloopdashX(m4_MLVLS, 1, `2~, `,~),0,0)(__VA_ARGS__)
+
+/**
+ * @def _yIO_FORWARD_XFROMSECOND
+ * Force at least one expansion
+ */
+#define _yIO_FORWARD_XFROMSECOND(_1, ...)  _yIO_PRECOMMAIGNORE1(__VA_ARGS__)
+
+/**
+ * @def _yIO_PRECOMMAFIRST
+ * Get the first argument with a leading comma.
+ */
+#define _yIO_PRECOMMAFIRST(a, ...)  ,a
+
+/**
+ * @def _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(...)
+ * @param ... List of arguments.
  *
- * Similar to that _yIO_JFB62TE but without handling 62 arguments crap.
- *
- *
- * For each of the arguments the function(before, after, arg) is executed.
- *
- * @param before Anything
- * @param after Anything too
- * @param ... function A macro function to substitute for each argument
- * @param ... Argument list
+ * Ignore First Foreach Sizeof Decay with Post Comma
+ * Applies SIZEOFDECAY for each argument except the first one
  */
-#define _yIO_JAPPLYFOREACH_0(b, a, f)
-#define _yIO_JAPPLYFOREACH_1(b, a, f, _1)     f(b, a, _1)
-#define _yIO_JAPPLYFOREACH_2(b, a, f, _1,_2)  f(b, a, _1)f(b, a, _2)
-m4_forloopX(3, m4_MLVLS,
-		``#define _yIO_JAPPLYFOREACH_~X`(b, a, f, ~m4_seqdashcomma(1,X)`)~  `\~
-		m4_forloopX(1, X, ``f(b, a, _~X`)~~)~
-)m4_dnl()
-#define _yIO_JAPPLYFOREACH_N(m4_seqdashcomma(0, m4_MLVLS),N,...)  \
-		_yIO_JAPPLYFOREACH_##N
-#define _yIO_JAPPLYFOREACH(before, after, ...)  \
-		_yIO_JAPPLYFOREACH_N(__VA_ARGS__,m4_seqcomma(m4_MLVLS, 0))(before, after, __VA_ARGS__)
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_0()
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_1(_1)
+m4_forloopY(2, m4_MLVLS, ` m4_dnl ;
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_`~Y`~(_1,m4_forloopdashX(2, Y, `X~, `,~))  m4_forloopdashX(2, Y, `m4_SIZEOFDECAY(X),~)
+~) m4_dnl ;
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(m4_forloopdashX(1, m4_MLVLS, `X~, `,~), N, ...) _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_##N
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(...) _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(__VA_ARGS__, m4_forloopX(m4_MLVLS, 0, `X~, `,~))(__VA_ARGS__)
 
 /**
- * @def _yIO_APPLYFOREACHUNPACK(callback, args...)
- * Apply a function for each argument, but the arguments need to be a pack.
+ * @def _yIO_I1FSDPC_XF2(_1, ...)
+ * @param _1 Ignored argument
+ * @param ... List of arguments to expand for
  *
- *     Example:
- *        #define DOIT(NAME, TYPE)  TYPE f_##NAME(TYPE a) { return a; }
- *        #define LIST() (int, int), (uint, unsigned int)
- *        _yIO_APPLYFOREACHUNPACKCOMMA(DOIT, LIST())
- *     will output:
- *        int f_int(int a) { return a; }
- *        unsigned int f_uint(unsigned int a) { return a; }
+ * Forces expansion of arguments and ignores first argument and calls
+ * @c _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA for the rest of arguments.
  */
-#define _yIO_APPLYFOREACHUNPACK_0(f)
-#define _yIO_APPLYFOREACHUNPACK_1(f, _1)     f _1
-#define _yIO_APPLYFOREACHUNPACK_2(f, _1,_2)  f _1 f _2
-m4_forloopX(3, m4_MLVLS,
-		``#define _yIO_APPLYFOREACHUNPACK_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
-		m4_forloopX(1, X, ``f _~X` ~~ `~)~
-)m4_dnl()
-#define _yIO_APPLYFOREACHUNPACK_N(m4_seqdashcomma(0,m4_MLVLS),N,...)  \
-		_yIO_APPLYFOREACHUNPACK_##N
-#define _yIO_APPLYFOREACHUNPACK(...)  \
-		_yIO_APPLYFOREACHUNPACK_N(__VA_ARGS__,m4_seqcomma(m4_MLVLS,0))(__VA_ARGS__)
-
-/**
- * @def _yIO_APPLYFOREACHUNPACKCOMMA(callback, args...)
- * Apply a function for each argument, but the arguments need to be inside braces
- * and join them with a comma. *
- * @param ... callback to call foreach argument
- * @param ... arguments to unpack from braces to call
- */
-#define _yIO_APPLYFOREACHUNPACKCOMMA_0(f)
-#define _yIO_APPLYFOREACHUNPACKCOMMA_1(f, _1)     f _1
-#define _yIO_APPLYFOREACHUNPACKCOMMA_2(f, _1,_2)  f _1,f _2
-m4_forloopX(3, m4_MLVLS,
-		``#define _yIO_APPLYFOREACHUNPACKCOMMA_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
-		m4_forloopX(1, X, ``f _~X`~~, `,~)~
-)m4_dnl()
-#define _yIO_APPLYFOREACHUNPACKCOMMA_N(m4_seqdashcomma(0,m4_MLVLS),N,...)  \
-		_yIO_APPLYFOREACHUNPACKCOMMA_##N
-#define _yIO_APPLYFOREACHUNPACKCOMMA(...)  \
-		_yIO_APPLYFOREACHUNPACKCOMMA_N(__VA_ARGS__,m4_seqcomma(m4_MLVLS,0))(__VA_ARGS__)
+#define _yIO_I1FSDPC_XF2(_1, ...)  _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(__VA_ARGS__)
 
 /**
  * @def _yIO_STRLEN(string)
@@ -153,23 +161,104 @@ m4_forloopX(3, m4_MLVLS,
 		~)~) \
 		-1)
 
-/**
- * @def _yIO_WCSLEN(string)
- * @brief Constant expression wcslen
- */
-#define _yIO_WCSLEN(s) (\
-		(s)[0]==L'\0'?0:(s)[1]==L'\0'?1:\
-		m4_forloopX(2, 120,``(s)[~X`]==L'\0'?~X`:~m4_ifelse(m4_eval(X%5),`1~,`\
-		~)~) \
-		-1)
+/* _yIO_print_arguments ----------------------------------------------------------------------------------------------------- */
+
+#define _yIO_print_arguments_1(func_gen, fmt)  \
+		&(const yio_printdata_t){(fmt), NULL, NULL}
+
+m4_forloopY(2, m4_MLVLS, `
+#define _yIO_print_arguments_`~Y`~(func_gen, fmt, m4_forloopdashX(2, Y, `X~, `,~)) \
+	&(const yio_printdata_t){ \
+		(fmt), \
+		(const _yIO_printfunc_t[]){ \
+m4_forloopdashX(2, Y,
+`			_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_SECONDX, func_gen)(X, _yIO_FIRST _yIO_FIRST X), \
+~) \
+			NULL \
+		}, \
+		(const size_t[]){ \
+m4_forloopdashX(2, Y,
+`		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_I1FSDPC_XF2, _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX)(X, _yIO_ESC _yIO_FIRST X) \
+~) \
+			0 \
+		}, \
+	} \
+m4_forloopdashX(2, Y,
+`	_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)(X, _yIO_ESC _yIO_FIRST X) \
+~)
+~) m4_dnl ;
+
+#define _yIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+		_yIO_print_arguments_##N
 
 
-/**
- * @def _yIO_UCSLEN(string)
- * @brief Constant expression UTF-32 strlen
- */
-#define _yIO_UCSLEN(s) (\
-		(s)[0]==U'\0'?0:(s)[1]==U'\0'?1:\
-		m4_forloopX(2, 120,``(s)[~X`]==U'\0'?~X`:~m4_ifelse(m4_eval(X%5),`1~,`\
-		~)~) \
-		-1)
+/* _yIO_scan_arguments ----------------------------------------------------------------------------------------------------- */
+
+#define _yIO_scan_arguments_1(func_gen,fmt)  \
+		&(const yio_scandata_t){(fmt),NULL,NULL,NULL}
+
+m4_forloopY(2, m4_MLVLS, `
+#define _yIO_scan_arguments_`~Y`~(func_gen, fmt, m4_forloopdashX(2, Y, `X~, `,~)) \
+	&(const yio_scandata_t){ \
+		(fmt), \
+		(const _yIO_scanfunc_t[]){ \
+m4_forloopdashX(2, Y,
+`			_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_SECONDX, func_gen)(X, _yIO_FIRST _yIO_FIRST X), \
+~) \
+			NULL \
+		}, \
+m4_dnl  .argpntsizes = \
+		(const size_t[]){ \
+m4_forloopdashX(2, Y,
+`		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_EMPTY, _yIO_FIRSTSIZEOFDEREFPOSTCOMMA)(X, _yIO_ESC _yIO_FIRST X) \
+~) \
+			0 \
+		}, \
+m4_dnl  .argsizes = \
+		(const size_t[]){ \
+m4_forloopdashX(2, Y,
+`		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_I1FSDPC_XF2, _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX)(X, _yIO_ESC _yIO_FIRST X) \
+~) \
+			0 \
+		}, \
+	} \
+m4_forloopdashX(2, Y,
+`	_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)(X, _yIO_ESC _yIO_FIRST X) \
+~)
+~) m4_dnl ;
+
+#define _yIO_scan_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+		_yIO_scan_arguments_##N
+
+/* -------------------------------------------------------------------------------------------- */
+
+//#if defined(__CDT_PARSER__) && !CDT_PARSER_IN
+//#define CDT_PARSER_IN 1
+//#include "../../gen/yio/yio_macros_gen.h"
+//
+//#ifdef __CDT_PARSER__
+//_yIO_IFBA62A(c, _yIO_ISPRINTFUNCBRACES, func_gen);
+//_yIO_IFBA62A(yiocb(c, d), _yIO_ISPRINTFUNCBRACES, func_gen);
+//_yIO_print_arguments_2(FG, b, arg);
+//_yIO_print_arguments_2(FG, b, yiocb(f));
+//_yIO_print_arguments_2(FG, b, yiocb(f, arg));
+//_yIO_print_arguments_2(FG, b, yiocb(f, arg1, arg2));
+//
+//
+//_yIO_scan_arguments_2(FG, b, arg);
+//_yIO_scan_arguments_2(FG, b, yiocb(f));
+//_yIO_scan_arguments_2(FG, b, yiocb(f, arg));
+//_yIO_scan_arguments_2(FG, b, yiocb(f, arg1, arg2));
+//
+//_yIO_scan_arguments_3(FG, b, arg1, arg3);
+//_yIO_scan_arguments_3(FG, b, yiocb(f), arg3);
+//_yIO_scan_arguments_3(FG, b, yiocb(f, arg1), arg3);
+//_yIO_scan_arguments_3(FG, b, yiocb(f, arg1, arg2), arg3);
+//
+//_yIO_scan_arguments_3(FG, b, arg, yiocb(f));
+//_yIO_scan_arguments_3(FG, b, yiocb(f1), yiocb(f2, arg1));
+//_yIO_scan_arguments_3(FG, b, yiocb(f1, arg), yiocb(f2, arg1, arg2));
+//_yIO_scan_arguments_3(FG, b, yiocb(f1, arg1, arg2), arg3);
+//#endif
+//
+//#endif // __CDT_PARSER__

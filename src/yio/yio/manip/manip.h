@@ -10,6 +10,18 @@ m4_config();
 #pragma once
 #include "yio/yio/ctx_public.h"
 
+#if _yIO_HAVE_FLOAT_H
+#if _yIO_USE__FLOATN && !defined(__STDC_WANT_IEC_60559_TYPES_EXT__)
+#define __STDC_WANT_IEC_60559_TYPES_EXT__  1
+#endif
+#if _yIO_USE__DECIMALN && !defined(__STDC_WANT_DEC_FP__)
+#define __STDC_WANT_DEC_FP__  1
+#endif
+#if _yIO_USE__FLOATN || _yIO_USE__DECIMALN
+#include <float.h>
+#endif
+#endif
+
 /* ---------------------------------------------------------------- */
 
 int _yIO_print_right(yio_printctx_t *t);
@@ -204,7 +216,7 @@ int _yIO_print_u__int128(yio_printctx_t *t);
 /**
  * For one argument choose the printing function dynamically using _Generic macro
  */
-#define _yIO_PRINT_FUNC_GENERIC(arg) \
+#define _yIO_PRINT_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				char: _yIO_print_char, \
 				signed char: _yIO_print_schar, \
@@ -345,7 +357,7 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 /**
  * Choose the scanning function of argument using _Generic macro
  */
-#define _yIO_SCAN_FUNC_GENERIC(arg)  _Generic((arg), \
+#define _yIO_SCAN_FUNC_GENERIC(arg, ...)  _Generic((arg), \
 		short *: _yIO_scan_short, \
 		unsigned short *: _yIO_scan_ushort, \
 		int *: _yIO_scan_int, \
@@ -374,36 +386,6 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 )
 
 /* -------------------------------------------------------------- */
-
-/**
- * YIO_PRINT_ARGUMENTS
- * Create argument list for yprint functions
- * If an argument doesn't has 62 commas, then the function for it is chosen
- *    using _Generic expression with _yIO_PRINT_FUNC_GENERIC.
- * If an argument does has 62 commas, then the first argument that should be inside braces is extracted
- *   and the first argument from inside the braces is the function to handle the arguments.
- * The arguments are appended to the end of the function.
- *
- * For example a call like:
- *    yprint(1, yiocb(function, 2, 3));
- * Is expanded to:
- *    yprint((const _yIO_func_t[]){ _Generic((1), int: _yIO_print_int), function, NULL }, 1, 2, 3);
- *
- * The first argument is an array of functions to handle arguments, delimetered with NULL.
- * The rest of the arguments are unchanged and appended to ellipsis argument.
- */
-#define YIO_PRINT_ARGUMENTS(...)  \
-		_yIO_print_arguments_N(__VA_ARGS__, m4_seqcommaX(1, 62, `2~), \
-				1, 0)(_yIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
-
-/**
- * @def YIO_SCAN_ARGUMENTS(...)
- * @param ... Manu arguments.
- * Just like YIO_PRINT_ARGUMENTS.
- */
-#define YIO_SCAN_ARGUMENTS(...)  \
-		_yIO_scan_arguments_N(__VA_ARGS__, m4_seqcommaX(1, 62, `2~), \
-				1, 0)(_yIO_SCAN_FUNC_GENERIC, __VA_ARGS__)
 
 /* ---------------------------------------------------------------- */
 

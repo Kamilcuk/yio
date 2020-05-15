@@ -93,11 +93,12 @@ struct yio_scanfmt_s *yio_scanctx_get_fmt(yio_scanctx_t *t) {
 	return &t->sf;
 }
 
-size_t yio_scanctx_arg_size(yio_scanctx_t *t) {
+size_t yio_scanctx_arg_size_next(yio_scanctx_t *t) {
 	assert(t != NULL);
-	assert(t->data != NULL);
-	assert(t->data->argpntsizes != NULL);
-	return t->data->argpntsizes[t->c.argsizespnt - t->data->argsizes - 1];
+	assert(t->argpntsizespnt != NULL);
+	assert(*t->argpntsizespnt != 0 ||
+			!"you called yio_scanctx_arg_size_next too many times");
+	return *t->argpntsizespnt++;
 }
 
 va_list *_yIO_scanctx_inc_va_list(yio_scanctx_t *t, size_t sizeof_realtype) {

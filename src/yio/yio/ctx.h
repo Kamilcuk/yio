@@ -78,6 +78,8 @@ struct _yIO_scanctx_s {
 	_yIO_scancb_t *in;
 	/// User argument for inputting function.
 	void *inarg;
+	/// Iterator into an array of dereferenced arguments sizes.
+	const size_t *argpntsizespnt;
 	/// The count of characters written or read.
 	size_t scannedcnt;
 	/// The formatting options
@@ -99,6 +101,7 @@ yio_scanctx_t _yIO_scanctx_init(
 		.c.argsizespnt = data->argsizes,
 		.ifunc = data->funcs,
 		.in = in,
+		.argpntsizespnt = data->argpntsizes,
 		.inarg = inarg,
 		.fmt = data->fmt,
 	};

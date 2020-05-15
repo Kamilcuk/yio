@@ -10,6 +10,6 @@
 int main() {
 	char str[5];
 	int err = ysscanf("Hello Kamil", "Hello {}", &str).error;
-	_yIO_TEST_MSG(err == -ENOMEM, "%d", err);
+	_yIO_TEST_MSG(err == 0, "%d", err);
 	_yIO_TEST(strcmp(str, "Kami") == 0);
 }

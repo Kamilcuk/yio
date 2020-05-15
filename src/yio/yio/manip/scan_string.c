@@ -10,12 +10,12 @@ m4_config();
 
 int _yIO_scan_string(yio_scanctx_t *t) {
 	char * str = yio_scanctx_va_arg(t, char *);
-	const size_t strsize = yio_scanctx_arg_size(t);
+	const size_t strsize = yio_scanctx_arg_size_next(t);
 	const struct yio_scanfmt_s *f = yio_scanctx_get_fmt(t);
 	const size_t width = f->width < 0 ? INT_MAX : f->width;
 	int err = 0;
 	char * const str0 = str;
-	int count = strsize - 1 < width ? strsize - 1 : width;
+	int count = ((strsize - 1) < width) ? strsize - 1 : width;
 	for (int c = 0; (err = yio_scanctx_in(t, &c)) == 0 && c != EOF; ) {
 		if (c == ' ' || c == '\t' || c == '\n') {
 			break;
@@ -30,10 +30,10 @@ int _yIO_scan_string(yio_scanctx_t *t) {
 	if (strsize) {
 		*str = '\0';
 	}
-	yio_scanctx_unin(t);
-	if (count == 0 && strsize < width) {
-		err = YIO_ERROR_ENOMEM;
-	} else if (str0 == str) {
+	if (count) {
+		yio_scanctx_unin(t);
+	}
+	if (str0 == str) {
 		err = YIO_ERROR_SCAN_NOTHING;
 	}
 	return err;

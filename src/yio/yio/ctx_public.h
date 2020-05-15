@@ -60,10 +60,12 @@ typedef struct _yIO_printdata_s {
 	 * Array of argument sizes for va_arg argument checking.
 	 */
 	const size_t * const argsizes;
+#if _yIO_USE_STRINGIFIED_ARGUMENTS
 	/**
 	 * Array of stringified arguments.
 	 */
 	const char * const * const strargs;
+#endif
 } const yio_printdata_t;
 
 /**
@@ -228,10 +230,12 @@ typedef const struct _yIO_scandata_s {
 	 * Array of argument sizes for va_arg argument checking.
 	 */
 	const size_t * const argsizes;
+#if _yIO_USE_STRINGIFIED_ARGUMENTS
 	/**
 	 * Array of stringified arguments.
 	 */
 	const char * const * const strargs;
+#endif
 } yio_scandata_t;
 
 /**
@@ -277,7 +281,7 @@ struct yio_scanfmt_s *yio_scanctx_get_fmt(yio_scanctx_t *t);
  * @return
  */
 _yIO_wur _yIO_nn()
-size_t yio_scanctx_arg_size(yio_scanctx_t *t);
+size_t yio_scanctx_arg_size_next(yio_scanctx_t *t);
 
 /**
  * Internal callback called by @see yio_scanctx_scan
