@@ -1,3 +1,5 @@
+# .gitlab-ci.yml
+
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -6,13 +8,28 @@ on_gcc:
   script:
   - apt-get update -y
   - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr
-  - make gitlab-ci
+  - make gitlab
   
+on_gcc_cdash:
+  image: gcc
+  script:
+  - apt-get update -y
+  - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr
+  - make gitlab_cdash
+
+#on_arm:
+#  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
+#  - make SYSTEM=ARM10E gitlab
+#
+#on_arm_cdash:
+#  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
+#  - make SYSTEM=ARM10E gitlab_cdash
+
 pages:
   image: alpine
   script:
   - apk update
-  - apk add make doxygen bash m4 cmake make gcc graphviz git
+  - apk add make doxygen bash m4 cmake make gcc graphviz git build-base
   - make doxygen
   artifacts:
     paths:

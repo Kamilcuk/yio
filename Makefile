@@ -15,10 +15,15 @@ unexport MAKEFLAGS
 CMAKE_BUILD_TYPE ?= Debug
 # CMAKE_BUILD_TYPE ?= Release
  
-B_SUFFIX ?=
-B ?= _build/$(CMAKE_BUILD_TYPE)$(B_SUFFIX)
+SYSTEM ?=
+export SYSTEM
 
+B_SUFFIX ?=
+B ?= _build/$(SYSTEM)$(CMAKE_BUILD_TYPE)$(B_SUFFIX)
+
+# check if we have nice
 NICE += $(shell hash nice 2>/dev/null >/dev/null && echo nice)
+# check if we have ionice from util-linux
 NICE += $(shell hash ionice 2>/dev/null >/dev/null && ionice --version 2>&1 | grep -q util-linux && echo ionice)
 
 CTEST := $(NICE) ctest
@@ -35,8 +40,14 @@ CMAKEFLAGS_GENERATOR ?= $(shell hash ninja 2>/dev/null >/dev/null && echo -GNinj
 CMAKEFLAGS += $(CMAKEFLAGS_GENERATOR)
 CMAKEFLAGS += -D CMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += -D CMAKE_VERBOSE_MAKEFILE=ON
+ifneq ($(CMAKE_C_FLAGS),)
 CMAKEFLAGS += -D CMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
+endif
 CMAKEFLAGS += -D BUILD_TESTING=$(BUILD_TESTING)
+ifeq ($(SYSTEM),ARM10E)
+CMAKEFLAGS += -D CMAKE_TOOLCHAIN_FILE=./cmake/toolchain-arm-none-eabi.cmake
+CMAKEFLAGS += -D CMAKE_CROSSCOMPILING_EMULATOR=./scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
+endif
 
 SHELL = bash
 
@@ -44,17 +55,25 @@ SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
 STDBUF = $(shell hash stdbuf 2>/dev/null >/dev/null && echo stdbuf -oL -eL) 
 
-all: build test
+all: usage 
 
+USAGE +=~ eclipse - Target run from IDE
+eclipse: build test
+
+USAGE +=~ configure - Configure the project
 configure:
 	$(STDBUF) $(CMAKE) -B $(B) $(CMAKEFLAGS)
+	@ln -nvfs $(B)/src/gen gen ||:
+USAGE +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: configure
-	ln -vfs $(B)/src/gen gen ||:
 	$(STDBUF) $(CMAKE) --build $(B) --target _yio_gen $(GEN_TO_SRC)
+USAGE +=~ build_yio - Build the yio target
 build_yio: configure
 	$(STDBUF) $(CMAKE) --build $(B) --target yio $(GEN_TO_SRC)
+USAGE +=~ build - Build the project
 build: configure
 	$(STDBUF) $(CMAKE) --build $(B) --target all $(GEN_TO_SRC)
+USAGE +=~ test - Run tests using ctest
 test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
 
@@ -64,9 +83,16 @@ cmake-gui:
 ccmake:
 	ccmake -B $(B) $(CMAKEFLAGS)
 
-gitlab-ci: export CMAKE_BUILD_TYPE=Release
-gitlab-ci:
-	@+$(MAKE) -k memcheck sanitize test_project coverage gitlab_cdash
+# Gitlab ####################################
+
+USAGE +=~ gitlab - Runs gitlab builds and tests
+gitlab: export CMAKE_BUILD_TYPE=Release
+gitlab:
+	@+$(MAKE) -k test memcheck sanitize test_project coverage
+
+USAGE +=~ gitlab_cdash - Runs cdash tests on gitlab and posts results to cdash
+gitlab_cdash: export CDASH_ARGS += -D MODEL=Continous -D DO_SUBMIT=ON
+gitlab_cdash: .cdash ;
 
 # Tests ######################################
 
@@ -102,11 +128,13 @@ doxygen: build_gen public/html _build/Doxyfile
 CDASHROOT   = _build/cdash
 CDASHSOURCE = $(CDASHROOT)/source
 CDASHBUILD  = $(CDASHROOT)/_build
-cdash: export CDASH_ARGS = -D MODEL=Experimental
+
+USAGE +=~ cdash_cubmit - Runs cdash locally without submitting results
+cdash: export CDASH_ARGS += -D MODEL=Experimental
 cdash: .cdash ;
-gitlab_cdash: export CDASH_ARGS = -D MODEL=Continous -D DO_SUBMIT=ON
-gitlab_cdash: .cdash ;
-cdash_submit: export CDASH_ARGS = -D MODEL=Experimental -D DO_SUBMIT=ON
+
+USAGE +=~ cdash_cubmit - Runs cdash locally and submit results
+cdash_submit: export CDASH_ARGS += -D MODEL=Experimental -D DO_SUBMIT=ON
 cdash_submit: .cdash ;
 .cdash: $(CDASHSOURCE)
 	cd $(CDASHSOURCE) && ctest \
@@ -148,6 +176,28 @@ install: build
 	
 uninstall: build
 	$(CMAKE) --build $(B) --target yio_uninstall
+
+
+# Usage
+define USAGESTRING
+
+Variables you can set:
+  SYSTEM - Left empty means host system or ARM_NONE to build for arm-none-eabi
+  
+Variables set internally:
+  CMAKE_BUILD_TYPE
+  CMAKE_C_FLAGS
+  CDASH_ARGS - Arguments passed to cdash
+
+Variables passed to dashboard_chors.cmake:
+  MODEL - The ctest model: Continous, Nightly
+  DO_SUBMIT - When ON, submits the tests
+
+Targets: $(subst ~, $(NL), $(USAGE))
+endef
+export USAGESTRING
+usage:
+	@echo "$$USAGESTRING"
 
 .PHONY: all $(MAKECMDGOALS)
 
