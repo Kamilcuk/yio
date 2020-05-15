@@ -8,6 +8,7 @@
 #pragma once
 #include "yio_config.h"
 #include "yio_macros_gen.h"
+#include "yio_macros_gen_priv.h"
 #include <stddef.h>
 
 /* ----------------------------------------------------------------------------------------------- */
