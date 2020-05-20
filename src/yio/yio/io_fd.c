@@ -62,7 +62,7 @@ int _yIO_ydscanf_cb_read_repeat(int fd, const char *dest, size_t size) {
 static
 int _yIO_ydscanf_cb(void *arg, Yint *data) {
 	const int fd = *(int*)arg;
-	Ychar c;
+	Ychar c = 0;
 	int ret = _yIO_ydscanf_cb_read_repeat(fd, &c, sizeof(c));
 	if (ret == -1) {
 		*data = YEOF;
