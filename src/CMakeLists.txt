@@ -1,28 +1,24 @@
 cmake_minimum_required(VERSION 3.2)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
-include(CheckTypeSize)
-include(CheckIncludeFile)
 include(CMakeDependentOption)
 include(m4)
 include(list_filter)
 include(var_to_0_or_1)
-include(check_type_size_bool)
 
-macro(dbg)
-	message(STATUS "yio: ${ARGN}")
-endmacro()
+function(log)
+	get_filename_component(_log_list_filename ${CMAKE_CURRENT_LIST_FILE} NAME)
+	message(STATUS "yio: ${_log_list_filename}: ${ARGN}")
+endfunction()
+
+# 
 
 set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 get_filename_component(GENDIR "${GENDIR}" ABSOLUTE)
 
 # Environment checks ###############################################
-check_type_size_bool(__int128  INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
-check_type_size_bool(_Float32 FLOAT32 BUILTIN_TYPES_ONLY LANGUAGE C)
-check_type_size_bool(int64_t  INT64_T LANGUAGE C)
-check_include_file("unistd.h" HAVE_UNISTD_H)
-check_include_file("float.h"  HAVE_FLOAT_H)
+include(environment_checks.cmake)
 
 # Configuration options #############################################
 
@@ -41,7 +37,7 @@ set(YIO_COMPILES_PEDANTIC ${YIO_COMPILES_PEDANTIC_INIT}
 	"Set to true if compiling with pedantic")
 var_to_0_or_1(YIO_COMPILES_PEDANTIC)
 
-if(HAVE_UNISTD_H)
+if(_yIO_HAVE_UNISTD_H)
 cmake_dependent_option(YIO_USE_INPUT_FD 1 CACHE BOOL
 	"When set to true, yscan will read from file descriptor 0 instead of FILE *stdin")
 var_to_0_or_1(YIO_USE_INPUT_FD)
@@ -95,8 +91,10 @@ add_custom_command(
 set(gensrcs
 	${m4_outputs}
 	${GENDIR}/yio/yio_config.h
+	${GENDIR}/yio/yio_config_gen.h
 	${GENDIR}/yio/yio_error_messages.h
 	${GENDIR}/m4/yio_config.m4
+	${GENDIR}/m4/floatlist.m4
 )
 add_custom_target(_yio_gen DEPENDS ${gensrcs})
 

@@ -9,18 +9,7 @@
 m4_config();
 #pragma once
 #include "yio/yio/ctx_public.h"
-
-#if _yIO_HAVE_FLOAT_H
-#if _yIO_USE__FLOATN && !defined(__STDC_WANT_IEC_60559_TYPES_EXT__)
-#define __STDC_WANT_IEC_60559_TYPES_EXT__  1
-#endif
-#if _yIO_USE__DECIMALN && !defined(__STDC_WANT_DEC_FP__)
-#define __STDC_WANT_DEC_FP__  1
-#endif
-#if _yIO_USE__FLOATN || _yIO_USE__DECIMALN
-#include <float.h>
-#endif
-#endif
+#include "yio/yio_config.h"
 
 /* ---------------------------------------------------------------- */
 
@@ -113,24 +102,7 @@ int _yIO_print_intpnt(yio_printctx_t *t);
 int _yIO_print_wchar(yio_printctx_t *t);
 int _yIO_print_wcharpnt(yio_printctx_t *t);
 int _yIO_print_constwcharpnt(yio_printctx_t *t);
-int _yIO_print_float(yio_printctx_t *t);
-int _yIO_print_double(yio_printctx_t *t);
-int _yIO_print_ldouble(yio_printctx_t *t);
 int _yIO_print_floatpnt(yio_printctx_t *t);
-int _yIO_print__Float16(yio_printctx_t *t);
-int _yIO_print__Float32(yio_printctx_t *t);
-int _yIO_print__Float64(yio_printctx_t *t);
-int _yIO_print__Float80(yio_printctx_t *t);
-int _yIO_print__Float128(yio_printctx_t *t);
-int _yIO_print__Float32x(yio_printctx_t *t);
-int _yIO_print__Float64x(yio_printctx_t *t);
-int _yIO_print__Float128x(yio_printctx_t *t);
-int _yIO_print__Decimal32(yio_printctx_t *t);
-int _yIO_print__Decimal64(yio_printctx_t *t);
-int _yIO_print__Decimal128(yio_printctx_t *t);
-int _yIO_print__Decimal32x(yio_printctx_t *t);
-int _yIO_print__Decimal64x(yio_printctx_t *t);
-int _yIO_print__Decimal128x(yio_printctx_t *t);
 int _yIO_print___int128(yio_printctx_t *t);
 int _yIO_print_u__int128(yio_printctx_t *t);
 
@@ -145,73 +117,6 @@ int _yIO_print_u__int128(yio_printctx_t *t);
 /**
  * @}
  */
-
-#if _yIO_USE__FLOATN && defined(FLT16_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Float16()  _Float16: _yIO_print__Float16,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Float16()
-#endif
-
-#if _yIO_USE__FLOATN && defined(FLT32_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Float32()  _Float32: _yIO_print__Float32,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Float32()
-#endif
-
-#if _yIO_USE__FLOATN && defined(FLT64_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Float64()  _Float64: _yIO_print__Float64,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Float64()
-#endif
-
-#if _yIO_USE__FLOATN && defined(FLT128_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Float128()  _Float128: _yIO_print__Float128,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Float128()
-#endif
-
-#if _yIO_USE__FLOATN && defined(FLT32X_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Float32x()  _Float32x: _yIO_print__Float32x,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Float32x()
-#endif
-
-#if _yIO_USE__FLOATN && defined(FLT64X_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Float64x()  _Float64x: _yIO_print__Float64x,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Float64x()
-#endif
-
-#if _yIO_USE__FLOATN && defined(FLT128X_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Float128x()  _Float128x: _yIO_print__Float128x,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Float128x()
-#endif
-
-#if _yIO_USE__DECIMALN && defined(DEC32_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Decimal32()  _Decimal32: _yIO_print__Decimal32,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Decimal32()
-#endif
-
-#if _yIO_USE__DECIMALN && defined(DEC64_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Decimal64()  _Decimal64: _yIO_print__Decimal64,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Decimal64()
-#endif
-
-#if _yIO_USE__DECIMALN && defined(DEC128_DECIMAL_DIG)
-#define _yIO_PRINT_FUNC_GENERIC_Decimal128()  _Decimal128: _yIO_print__Decimal128,
-#else
-#define _yIO_PRINT_FUNC_GENERIC_Decimal128()
-#endif
-
-#if _yIO_USE___INT128
-#define _yIO_PRINT_FUNC_GENERIC___int128()  \
-		__int128: _yIO_print___int128, unsigned __int128: _yIO_print_u__int128,
-#else
-#define _yIO_PRINT_FUNC_GENERIC___int128()
-#endif
 
 /**
  * For one argument choose the printing function dynamically using _Generic macro
@@ -229,24 +134,11 @@ int _yIO_print_u__int128(yio_printctx_t *t);
 				unsigned long: _yIO_print_ulong, \
 				long long: _yIO_print_llong, \
 				unsigned long long: _yIO_print_ullong, \
-				float: _yIO_print_float, \
-				double: _yIO_print_double, \
-				long double: _yIO_print_ldouble, \
 				char *: _yIO_print_charpnt, \
 				const char *: _yIO_print_constcharpnt, \
 				wchar_t *: _yIO_print_wcharpnt, \
 				const wchar_t *: _yIO_print_constwcharpnt, \
-				_yIO_PRINT_FUNC_GENERIC___int128() \
-				_yIO_PRINT_FUNC_GENERIC_Float16() \
-				_yIO_PRINT_FUNC_GENERIC_Float32() \
-				_yIO_PRINT_FUNC_GENERIC_Float64() \
-				_yIO_PRINT_FUNC_GENERIC_Float128() \
-				_yIO_PRINT_FUNC_GENERIC_Float32x() \
-				_yIO_PRINT_FUNC_GENERIC_Float64x() \
-				_yIO_PRINT_FUNC_GENERIC_Float128x() \
-				_yIO_PRINT_FUNC_GENERIC_Decimal32() \
-				_yIO_PRINT_FUNC_GENERIC_Decimal64() \
-				_yIO_PRINT_FUNC_GENERIC_Decimal128() \
+				_yIO_PRINT_FUNC_GENERIC_FLOATS() \
 				_yIO_PRINT_SLOTS() \
 		default: \
 		_Generic((arg), \
@@ -256,8 +148,6 @@ int _yIO_print_u__int128(yio_printctx_t *t);
 		default: _yIO_print_wrong_type \
 		)\
 )
-
-
 
 /* ---------------------------------------------------------------------- */
 
@@ -366,9 +256,6 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 		unsigned long *: _yIO_scan_ulong, \
 		long long *: _yIO_scan_llong, \
 		unsigned long long *: _yIO_scan_ullong, \
-		float *: _yIO_scan_float, \
-		double *: _yIO_scan_double, \
-		long double *: _yIO_scan_ldouble, \
 		const char *: _yIO_scan_string_literal, \
 		char *: (_yIO_IS_STRING_LITERAL(arg) ? \
 						_yIO_scan_string_literal : \
@@ -381,13 +268,40 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 						_yIO_scan_string_literal : \
 						_yIO_scan_string), \
 		const char (*)[sizeof(*arg)]: _yIO_scan_const_char_array, \
+		_yIO_SCAN_FUNC_GENERIC_FLOATS() \
 		_yIO_SCAN_SLOTS() \
 		const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array \
 )
 
-/* -------------------------------------------------------------- */
+/* floats generated -------------------------------------------------------------- */
 
-/* ---------------------------------------------------------------- */
+#ifndef __CDT_PARSER__
+
+m4_include(`floatlist.m4~) // (type, name, suffix, strfromx, strtox)
+m4_define(`m4_FUNC_GENERIC_GEN~,`
+#ifdef _yIO_HAVE_$3
+int _yIO_print_$2(yio_printctx_t *t);
+int _yIO_scan_$2(yio_scanctx_t *t);
+#define _yIO_PRINT_FUNC_GENERIC_$2()  $1: _yIO_print_$2,
+#define _yIO_SCAN_FUNC_GENERIC_$2()  $1*: _yIO_scan_$2,
+#else
+#define _yIO_PRINT_FUNC_GENERIC_$2()
+#define _yIO_SCAN_FUNC_GENERIC_$2()
+#endif
+~)m4_dnl;
+m4_applyforeach(`m4_FUNC_GENERIC_GEN~, m4_floatlist)m4_dnl;
+
+m4_define(`m4_PRINT_FUNC_GENERIC_FLOATS~, `_yIO_PRINT_FUNC_GENERIC_$2()~)m4_dnl;
+#define _yIO_PRINT_FUNC_GENERIC_FLOATS() \
+		m4_applyforeach(`m4_PRINT_FUNC_GENERIC_FLOATS~, m4_floatlist)
+
+m4_define(`m4_SCAN_FUNC_GENERIC_FLOATS~, `_yIO_SCAN_FUNC_GENERIC_$2()~)m4_dnl;
+#define _yIO_SCAN_FUNC_GENERIC_FLOATS() \
+		m4_applyforeach(`m4_SCAN_FUNC_GENERIC_FLOATS~, m4_floatlist)
+
+#endif
+
+/* slots ---------------------------------------------------------------- */
 
 #ifndef __CDT_PARSER__
 

@@ -74,6 +74,15 @@
 
 #define _yIO_MAXHEXDIGITS_IN(type)  (sizeof(type) * CHAR_BIT / 4)
 
+#ifdef _yIO_HAVE_INT128
+#define _yIO_INTEGERS_APPEND_LIST_INT128() \
+		, \
+		(__int128, __int128), \
+		(u__int128, unsigned __int128)
+#else
+#define _yIO_INTEGERS_APPEND_LIST_INT128()
+#endif
+
 #define _yIO_INTEGERS_LIST2() \
 		(short, short), \
 		(ushort, unsigned short), \
@@ -82,9 +91,9 @@
 		(long, long), \
 		(ulong, unsigned long), \
 		(llong, long long), \
-		(ullong, unsigned long long), \
-		(__int128, __int128), \
-		(u__int128, unsigned __int128)
+		(ullong, unsigned long long) \
+		_yIO_INTEGERS_APPEND_LIST_INT128()
+
 
 #define _yIO_TYPES_LIST2() \
 		(schar, signed char), \

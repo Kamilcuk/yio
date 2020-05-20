@@ -7,7 +7,7 @@
  */
 #include "yio_error.h"
 #include "yio_error_messages.h"
-#include <assert.h>
+#include "yio_static_assert.h"
 #include <string.h>
 #include <stdio.h>
 
