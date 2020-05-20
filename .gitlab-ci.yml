@@ -26,10 +26,12 @@ clang_test:
 
 arm_test:
   image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
+  script:
   - make gitlab_arm_test
 
 arm_cdash:
   image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
+  script:
   - make gitlab_arm_cdash
 
 pages:
