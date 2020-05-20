@@ -151,10 +151,6 @@ int _yIO_cfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
 
 	*pf = _yIO_printfmt_default;
 
-	if (fmt == NULL) {
-		goto EXIT;
-	}
-
 	// if first char is % ignore it
 	if (fmt[0] == Yc('%')) {
 		++fmt;
