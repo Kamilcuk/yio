@@ -3,33 +3,40 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-on_gcc:
+test:
   image: gcc
   script:
   - apt-get update -y
   - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr
-  - make gitlab
+  - make gitlab_test
   
-on_gcc_cdash:
+cdash:
   image: gcc
   script:
   - apt-get update -y
   - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr
   - make gitlab_cdash
 
-on_arm:
-  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
-  - make SYSTEM=ARM10E gitlab
+clang_test:
+  image: ubuntu
+  script:
+  - apt-get update -y
+  - apt-get install -y cmake make clang cppcheck valgrind m4 ninja-build gcovr
+  - make gitlab_clang_test
 
-on_arm_cdash:
+arm_test:
   image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
-  - make SYSTEM=ARM10E gitlab_cdash
+  - make gitlab_arm_test
+
+arm_cdash:
+  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
+  - make gitlab_arm_cdash
 
 pages:
-  image: alpine
+  image: gcc
   script:
-  - apk update
-  - apk add make doxygen bash m4 cmake make gcc graphviz git build-base
+  - apt-get update -y
+  - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr dot
   - make doxygen
   artifacts:
     paths:

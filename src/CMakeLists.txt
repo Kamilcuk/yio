@@ -204,6 +204,7 @@ file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
 yio_add_library(yio
 	${auto_generic_srcs}
 	yio/yio_config.h
+	yio/yio_config_gen.h
 	yio/yio_error_messages.h
 	
 	yio.h
