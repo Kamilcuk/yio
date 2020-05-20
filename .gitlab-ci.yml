@@ -17,13 +17,13 @@ on_gcc_cdash:
   - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr
   - make gitlab_cdash
 
-#on_arm:
-#  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
-#  - make SYSTEM=ARM10E gitlab
-#
-#on_arm_cdash:
-#  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
-#  - make SYSTEM=ARM10E gitlab_cdash
+on_arm:
+  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
+  - make SYSTEM=ARM10E gitlab
+
+on_arm_cdash:
+  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
+  - make SYSTEM=ARM10E gitlab_cdash
 
 pages:
   image: alpine
