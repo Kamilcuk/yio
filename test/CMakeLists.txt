@@ -45,7 +45,7 @@ file(GLOB srcs *.c)
 
 subdirlist(dirs ${CMAKE_CURRENT_SOURCE_DIR})
 foreach(d IN LISTS dirs)
-	if(${d} STREQUAL "cmake_example") 
+	if(${d} STREQUAL "cmake_example")
 		continue()
 	endif()
 	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${d}/CMakeLists.txt)
@@ -55,6 +55,7 @@ foreach(d IN LISTS dirs)
 		list(APPEND srcs ${tmp})
 	endif()
 endforeach()
+
 
 list(REMOVE_DUPLICATES srcs)
 list(FILTER srcs EXCLUDE REGEX "ywio")
@@ -68,24 +69,38 @@ foreach(file IN LISTS srcs)
 	string(REPLACE "/" "_" name "${name}")
 	string(REPLACE "\\" "_" name "${name}")
 	string(REGEX REPLACE "\\..*$" "" name "${name}")
-	string(PREPEND name "yio_")
 
 	# message(STATUS "Adding test ${name} ${file}")
-	add_executable(${name} ${file})
-	target_link_libraries(${name} PUBLIC _yio_testlib)
+	add_executable(${name} EXCLUDE_FROM_ALL ${file})
+	target_link_libraries(${name} PRIVATE _yio_testlib)
+	
+	add_test(
+		NAME ${name}_compile
+		COMMAND ${CMAKE_COMMAND} --build . --target ${name}
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	)
+	set_property(TEST ${name}_compile APPEND PROPERTY LABELS nomemcheck)
+	set_property(TEST ${name}_compile APPEND PROPERTY LABELS compile)
+	set_property(TEST ${name}_compile APPEND PROPERTY FIXTURES_SETUP ${name}_compiled)
 
 	file(STRINGS ${file} input REGEX "^// INPUT ")
 	if(NOT input)
 		add_test(NAME ${name} COMMAND ${name})
+		set_tests_properties(${name} PROPERTIES LABELS normal)
 	else()
 		string(REGEX REPLACE "^[ \t]*// INPUT " "" input "${input}")
 		string(REGEX REPLACE ";[ \t]*// INPUT " "\n" input "${input}")
-		add_test(NAME ${name} COMMAND 
-			bash --noprofile --norc -c "exec \"$2\" <<<\"$1\"" _ ${input} $<TARGET_FILE:${name}>)
-		set_tests_properties(${name} PROPERTIES LABELS nomemcheck)
+		add_test(NAME ${name} 
+			# COMMAND bash --noprofile --norc -c "exec \"$2\" <<<\"$1\"" _ ${input} $<TARGET_FILE:${name}>
+			COMMAND ${CMAKE_CURRENT_BINARY_DIR}/redirectstdin/src/redirectstdin-build/redirectstdin
+					${input} ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:${name}>
+		)
+		# set_property(TEST ${name} APPEND PROPERTY LABELS nomemcheck)
+		set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED redirectstdin)
+		set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
 	endif()
-
-	set_tests_properties(${name} PROPERTIES TIMEOUT 5)
+	set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED ${name}_compiled)
+	set_property(TEST ${name} APPEND PROPERTY TIMEOUT 5)
 
 	test_extract_properties_from_file(${name} ${file})
 	
