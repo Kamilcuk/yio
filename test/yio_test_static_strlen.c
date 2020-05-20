@@ -12,7 +12,7 @@ int main() {
 	const char msg[] = "hello world";
 	const size_t a = _yIO_STRLEN(msg);
 	if (__builtin_constant_p(a) && a == strlen(msg)) {
-		return 0;
+		return EXIT_SUCCESS;
 	}
-	return -1;
+	return EXIT_FAILURE;
 }
