@@ -154,7 +154,8 @@ function(yio_add_library name)
 	target_include_directories(${name} PUBLIC
 		$<BUILD_INTERFACE:${GENDIR}>
 	)
-	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
+			CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		target_compile_options(${name} PRIVATE
 			$<$<CONFIG:Debug>:-ggdb3>
 			-Wall
@@ -163,6 +164,11 @@ function(yio_add_library name)
 			-Wno-unused-function
 			-Wno-unused-argument
 			-Wno-unused-parameter
+		)
+	endif()
+	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		target_compile_options(${name} PRIVATE
+			-Wno-sizeof-array-decay
 		)
 	endif()
 	add_dependencies(${name} _yio_gen)
