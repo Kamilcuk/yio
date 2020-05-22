@@ -12,7 +12,6 @@ MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-builtin-variables
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-print-directory
-export MAKEFLAGS
 export CDASH_KARTA_DYZIO_PL_PASSWORD
 
 CMAKE_BUILD_TYPE ?= Debug
@@ -94,6 +93,11 @@ build: .build_all
 USAGE +=~ test - Run tests using ctest
 test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
+
+USAGE +=~ release - Build the project in release mode
+release: export CMAKE_BUILD_TYPE=Release
+release:
+	@+$(CMAKE) build
 
 USAGE +=~ cmake-gui - Runs cmake-gui
 cmake-gui:
@@ -191,9 +195,11 @@ distclean: clean
 	if [ -e public ]; then rm -r public; fi
 
 USAGE +=~ install - install project
+install: export CMAKE_BUILD_TYPE=Release
 install: .build_install
 
 USAGE +=~ uninstall - uninstall files
+uninstall: export CMAKE_BUILD_TYPE=Release
 uninstall: .build_yio_uninstall
 
 # Usage #######################################################
