@@ -124,6 +124,9 @@ USAGE +=~ gitlab_arm_cdash - Run cdash with all possible tests on arm
 gitlab_arm_cdash: export SYSTEM = armv4t
 gitlab_arm_cdash: .gitlab_cdash
 
+USAGE +=~ gitlab_pages - Generate gitlab pages 
+gitlab_pages: doxygen
+
 # cdash ##########################
 
 CDASHROOT   = _build/$(SYSTEM)cdash

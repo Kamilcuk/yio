@@ -3,44 +3,43 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-test_project:
-  image: ubuntu
-  script:
+.ubuntu_install_deps: &ubuntu_install_deps
   - DEBIAN_FRONTEND=noninteractive apt-get update -y
   - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      make cmake m4 libc0.1-dev gcc valgrind ninja-build gcovr
+      make cmake m4 libc-dev gcc valgrind ninja-build gcovr
+
+test_project:
+  image: ubuntu
+  script: 
+  - *ubuntu_install_deps
   - make test_project
 
 cdash_gcc:
   image: ubuntu
   script:
-  - DEBIAN_FRONTEND=noninteractive apt-get update -y
-  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      make cmake m4 libc0.1-dev gcc valgrind ninja-build gcovr
+  - *ubuntu_install_deps
   - make gitlab_gcc_cdash
 
 cdash_clang:
   image: ubuntu
   script:
-  - DEBIAN_FRONTEND=noninteractive apt-get update -y
-  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      make cmake m4 libc0.1-dev clang valgrind ninja-build gcovr
+  - *ubuntu_install_deps
   - make gitlab_clang_cdash
 
 cdash_arm:
   image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
   script:
-  - pacman -S m4
+  - pacman -Suy --noconfirm
+  - pacman --noconfirm -S m4
   - make gitlab_arm_cdash
 
 pages:
   image: ubuntu
   script:
-  - DEBIAN_FRONTEND=noninteractive apt-get update -y
+  - *ubuntu_install_deps
   - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      make cmake m4 libc0.1-dev gcc valgrind ninja-build gcovr
       graphiz doxygen
-  - make doxygen
+  - make gitlab_pages
   artifacts:
     paths:
     - public
