@@ -41,7 +41,7 @@ pages:
   script:
   - *ubuntu_install_deps
   - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      graphviz doxygen
+      graphviz doxygen jq
   - make gitlab_pages
   artifacts:
     paths:
