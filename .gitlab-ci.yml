@@ -6,7 +6,7 @@ variables:
 .ubuntu_install_deps: &ubuntu_install_deps
   - DEBIAN_FRONTEND=noninteractive apt-get update -y
   - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      make cmake m4 libc-dev gcc valgrind ninja-build gcovr
+      make cmake m4 libc-dev clang gcc git valgrind ninja-build gcovr
 
 test_project:
   image: ubuntu
@@ -34,11 +34,12 @@ cdash_arm:
   - make gitlab_arm_cdash
 
 pages:
+  stage: deploy
   image: ubuntu
   script:
   - *ubuntu_install_deps
   - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      graphiz doxygen
+      graphviz doxygen
   - make gitlab_pages
   artifacts:
     paths:
