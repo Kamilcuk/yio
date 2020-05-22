@@ -111,10 +111,10 @@ ccmake:
 
 # Gitlab ####################################
 
-USAGE +=~ .gitlab_% - Internal gitlab target for setting up environment
-.gitlab_%: export override CDASHFLAGS := -DWITH_UPDATE=ON -DWITH_SUBMIT=ON -DMODEL=Continous $(CDASHFLAGS)
-.gitlab_%:
-	@+$(MAKE) $*
+USAGE +=~ .gitlab_cdash - Internal gitlab target for setting up environment
+.gitlab_cdash: export override CDASHFLAGS := -DCMAKE_C_COMPILER=$(CC) -DWITH_UPDATE=ON -DWITH_SUBMIT=ON -DMODEL=Continous $(CDASHFLAGS)
+.gitlab_cdash:
+	@+$(MAKE) cdash
 
 USAGE +=~ gitlab_test - Test everything there to test
 gitlab_gcc_cdash: export CC = gcc
@@ -122,14 +122,21 @@ gitlab_gcc_cdash: .gitlab_cdash
 
 USAGE +=~ gitlab_arm_cdash - Run cdash with all possible tests on arm
 gitlab_clang_cdash: export CC = clang
-gitlab_clang_cdash: .gitlab_cdash
+gitlab_clang_cdash: export override CDASHFLAGS := -DWITH_COVERAGE=OFF $(CDASHFLAGS)
+gitlab_clang_cdash: 
+	@+$(MAKE) .gitlab_cdash
 
 USAGE +=~ gitlab_arm_cdash - Run cdash with all possible tests on arm 
 gitlab_arm_cdash: export SYSTEM = armv4t
 gitlab_arm_cdash: .gitlab_cdash
 
 USAGE +=~ gitlab_pages - Generate gitlab pages 
-gitlab_pages: doxygen
+gitlab_pages: badge doxygen
+
+badge:
+	mkdir -p public
+	./scripts/badge_json_gen.sh > public/badge.json
+	cat public/badge.json
 
 # cdash ##########################
 

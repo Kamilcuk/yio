@@ -5,10 +5,16 @@
 
 :star: `Yio Input Output` library is aiming to be python-like type-safe `printf` and `scanf` replacement for C language.
 
-master: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg) ![coverage report](https://gitlab.com/kamcuk/yio/badges/master/coverage.svg) [cdash dashboard](https://cdash.karta.dyzio.pl/index.php?project=Yio)
+[doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/) [cdash dashboard](https://cdash.karta.dyzio.pl/index.php?project=Yio)
 
-devel: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/devel/pipeline.svg) ![coverage report](https://gitlab.com/kamcuk/yio/badges/devel/coverage.svg)
+master: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
 
+devel: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/devel/pipeline.svg)
+
+last cdash build: ![Passed tests](https://img.shields.io/badge/dynamic/json?color=blue&label=Passed%20tests&query=pass&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
+![Failed tests](https://img.shields.io/badge/dynamic/json?color=blue&label=Failed%20tests&query=fail&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
+![Tests time](https://img.shields.io/badge/dynamic/json?color=blue&label=Tests%20time&query=time&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
+ 
 ### Namespaces:
 
  - `y*` - Many common symbols.
