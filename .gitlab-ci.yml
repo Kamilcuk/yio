@@ -3,42 +3,43 @@
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
-test:
-  image: gcc
-  script:
-  - apt-get update -y
-  - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr
-  - make gitlab_test
-  
-cdash:
-  image: gcc
-  script:
-  - apt-get update -y
-  - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr
-  - make gitlab_cdash
-
-clang_test:
+test_project:
   image: ubuntu
   script:
-  - apt-get update -y
-  - apt-get install -y cmake make clang cppcheck valgrind m4 ninja-build gcovr
-  - make gitlab_clang_test
+  - DEBIAN_FRONTEND=noninteractive apt-get update -y
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
+      make cmake m4 libc0.1-dev gcc valgrind ninja-build gcovr
+  - make test_project
 
-arm_test:
+cdash_gcc:
+  image: ubuntu
+  script:
+  - DEBIAN_FRONTEND=noninteractive apt-get update -y
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
+      make cmake m4 libc0.1-dev gcc valgrind ninja-build gcovr
+  - make gitlab_gcc_cdash
+
+cdash_clang:
+  image: ubuntu
+  script:
+  - DEBIAN_FRONTEND=noninteractive apt-get update -y
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
+      make cmake m4 libc0.1-dev clang valgrind ninja-build gcovr
+  - make gitlab_clang_cdash
+
+cdash_arm:
   image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
   script:
-  - make gitlab_arm_test
-
-arm_cdash:
-  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
-  script:
+  - pacman -S m4
   - make gitlab_arm_cdash
 
 pages:
-  image: gcc
+  image: ubuntu
   script:
-  - apt-get update -y
-  - apt-get install -y cmake make gcc cppcheck valgrind m4 ninja-build gcovr dot
+  - DEBIAN_FRONTEND=noninteractive apt-get update -y
+  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
+      make cmake m4 libc0.1-dev gcc valgrind ninja-build gcovr
+      graphiz doxygen
   - make doxygen
   artifacts:
     paths:

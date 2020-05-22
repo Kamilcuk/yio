@@ -13,6 +13,7 @@ MAKEFLAGS += --no-builtin-variables
 MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-print-directory
 export MAKEFLAGS
+export CDASH_KARTA_DYZIO_PL_PASSWORD
 
 CMAKE_BUILD_TYPE ?= Debug
 export CMAKE_BUILD_TYPE
@@ -48,17 +49,12 @@ endif
 CMAKEFLAGS += -DBUILD_TESTING=$(BUILD_TESTING)
 
 
-ifeq ($(SYSTEM),ARM10E)
-ARM10E_CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/toolchain-arm-none-eabi.cmake
-ARM10E_CMAKEFLAGS += -DCMAKE_CROSSCOMPILING_EMULATOR=$(PWD)/scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
-
-CMAKEFLAGS += $(ARM10E_CMAKEFLAGS)
-
-CDASHFLAGS += -DSYSTEM=ARM10E
-CDASHFLAGS += -DWITH_SANITIZE=OFF
-CDASHFLAGS += -DWITH_COVERAGE=OFF
-CDASHFLAGS += -DWITH_SANITIZE=OFF
-CDASHFLAGS += $(ARM10E_CMAKEFLAGS)
+ifeq ($(SYSTEM),armv4t)
+armv4t_CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/toolchain-arm-none-eabi.cmake
+armv4t_CMAKEFLAGS += -DCMAKE_CROSSCOMPILING_EMULATOR=$(PWD)/scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
+CMAKEFLAGS += $(armv4t_CMAKEFLAGS)
+CDASHFLAGS += -DSYSTEM=none-armv4t-gcc
+CDASHFLAGS += $(armv4t_CMAKEFLAGS)
 endif
 
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
@@ -84,7 +80,7 @@ USAGE +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: configure
 	@echo $(CMAKE) --build $(B) --target $*
-	@$(STDBUF) $(CMAKE) --build $(B) --target $* $(GEN_TO_SRC)
+	@$(CMAKE) --build $(B) --target $*
 
 USAGE +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build__yio_gen
@@ -99,9 +95,6 @@ USAGE +=~ test - Run tests using ctest
 test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
 
-USAGE +=~ testall - Runs all known builds and tests
-testall: test memcheck sanitize test_project coverage
-
 USAGE +=~ cmake-gui - Runs cmake-gui
 cmake-gui:
 	cmake-gui -B $(B) $(CMAKEFLAGS)
@@ -110,54 +103,55 @@ USAGE +=~ ccmake - Runs ccmake
 ccmake:
 	ccmake -B $(B) $(CMAKEFLAGS)
 
+# Arm #######################################
+
 # Gitlab ####################################
 
 USAGE +=~ .gitlab_% - Internal gitlab target for setting up environment
-.gitlab_%: export CMAKE_BUILD_TYPE = Release
-.gitlab_%: export CDASHFLAGS += -DMODEL=Continous -DDO_SUBMIT=ON
+.gitlab_%: export override CDASHFLAGS := -DWITH_UPDATE=ON -DWITH_SUBMIT=ON -DMODEL=Continous $(CDASHFLAGS)
 .gitlab_%:
 	@+$(MAKE) $*
 
 USAGE +=~ gitlab_test - Test everything there to test
-gitlab_test: .gitlab_testall
-	
-USAGE +=~ gitlab_cdash - Run cdash
-gitlab_cdash: .gitlab_cdash
+gitlab_gcc_cdash: export CC = gcc
+gitlab_gcc_cdash: .gitlab_cdash
 
-USAGE +=~ gitlab_clang_test - Run all tests but with clang
-gitlab_clang_test: export CMAKEFLAGS += -DCMAKE_C_COMPILER=clang
-gitlab_clang_test: .gitlab_testall
-
-USAGE +=~ gitlab_arm_testall - Run all possible tests on arm
-gitlab_arm_testall: export SYSTEM = ARM10E
-gitlab_arm_testall: .gitlab_test
+USAGE +=~ gitlab_arm_cdash - Run cdash with all possible tests on arm
+gitlab_clang_cdash: export CC = clang
+gitlab_clang_cdash: .gitlab_cdash
 
 USAGE +=~ gitlab_arm_cdash - Run cdash with all possible tests on arm 
-gitlab_arm_cdash: export SYSTEM = ARM10E
+gitlab_arm_cdash: export SYSTEM = armv4t
 gitlab_arm_cdash: .gitlab_cdash
 
-# Tests ######################################
+# cdash ##########################
 
-USAGE +=~ memcheck - Run tests with valgrind under ctest
-memcheck: build
-	cd $(B) && $(CTEST) -T memcheck $(CTESTFLAGS) -LE nomemcheck
+CDASHROOT   = _build/$(SYSTEM)cdash
+CDASHSOURCE = $(CDASHROOT)/source
+CDASHBUILD  = $(CDASHROOT)/build
 
-USAGE +=~ sanitize - Run tests with super ultra sanitize options
-sanitize: export CMAKE_C_FLAGS += -D_FORTIFY_SOURCE=2 -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection
-sanitize: export B_SUFFIX = _sanitize
-sanitize:
-	@+$(MAKE) test
+USAGE +=~ cdash - Runs cdash locally without submitting results
+cdash: CDASHFLAGS ?=
+cdash: .cdash
 
-USAGE +=~ coverage - Generate coverage report
-.PHONY: coverage
-coverage: export CMAKE_C_FLAGS = --coverage -g
-coverage: export B_SUFFIX = _coverage
-coverage:
-	@+$(MAKE) .coverage
-.coverage: test
-	gcovr -r . -e test -e _build $(B)
+USAGE +=~ cdash_cubmit - Runs cdash locally and submit results
+cdash_submit: CDASHFLAGS += -DWITH_SUBMIT=ON
+cdash_submit: .cdash
+
+.cdash: $(CDASHSOURCE)
+	cd $(CDASHSOURCE) && ctest \
+		$(CDASHFLAGS) \
+		-DCTEST_BINARY_DIRECTORY=$(PWD)/$(CDASHBUILD) \
+		-DCTEST_SOURCE_DIRECTORY=$(PWD)/$(CDASHSOURCE) \
+		-S ./dashboard_chors.cmake -V
+		
+# create a separate source directory for cdash
+# so that ctest_update() doesn't overwrite my files!
+$(CDASHSOURCE): $(shell git ls-files . --exclude-standard --others --cached)
+	./scripts/copy_git_files_only.sh $(CDASHSOURCE)
 
 # Doxygen #####################################
+
 _build/doxygen:
 	mkdir -p _build/doxygen/
 _build/Doxyfile: doc/Doxyfile build_gen
@@ -171,33 +165,7 @@ doxygen: build_gen _build/Doxyfile
 	rm -fr public/doxygen
 	mkdir -p public
 	cp -a _build/doxygen/html/ public/doxygen/ 
-
-# cdash ##########################
-CDASHROOT   = _build/$(SYSTEM)cdash
-CDASHSOURCE = $(CDASHROOT)/source
-CDASHBUILD  = $(CDASHROOT)/_build
-
-USAGE +=~ cdash - Runs cdash locally without submitting results
-cdash: CDASHFLAGS ?=
-cdash: .cdash
-
-USAGE +=~ cdash_cubmit - Runs cdash locally and submit results
-cdash_submit: CDASHFLAGS ?= -DDO_SUBMIT=ON
-cdash_submit: .cdash
-
-.cdash: $(CDASHSOURCE)
-	cd $(CDASHSOURCE) && ctest \
-		$(CDASHFLAGS) \
-		-DCTEST_BINARY_DIRECTORY=$(PWD)/$(CDASHBUILD) \
-		-DCTEST_SOURCE_DIRECTORY=$(PWD)/$(CDASHSOURCE) \
-		-S ./dashboard_chors.cmake -V
-
-# create a separate source directory for cdash
-# so that ctest_update() doesn't overwrite my files!
-$(CDASHSOURCE): $(shell git ls-files . --exclude-standard --others --cached)
-	# rm -rf $(CDASHSOURCE)
-	./scripts/copy_git_files_only.sh $(CDASHSOURCE)
-
+	
 # test building cmake project ##########################
 
 USAGE +=~ test_project - Test sample cmake project
@@ -238,7 +206,6 @@ Variables you can set:
   CTESTFLAGS        - Arguments passed to ctest on the rare occasion
 
 Variables passed to dashboard_chors.cmake that you can set with CDASHFLAGS=...:
-  MODEL           - The ctest model: Experimental(default), Continous, Nightly
   WITH_UPDATE     - Checkout the project. Default OFF
   WITH_MEMCHECK   - Do memcheck step. Default ON
   WITH_COVERAGE   - Run and test coverage build. Default ON

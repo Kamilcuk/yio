@@ -27,9 +27,18 @@ if(EXISTS "${LOC_PATH}")
     message(FATAL_ERROR "You cannot build in a source directory (or any directory with a CMakeLists.txt file). Please make a build subdirectory. Feel free to remove CMakeCache.txt and CMakeFiles.")
 endif()
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/debug_variables.cmake)
+debug_variables("yio:"
+	BUILD_TESTING
+	YIO_BUILD_TESTING
+	CMAKE_C_FLAGS
+	CMAKE_BUILD_TYPE
+	CMAKE_VERBOSE_MAKEFILE
+)
+
 add_subdirectory(src)
 
-if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR YIO_CMAKE_BUILD_TESTING) 
+if((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME OR YIO_BUILD_TESTING) 
 		AND BUILD_TESTING)
 	include(CTest)
     add_subdirectory(test)

@@ -4,6 +4,7 @@ project(yio_tests LANGUAGES C)
 
 include(CTest)
 include(subdirlist)
+include(test_extract_properties_from_file)
 
 if(CMAKE_COMPILER_IS_GNUCC)
 	add_compile_options(
@@ -103,7 +104,6 @@ foreach(file IN LISTS srcs)
 	set_property(TEST ${name} APPEND PROPERTY TIMEOUT 5)
 
 	test_extract_properties_from_file(${name} ${file})
-	
 endforeach()
 
 # test cmake too!
