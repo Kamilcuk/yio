@@ -6,7 +6,9 @@ variables:
 .ubuntu_install_deps: &ubuntu_install_deps
   - DEBIAN_FRONTEND=noninteractive apt-get update -y
   - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      make cmake m4 libc-dev clang gcc git valgrind ninja-build gcovr
+      make cmake m4 libc-dev clang gcc git valgrind ninja-build gcovr 
+      ca-certificates curl 
+      
 
 test_project:
   image: ubuntu
