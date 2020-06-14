@@ -90,11 +90,12 @@ typedef int Yint;
  * @{
  */
 #if defined(__GNUC__)
-#define _yIO_nn(...)  __attribute__((__nonnull__(__VA_ARGS__)))
-#define _yIO_wur      __attribute__((__warn_unused_result__))
-#define _yIO_malloc   __attribute__((__malloc__))
-#define _yIO_const    __attribute__((__const__))
-#define _yIO_rnn      __attribute__((__returns_nonnull__))
+#define _yIO_nn(...)      __attribute__((__nonnull__(__VA_ARGS__)))
+#define _yIO_wur          __attribute__((__warn_unused_result__))
+#define _yIO_malloc       __attribute__((__malloc__))
+#define _yIO_const        __attribute__((__const__))
+#define _yIO_rnn          __attribute__((__returns_nonnull__))
+#define _yIO_format(...)  __attribute__((__format__(__VA_ARGS__)))
 #else
 /// Mark that function returns nonnull.
 #define _yIO_nn(...)
@@ -106,6 +107,8 @@ typedef int Yint;
 #define _yIO_const
 /// Function never returns null.
 #define _yIO_rnn
+/// Function formats like printf
+#define _yIO_format(...)
 #endif
 /**
  * @}
