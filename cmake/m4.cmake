@@ -141,6 +141,28 @@ function(m4_add_target target output source)
 	m4_target_options(${target} ${_M4_OPTIONS_INIT})
 endfunction()
 
+# @def m4_execute_process(output source ...)
+# @param output Output file
+# @param source Source file.
+# @param ... Additional m4 arguments.
+# Executes m4 but at configure stage.
+function(m4_execute_process output source)
+	execute_process(
+		RESULT_VARIABLE res
+		OUTPUT_VARIABLE out
+		ERROR_VARIABLE  err
+		COMMAND
+			${_M4_SH_EXECUTABLE} ${_M4_SH_SCRIPT}
+			${_M4_EXECUTABLE} ${output} ${opts} ${_M4_OPTIONS_INIT} ${source} ${ARGN}
+	)
+	if(NOT res EQUAL 0)
+		message(FATAL_ERROR 
+			"m4_execute_process: ERROR: m4 process exited with ${res} and messaged:\n"
+			"m4_execute_process: error: ${out}${err}"
+		)
+	endif()
+endfunction()
+
 # by default builtins are prefixed with `m4_` is added to m4
 m4_add_options(--prefix-builtins)
 
