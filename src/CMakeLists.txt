@@ -206,6 +206,13 @@ function(file_glob_relative_to_gendir glob var)
 endfunction()
 
 # add yio executable ##############################################
+file_glob_relative_to_gendir(GLOB auto_stupiddfp_srcs yio/stupiddfp/*.h yio/stupiddfp/*.c)
+yio_add_library(yio_stupiddfp 
+	${auto_stupiddfp_srcs}	
+	yio/yio_config.h
+	yio/yio_config_gen.h
+)
+
 file_glob_relative_to_gendir(GLOB auto_generic_srcs yio/*.h yio/*.c)
 file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
 file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_bits_srcs yio/bits/*.h yio/bits/*.c)
