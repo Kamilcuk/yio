@@ -169,12 +169,13 @@ $(CDASHSOURCE): $(shell git ls-files . --exclude-standard --others --cached)
 USAGE +=~ doxygen - Generates doxygen html documentation in pages/doxygen
 .PHONY: doxygen
 doxygen: build_gen _build/Doxyfile
-	rm -fr _build/doxygen/input
-	cp -a cmake m4 gen/* _build/doxygen/input/
+	@# Copy source file into one directory
+	./scripts/syncdir.sh ./m4 ./gen/* _build/doxygen/input/
+	@# Generate doxygen documentation
+	mkdir -p _build/doxygen/output
 	doxygen doc/Doxyfile
-	rm -fr public/doxygen
-	mkdir -p public/doxygen/
-	cp -a _build/doxygen/html/* public/doxygen/
+	@# Generate public/doxygen directory
+	./scripts/syncdir.sh _build/doxygen/output/html/* public/doxygen/
 .PHONY: doxygen_open
 doxygen_open: doxygen
 	xdg-open public/doxygen/index.html
