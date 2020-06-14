@@ -5,7 +5,18 @@ project(yio_tests LANGUAGES C)
 include(CTest)
 include(subdirlist)
 include(test_extract_properties_from_file)
+include(debug_variables)
 
+# m4 ###################################################################
+# Initialize m4 preprocessor the same way as in ../src/CMakeLists.txt
+include(m4)
+set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+set(GENDIR ${CMAKE_CURRENT_SOURCE_DIR}/../gen)
+m4_add_options(lib.m4)
+m4_add_include_directories(${SRCDIR} ${GENDIR}/m4)
+m4_add_file_dependencies(${GENDIR}/m4/yio_config.m4)
+
+# Compiler options #######################################################
 if(CMAKE_COMPILER_IS_GNUCC)
 	add_compile_options(
 		$<$<CONFIG:DEBUG>:-Os>
@@ -14,17 +25,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
 		-Wextra
 		-Wattribute-warning
 	)
-	if(0)
-		add_compile_options(
-			-pedantic
-			-error-pedantic
-			-Werror
-		)
-	else()
-		add_compile_definitions(
-			_yIO_COMPILE_PEDANTIC=0
-		)
-	endif()
 	if(0)
 		add_compile_options(
 			-O0
@@ -36,27 +36,47 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	endif()
 endif(CMAKE_COMPILER_IS_GNUCC)
 
-if(0)
-foreach(i IN ITEMS CMAKE_BUILD_TYPE BUILD_TESTING CMAKE_C_FLAGS)
-	message(STATUS "${i}=${${i}}")
-endforeach()
-endif()
+# Some output
+debug_variables("yio_test:" CMAKE_BUILD_TYPE BUILD_TESTING CMAKE_C_FLAGS)
 
-file(GLOB srcs *.c)
-
+# Detecting sources #################################################
+# List all directories in current testing directory
 subdirlist(dirs ${CMAKE_CURRENT_SOURCE_DIR})
-foreach(d IN LISTS dirs)
-	if(${d} STREQUAL "cmake_example")
-		continue()
-	endif()
-	if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${d}/CMakeLists.txt)
+
+# omit cmake_example, it's for cmake project installation testing 
+list(FILTER dirs EXCLUDE REGEX "cmake_example")
+
+# Create a list of sources
+set(srcs "")
+foreach(d IN ITEMS "." ${dirs})
+	
+	# If the directory is not current directory and it contains CMakeLists.txt file
+	if(NOT "${d}" STREQUAL "." AND
+			 EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${d}/CMakeLists.txt)
+		# Add it as a subdirectory.
 		add_subdirectory(${d})
 	else()
+		# Files in current directory are processed here too.
 		file(GLOB tmp ${d}/*.c)
-		list(APPEND srcs ${tmp})
+		foreach(source IN LISTS	tmp)
+			# Create path relative to current source dir that is relative to binary dir.
+			file(RELATIVE_PATH sourcenice ${CMAKE_CURRENT_SOURCE_DIR} ${source})
+			set(output ${CMAKE_CURRENT_BINARY_DIR}/${sourcenice})
+			
+			if(${source} MATCHES "\\.m4\\.c$")
+				# Files that are .m4.c are preprocessed by m4 preprocessor.
+				# Note: this is _before_ detecting PASS_REGULAR_EXPRESSION* in files.
+				m4_execute_process(${output} ${source})
+			else()
+				# *All* files are copied to CMAKE_CURRENT_BINARY_DIR.
+				get_filename_component(output_dir ${output} DIRECTORY)
+				file(COPY ${source} DESTINATION ${output_dir})
+			endif()
+			
+			list(APPEND srcs ${output})
+		endforeach()
 	endif()
 endforeach()
-
 
 list(REMOVE_DUPLICATES srcs)
 list(FILTER srcs EXCLUDE REGEX "ywio")
@@ -65,15 +85,16 @@ list(FILTER srcs EXCLUDE REGEX "ywio")
 # list(FILTER srcs INCLUDE REGEX "simple/")
 # list(FILTER srcs INCLUDE REGEX "scan.*08")
 
+# Create tests #####################################################
 foreach(file IN LISTS srcs)
-	file(RELATIVE_PATH name ${CMAKE_CURRENT_SOURCE_DIR} ${file})
+	file(RELATIVE_PATH name ${CMAKE_CURRENT_BINARY_DIR} ${file})
 	string(REPLACE "/" "_" name "${name}")
 	string(REPLACE "\\" "_" name "${name}")
 	string(REGEX REPLACE "\\..*$" "" name "${name}")
 
 	# message(STATUS "Adding test ${name} ${file}")
 	add_executable(${name} EXCLUDE_FROM_ALL ${file})
-	target_link_libraries(${name} PRIVATE _yio_testlib)
+	target_link_libraries(${name} PRIVATE _yio_testlib m)
 	
 	add_test(
 		NAME ${name}_compile

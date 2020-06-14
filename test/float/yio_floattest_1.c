@@ -1,6 +1,7 @@
-#include <yio.h>
+#include <yio_test.h>
 int main() {
 	float arg = 123.456789;
-	yprintf("{}", arg);
+	int err = yprintf("{}", arg);
+	_yIO_TEST(err > 6, "err=%d", err);
 }
-// PASS_REGULAR_EXPRESSION 123.45678[0-9]+
+// PASS_REGULAR_EXPRESSION 123.45[67][0-9]*

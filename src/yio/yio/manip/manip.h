@@ -10,6 +10,10 @@ m4_config();
 #pragma once
 #include "yio/yio/ctx_public.h"
 #include "yio/yio_config.h"
+#include "slots.h"
+#include "print_float.h"
+#include "print_chars.h"
+#include "print_int.h"
 
 /* ---------------------------------------------------------------- */
 
@@ -85,26 +89,10 @@ int _yIO_print_cfmt(yio_printctx_t *t);
  */
 
 int _yIO_print_wrong_type(yio_printctx_t *t);
-int _yIO_print_char(yio_printctx_t *t);
-int _yIO_print_schar(yio_printctx_t *t);
-int _yIO_print_uchar(yio_printctx_t *t);
-int _yIO_print_short(yio_printctx_t *t);
-int _yIO_print_ushort(yio_printctx_t *t);
-int _yIO_print_int(yio_printctx_t *t);
-int _yIO_print_uint(yio_printctx_t *t);
-int _yIO_print_long(yio_printctx_t *t);
-int _yIO_print_ulong(yio_printctx_t *t);
-int _yIO_print_llong(yio_printctx_t *t);
-int _yIO_print_ullong(yio_printctx_t *t);
-int _yIO_print_charpnt(yio_printctx_t *t);
-int _yIO_print_constcharpnt(yio_printctx_t *t);
 int _yIO_print_intpnt(yio_printctx_t *t);
 int _yIO_print_wchar(yio_printctx_t *t);
 int _yIO_print_wcharpnt(yio_printctx_t *t);
 int _yIO_print_constwcharpnt(yio_printctx_t *t);
-int _yIO_print_floatpnt(yio_printctx_t *t);
-int _yIO_print___int128(yio_printctx_t *t);
-int _yIO_print_u__int128(yio_printctx_t *t);
 
 /**
  * @defgroup yp__ Printing overloads.
@@ -119,35 +107,24 @@ int _yIO_print_u__int128(yio_printctx_t *t);
  */
 
 /**
+ * @def _yIO_PRINT_FUNC_GENERIC
  * For one argument choose the printing function dynamically using _Generic macro
  */
 #define _yIO_PRINT_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
-				char: _yIO_print_char, \
-				signed char: _yIO_print_schar, \
-				unsigned char: _yIO_print_uchar, \
-				short: _yIO_print_short, \
-				unsigned short: _yIO_print_ushort, \
-				int: _yIO_print_int, \
-				unsigned int: _yIO_print_uint, \
-				long: _yIO_print_long, \
-				unsigned long: _yIO_print_ulong, \
-				long long: _yIO_print_llong, \
-				unsigned long long: _yIO_print_ullong, \
-				char *: _yIO_print_charpnt, \
-				const char *: _yIO_print_constcharpnt, \
+				_yIO_PRINT_FUNC_GENERIC_SLOTS() \
+		default: _Generic((arg), \
+				_yIO_PRINT_FUNC_GENERIC_INTS() \
+				_yIO_PRINT_FUNC_GENERIC_CHARS() \
+				_yIO_PRINT_FUNC_GENERIC_FLOATS() \
 				wchar_t *: _yIO_print_wcharpnt, \
 				const wchar_t *: _yIO_print_constwcharpnt, \
-				_yIO_PRINT_FUNC_GENERIC_FLOATS() \
-				_yIO_PRINT_SLOTS() \
-		default: \
-		_Generic((arg), \
+		default: _Generic((arg), \
+				_yIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				wchar_t: _yIO_print_wchar, \
 				int *: _yIO_print_intpnt, \
-				float *: _yIO_print_floatpnt, \
 		default: _yIO_print_wrong_type \
-		)\
-)
+		)))
 
 /* ---------------------------------------------------------------------- */
 
@@ -269,7 +246,7 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 						_yIO_scan_string), \
 		const char (*)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 		_yIO_SCAN_FUNC_GENERIC_FLOATS() \
-		_yIO_SCAN_SLOTS() \
+		_yIO_SCAN_FUNC_GENERIC_SLOTS() \
 		const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array \
 )
 
@@ -278,45 +255,18 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 #ifndef __CDT_PARSER__
 
 m4_include(`floatlist.m4~) // (type, name, suffix, strfromx, strtox)
-m4_define(`m4_FUNC_GENERIC_GEN~,`
+
+m4_applyforeachdefine(m4_floatlist, `m4_dnl;
 #ifdef _yIO_HAVE_$3
-int _yIO_print_$2(yio_printctx_t *t);
 int _yIO_scan_$2(yio_scanctx_t *t);
-#define _yIO_PRINT_FUNC_GENERIC_$2()  $1: _yIO_print_$2,
 #define _yIO_SCAN_FUNC_GENERIC_$2()  $1*: _yIO_scan_$2,
 #else
-#define _yIO_PRINT_FUNC_GENERIC_$2()
 #define _yIO_SCAN_FUNC_GENERIC_$2()
 #endif
 ~)m4_dnl;
-m4_applyforeach(`m4_FUNC_GENERIC_GEN~, m4_floatlist)m4_dnl;
 
-m4_define(`m4_PRINT_FUNC_GENERIC_FLOATS~, `_yIO_PRINT_FUNC_GENERIC_$2()~)m4_dnl;
-#define _yIO_PRINT_FUNC_GENERIC_FLOATS() \
-		m4_applyforeach(`m4_PRINT_FUNC_GENERIC_FLOATS~, m4_floatlist)
-
-m4_define(`m4_SCAN_FUNC_GENERIC_FLOATS~, `_yIO_SCAN_FUNC_GENERIC_$2()~)m4_dnl;
 #define _yIO_SCAN_FUNC_GENERIC_FLOATS() \
-		m4_applyforeach(`m4_SCAN_FUNC_GENERIC_FLOATS~, m4_floatlist)
+		m4_applyforeachdefine(m4_floatlist, `_yIO_SCAN_FUNC_GENERIC_$2()~)
 
 #endif
-
-/* slots ---------------------------------------------------------------- */
-
-#ifndef __CDT_PARSER__
-
-m4_forloopX(100, m4_SLOTS_END, `
-#ifndef YIO_PRINT_SLOT_`~X
-#define YIO_PRINT_SLOT_`~X`~()
-#endif
-#ifndef YIO_SCAN_SLOT_`~X
-#define YIO_SCAN_SLOT_`~X`~()
-#endif
-~)m4_dnl;
-
-#endif
-
-#define _yIO_PRINT_SLOTS()  m4_forloopX(100, m4_SLOTS_END, `YIO_PRINT_SLOT_`~X`~()~)
-
-#define _yIO_SCAN_SLOTS()   m4_forloopX(100, m4_SLOTS_END, `YIO_SCAN_SLOT_`~X`~()~)
 
