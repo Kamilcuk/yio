@@ -109,23 +109,19 @@ int _yIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 
 struct _yIO_yvsprintf_ctx_s {
 	Ychar *dest;
-	Ychar *end;
+	size_t size;
 };
 
 static
 int _yIO_yvsprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	struct _yIO_yvsprintf_ctx_s *c = arg;
-	if (c->dest == NULL) {
+	if (c->size == 0) {
 		return 0;
 	}
-	assert(SIZE_MAX - 1 > size);
-	assert(c->end > c->dest);
-	const bool not_enough_space =
-			(size_t)(c->end - c->dest) < size + 1;
-	size = not_enough_space ? (size_t)(c->end - c->dest) - 1 : size;
-	(void)memcpy(c->dest, ptr, size);
+	const bool not_enough_space = c->size < size + 1;
+	size = not_enough_space ? c->size - 1 : size;
+	memcpy(c->dest, ptr, size);
 	c->dest += size;
-	assert(c->dest < c->end);
 	return not_enough_space ? YIO_ERROR_ENOBUFS : 0;
 }
 
@@ -171,7 +167,7 @@ int yvfprintf(FILE *file, yio_printdata_t *data, va_list *va) {
 int yvsprintf(Ychar *dest, size_t size, yio_printdata_t *data, va_list *va) {
 	struct _yIO_yvsprintf_ctx_s ctx = {
 			.dest = dest,
-			.end = dest + size,
+			.size = size,
 	};
 	const int ret = yvbprintf(_yIO_yvsprintf_cb, &ctx, data, va);
 	if (size > 0) {
