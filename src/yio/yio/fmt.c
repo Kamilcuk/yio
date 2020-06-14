@@ -13,6 +13,34 @@ m4_config();
 #include <string.h>
 #include <ctype.h>
 
+static inline
+int _yIO_printctx_stdintparam_callback(void *arg) {
+	struct _yIO_printctx_s *t = arg;
+	++t->ifunc;
+	return yio_printctx_va_arg(t, int);
+}
+
+static inline
+int _yIO_printctx_stdintparam(struct _yIO_printctx_s *t,
+		const Ychar *ptr, const Ychar **endptr, int *res) {
+	return _yIO_commonctx_stdintparam(_yIO_printctx_stdintparam_callback, t,
+			ptr, endptr, res);
+}
+
+static inline
+int _yIO_scanctx_stdintparam_callback(void *arg) {
+	struct _yIO_scanctx_s *t = arg;
+	++t->ifunc;
+	return yio_scanctx_va_arg(t, int);
+}
+
+static inline
+int _yIO_scanctx_stdintparam(struct _yIO_scanctx_s *t,
+		const Ychar *ptr, const Ychar **endptr, int *res) {
+	return _yIO_commonctx_stdintparam(_yIO_scanctx_stdintparam_callback, t,
+			ptr, endptr, res);
+}
+
 const struct yio_printfmt_s _yIO_printfmt_default = {
 		.width = -1,
 		.precision = -1,
@@ -52,7 +80,7 @@ bool _yIO_strnulchrbool(const Ychar *s, Ychar c) {
 	return c != Yc('\0') && Ystrchr(s, c) != NULL;
 }
 
-int _yIO_pfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
+int _yIO_pfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 		const Ychar *fmt, const Ychar **endptr) {
 	/*
 	replacement_field ::=  "{" [field_name] ["!" conversion] [":" format_spec] "}"
@@ -103,7 +131,7 @@ int _yIO_pfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
 		pf->align = Yc('=');
 	}
 
-	int err = _yIO_commonctx_stdintparam(c, fmt, &fmt, &pf->width);
+	int err = _yIO_printctx_stdintparam(c, fmt, &fmt, &pf->width);
 	if (err) {
 		ret = err;
 		goto EXIT;
@@ -113,7 +141,7 @@ int _yIO_pfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
 	if (fmt[0] == '.') {
 		++fmt;
 		const char *endptr;
-		err = _yIO_commonctx_stdintparam(c, fmt, &endptr, &pf->precision);
+		err = _yIO_printctx_stdintparam(c, fmt, &endptr, &pf->precision);
 		if (err) {
 			ret = err;
 			goto EXIT;
@@ -141,7 +169,7 @@ int _yIO_pfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
 	return ret;
 }
 
-int _yIO_cfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
+int _yIO_cfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 		const Ychar *fmt, const Ychar **endptr)  {
 	// regex:
 	// [%]?[+- #0]*([0-9]*|\*)?(\.([0-9]*|\*)?)?
@@ -173,7 +201,7 @@ int _yIO_cfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
 	}
 
 	// minimum field width
-	int err = _yIO_commonctx_stdintparam(c, fmt, &fmt, &pf->width);
+	int err = _yIO_printctx_stdintparam(c, fmt, &fmt, &pf->width);
 	if (err) {
 		ret = err;
 		goto EXIT;
@@ -183,7 +211,7 @@ int _yIO_cfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
 	if (*fmt == Yc('.')) {
 		fmt++;
 
-		int err = _yIO_commonctx_stdintparam(c, fmt, &fmt, &pf->precision);
+		int err = _yIO_printctx_stdintparam(c, fmt, &fmt, &pf->precision);
 		if (err) {
 			ret = err;
 			goto EXIT;
@@ -399,7 +427,11 @@ int _yIO_printformat_print(_yIO_printformat_t *pf, const Ychar str[]) {
 		const int err = _yIO_print_format_generic_number_grouping(t, grouping, str, str_len);
 		if (err) return err;
 	} else {
-		const int err = yio_printctx_out(t, str, str_len);
+		const int precision = f->precision;
+		const size_t to_print =
+				is_number == true || precision < 0 || (size_t)precision >= str_len ?
+						str_len : (size_t)precision;
+		const int err = yio_printctx_out(t, str, to_print);
 		if (err) return err;
 	}
 
@@ -433,7 +465,7 @@ int _yIO_printformat_string(yio_printctx_t *t, const Ychar str[]) {
 int _yIO_print_cfmt(yio_printctx_t *t) {
 	const char *str = yio_printctx_va_arg(t, const char *);
 	const char *endptr = NULL;
-	int err = _yIO_cfmt_parse(&t->c, &t->pf, str, &endptr);
+	int err = _yIO_cfmt_parse(t, &t->pf, str, &endptr);
 	if (err) return err;
 	if ((size_t)(endptr - str) != Ystrlen(str)) {
 		return YIO_ERROR_CFMT_INVALID;
@@ -444,7 +476,7 @@ int _yIO_print_cfmt(yio_printctx_t *t) {
 int _yIO_print_pfmt(yio_printctx_t *t) {
 	const char *str = yio_printctx_va_arg(t, const char *);
 	const char *endptr = NULL;
-	int err = _yIO_pfmt_parse(&t->c, &t->pf, str, &endptr);
+	int err = _yIO_pfmt_parse(t, &t->pf, str, &endptr);
 	if (err) return err;
 	if ((size_t)(endptr - str) != Ystrlen(str)) {
 		return YIO_ERROR_PYFMT_INVALID;
@@ -454,7 +486,7 @@ int _yIO_print_pfmt(yio_printctx_t *t) {
 
 /* --------------------------------------------------------------------------------- */
 
-int _yIO_scan_parse_scanfmt(struct _yIO_commonctx_s *c, struct yio_scanfmt_s *sf,
+int _yIO_scan_parse_scanfmt(struct _yIO_scanctx_s *c, struct yio_scanfmt_s *sf,
 		const char *fmt, const char **endptr) {
 	// {[*][width][iduoxfegacspn]}
 	int err = 0;
@@ -465,7 +497,7 @@ int _yIO_scan_parse_scanfmt(struct _yIO_commonctx_s *c, struct yio_scanfmt_s *sf
 	}
 	++fmt;
 	sf->ignore = fmt[0] == Yc('*') ? fmt++, Yc('*') : 0;
-	err = _yIO_commonctx_stdintparam(c, fmt, &fmt, &sf->width);
+	err = _yIO_scanctx_stdintparam(c, fmt, &fmt, &sf->width);
 	if (err) {
 		goto EXIT;
 	}

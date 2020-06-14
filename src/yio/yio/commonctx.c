@@ -22,7 +22,7 @@ int _yIO_digit_to_number(Ychar d) {
 #endif
 }
 
-int _yIO_commonctx_stdintparam(struct _yIO_commonctx_s *t,
+int _yIO_commonctx_stdintparam(int (*get_va_arg_int)(void *arg), void *arg,
 		const Ychar *ptr, const Ychar **endptr, int *res) {
 	int num = -1;
 	int ret = 0;
@@ -32,7 +32,7 @@ int _yIO_commonctx_stdintparam(struct _yIO_commonctx_s *t,
 			ret = YIO_ERROR_FMT_INVALID;
 			goto EXIT;
 		}
-		num = _yIO_commonctx_va_arg(t, int);
+		num = get_va_arg_int(arg);
 	}
 	if (Yisdigit(ptr[0])) {
 		num = 0;

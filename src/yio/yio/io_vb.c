@@ -82,7 +82,7 @@ int yvbprintf_in(yio_printctx_t *t) {
 		if (err) return err;
 		if (t->fmt[0] == Yc('\0')) break;
 
-		err = _yIO_pfmt_parse(&t->c, &t->pf, t->fmt, &t->fmt);
+		err = _yIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
 		if (err) return err;
 
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
@@ -144,7 +144,7 @@ int _yIO_yvbscanf_in(yio_scanctx_t *t) {
 		if (err) return err;
 		if (t->fmt[0] == Yc('\0')) break;
 
-		err = _yIO_scan_parse_scanfmt(&t->c, &t->sf, t->fmt, &t->fmt);
+		err = _yIO_scan_parse_scanfmt(t, &t->sf, t->fmt, &t->fmt);
 		if (err) return err;
 
 		if (t->sf.ignore && t->sf.type) {

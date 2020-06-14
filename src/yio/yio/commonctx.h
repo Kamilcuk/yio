@@ -38,5 +38,5 @@ va_list *_yIO_commonctx_inc_va_list(struct _yIO_commonctx_s *commonctx,
 		va_arg(*_yIO_commonctx_inc_va_list(commonctx, sizeof(realtype)), realtype)
 
 _yIO_wur _yIO_nn()
-int _yIO_commonctx_stdintparam(struct _yIO_commonctx_s *t,
+int _yIO_commonctx_stdintparam(int (*get_va_arg_int)(void *arg), void *arg,
 		const Ychar *ptr, const Ychar **endptr, int *res);

@@ -36,7 +36,7 @@ void _yIO_printfmt_println(const struct yio_printfmt_s *t);
  * @return 0 on success, otherwise error
  */
 _yIO_wur _yIO_nn()
-int _yIO_pfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
+int _yIO_pfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 		const Ychar *fmt, const Ychar **endptr);
 
 /**
@@ -48,7 +48,7 @@ int _yIO_pfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
  * @return 0 on success, otherwise error
  */
 _yIO_wur _yIO_nn()
-int _yIO_cfmt_parse(struct _yIO_commonctx_s *c, struct yio_printfmt_s *pf,
+int _yIO_cfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 		const Ychar *fmt, const Ychar **endptr);
 
 /**
@@ -71,7 +71,7 @@ _yIO_wur _yIO_nn()
 int _yIO_printformat_string(yio_printctx_t *t, const Ychar str[]);
 
 _yIO_wur _yIO_nn(1, 2, 3)
-int _yIO_scan_parse_scanfmt(struct _yIO_commonctx_s *c, struct yio_scanfmt_s *sf,
+int _yIO_scan_parse_scanfmt(struct _yIO_scanctx_s *c, struct yio_scanfmt_s *sf,
 		const Ychar *fmt, const Ychar **endptr);
 
 _yIO_wur _yIO_nn()
