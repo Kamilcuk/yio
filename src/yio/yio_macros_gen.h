@@ -28,7 +28,6 @@
  */
 #define _yIO_FIRST(_1, ...)  _1
 
-
 /**
  * Just 61 commas if you're wondering.
  */
@@ -47,15 +46,17 @@
 /* -------------------------------------------------------------------------------------------- */
 
 /**
- * _yIO_IFBA62A(expr, then, else)
+ * @def _yIO_IFBA62A(expr, then, else)
  * If braces and 62 or more arguments in @c expr then @c then else @c else
  */
 #define _yIO_IFBA62A_0(then, else)   else
 #define _yIO_IFBA62A_62(then, else)  then
-#define _yIO_IFBA62A_N(m4_seqdashcomma(1, 70), N, ...)  _yIO_IFBA62A_##N
-#define _yIO_IFBA62A_IN(expr) _yIO_IFBA62A_N(expr, m4_seqcommaX(64, 74, `62~), m4_seqcommaX(1, 61, `0~))
-// m4_define(`m4_yIO_IFBA62A~, ``_yIO_IFBA62A_IN(_yIO_ESC ~$1`)(~$2`, ~$3`)~~)
-#define _yIO_IFBA62A(expr, then, else)  m4_yIO_IFBA62A(expr, then, else)
+#define _yIO_IFBA62A_N(m4_seqdashcomma(1, 70), N, ...) \
+		_yIO_IFBA62A_##N
+#define _yIO_IFBA62A_IN(expr) \
+		_yIO_IFBA62A_N(expr, m4_seqcommaX(64, 74, `62~), m4_seqcommaX(1, 61, `0~))
+// m4_define(`m4_yIO_IFBA62A~, `_yIO_IFBA62A_IN(_yIO_ESC $1)($2, $3)~)
+#define _yIO_IFBA62A(expr, then, else) m4_yIO_IFBA62A(expr, then, else)
 
 /* ----------------------------------------------------------------------------------------------- */
 
@@ -111,8 +112,10 @@
  */
 #define _yIO_PRECOMMAIGNORE1_0(...)
 #define _yIO_PRECOMMAIGNORE1_2(_1, ...)  ,__VA_ARGS__
-#define _yIO_PRECOMMAIGNORE1_N(m4_forloopdashX(0, m4_MLVLS, `X~, `,~), N, ...)  _yIO_PRECOMMAIGNORE1_##N
-#define _yIO_PRECOMMAIGNORE1(...)  _yIO_PRECOMMAIGNORE1_N(__VA_ARGS__, m4_forloopdashX(m4_MLVLS, 1, `2~, `,~),0,0)(__VA_ARGS__)
+#define _yIO_PRECOMMAIGNORE1_N(m4_seqdashcomma(0, m4_MLVLS), N, ...) \
+		_yIO_PRECOMMAIGNORE1_##N
+#define _yIO_PRECOMMAIGNORE1(...)  \
+		_yIO_PRECOMMAIGNORE1_N(__VA_ARGS__, m4_forloopdashX(m4_MLVLS, 1, `2~, `,~),0,0)(__VA_ARGS__)
 
 /**
  * @def _yIO_FORWARD_XFROMSECOND
@@ -135,11 +138,14 @@
  */
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_0()
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_1(_1)
-m4_forloopY(2, m4_MLVLS, ` m4_dnl ;
-#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_`~Y`~(_1,m4_forloopdashX(2, Y, `X~, `,~))  m4_forloopdashX(2, Y, `m4_SIZEOFDECAY(X),~)
-~) m4_dnl ;
-#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(m4_forloopdashX(1, m4_MLVLS, `X~, `,~), N, ...) _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_##N
-#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(...) _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(__VA_ARGS__, m4_forloopX(m4_MLVLS, 0, `X~, `,~))(__VA_ARGS__)
+m4_applyforloopdefine(2, m4_MLVLS, `m4_dnl;
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_$1(_1,m4_seqdashcomma(2, $1)) \
+		m4_forloopdashX(2, $1, `m4_SIZEOFDECAY(X),~)
+~)m4_dnl;
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(m4_seqdashcomma(1, m4_MLVLS), N, ...) \
+		_yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_##N
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(...) \
+		_yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(__VA_ARGS__)
 
 /**
  * @def _yIO_I1FSDPC_XF2(_1, ...)
@@ -157,7 +163,7 @@ m4_forloopY(2, m4_MLVLS, ` m4_dnl ;
  */
 #define _yIO_STRLEN(s) (\
 		!(s)[0]?0:!(s)[1]?1:\
-		m4_forloopX(2, 120,``!(s)[~X`]?~X`:~m4_ifelse(m4_eval(X%5),`1~,`\
+		m4_applyforloopdefine(2, 120, `!(s)[$1]?$1:m4_ifelse(m4_eval($1%5),`1~,`\
 		~)~) \
 		-1)
 
@@ -166,24 +172,24 @@ m4_forloopY(2, m4_MLVLS, ` m4_dnl ;
 #define _yIO_print_arguments_1(func_gen, fmt)  \
 		&(const yio_printdata_t){(fmt), NULL, NULL}
 
-m4_forloopY(2, m4_MLVLS, `
-#define _yIO_print_arguments_`~Y`~(func_gen, fmt, m4_forloopdashX(2, Y, `X~, `,~)) \
+m4_applyforloopdefine(2, m4_MLVLS, `
+#define _yIO_print_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
 	&(const yio_printdata_t){ \
 		(fmt), \
 		(const _yIO_printfunc_t[]){ \
-m4_forloopdashX(2, Y,
+m4_forloopdashX(2, $1,
 `			_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_SECONDX, func_gen)(X, _yIO_FIRST _yIO_FIRST X), \
 ~) \
 			NULL \
 		}, \
 		(const size_t[]){ \
-m4_forloopdashX(2, Y,
+m4_forloopdashX(2, $1,
 `		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_I1FSDPC_XF2, _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX)(X, _yIO_ESC _yIO_FIRST X) \
 ~) \
 			0 \
 		}, \
 	} \
-m4_forloopdashX(2, Y,
+m4_forloopdashX(2, $1,
 `	_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)(X, _yIO_ESC _yIO_FIRST X) \
 ~)
 ~) m4_dnl ;
@@ -197,32 +203,32 @@ m4_forloopdashX(2, Y,
 #define _yIO_scan_arguments_1(func_gen,fmt)  \
 		&(const yio_scandata_t){(fmt),NULL,NULL,NULL}
 
-m4_forloopY(2, m4_MLVLS, `
-#define _yIO_scan_arguments_`~Y`~(func_gen, fmt, m4_forloopdashX(2, Y, `X~, `,~)) \
+m4_applyforloopdefine(2, m4_MLVLS, `
+#define _yIO_scan_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
 	&(const yio_scandata_t){ \
 		(fmt), \
 		(const _yIO_scanfunc_t[]){ \
-m4_forloopdashX(2, Y,
+m4_forloopdashX(2, $1,
 `			_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_SECONDX, func_gen)(X, _yIO_FIRST _yIO_FIRST X), \
 ~) \
 			NULL \
 		}, \
 m4_dnl  .argpntsizes = \
 		(const size_t[]){ \
-m4_forloopdashX(2, Y,
+m4_forloopdashX(2, $1,
 `		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_EMPTY, _yIO_FIRSTSIZEOFDEREFPOSTCOMMA)(X, _yIO_ESC _yIO_FIRST X) \
 ~) \
 			0 \
 		}, \
 m4_dnl  .argsizes = \
 		(const size_t[]){ \
-m4_forloopdashX(2, Y,
+m4_forloopdashX(2, $1,
 `		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_I1FSDPC_XF2, _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX)(X, _yIO_ESC _yIO_FIRST X) \
 ~) \
 			0 \
 		}, \
 	} \
-m4_forloopdashX(2, Y,
+m4_forloopdashX(2, $1,
 `	_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)(X, _yIO_ESC _yIO_FIRST X) \
 ~)
 ~) m4_dnl ;

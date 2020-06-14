@@ -149,7 +149,7 @@ m4_forloopX(3, m4_MLVLS,
  */
 #define _yIO_WCSLEN(s) (\
 		(s)[0]==L'\0'?0:(s)[1]==L'\0'?1:\
-		m4_forloopX(2, 120,``(s)[~X`]==L'\0'?~X`:~m4_ifelse(m4_eval(X%5),`1~,`\
+		m4_applyforloopdefine(2, 120,`(s)[$1]==L'\0'?$1:m4_ifelse(m4_eval($1%5),`1~,`\
 		~)~) \
 		-1)
 
@@ -160,6 +160,6 @@ m4_forloopX(3, m4_MLVLS,
  */
 #define _yIO_UCSLEN(s) (\
 		(s)[0]==U'\0'?0:(s)[1]==U'\0'?1:\
-		m4_forloopX(2, 120,``(s)[~X`]==U'\0'?~X`:~m4_ifelse(m4_eval(X%5),`1~,`\
+		m4_applyforloopdefine(2, 120,`(s)[$1]==U'\0'?$1:m4_ifelse(m4_eval($1%5),`1~,`\
 		~)~) \
 		-1)
