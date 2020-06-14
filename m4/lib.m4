@@ -17,10 +17,8 @@ m4_include(lib/foreach.m4)
 m4_include(lib/capitalize2.m4)
 
 /**
- * @defgroup m4
- * @brief Group with all m4_ macros.
- * {
- * }
+ * @defgroup m4 
+ * @brief Group with m4 macros.
  */
 
 /**
@@ -28,6 +26,7 @@ m4_include(lib/capitalize2.m4)
  * @ingroup m4
  * Define dnl just for shortcuts to m4_dnl, but please do not use it.
  */
+#define dnl
 m4_define(`dnl~, `m4_dnl~)
 
 /**

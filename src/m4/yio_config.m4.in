@@ -9,6 +9,7 @@
 
 /**
  * @def m4_MLVLS
+ * @ingroup m4
  * The count of macro levels to generate
  */
 #define m4_MLVLS  20
@@ -16,6 +17,7 @@ m4_define(`m4_MLVLS~, `@YIO_M4_MLVLS@~)m4_dnl
 
 /**
  * @def m4_SLOTS_END
+ * @ingroup m4
  * The ending count of overloading slots to generate
  */
 #define m4_SLOTS_END  100
