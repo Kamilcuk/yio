@@ -4,7 +4,7 @@ m4_changecom(`/*~, `*/~)
 
 m4_include(yio_config.m4)
 
-m4_include(lib/define_blind.m4)
+m4_include(lib/define_function.m4)
 m4_include(lib/define_name.m4)
 m4_include(lib/forloop.m4)
 m4_include(lib/forloopdash.m4)
