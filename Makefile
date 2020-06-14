@@ -41,7 +41,7 @@ CMAKEFLAGS += -S .
 CMAKEFLAGS_GENERATOR ?= $(shell hash ninja 2>/dev/null >/dev/null && echo -GNinja)
 CMAKEFLAGS += $(CMAKEFLAGS_GENERATOR)
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
-CMAKEFLAGS += -DCMAKE_VERBOSE_MAKEFILE=ON
+CMAKEFLAGS += -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 ifneq ($(CMAKE_C_FLAGS),)
 CMAKEFLAGS += -DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
 endif
@@ -65,7 +65,7 @@ STDBUF = $(shell hash stdbuf 2>/dev/null >/dev/null && echo stdbuf -oL -eL)
 all: usage 
 
 USAGE +=~ eclipse - Target run from IDE
-eclipse: configure build test
+eclipse: build
 
 # Generic configure+build+test targets
 
@@ -166,19 +166,18 @@ $(CDASHSOURCE): $(shell git ls-files . --exclude-standard --others --cached)
 
 # Doxygen #####################################
 
-_build/doxygen:
-	mkdir -p _build/doxygen/
-_build/Doxyfile: doc/Doxyfile build_gen
-	sed \
-		-e "/STRIP_FROM_PATH/s@<ABSOLUTE_GEN_SEE_MAKEFILE>@$$(readlink -f ./gen)@" \
-		doc/Doxyfile > _build/Doxyfile
 USAGE +=~ doxygen - Generates doxygen html documentation in pages/doxygen
 .PHONY: doxygen
 doxygen: build_gen _build/Doxyfile
-	doxygen _build/Doxyfile
+	rm -fr _build/doxygen/input
+	cp -a cmake m4 gen/* _build/doxygen/input/
+	doxygen doc/Doxyfile
 	rm -fr public/doxygen
-	mkdir -p public
-	cp -a _build/doxygen/html/ public/doxygen/ 
+	mkdir -p public/doxygen/
+	cp -a _build/doxygen/html/* public/doxygen/
+.PHONY: doxygen_open
+doxygen_open: doxygen
+	xdg-open public/doxygen/index.html
 	
 # test building cmake project ##########################
 

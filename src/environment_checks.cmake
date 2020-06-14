@@ -39,28 +39,29 @@ check_type_size_bool(int64_t  _yIO_HAVE_INT64  LANGUAGE C)
 
 set(floats
 	# Please punish them for naming `strfromd` and `strtold` with different suffix
-	"float"         "float"         "FLT"      "strfromf"      "strtof"      
-	"double"        "double"        "DBL"      "strfroml"      "strtol"      
-	"long double"   "ldouble"       "LDBL"     "strfromd"      "strtold"
-	"_Float16"      "_Float16"      "FLT16"    "strfromf16"    "strtof16"    
-	"_Float32"      "_Float32"      "FLT32"    "strfromf32"    "strtof32"    
-	"_Float64"      "_Float64"      "FLT64"    "strfromf64"    "strtof64"    
-	"_Float128"     "_Float128"     "FLT128"   "strfromf128"   "strtof128"   
-	"_Float32x"     "_Float32x"     "FLT32X"   "strfromf32x"   "strtof32x"   
-	"_Float64x"     "_Float64x"     "FLT64X"   "strfromf64x"   "strtof64x"   
-	"_Float128x"    "_Float128x"    "FLT128X"  "strfromf128x"  "strtof128x"  
-	"_Decimal32"    "_Decimal32"    "DEC32"    "strfromd32"    "strtod32"    
-	"_Decimal64"    "_Decimal64"    "DEC64"    "strfromd64"    "strtod64"    
-	"_Decimal128"   "_Decimal128"   "DEC128"   "strfromd128"   "strtod128"   
-	"_Decimal32x"   "_Decimal32x"   "DEC32X"   "strfromd32x"   "strtod32x"    
-	"_Decimal64x"   "_Decimal64x"   "DEC64X"   "strfromd64x"   "strtod64x"   
-	"_Decimal128x"  "_Decimal128x"  "DEC128X"  "strfromd128x"  "strtod128x"  
+	# Please punish them for `strfromf` having d
+	"float"         "float"         "FLT"      "strfromf"      "strtof"        "f"
+	"double"        "double"        "DBL"      "strfromd"      "strtod"        ""
+	"long double"   "ldouble"       "LDBL"     "strfroml"      "strtol"        "l"
+	"_Float16"      "_Float16"      "FLT16"    "strfromf16"    "strtof16"      "f16"
+	"_Float32"      "_Float32"      "FLT32"    "strfromf32"    "strtof32"      "f32"
+	"_Float64"      "_Float64"      "FLT64"    "strfromf64"    "strtof64"      "f64"
+	"_Float128"     "_Float128"     "FLT128"   "strfromf128"   "strtof128"     "f128"
+	"_Float32x"     "_Float32x"     "FLT32X"   "strfromf32x"   "strtof32x"     "f32x"
+	"_Float64x"     "_Float64x"     "FLT64X"   "strfromf64x"   "strtof64x"     "f64x"
+	"_Float128x"    "_Float128x"    "FLT128X"  "strfromf128x"  "strtof128x"    "f128x"
+	"_Decimal32"    "_Decimal32"    "DEC32"    "strfromd32"    "strtod32"      "d32"
+	"_Decimal64"    "_Decimal64"    "DEC64"    "strfromd64"    "strtod64"      "d64"
+	"_Decimal128"   "_Decimal128"   "DEC128"   "strfromd128"   "strtod128"     "d128"
+	"_Decimal32x"   "_Decimal32x"   "DEC32X"   "strfromd32x"   "strtod32x"     "d32x"
+	"_Decimal64x"   "_Decimal64x"   "DEC64X"   "strfromd64x"   "strtod64x"     "d64x"
+	"_Decimal128x"  "_Decimal128x"  "DEC128X"  "strfromd128x"  "strtod128x"    "d128x"
 )
 set(havefloats)
 
 set(foreachstatevar)
 foreach(i IN LISTS floats)
-	foreach_count_items(i foreachstatevar type name suffix strfromx strtox)
+	foreach_count_items(i foreachstatevar type name suffix strfromx strtox funcsuffix)
 	if(i)
 		continue()
 	endif()
