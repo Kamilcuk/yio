@@ -198,6 +198,7 @@ function(file_glob_relative_to_gendir glob var)
 	file(${glob} tmp ${ARGN})
 	set(tmp2)
 	foreach(i IN LISTS tmp)
+		# message("${var} ${i}")
 		file(RELATIVE_PATH j ${SRCDIR} ${i})
 		list(APPEND tmp2 ${j})
 	endforeach()
@@ -207,7 +208,9 @@ endfunction()
 # add yio executable ##############################################
 file_glob_relative_to_gendir(GLOB auto_generic_srcs yio/*.h yio/*.c)
 file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
+file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_bits_srcs yio/bits/*.h yio/bits/*.c)
 yio_add_library(yio
+	${auto_yio_bits_srcs}
 	${auto_generic_srcs}
 	yio/yio_config.h
 	yio/yio_config_gen.h
