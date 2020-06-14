@@ -1,5 +1,5 @@
 m4_divert(-1)
-m4_include(lib/changequote_to_tilde.m4)
+m4_include(changequote_to_tilde.m4)
 m4_changecom(`/*~, `*/~)
 
 m4_include(yio_config.m4)
