@@ -48,7 +48,7 @@ endif()
 
 # generate config.m4 #################################################
 configure_file(
-	${SRCDIR}/yio_config.m4.in
+	${SRCDIR}/m4/yio_config.m4.in
 	${GENDIR}/m4/yio_config.m4
 	@ONLY
 )
