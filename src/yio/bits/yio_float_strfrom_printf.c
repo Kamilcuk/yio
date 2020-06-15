@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config()
+#define _GNU_SOURCE
+m4_config();
 #include "yio_float_strfrom_printf.h"
 #include "yio_float_string.h"
 #include <yio/intprops.h>
@@ -16,41 +17,85 @@ m4_config()
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
 
-m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
+extern int asprintf(char **strp, const char *fmt, ...);
 
-int _yIO_float_strfrom_printf$1(char *dest, int precision, char spec, _yIO_FLOAT$1 val) {
-	char fmt[
-			 sizeof("%") - 1 +
-			 sizeof(".") - 1 +
-			 INT_STRLEN_BOUND(int) +
-			 sizeof(_yIO_FLOAT_PRI$1) - 1 +
-			 sizeof(spec) +
-			 1
-	];
-
+static inline
+void create_format_string_generic(char *fmt, size_t fmtsize,
+		int precision, char spec, const char *pri, size_t prisize) {
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
 	if (precision >= 0) {
 		*fmtpnt++ = '.';
-		const size_t usedbytes = 2;
-		const int len = snprintf(fmtpnt, sizeof(fmt) - usedbytes, "%d", precision);
+		const int len = snprintf(fmtpnt, INT_MAX, "%d", precision);
 		(void)len;
 		assert(len > 0);
-		assert((size_t)len < sizeof(fmt) - usedbytes);
+		assert((size_t)len < fmtsize - 2);
 		fmtpnt += len;
 	}
-	memcpy(fmtpnt, _yIO_FLOAT_PRI$1, sizeof(_yIO_FLOAT_PRI$1) - 1);
-	fmtpnt += sizeof(_yIO_FLOAT_PRI$1) - 1;
+	memcpy(fmtpnt, pri, prisize);
+	fmtpnt += prisize;
 	*fmtpnt++ = spec;
 	*fmtpnt++ = '\0';
-	assert(fmtpnt <= fmt + sizeof(fmt));
-
-	return snprintf(dest, dest == NULL ? 0 : SIZE_MAX, fmt, val);
+	assert(fmtpnt <= fmt + fmtsize);
 }
 
-int _yIO_float_astrfrom_printf$1(char **out, int precision, char type, _yIO_FLOAT$1 val) {
-	return _yIO_float_strfrom_to_astrfrom$1(out, precision, type, val, _yIO_float_strfrom_printf$1);
+m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
+
+#define FMT_SIZE$1 ( \
+		\
+		sizeof("%") - 1 + \
+		sizeof(".") - 1 + \
+		INT_STRLEN_BOUND(int) + \
+		sizeof(_yIO_FLOAT_PRI$1) - 1 + \
+		sizeof(char) + \
+		1 \
+)
+
+static inline
+void create_format_string$1(char fmt[FMT_SIZE$1], int precision, char spec) {
+	create_format_string_generic(fmt, FMT_SIZE$1,
+			precision, spec, _yIO_FLOAT_PRI$1, sizeof(_yIO_FLOAT_PRI$1) - 1);
+}
+
+static inline
+int _yIO_float_astrfrom_asprintf$1(char **out, const char *fmt, _yIO_FLOAT$1 val) {
+	const int err = asprintf(out, fmt, val);
+	if (err <= 0) {
+		return -ENOMEM;
+	}
+	return 0;
+}
+
+static inline
+int _yIO_float_astrfrom_snprintf$1(char **out, const char *fmt, _yIO_FLOAT$1 val) {
+	const int len = snprintf(NULL, 0, fmt, val);
+	assert(len > 0);
+	char *buf = malloc(len + 1);
+	if (buf == NULL) {
+		*out = NULL;
+		return -ENOMEM;
+	}
+#ifdef __NEWLIB__
+	buf[0] = '\0';
+#endif
+	const int len2 = snprintf(buf, len + 1, fmt, val);
+	(void)len2;
+	assert(len2 == len);
+	*out = buf;
+	return 0;
+}
+
+int _yIO_float_astrfrom_printf$1(char **out, int precision, char spec, _yIO_FLOAT$1 val) {
+	char fmt[FMT_SIZE$1];
+	create_format_string$1(fmt, precision, spec);
+#ifdef _yIO_HAS_asprintf
+	return _yIO_float_astrfrom_asprintf$1(out, fmt, val);
+#else
+	return _yIO_float_astrfrom_snprintf$1(out, fmt, val);
+#endif
 }
 
 ~) m4_dnl;
