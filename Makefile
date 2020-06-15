@@ -132,7 +132,7 @@ $(foreach i,gcc clang arm,$(eval $(call gitlab_cdash_decl_them,$(i))))
 .gitlab_cdash_%: .cdash_% ;
 
 USAGE +=~ gitlab_pages - Generate gitlab pages 
-gitlab_pages: badge doxygen
+gitlab_pages: doxygen badge
 
 USAGE +=~ badge - Generate badge 
 badge:
@@ -204,9 +204,10 @@ clean_cdash:
 # Doxygen #####################################
 
 USAGE +=~ doxygen - Generates doxygen html documentation in pages/doxygen
-doxyzen: build_gen _build/Doxyfile
+.PHONY: doxygen
+doxygen: build_gen
 	# Copy source file into one directory.
-	./scripts/syncdir.sh ./m4 ./gen/* _build/doxygen/input/
+	./scripts/syncdir.sh ./gen/* _build/doxygen/input/
 	# Generate doxygen documentation.
 	mkdir -p _build/doxygen/output
 	doxygen doc/Doxyfile

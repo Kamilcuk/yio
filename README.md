@@ -5,7 +5,7 @@
 
 :star: `Yio Input Output` library is aiming to be python-like type-safe `printf` and `scanf` replacement for C language.
 
-[doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/) [cdash dashboard](https://cdash.karta.dyzio.pl/index.php?project=Yio)
+[doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/index.html) [cdash dashboard](https://cdash.karta.dyzio.pl/index.php?project=Yio)
 
 master: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
 
