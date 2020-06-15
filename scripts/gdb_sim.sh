@@ -1,43 +1,45 @@
 #!/bin/bash
-set -euo pipefail
+export SHELLOPTS
 
+name=$(basename "$0")
 usage() {
 	cat <<EOF
 Usage:
-  gdb_sim.sh [OPTIONS] executable [arguments...]
+  $name [OPTIONS] executable [arguments...]
 
 Run executable under gdb with 'target sim'.
 
 Options:
-  -g <gdb>  Path to the gdb executable
-  -v        Be verbose. Can be used multiple times
-  -i        Interactive connect to gdb after loading the binary
+  -g <gdb>  Path to the gdb executable.
+  -v        Be verbose. Can be used multiple times.
+  -i        Interactive connect to gdb after loading the binary.
+  -h        Print this help and exit.
 
 Written by Kamil Cukrowski 2019.
 EOF
 	if (($#)); then
-		echo "$@" >&2
-		exit 1
+		fatal "$@"
 	fi
 }
 
 fatal() {
-	echo "$0:" "$*" >&2
+	echo "$name: ERROR:" "$*" >&2
 	exit 2
 }
 
 # main() ###################################
 
-args=$(getopt -n "gdb_sim.sh" -o vg:i -- "$@")
+args=$(getopt -n "gdb_sim.sh" -o vg:ih -- "$@")
 eval set -- "$args"
-gdb="gdb"
+gdb=""
 verbose=false
 interactive=false
 while (($#)); do
 	case "$1" in
-		-g) shift; gdb="$1"; ;;
+		-g) gdb="$2"; shift; ;;
 		-v) if $verbose; then set -x; fi; verbose=true; ;;
 		-i) interactive=true; ;;
+		-h) usage; exit 0; ;;
 		--) shift; break; ;;
 		*) echo "Internal error" >&2; exit 1 ;;
 	esac
@@ -56,71 +58,71 @@ if [[ ! -e "$executable" ]]; then
 	fatal "$executable: No such file or directory"
 fi
 if [[ ! -x "$executable" ]]; then
-	fatal "$executable: Permission denied"
-fi
-if ! hash "$gdb" >/dev/null; then
-	fatal "$gdb: command not found"
+	fatal "$executable: Missing executable permission"
 fi
 
-set -o monitor
-set -m
+# Find proper gdb to run executable with, if not specified.
+if [[ -z "$gdb" ]]; then
+	fileinfo=$(file "$executable")
+	filemachine=$(readelf -h "$executable" | awk '/Machine:/{print $2}')
+	machine=$(uname -m)
+	case "$machine" in
+	x86_64)
+		case "$fileinfo" in
+		*x86_64*) gdb=gdb; ;;
+		*"ARM, EABI"*) gdb=arm-none-eabi-gdb; ;;
+		esac
+	esac
+	
+	if ! hash "$gdb" >/dev/null; then
+		fatal "Could not found matching gdb executable"
+	fi
+else
+	if ! hash "$gdb" >/dev/null; then
+		fatal "$gdb: command not found"
+	fi
+fi
 
+# Create temporary directory
 tmp=$(mktemp -d)
 trap_exit() {
-	if [[ -n "$(jobs -pr)" ]]; then
-		kill $(jobs -pr) ||:
-	fi;
-	if [[ -e "$tmp" ]]; then
-		rm -r "$tmp" ||:
-	fi
+	kill "${childpid:-}" "${inputterpid:-}" >/dev/null 2>&1 ||:
+	rm -fr "$tmp" ||:
 }
 trap 'trap_exit' EXIT
 
 in="$tmp/in" out="$tmp/out"
 mkfifo "$in" "$out"
 
-waitforline() {
-	local line
-	line=$1
-	while IFS= read -r -u 10 -t 1 i && [[ -n "$i" ]]; do
-		if [[ "$i" =~ $line ]]; then
-			break
-		fi
-	done
-}
-
-waitforlineoutput() {
-	local rgx=$1
-	while IFS= read -r -u 10 i && [[ -n "$i" ]]; do
-		if [[ "$i" =~ $rgx ]]; then
-			break
-		fi
-		printf "%s\n" "$i"
-	done
-}
-
-gdb=("$gdb" -quiet --args "$executable" "${arguments[@]}")
-child() {
+# Start the gdb process in the background
+gdbchild() {
+	if (($# == 0)); then
+		echo "gdb_sim.sh: gdbchild: ERROR: Wrong number of arguments" >&2
+		exit 1
+	fi 
+	declare -g verbose
 	if "$verbose"; then
-		trap_exit() { echo > gdb child dying >&3; }
-		trap 'trap_exit' EXIT
-
 		stdbuf -oL tee >(sed -u 's/^/< /' >&2) |
-		stdbuf -oL "${gdb[@]}" 2>&1 |
+		stdbuf -oL "$@" 2>&1 |
 		stdbuf -oL tee >(sed -u 's/^/> /' >&2)
-		echo >&2
+		ret=${PIPESTATUS[1]}
+		echo gdb exited >&2
+		exit "$ret"
 	else
-		stdbuf -oL "${gdb[@]}" 2>&1
+		stdbuf -oL "$@" 2>&1
 	fi
 }
-child >"$in" <"$out" 3>&2 &
+gdbchild "$gdb" -quiet --args "$executable" "${arguments[@]}" >"$in" <"$out" &
 childpid=$!
 
 exec 10< "$in"
 exec 11> "$out"
 
+# Unique uuid to grep for from gdb output
+# to know ehere does the executable start from
 uuid=68ba305a-5761-4afb-bff8-079ea0619b4f
 
+# Gdb startup configuration.
 cat >&11 <<EOF
 set confirm off
 target sim
@@ -131,36 +133,80 @@ break _Exit
 break raise
 break signal
 break abort
-echo \n$uuid\n
+set \$r0=0
 EOF
 
-waitforline "^$uuid\$"
-
 if "${interactive:-false}"; then
-    cat <&10 &
-    cat >&11
+	echo "::: Starting interactive gdb session :::"
+    cat 0<&10- >&10- &
+    cat 1>&11- <&11- 
     exit
 fi
 
+# Run the executable.
 echo 'run' >&11
-IFS= read -r starting_program <&10
-cat <&0 >&11 &
-inputter=$!
 
-waitforlineoutput "^(\\[Inferior [0-9]+ \\(process [0-9]+\\) exited .*]|^Breakpoint [0-9]+,.*)\$"
+# Wait for line Starting program with a maximum timeout we give to gdb
+if ! out=$(
+		timeout 1 sed -E -u '
+			# This means that we could not start executable, most probably 
+			# because the architecture of executable does 
+			# not match architecture of debugger.
+			/unable to create simulator instance/q1
+			# Error from "load"
+			/No executable file specified/q1
+			# Executable started successfully
+			/Starting program: /q
+		' <&10)
+then
+	fatal "Could not start gdb: $out"
+fi
 
-kill "$inputter" 2>/dev/null ||:
+# Tie standard input with input to gdb,
+# so that we can write in terminal something to the program.
+cat <&0 >&11 10<&- &
+inputterpid=$!
 
+# Wait for specified string that tells us the execution ended.
+# While at the same time output everything that is inputted.
+sed -E -n -u '
+	# Gdb write an empty line before exiting,
+	# so we will buffer empty lines in hold space.
+	/^$/{s/.*/was empty line/;h;d;N}
+	# quit if end of execution is found
+	/^\[Inferior [0-9]+ \(process [0-9]+\) exited .*]$/q
+	/^Breakpoint [0-9]+, 0x[[:xdigit:]]+ in /q
+	# If we did not quit, but we buffered empty line print it.
+	x;/was empty line/{s/.*//;p};x
+	# Print the line.
+	p
+' <&10 11>&-
+
+# Inputter is not loger needed - should be killed,
+# but it could have been killed already by EOF from input.
+kill "$inputterpid" 2>/dev/null ||:
+
+# Exit gdb
 cat >&11 <<EOF
 info registers
 quit \$r0
+quit
 EOF
-exec 11<&-
+# Close input - send EOF to gdb
+exec 11>&-
+# Ignore everything from output to /dev/null
+# Gdb should quit and close the pipe from his side
+# We give 1 second for gdb to do that
+timeout 1 cat <&10- >/dev/null
 exec 10<&-
 
-wait "$childpid" && ret=$? || ret=$?
+# Get gdb return status
+ret=0
+wait "$childpid" || ret=$?
 if ((ret)); then
 	echo "$0: $executable exited with $ret" >&2
 fi
+kill "$inputterpid" 2>/dev/null ||:
+wait
 exit "$ret"
 
