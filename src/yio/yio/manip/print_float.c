@@ -22,7 +22,7 @@ m4_applyforeachdefine(`(
 
 int _yIO_print_float$2(yio_printctx_t *t) {
 	const char type = t->pf.type ? t->pf.type : 'g';
-	const char precision =  t->pf.precision;
+	const int precision =  t->pf.precision;
 
 	_yIO_FLOAT$1 var = yio_printctx_va_arg_num(t, _yIO_FLOAT$1);
 	char *buf = NULL;
