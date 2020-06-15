@@ -7,12 +7,15 @@
 #include <yio_test_private.h>
 #include <string.h>
 
+// The magic (void*)1 casts are there so that
+// __attribute__((__nonnull__)) doesn't throw an error.
+
 static inline
 void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
 	struct yio_printfmt_s pf;
 	memset(&pf, -1, sizeof(pf));
 	const char *endptr = (const char *)-1;
-	const int err = _yIO_pfmt_parse((void*)0, &pf, str, &endptr);
+	const int err = _yIO_pfmt_parse((void*)1, &pf, str, &endptr);
 	_yIO_TEST_MSG(err == 0, "%s", str);
 	_yIO_TEST_MSG(endptr == str + strlen(str), "%s", str);
 	_yIO_TEST_MSG(memcmp(&pf, &shouldbe, sizeof(pf)) == 0, "%s", str);
