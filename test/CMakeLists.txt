@@ -66,7 +66,10 @@ foreach(d IN ITEMS "." ${dirs})
 			if(${source} MATCHES "\\.m4\\.c$")
 				# Files that are .m4.c are preprocessed by m4 preprocessor.
 				# Note: this is _before_ detecting PASS_REGULAR_EXPRESSION* in files.
-				m4_execute_process(${output} ${source})
+				# So it has to be done on configuration stage
+				if(NOT EXISTS ${output} OR ${source} IS_NEWER_THAN ${output})
+					m4_execute_process(${output} ${source})
+				endif()
 			else()
 				# *All* files are copied to CMAKE_CURRENT_BINARY_DIR.
 				get_filename_component(output_dir ${output} DIRECTORY)
@@ -85,7 +88,8 @@ list(FILTER srcs EXCLUDE REGEX "ywio")
 # list(FILTER srcs INCLUDE REGEX "simple/")
 # list(FILTER srcs INCLUDE REGEX "scan.*08")
 
-# Create tests #####################################################
+######################################################################################
+# Create tests 
 foreach(file IN LISTS srcs)
 	file(RELATIVE_PATH name ${CMAKE_CURRENT_BINARY_DIR} ${file})
 	string(REPLACE "/" "_" name "${name}")
@@ -93,17 +97,8 @@ foreach(file IN LISTS srcs)
 	string(REGEX REPLACE "\\..*$" "" name "${name}")
 
 	# message(STATUS "Adding test ${name} ${file}")
-	add_executable(${name} EXCLUDE_FROM_ALL ${file})
+	add_executable(${name} ${file})
 	target_link_libraries(${name} PRIVATE _yio_testlib m)
-	
-	add_test(
-		NAME ${name}_compile
-		COMMAND ${CMAKE_COMMAND} --build . --target ${name}
-		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-	)
-	set_property(TEST ${name}_compile APPEND PROPERTY LABELS nomemcheck)
-	set_property(TEST ${name}_compile APPEND PROPERTY LABELS compile)
-	set_property(TEST ${name}_compile APPEND PROPERTY FIXTURES_SETUP ${name}_compiled)
 
 	file(STRINGS ${file} input REGEX "^// INPUT ")
 	if(NOT input)
@@ -121,7 +116,6 @@ foreach(file IN LISTS srcs)
 		set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED redirectstdin)
 		set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
 	endif()
-	set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED ${name}_compiled)
 	set_property(TEST ${name} APPEND PROPERTY TIMEOUT 5)
 
 	test_extract_properties_from_file(${name} ${file})
