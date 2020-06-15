@@ -9,7 +9,7 @@
 #define _GNU_SOURCE
 m4_config();
 #include "yio_float_strfrom_printf.h"
-#include "yio_float_string.h"
+#include <yio.h>
 #include <yio/intprops.h>
 #include <assert.h>
 #include <stddef.h>
@@ -29,7 +29,7 @@ void create_format_string_generic(char *fmt, size_t fmtsize,
 	*fmtpnt++ = '%';
 	if (precision >= 0) {
 		*fmtpnt++ = '.';
-		const int len = snprintf(fmtpnt, INT_MAX, "%d", precision);
+		const int len = ysprint(fmtpnt, INT_MAX, precision);
 		(void)len;
 		assert(len > 0);
 		assert((size_t)len < fmtsize - 2);
@@ -78,9 +78,7 @@ int _yIO_float_astrfrom_snprintf$1(char **out, const char *fmt, _yIO_FLOAT$1 val
 		*out = NULL;
 		return -ENOMEM;
 	}
-#ifdef __NEWLIB__
-	buf[0] = '\0';
-#endif
+
 	const int len2 = snprintf(buf, len + 1, fmt, val);
 	(void)len2;
 	assert(len2 == len);

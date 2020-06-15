@@ -9,7 +9,6 @@
 #define _GNU_SOURCE
 m4_config();
 #include "yio_float_strfrom_stupid.h"
-#include "yio_float_string.h"
 #include "yio_buf.h"
 #include "yio_vec.h"
 #include "yio_float.h"

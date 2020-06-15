@@ -12,7 +12,6 @@ m4_config();
 
 m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
 
-int _yIO_float_strfrom_strfrom$1(char *dest, int precision, char type0, _yIO_FLOAT$1 val);
 int _yIO_float_astrfrom_strfrom$1(char **out, int precision, char type, _yIO_FLOAT$1 val);
 
 ~) m4_dnl;
