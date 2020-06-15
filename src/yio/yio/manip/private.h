@@ -1,5 +1,5 @@
 /**
- * @file private.h
+ * @file
  * @date 2020-05-12
  * @author Kamil Cukrowski
  * @copyright 

@@ -1,5 +1,5 @@
 /**
- * @file yio_vec.h
+ * @file
  * @date 2020-06-12
  * @author Kamil Cukrowski
  * @copyright 

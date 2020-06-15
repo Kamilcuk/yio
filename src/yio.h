@@ -1,4 +1,4 @@
 /**
- * @file yio.h
+ * @file
  */
 #include "yio/yio/public.h"

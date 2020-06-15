@@ -1,5 +1,5 @@
 /**
- * @file yio_macros_gen_priv.h
+ * @file
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright GPL-3.0-only
@@ -9,7 +9,7 @@
 #include "yio_config.h"
 
 /**
- * @def _yIO_GENERIC_GEN_0(type, value, type, value, ...)
+ * @def _yIO_GENERIC_GEN(type, value, type, value, ...)
  * Transform each pair into \c type:value suitable for _Generic call.
  * So it results in \b type:value,type:value,...
  */

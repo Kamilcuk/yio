@@ -1,5 +1,5 @@
 /**
- * @file yio_common.h
+ * @file
  * @date 21 kwi 2020
  * @author Kamil Cukrowski
  * @copyright SPDX-License-Identifier: GPL-3.0-only
@@ -30,47 +30,39 @@ enum _yIO_TYPES {
  */
 #define YTYPE  YIO_TYPE_YIO
 /**
- * @def Y_IO(NAME)
  * @param NAME  Symbol name
  * Declares the symbol within private yio namespace.
  */
 #define Y_IO(NAME)  _yIO_ ## NAME
 /**
- * @def YIO(NAME)
  * @param NAME  Symbol name
  * Declares the symbol within private yio namespace.
  */
 #define YIO(NAME)  YIO_ ## NAME
 /**
- * @def Yio(NAME)
  * @param NAME  Symbol name
  * Declares the symbol within private yio namespace
  */
 #define Yio(NAME)  yio_ ## NAME
 /**
- * @def Ychar
  * Represents a character. A pointer to it represents a string.
  */
 typedef char Ychar;
 /**
- * @def Yint
  * A character or EOF.
  */
 typedef int Yint;
 /**
- * @def YEOF
  * The EOF character.
  */
 #define YEOF EOF
 /**
- * @def Yc(c)
  * @param x A character within single qoutes
  *          or string within double quotes.
  * @brief Defines a character constant.
  */
 #define Yc(c)  c
 /**
- * @def Ystrlen(str)
  * @param str <tt>const Ychar*</tt> A zero terminated string.
  * @return The count of characters (not bytes) in a string.
  */

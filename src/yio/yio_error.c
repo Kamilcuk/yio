@@ -1,5 +1,5 @@
 /**
- * @file yio_error.c
+ * @file
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright

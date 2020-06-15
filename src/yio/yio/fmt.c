@@ -1,5 +1,5 @@
 /**
- * @file fmt.c
+ * @file
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright GPL-3.0-only

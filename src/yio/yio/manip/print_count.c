@@ -1,5 +1,5 @@
 /**
- * @file print_intptr.c
+ * @file
  * @date 2020-06-15
  * @author Kamil Cukrowski
  * @copyright 

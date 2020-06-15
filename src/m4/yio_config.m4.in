@@ -1,5 +1,5 @@
 /**
- * @file config.m4.in
+ * @file
  * @author Kamil Cukrowski
  * @data 26.04.2020
  * @copyright
@@ -8,7 +8,6 @@
  */
 
 /**
- * @def m4_MLVLS
  * @ingroup m4
  * The count of macro levels to generate
  */
@@ -16,7 +15,6 @@
 m4_define(`m4_MLVLS~, `@YIO_M4_MLVLS@~)m4_dnl;
 
 /**
- * @def m4_SLOTS_END
  * @ingroup m4
  * The ending count of overloading slots to generate
  */

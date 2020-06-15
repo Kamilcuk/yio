@@ -1,5 +1,5 @@
 /**
- * @file yio_macros_gen.h
+ * @file
  * @date 2020-05-15
  * @author Kamil Cukrowski
  * @copyright 

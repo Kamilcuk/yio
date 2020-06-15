@@ -1,5 +1,5 @@
 /**
- * @file yio_decimal.c
+ * @file
  * @date 2020-06-13
  * @author Kamil Cukrowski
  * @copyright 

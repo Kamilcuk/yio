@@ -1,5 +1,5 @@
 /**
- * @file scan_float.h
+ * @file
  * @date 2020-06-14
  * @author Kamil Cukrowski
  * @copyright 
