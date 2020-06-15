@@ -5,6 +5,19 @@ define NL
 
 endef
 
+# Check that given variables are set and all have non-empty values,
+# die with an error otherwise.
+#
+# Params:
+#   1. Variable name(s) to test.
+#   2. (optional) Error message to print.
+check_defined = \
+    $(strip $(foreach 1,$1, \
+        $(call __check_defined,$1,$(strip $(value 2)))))
+__check_defined = \
+    $(if $(value $1),, \
+      $(error Undefined $1$(if $2, ($2))))
+
 SHELL = bash
 
 .SUFFIXES:
@@ -52,8 +65,6 @@ ifeq ($(SYSTEM),armv4t)
 armv4t_CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/toolchain-arm-none-eabi.cmake
 armv4t_CMAKEFLAGS += -DCMAKE_CROSSCOMPILING_EMULATOR=$(PWD)/scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
 CMAKEFLAGS += $(armv4t_CMAKEFLAGS)
-CDASHFLAGS += -DSYSTEM=none-armv4t-gcc
-CDASHFLAGS += $(armv4t_CMAKEFLAGS)
 endif
 
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
@@ -107,32 +118,23 @@ USAGE +=~ ccmake - Runs ccmake
 ccmake:
 	ccmake -B $(B) $(CMAKEFLAGS)
 
-# Arm #######################################
-
 # Gitlab ####################################
 
-USAGE +=~ .gitlab_cdash - Internal gitlab target for setting up environment
-.gitlab_cdash: export override CDASHFLAGS := -DCMAKE_C_COMPILER=$(CC) -DWITH_UPDATE=ON -DWITH_SUBMIT=ON -DMODEL=Continous $(CDASHFLAGS)
-.gitlab_cdash:
-	@+$(MAKE) cdash
+define gitlab_cdash_decl_them
 
-USAGE +=~ gitlab_test - Test everything there to test
-gitlab_gcc_cdash: export CC = gcc
-gitlab_gcc_cdash: .gitlab_cdash
+USAGE +=~ gitlab_$(1)_cdash - Test everything there to test
+gitlab_$(1)_cdash: .gitlab_cdash_$(1)
 
-USAGE +=~ gitlab_arm_cdash - Run cdash with all possible tests on arm
-gitlab_clang_cdash: export CC = clang
-gitlab_clang_cdash: export override CDASHFLAGS := -DWITH_COVERAGE=OFF $(CDASHFLAGS)
-gitlab_clang_cdash: 
-	@+$(MAKE) .gitlab_cdash
+endef # gitlab_cdash_decl_them
+$(foreach i,gcc clang arm,$(eval $(call gitlab_cdash_decl_them,$(i))))
 
-USAGE +=~ gitlab_arm_cdash - Run cdash with all possible tests on arm 
-gitlab_arm_cdash: export SYSTEM = armv4t
-gitlab_arm_cdash: .gitlab_cdash
+.gitlab_cdash_%: export override CDASHFLAGS := -DMODEL=Continous -DWITH_UPDATE=ON -DWITH_SUBMIT=ON $(CDASHFLAGS)
+.gitlab_cdash_%: .cdash_%
 
 USAGE +=~ gitlab_pages - Generate gitlab pages 
 gitlab_pages: badge doxygen
 
+USAGE +=~ badge - Generate badge 
 badge:
 	mkdir -p public
 	./scripts/badge_json_gen.sh > public/badge.json
@@ -140,41 +142,75 @@ badge:
 
 # cdash ##########################
 
-CDASHROOT   = _build/$(SYSTEM)cdash
-CDASHSOURCE = $(CDASHROOT)/source
-CDASHBUILD  = $(CDASHROOT)/build
+CDASHFLAGS ?=
 
-USAGE +=~ cdash - Runs cdash locally without submitting results
-cdash: CDASHFLAGS ?=
-cdash: .cdash
+USAGE +=~ cdash - Shortcut to cdash_gcc
+cdash: cdash_gcc
 
-USAGE +=~ cdash_cubmit - Runs cdash locally and submit results
-cdash_submit: CDASHFLAGS += -DWITH_SUBMIT=ON
-cdash_submit: .cdash
+USAGE +=~ cdash_submit - Shortcut to cdash_gcc_submit
+cdash_submit: cdash_gcc_submit
 
-.cdash: $(CDASHSOURCE)
-	cd $(CDASHSOURCE) && ctest \
+define cdash_decl_them
+
+USAGE +=~ cdash_$(1)_submit - Runs cdash locally with $(1) and submits the results
+cdash_$(1)_submit: export override CDASHFLAGS := -D WITH_SUBMIT=ON $(CDASHFLAGS)
+cdash_$(1)_submit: .cdash_$(1) ;
+
+USAGE +=~ cdash_$(1) - Runs cdash locally with $(1)
+cdash_$(1): .cdash_$(1) ;
+
+USAGE +=~ cdashnocopy_$(1) - Runs cdash locally with $(1) without copying the source
+cdashnocopy_$(1): .cdashnocopy_$(1) ;
+
+cdashnocopy_all: .cdashnocopy_$(1)
+
+USAGE +=~ testcdash_$(1) - Runs cdashnocopy_$(1)
+testcdash_$(1): export override CDASHFLAGS := -DWITH_COVERAGE=NO -DWITH_SANITIZE=NO -DWITH_SUBMIT=NO $(CDASHFLAGS)
+testcdash_$(1): .cdashnocopy_$(1)
+
+endef # cdash_decl_them
+$(foreach i,gcc clang arm,$(eval $(call cdash_decl_them,$(i))))
+
+USAGE +=~ cdashnocopy_all - Runs cdashnocopy_all
+testcdash_all: cdashnocopy_all ;
+
+USAGE +=~ cdashnocopy_all - Runs all possible cdashnocopy_*
+cdashnocopy_all: ;
+
+# Runs cdash dashboard in current directory
+.cdashnocopy_%:
+	ctest -DDASHBOARD_MODE=$* \
 		$(CDASHFLAGS) \
-		-DCTEST_BINARY_DIRECTORY=$(PWD)/$(CDASHBUILD) \
-		-DCTEST_SOURCE_DIRECTORY=$(PWD)/$(CDASHSOURCE) \
-		-S ./dashboard_chors.cmake -V
-		
-# create a separate source directory for cdash
-# so that ctest_update() doesn't overwrite my files!
-$(CDASHSOURCE): $(shell git ls-files . --exclude-standard --others --cached)
-	./scripts/copy_git_files_only.sh $(CDASHSOURCE)
+		-DWITH_UPDATE=NO -DWITH_SUBMIT=NO \
+		-DCTEST_BINARY_DIRECTORY=_build/cdash/$* -DCTEST_SOURCE_DIRECTORY=. \
+		-S ./dashboard.cmake -VV
+
+CDASHROOT = $(PWD)/_build/cdash
+# Copies the whole git tree to remote location and runs from there
+.cdash_%:
+	# Create a separate source directory for cdash.
+	./scripts/copy_git_files_only.sh $(CDASHROOT)/source/$*
+	# Run ctest in proper directory.
+	cd $(CDASHROOT)/source/$* && ctest -DDASHBOARD_MODE=$* \
+		$(CDASHFLAGS) \
+		-DCTEST_BINARY_DIRECTORY=$(CDASHROOT)/build/$* \
+		-DCTEST_SOURCE_DIRECTORY=$(CDASHROOT)/source/$* \
+		-S ./dashboard.cmake -V
+
+USAGE +=~ clean_cdash - Clean cdash related files
+clean_cdash:
+	rm -fr $(CDASHROOT)
 
 # Doxygen #####################################
 
 USAGE +=~ doxygen - Generates doxygen html documentation in pages/doxygen
-.PHONY: doxygen
-doxygen: build_gen _build/Doxyfile
-	@# Copy source file into one directory
+doxyzen: build_gen _build/Doxyfile
+	# Copy source file into one directory.
 	./scripts/syncdir.sh ./m4 ./gen/* _build/doxygen/input/
-	@# Generate doxygen documentation
+	# Generate doxygen documentation.
 	mkdir -p _build/doxygen/output
 	doxygen doc/Doxyfile
-	@# Generate public/doxygen directory
+	# Generate public/doxygen directory.
 	./scripts/syncdir.sh _build/doxygen/output/html/* public/doxygen/
 .PHONY: doxygen_open
 doxygen_open: doxygen
@@ -195,11 +231,11 @@ test_project: build
 
 USAGE +=~ clean - Remove _build directory
 clean:
-	if [ -e _build ]; then rm -r _build; fi
+	rm -fr ./_build
 
 USAGE +=~ distclean - Removes _build and public also
 distclean: clean
-	if [ -e public ]; then rm -r public; fi
+	rm -fr ./public
 
 USAGE +=~ install - install project
 install: export CMAKE_BUILD_TYPE=Release
@@ -216,12 +252,13 @@ define USAGESTRING
 Usage: make VAR=... target
 
 Variables you can set:
-  SYSTEM            - Empty means host system, ARM10E means use arm-none-eabi
+  SYSTEM            - Empty means host system, armv4t means use arm-none-eabi
   CMAKEFLAGS        - Arguments passed to cmake in configure step
   CDASHFLAGS        - Arguments passed to cdash
   CTESTFLAGS        - Arguments passed to ctest on the rare occasion
 
 Variables passed to dashboard_chors.cmake that you can set with CDASHFLAGS=...:
+  DASHBOARD_MODE  - Mode to run for: gcc, clang or arm.
   WITH_UPDATE     - Checkout the project. Default OFF
   WITH_MEMCHECK   - Do memcheck step. Default ON
   WITH_COVERAGE   - Run and test coverage build. Default ON
@@ -236,9 +273,13 @@ Variables set internally that you should not set:
 Targets:
 endef
 export USAGESTRING
+USAGE +=~ help - Prints this text
+help: usage
+USAGE +=~ usage - Prints this text
 usage:
 	@./scripts/gen_make_help.sh "$$USAGESTRING" "$$TGTSUSAGES"
 
-.PHONY: all $(MAKECMDGOALS)
-
+# All targets added to USAGE are phony 
+.PHONY: $(TGTSUSAGES: -%=)
+.PHONY: all
 
