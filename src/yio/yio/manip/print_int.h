@@ -8,7 +8,6 @@
  */
 #pragma once
 m4_config();
-#include <yio/yio_public.h>
 
 int _yIO_print_short(yio_printctx_t *t);
 int _yIO_print_ushort(yio_printctx_t *t);

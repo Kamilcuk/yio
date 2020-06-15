@@ -462,30 +462,6 @@ int _yIO_printformat_string(yio_printctx_t *t, const Ychar str[]) {
 
 /* --------------------------------------------------------------------------------- */
 
-int _yIO_print_cfmt(yio_printctx_t *t) {
-	const char *str = yio_printctx_va_arg(t, const char *);
-	const char *endptr = NULL;
-	int err = _yIO_cfmt_parse(t, &t->pf, str, &endptr);
-	if (err) return err;
-	if ((size_t)(endptr - str) != Ystrlen(str)) {
-		return YIO_ERROR_CFMT_INVALID;
-	}
-	return yio_printctx_next(t);
-}
-
-int _yIO_print_pfmt(yio_printctx_t *t) {
-	const char *str = yio_printctx_va_arg(t, const char *);
-	const char *endptr = NULL;
-	int err = _yIO_pfmt_parse(t, &t->pf, str, &endptr);
-	if (err) return err;
-	if ((size_t)(endptr - str) != Ystrlen(str)) {
-		return YIO_ERROR_PYFMT_INVALID;
-	}
-	return yio_printctx_next(t);
-}
-
-/* --------------------------------------------------------------------------------- */
-
 int _yIO_scan_parse_scanfmt(struct _yIO_scanctx_s *c, struct yio_scanfmt_s *sf,
 		const char *fmt, const char **endptr) {
 	// {[*][width][iduoxfegacspn]}

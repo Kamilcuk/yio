@@ -14,97 +14,17 @@ m4_config();
 #include "print_float.h"
 #include "print_chars.h"
 #include "print_int.h"
+#include "print_modifiers.h"
+#include "print_wchars.h"
+#include "print_count.h"
+#include "scan_int.h"
+#include "scan_string.h"
+#include "scan_float.h"
+#include "scan_modifiers.h"
 
 /* ---------------------------------------------------------------- */
 
-int _yIO_print_right(yio_printctx_t *t);
-int _yIO_print_noright(yio_printctx_t *t);
-int _yIO_print_left(yio_printctx_t *t);
-int _yIO_print_center(yio_printctx_t *t);
-int _yIO_print_fixed(yio_printctx_t *t);
-int _yIO_print_scientific(yio_printctx_t *t);
-int _yIO_print_hexfloat(yio_printctx_t *t);
-int _yIO_print_persistent(yio_printctx_t *t);
-int _yIO_print_nopersistent(yio_printctx_t *t);
-int _yIO_print_precision(yio_printctx_t *t);
-int _yIO_print_width(yio_printctx_t *t);
-int _yIO_print_unitbuf(yio_printctx_t *t);
-int _yIO_print_nounitbuf(yio_printctx_t *t);
-int _yIO_print_pfmt(yio_printctx_t *t);
-int _yIO_print_cfmt(yio_printctx_t *t);
-
-/**
- * @defgroup yp__mod Printing modifiers.
- * @{
- **/
-/// Align output to the right.
-#define ypright()         yiocb(_yIO_print_right)
-/// Align output to the left.
-#define ypleft()          yiocb(_yIO_print_left)
-/// Center the output within width.
-#define ypcenter()        yiocb(_yIO_print_center)
-/// Outputs the next float in fixed format.
-#define ypfixed()         yiocb(_yIO_print_fixed)
-/// Outputs the next float in scientific format.
-#define ypscientific()    yiocb(_yIO_print_scientific)
-/// Print floats using hexadecimal notation.
-#define yphexfloat()      yiocb(_yIO_print_hexfloat)
-/// Set formatting precision.
-#define ypprecision(arg)  yiocb(_yIO_print_precision, _yIO_CAST_TO_INT(arg))
-/// Set field width.
-#define ypwidth(arg)      yiocb(_yIO_print_width, _yIO_CAST_TO_INT(arg))
-/// Print the unit.
-#define ypunitbuf()       yiocb(_yIO_print_unitbuf)
-/// Do not print the unit.
-#define ypnounitbuf()     yiocb(_yIO_print_nounitbuf)
-
-/**
- * Format output by reading python format string.
- * @def yppfmt(...)
- * @param ... Python formatting string like "{:<20}".
- * @param ... Followed by optional up to two int values.
- */
-#define _yIO_yppfmt_0(fmt)               fmt
-#define _yIO_yppfmt_1(fmt, spec)         fmt, _Generic((spec),int:(spec))
-#define _yIO_yppfmt_2(fmt, spec, spec2)  fmt, _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
-#define _yIO_yppfmt_N(_0,_1,_2,N,...)  _yIO_yppfmt_##N
-#define yppfmt(...)  \
-		yiocb(_yIO_print_pfmt, _yIO_yppfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
-
-/**
- * Format output by reading C format string.
- * @def ypcfmt(...)
- * @param ... C formatting string like "%s".
- * @param ... Optional up to two int values.
- */
-#define _yIO_ypcfmt_0(fmt)                fmt
-#define _yIO_ypcfmt_1(fmt, spec)          fmt, _Generic((spec),int:(spec))
-#define _yIO_ypcfmt_2(fmt, spec, spec2)   fmt, _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
-#define _yIO_ypcfmt_N(_0,_1,_2,N,...)  _yIO_ypcfmt_##N
-#define ypcfmt(...)  \
-		yiocb(_yIO_print_cfmt, _yIO_ypcfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
-
-/**
- * @}
- */
-
 int _yIO_print_wrong_type(yio_printctx_t *t);
-int _yIO_print_intpnt(yio_printctx_t *t);
-int _yIO_print_wchar(yio_printctx_t *t);
-int _yIO_print_wcharpnt(yio_printctx_t *t);
-int _yIO_print_constwcharpnt(yio_printctx_t *t);
-
-/**
- * @defgroup yp__ Printing overloads.
- * @{
- */
-/// Print wchar_t character.
-#define ypwchar(wchar)         yiocb(_yIO_print_wchar, wchar)
-/// Print a string of wchar_t characters.
-#define ypwstrint(wstring)     yiocb(_yIO_print_wstring, wstring)
-/**
- * @}
- */
 
 /**
  * @def _yIO_PRINT_FUNC_GENERIC
@@ -117,12 +37,11 @@ int _yIO_print_constwcharpnt(yio_printctx_t *t);
 				_yIO_PRINT_FUNC_GENERIC_INTS() \
 				_yIO_PRINT_FUNC_GENERIC_CHARS() \
 				_yIO_PRINT_FUNC_GENERIC_FLOATS() \
-				wchar_t *: _yIO_print_wcharpnt, \
-				const wchar_t *: _yIO_print_constwcharpnt, \
+				_yIO_PRINT_FUNC_GENERIC_WCHARS() \
 		default: _Generic((arg), \
 				_yIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
-				wchar_t: _yIO_print_wchar, \
-				int *: _yIO_print_intpnt, \
+				_yIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
+				_yIO_PRINT_FUNC_GENERIC_COUNT() \
 		default: _yIO_print_wrong_type \
 		)))
 
@@ -134,7 +53,8 @@ int _yIO_scan_except(yio_scanctx_t *t);
 int _yIO_scan_except_charpntpnt(yio_scanctx_t *t);
 
 /**
- * @defgroup yscan Scanners.
+ * @defgroup yscan
+ * @brief Scanners
  * @{
  */
 /**
@@ -172,50 +92,16 @@ int _yIO_scan_except_charpntpnt(yio_scanctx_t *t);
 /**
  * @}
  */
-
-
-int _yIO_scan_ignore(yio_scanctx_t *t);
-int _yIO_scan_width_int(yio_scanctx_t *t);
-int _yIO_scan_width_size_t(yio_scanctx_t *t);
-
-/**
- * @defgroup ys_mod Scanning modifiers.
- * @{
- */
-/// Ignore next input.
-#define ysignore()         yiocb(_yIO_scan_ignore)
-/// Set the maximum field width. Negative disables it.
-#define yswidth(width)  \
-		yiocb(_Generic((width), \
-				int: _yIO_scan_width_int, \
-				size_t: _yIO_scan_width_size_t \
-		), width)
-/**
- * @}
- */
-
 int _yIO_scan_wrong_type(yio_scanctx_t *t);
 int _yIO_scan_char(yio_scanctx_t *t);
 int _yIO_scan_schar(yio_scanctx_t *t);
 int _yIO_scan_uchar(yio_scanctx_t *t);
-int _yIO_scan_short(yio_scanctx_t *t);
-int _yIO_scan_ushort(yio_scanctx_t *t);
-int _yIO_scan_int(yio_scanctx_t *t);
-int _yIO_scan_uint(yio_scanctx_t *t);
-int _yIO_scan_long(yio_scanctx_t *t);
-int _yIO_scan_ulong(yio_scanctx_t *t);
-int _yIO_scan_llong(yio_scanctx_t *t);
-int _yIO_scan_ullong(yio_scanctx_t *t);
 int _yIO_scan_charpnt(yio_scanctx_t *t);
 int _yIO_scan_constcharpnt(yio_scanctx_t *t);
 int _yIO_scan_intpnt(yio_scanctx_t *t);
 int _yIO_scan_wchar(yio_scanctx_t *t);
 int _yIO_scan_wcharpnt(yio_scanctx_t *t);
 int _yIO_scan_constwcharpnt(yio_scanctx_t *t);
-int _yIO_scan_float(yio_scanctx_t *t);
-int _yIO_scan_double(yio_scanctx_t *t);
-int _yIO_scan_ldouble(yio_scanctx_t *t);
-int _yIO_scan_floatpnt(yio_scanctx_t *t);
 int _yIO_scan_string_literal(yio_scanctx_t *t);
 int _yIO_scan_string(yio_scanctx_t *t);
 int _yIO_scan_charpntpnt(yio_scanctx_t *t);
@@ -224,49 +110,23 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 /**
  * Choose the scanning function of argument using _Generic macro
  */
-#define _yIO_SCAN_FUNC_GENERIC(arg, ...)  _Generic((arg), \
-		short *: _yIO_scan_short, \
-		unsigned short *: _yIO_scan_ushort, \
-		int *: _yIO_scan_int, \
-		unsigned int *: _yIO_scan_uint, \
-		long *: _yIO_scan_long, \
-		unsigned long *: _yIO_scan_ulong, \
-		long long *: _yIO_scan_llong, \
-		unsigned long long *: _yIO_scan_ullong, \
-		const char *: _yIO_scan_string_literal, \
-		char *: (_yIO_IS_STRING_LITERAL(arg) ? \
-						_yIO_scan_string_literal : \
-						_yIO_scan_string), \
-		char **: _yIO_scan_charpntpnt, \
-		char (*)[sizeof(*arg)]: (_yIO_IS_STRING_LITERAL(arg) ? \
-						_yIO_scan_string_literal : \
-						_yIO_scan_string), \
-		char (* const)[sizeof(*arg)]: (_yIO_IS_STRING_LITERAL(arg) ? \
-						_yIO_scan_string_literal : \
-						_yIO_scan_string), \
-		const char (*)[sizeof(*arg)]: _yIO_scan_const_char_array, \
-		_yIO_SCAN_FUNC_GENERIC_FLOATS() \
-		_yIO_SCAN_FUNC_GENERIC_SLOTS() \
-		const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array \
-)
+#define _yIO_SCAN_FUNC_GENERIC(arg, ...) \
+		_Generic((arg), \
+				_yIO_SCAN_FUNC_GENERIC_SLOTS() \
+		default: _Generic((arg), \
+				_yIO_SCAN_FUNC_GENERIC_INTS() \
+				_yIO_SCAN_FUNC_GENERIC_FLOATS() \
+				const char *: _yIO_scan_string_literal, \
+				char *: (_yIO_IS_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
+				char **: _yIO_scan_charpntpnt, \
+				char (*)[sizeof(*arg)]: (_yIO_IS_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
+				char (* const)[sizeof(*arg)]: (_yIO_IS_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
+				const char (*)[sizeof(*arg)]: _yIO_scan_const_char_array, \
+				const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array, \
+		default: _yIO_scan_wrong_type \
+		))
 
-/* floats generated -------------------------------------------------------------- */
 
-#ifndef __CDT_PARSER__
 
-m4_include(`floatlist.m4~) // (type, name, suffix, strfromx, strtox)
 
-m4_applyforeachdefine(m4_floatlist, `m4_dnl;
-#ifdef _yIO_HAVE_$3
-int _yIO_scan_$2(yio_scanctx_t *t);
-#define _yIO_SCAN_FUNC_GENERIC_$2()  $1*: _yIO_scan_$2,
-#else
-#define _yIO_SCAN_FUNC_GENERIC_$2()
-#endif
-~)m4_dnl;
-
-#define _yIO_SCAN_FUNC_GENERIC_FLOATS() \
-		m4_applyforeachdefine(m4_floatlist, `_yIO_SCAN_FUNC_GENERIC_$2()~)
-
-#endif
 

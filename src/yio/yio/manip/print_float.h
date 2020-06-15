@@ -8,7 +8,6 @@
  */
 #pragma once
 m4_config();
-#include <yio/yio_public.h>
 
 m4_applyforeachdefine(`(
 		(, f),
