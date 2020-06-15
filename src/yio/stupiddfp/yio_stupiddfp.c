@@ -14,7 +14,7 @@ m4_config();
 #include <math.h>
 
 #if __STDC_IEC_60559_DFP__ > 0
-#define _yIO_HAVE_IEC_60559_DFP
+#define _yIO_HAS_IEC_60559_DFP
 #endif
 
 m4_applyforeachdefine(
@@ -28,14 +28,14 @@ m4_applyforeachdefine(
 
 /* suffix $1 ---------------------------------------------------- */
 
-#ifdef _yIO_HAVE_DEC$1
-#ifdef _yIO_HAVE_IEC_60559_DFP
+#ifdef _yIO_HAS_DEC$1
+#ifdef _yIO_HAS_IEC_60559_DFP
 
 _Decimal$1 frexp10d$1(_Decimal$1 val, int *exp) {
 	return frexpd$1(val, exp);
 }
 
-#else // _yIO_HAVE_IEC_60559_DFP
+#else // _yIO_HAS_IEC_60559_DFP
 
 _Decimal$1 floord$1(_Decimal$1 x) {
 	return (int)x;
@@ -119,9 +119,9 @@ _Decimal$1 frexpd$1(_Decimal$1 val, int *exp) {
 	return val;
 }
 
-#endif // _yIO_HAVE_IEC_60559_DFP
+#endif // _yIO_HAS_IEC_60559_DFP
 
-#endif // _yIO_HAVE_DEC$1
+#endif // _yIO_HAS_DEC$1
 
 ~) // m4_dnl m4_applyforeachdefine ;
 

@@ -28,12 +28,15 @@ int _yIO_print_float$2(yio_printctx_t *t) {
 	char *buf = NULL;
 
 	int err = 0;
-#ifdef _yIO_HAVE_strfrom$1
+#ifdef _yIO_HAS_strfrom$1
 	err = _yIO_float_astrfrom_strfrom$1(&buf, precision, type, var);
-#else
+#else // _yIO_HAS_strfrom$1
+#ifdef YIO_FLOATS_PREFER_CUSTOM
+	err = _yIO_float_astrfrom_stupid$1(&buf, precision, type, var);
+#else // YIO_FLOATS_PREFER_CUSTOM
 	err = _yIO_float_astrfrom_printf$1(&buf, precision, type, var);
-	// err = _yIO_float_astrfrom_stupid$1(&buf, precision, type, var);
-#endif
+#endif // YIO_FLOATS_PREFER_CUSTOM
+#endif // _yIO_HAS_strfrom$1
 
 	if (err) {
 		return err;

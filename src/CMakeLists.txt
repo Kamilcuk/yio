@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.12)
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 include(CMakeDependentOption)
@@ -17,27 +17,31 @@ set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
 get_filename_component(GENDIR "${GENDIR}" ABSOLUTE)
 
-# Environment checks ###############################################
+##########################################################################################
+# Environment checks
 include(environment_checks.cmake)
 
-# Configuration options #############################################
+##########################################################################################
+# Configuration options
 
 set(YIO_M4_MLVLS 62 CACHE STRING
 	"The count of levels variadic macros expand to")
 set(YIO_M4_SLOTS_END 110 CACHE STRING
 	"The upper count of slots available in overloads")
+	
+set(YIO_FLOATS_PREFER_CUSTOM 0 CACHE BOOL
+	"For managing standard floating point numbers, prefer using custom stupid library")
+var_to_0_or_1(YIO_FLOATS_PREFER_CUSTOM)
 
-if(${CMAKE_C_FLAGS_INIT} MATCHES "pedantic") 
-	set(YIO_COMPILES_PEDANTIC_INIT 1)
-else()
-	set(YIO_COMPILES_PEDANTIC_INIT 0)
-endif()
-set(YIO_COMPILES_PEDANTIC ${YIO_COMPILES_PEDANTIC_INIT}
-	CACHE BOOL
-	"Set to true if compiling with pedantic")
-var_to_0_or_1(YIO_COMPILES_PEDANTIC)
+set(YIO_IEC_60559_BFP_PREFER_CUSTOM 0 CACHE BOOL
+	"For managing IEC 60559 binary floating point numbers _FloatN, prefer using custom stupid library")
+var_to_0_or_1(YIO_IEC_60559_BFP_PREFER_CUSTOM)
 
-if(_yIO_HAVE_UNISTD_H)
+set(YIO_IEC_60559_DFP_PREFER_CUSTOM 0 CACHE BOOL
+	"For managing IEC 60559 decimal floating point numbers _DecimalN, prefer using custom stupid library")
+var_to_0_or_1(YIO_IEC_60559_DFP_PREFER_CUSTOM)
+
+if(_yIO_HAS_UNISTD_H)
 cmake_dependent_option(YIO_USE_INPUT_FD 1 CACHE BOOL
 	"When set to true, yscan will read from file descriptor 0 instead of FILE *stdin")
 var_to_0_or_1(YIO_USE_INPUT_FD)
@@ -46,7 +50,8 @@ cmake_dependent_option(YIO_USE_OUTPUT_FD 1 CACHE BOOL
 var_to_0_or_1(YIO_USE_OUTPUT_FD)
 endif()
 
-# generate config.m4 #################################################
+###########################################################################################
+# generate config.m4
 configure_file(
 	${SRCDIR}/m4/yio_config.m4.in
 	${GENDIR}/m4/yio_config.m4
@@ -146,14 +151,14 @@ function(yio_add_library name)
 		C_EXTENSIONS YES
 		C_STANDARD 11
 		C_STANDARD_REQUIRED NO
-		$<$<NOT:$<CONFIG:DEBUG>>:
-			INTERPROCEDURAL_OPTIMIZATION TRUE
-		>	
+		$<$<NOT:$<CONFIG:DEBUG>>:INTERPROCEDURAL_OPTIMIZATION TRUE>	
 		DEBUG_POSTFIX "d"
 	)
 	target_include_directories(${name} PUBLIC
 		$<BUILD_INTERFACE:${GENDIR}>
 	)
+	
+	# compile options
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
 			CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		target_compile_options(${name} PRIVATE
@@ -168,12 +173,18 @@ function(yio_add_library name)
 	endif()
 	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		target_compile_options(${name} PRIVATE
+			-Wno-varargs
+		)
+		target_compile_options(${name} PUBLIC
+			-Wno-array-bounds
 			-Wno-sizeof-array-decay
 		)
 	endif()
+	
 	add_dependencies(${name} _yio_gen)
+	target_link_libraries(${name} PUBLIC m)
 	if (NOT ${name} STREQUAL "yio")
-		target_link_libraries(${name} yio)
+		target_link_libraries(${name} PUBLIC yio)
 	endif()
 
 	# install the library

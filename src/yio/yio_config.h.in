@@ -1,5 +1,5 @@
 /**
- * @file yio_config.h
+ * @file yio_config.h.in
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright
@@ -9,34 +9,63 @@
 #include "yio_config_gen.h"
 
 /**
- * @def _yIO_COMPILES_PEDANTIC
- * Set to 1 if compiling with -pedantic flag.
+ * @addtogroup config
+ * @{
  */
-#cmakedefine YIO_COMPILES_PEDANTIC
 
 /**
- * @def _yIO_HAVE_INT128
+ * @def _yIO_HAS_INT128
  * Set by cmake if the compiler supports __int128 type
  * Like gcc: https://gcc.gnu.org/onlinedocs/gcc/_005f_005fint128.html
  */
-#cmakedefine _yIO_HAVE_INT128
+#cmakedefine _yIO_HAS_INT128
 
 /**
- * @def _yIO_HAVE_INT64_T
- * Set by cmake if the compiler supports uint64_t and int64_t types
- */
-#cmakedefine _yIO_HAVE_INT64_T
-
-/**
- * @def _yIO_HAVE_UNISTD_H
+ * @def _yIO_HAS_UNISTD_H
  * Set by cmake if the compiler is posix.
  */
-#cmakedefine _yIO_HAVE_UNISTD_H
+#cmakedefine _yIO_HAS_UNISTD_H
 
 /**
- * @def _yIO_HAVE_FLOAT_H
+ * @def _yIO_HAS_FLOAT_H
+ * Do we have float.h include file? 
  */
-#cmakedefine _yIO_HAVE_FLOAT_H
+#cmakedefine _yIO_HAS_FLOAT_H
+
+/**
+ * @def _yIO_HAS_asprintf
+ * Do we have asprintf?
+ */
+#cmakedefine _yIO_HAS_asprintf
+
+/**
+ * @def YIO_FLOATS_PREFER_CUSTOM
+ * Prefer custom stupid method of printing floats.
+ * There are three methods that this library can print floats with:
+ * 1. There are strfrom* function. They are the preferred way
+ *    if they are available (ex. @see _yIO_HAS_strfromf).
+ * 2. We can use `snprintf` (or `asprintf if available, @see _yIO_HAS_asprintf).
+ * 3. And there is the custom method.
+ * Using strfrom* is preferred. If not available, then using printf is chosen.
+ * When `YIO_PRINT_FLOAT_PREFER_CUSTOM` is set, then custom method is chosen.
+ * Note that the algorithm "works", but is insanely very very bad
+ * by any possible measurement.
+ */
+#cmakedefine YIO_FLOATS_PREFER_CUSTOM
+
+/**
+ * @def YIO_IEC_60559_BFP_PREFER_CUSTOM
+ * @see YIO_FLOATS_PREFER_CUSTOM
+ * Like YIO_IEC_60559_BFP_PREFER_CUSTOM but for _FloatN types.
+ */
+#cmakedefine YIO_IEC_60559_BFP_PREFER_CUSTOM
+
+/**
+ * @def YIO_IEC_60559_DFP_PREFER_CUSTOM
+ * @see YIO_FLOATS_PREFER_CUSTOM
+ * Like YIO_IEC_60559_BFP_PREFER_CUSTOM but for _DecimalN types.
+ */
+#cmakedefine YIO_IEC_60559_DFP_PREFER_CUSTOM
 
 /**
  * @def YIO_USE_INPUT_FD
@@ -53,14 +82,17 @@
 #cmakedefine YIO_USE_OUTPUT_FD
 
 // check
-#ifndef _yIO_HAVE_UNISTD_H
+#ifndef _yIO_HAS_UNISTD_H
 #ifdef YIO_USE_OUTPUT_FD
 #error "You can't output to fd without unistd.h"
 #endif
 #ifdef YIO_USE_INPUT_FD
-#error "You can't read to fd without unistd.h"
+#error "You can't read from fd without unistd.h"
 #endif
 #endif
 
+/**
+ * @}
+ */
 
 

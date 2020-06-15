@@ -74,7 +74,7 @@
 
 #define _yIO_MAXHEXDIGITS_IN(type)  (sizeof(type) * CHAR_BIT / 4)
 
-#ifdef _yIO_HAVE_INT128
+#ifdef _yIO_HAS_INT128
 #define _yIO_INTEGERS_APPEND_LIST_INT128() \
 		, \
 		(__int128, __int128), \

@@ -7,7 +7,7 @@
  */
 m4_config();
 #include "private.h"
-#ifdef _yIO_HAVE_UNISTD_H
+#ifdef _yIO_HAS_UNISTD_H
 #include <unistd.h>
 #include <errno.h>
 

@@ -8,6 +8,7 @@
  */
 m4_config();
 #pragma once
+#include <yio/yio_config.h>
 
 #ifdef __CDT_PARSER__
 #define _yIO_FLOAT$1 float
@@ -17,9 +18,15 @@ m4_config();
 #define _yIO_FLOAT$1 float
 #endif
 
-#define _yIO_HAVE_FLOATf  1
-#define _yIO_HAVE_FLOAT   1
-#define _yIO_HAVE_FLOATl  1
+#ifndef _yIO_HAS_FLOATf
+#define _yIO_HAS_FLOATf  1
+#endif
+#ifndef _yIO_HAS_FLOAT
+#define _yIO_HAS_FLOAT   1
+#endif
+#ifndef _yIO_HAS_FLOATl
+#define _yIO_HAS_FLOATl  1
+#endif
 
 #define _yIO_FLOATf  float
 #define _yIO_FLOAT   double

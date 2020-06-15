@@ -13,7 +13,7 @@
 
 m4_applyforeachdefine(`((32, df), (64, dd), (128, dl))~, `m4_dnl;
 
-#ifdef _yIO_HAVE_DEC$1
+#ifdef _yIO_HAS_DEC$1
 
 #ifndef __STDC_DEC_FP__
 // Forward declaration so we get link time errors.
@@ -44,7 +44,7 @@ _Decimal$1 _yIO_frexp10d$1(_Decimal$1 val, int *exp) {
 	return frexpd$1(val, exp);
 }
 
-#endif // _yIO_HAVE_DEC$1
+#endif // _yIO_HAS_DEC$1
 
 ~) m4_dnl m4_applyforeachdefine;
 

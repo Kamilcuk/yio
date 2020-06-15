@@ -42,7 +42,12 @@ m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
 #define PRI      _yIO_FLOAT_PRI$1
 #define FLOOR    floor$1
 #define EXP2     exp2$1
+// newlib doesn't have exp10l, but has expl
+#ifdef _yIO_HAS_exp10$1
 #define EXP10    exp10$1
+#else
+#define EXP10(x) pow$1(10.0, x)
+#endif
 #define FABS     fabs$1
 #define FREXP2   _yIO_frexp2$1
 #define FREXP10  _yIO_frexp10$1
