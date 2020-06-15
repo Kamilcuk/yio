@@ -12,7 +12,7 @@
 #                    "cat" "yellow"
 #                    "chair" "brown"
 #     )
-#            foreach_count_items(i thing color)
+#            foreach_count_items(i statevariable  thing color)
 #            if(i)
 #                 continue()
 #            endif()

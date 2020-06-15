@@ -28,7 +28,7 @@ if(EXISTS "${LOC_PATH}")
 endif()
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/debug_variables.cmake)
-debug_variables("yio:"
+debug_variables(PREFIX "yio: "
 	BUILD_TESTING
 	YIO_BUILD_TESTING
 	CMAKE_C_FLAGS
