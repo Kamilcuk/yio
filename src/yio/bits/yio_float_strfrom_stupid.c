@@ -11,9 +11,11 @@ m4_config();
 #include "yio_float_strfrom_stupid.h"
 #include "yio_float_string.h"
 #include "yio_buf.h"
+#include "yio_vec.h"
 #include "yio_float.h"
 #include <yio.h>
 
+#include <assert.h>
 #include <math.h>
 #include <float.h>
 #include <stdlib.h>
@@ -28,10 +30,10 @@ m4_config();
 #include <errno.h>
 #include <stdint.h>
 
-#define ASSERTMSG(expr, ...) do { \
+#define ASSERTMSG(expr, fmt, ...) do { \
 	if (!(expr)) { \
-		fprintf(stderr, __VA_ARGS__); \
-		__assert_fail(#expr, __FILE__, __LINE__, __func__); \
+		fprintf(stderr, "%s:%d: ERROR: %s failed: " fmt "\n", \
+				__func__, __LINE__, #expr, ##__VA_ARGS__); \
 	} \
 } while (0)
 
@@ -53,7 +55,7 @@ m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
 #define FREXP10  _yIO_frexp10$1
 
 static inline
-void get_next_digit$1(_yIO_buf *b, TYPE *val,
+int get_next_digit$1(_yIO_vec *v, TYPE *val,
 		bool hex, const char *to_digit_str, bool is_last) {
 	const TYPE base = hex ? (TYPE)16 : (TYPE)10;
 	const int baseint = hex ? 16 : 10;
@@ -65,20 +67,27 @@ void get_next_digit$1(_yIO_buf *b, TYPE *val,
 			digit, hex, is_last, *val
 	);
 	const char c = to_digit_str[digit];
-	_yIO_buf_putc(b, c);
+	const int err = _yIO_vec_putc(v, c);
+	if (err) return err;
 	if (!is_last) {
 		*val -= digit;
 	}
+	return 0;
 }
 
-int _yIO_float_strfrom_stupid$1(char *dest, int precision, char spec0, TYPE val) {
+int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val) {
+	int err = 0;
+	*out = NULL;
+
 	char spec = spec0;
-	_yIO_buf b = _yIO_buf_init(dest);
+	_yIO_vec _v_mem = _yIO_vec_init();
+	_yIO_vec * const v = &_v_mem;
 
 	// take minus out of the way
 	const bool negative = signbit(val);
 	if (negative) {
-		_yIO_buf_putc(&b, '0');
+		const int err = _yIO_vec_putc(v, '-');
+		if (err) return err;
 		val = FABS(val);
 	}
 
@@ -88,8 +97,9 @@ int _yIO_float_strfrom_stupid$1(char *dest, int precision, char spec0, TYPE val)
 			isnan(val) ? upper ? "NAN" : "nan" :
 					isinf(val) ? upper ? "INF" : "inf" : NULL;
 	if (nan_or_inf_str) {
-		_yIO_buf_puts(&b, nan_or_inf_str);
-		return _yIO_buf_end(&b);
+		err = _yIO_vec_puts(v, nan_or_inf_str);
+		if (err) return err;
+		goto SUCCESS;
 	}
 
 	// all the happy rest
@@ -98,7 +108,8 @@ int _yIO_float_strfrom_stupid$1(char *dest, int precision, char spec0, TYPE val)
 	// eE 9.87654e+02
 	// aA 1.<hex>p+1
 	// gG if <exponent> then f else e
-	char speclower = tolower(spec);
+	const char spec0lower = tolower(spec);
+	char speclower = spec0lower;
 	bool hex = speclower == 'a';
 	bool scientific = speclower == 'a' || speclower == 'e';
 	const bool is_lower_spec = speclower == spec;
@@ -155,32 +166,41 @@ int _yIO_float_strfrom_stupid$1(char *dest, int precision, char spec0, TYPE val)
 
 	if (speclower == 'f') {
 		if (exponent <= 0) {
-			_yIO_buf_putc(&b, '0');
+			err = _yIO_vec_putc(v, '0');
+			if (err) return err;
 		} else {
 			assert(exponent > 0);
 			for (int i = exponent; i; --i) {
-				get_next_digit$1(&b, &val, hex, to_digit_str, i == 1 && precision == 0);
+				err = get_next_digit$1(v, &val, hex, to_digit_str, i == 1 && precision == 0);
+				if (err) return err;
 			}
 		}
 	} else if (speclower == 'e') {
 		if (val_is_zero) {
-			_yIO_buf_putc(&b, '0');
+			err = _yIO_vec_putc(v, '0');
+			if (err) return err;
 		} else {
-			get_next_digit$1(&b, &val, hex, to_digit_str, precision == 0);
+			err = get_next_digit$1(v, &val, hex, to_digit_str, precision == 0);
+			if (err) return err;
 		}
 	} else if (speclower == 'a') {
-		_yIO_buf_putc(&b, '0');
-		_yIO_buf_putc(&b, is_lower_spec ? 'x': 'X');
+		err = _yIO_vec_putc(v, '0');
+		if (err) return err;
+		err = _yIO_vec_putc(v, is_lower_spec ? 'x': 'X');
+		if (err) return err;
 		if (val_is_zero) {
-			_yIO_buf_putc(&b, '0');
+			err = _yIO_vec_putc(v, '0');
+			if (err) return err;
 		} else {
 			// print first number
 			if (val < 2) {
-				_yIO_buf_putc(&b, '1');
+				err = _yIO_vec_putc(v, '1');
+				if (err) return err;
 				val -= 1;
 			} else {
 				// it rounded to whole number up
-				_yIO_buf_putc(&b, '2');
+				err = _yIO_vec_putc(v, '2');
+				if (err) return err;
 				// print only zeros below
 				val = 0;
 			}
@@ -189,44 +209,40 @@ int _yIO_float_strfrom_stupid$1(char *dest, int precision, char spec0, TYPE val)
 
 	bool g_fractional_part_removed = false;
 	if (precision) {
-		_yIO_buf_putc(&b, '.');
+		err = _yIO_vec_putc(v, '.');
+		if (err) return err;
 		int zeros = (speclower == 'f' && exponent < 0) ? -exponent : 0;
 		while (precision--) {
 			if (zeros) {
 				--zeros;
-				_yIO_buf_putc(&b, '0');
+				err = _yIO_vec_putc(v, '0');
+				if (err) return err;
 			} else {
-				get_next_digit$1(&b, &val, hex, to_digit_str, precision == 0);
+				err = get_next_digit$1(v, &val, hex, to_digit_str, precision == 0);
+				if (err) return err;
 			}
 		}
-		if (spec0 == 'g' || spec0 == 'G') {
-			g_fractional_part_removed = _yIO_buf_remove_trailing_zeros(&b);
+		if (spec0lower == 'g') {
+			g_fractional_part_removed = _yIO_vec_remove_trailing_zeros(v);
 		}
 	}
 
 	const bool print_scientif_suffix = scientific &&
-			!((spec0 == 'g' || spec0 == 'G') &&
-					!val_is_zero && exponent == 1 && !g_fractional_part_removed);
+			!(spec0lower == 'g' && !val_is_zero && exponent == 1 && !g_fractional_part_removed);
 	if (print_scientif_suffix) {
 		const char letter = !hex ? spec :
 				is_lower_spec ? 'p' : 'P';
-		_yIO_buf_putc(&b, letter);
-		int len = ysprintf(b.dest,
-				b.dest == NULL ? 0 : SIZE_MAX,
-				"{:+0{}}",
-				hex ? 0 : 3,
-				val_is_zero ? 0 : (exponent - 1));
-		b.len += len;
-		if (b.dest != NULL) {
-			b.dest += len;
-		}
+		err = _yIO_vec_putc(v, letter);
+		if (err) return err;
+		err = _yIO_vec_yreformatf(v, "{:+0{}}", hex ? 0 : 3, val_is_zero ? 0 : (exponent - 1));
+		if (err) return err;
 	}
 
-	return _yIO_buf_end(&b);
-}
-
-int _yIO_float_astrfrom_stupid$1(char **out, int precision, char type, TYPE val) {
-	return _yIO_float_strfrom_to_astrfrom$1(out, precision, type, val, _yIO_float_strfrom_stupid$1);
+	SUCCESS:
+	err = _yIO_vec_putc(v, '\0');
+	if (err) return err;
+	*out = _yIO_vec_data(v);
+	return 0;
 }
 
 #undef TYPE

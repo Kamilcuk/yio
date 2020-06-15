@@ -10,6 +10,7 @@
  * 1. When initialized with null, it measures length of bytes that would
  * have been written to the buffer without a terminating zero character.
  * 2. When initialized with not null, actually writes the bytes.
+ * This library solely exists for yio_float_strfrom_stupid.c
  */
 #pragma once
 #include <stddef.h>
@@ -72,6 +73,7 @@ bool _yIO_buf_remove_trailing_zeros(_yIO_buf *b) {
 	} else {
 		fractional_part_removed = true;
 	}
+	(void)len;
 	assert(dest - len < p && p <= dest);
 	*p = '\0';
 	return fractional_part_removed;
