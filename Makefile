@@ -129,7 +129,7 @@ endef # gitlab_cdash_decl_them
 $(foreach i,gcc clang arm,$(eval $(call gitlab_cdash_decl_them,$(i))))
 
 .gitlab_cdash_%: export override CDASHFLAGS := -DMODEL=Continous -DWITH_UPDATE=ON -DWITH_SUBMIT=ON $(CDASHFLAGS)
-.gitlab_cdash_%: .cdash_%
+.gitlab_cdash_%: .cdash_% ;
 
 USAGE +=~ gitlab_pages - Generate gitlab pages 
 gitlab_pages: badge doxygen

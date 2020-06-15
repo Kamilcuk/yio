@@ -47,7 +47,7 @@ macro(lib_ctest_empty_binary_directory)
 endmacro()
 
 macro(lib_ctest_start)
-	debug_variables("lib_ctest_start" CTEST_BUILD_NAME)
+	debug_variables(PREFIX "lib_ctest_start" CTEST_BUILD_NAME)
 	logln("ctest_start(${ARGV})")
 	ctest_start(${ARGV})
 endmacro()

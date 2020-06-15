@@ -39,10 +39,8 @@ endmacro()
 #######################################################################################
 # Load our library with most of the functions
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
-include(dashboard_lib RESULT_VARIABLE ret)
-if(NOT ret)
-	message(FATAL_ERROR "include dashboard_lib.cmake failed ret=${ret}")
-endif()
+include(dashboard_lib)
+include(fail_if_git_is_dirty)
 
 #######################################################################################
 # Choose the configuration we will running for
@@ -160,14 +158,7 @@ assert_is_valid_bool_only(PREFIX "dashboard: "
 
 # If we are upading, make TOTALLY SURE, we will not loose any data. 
 if(WITH_UPDATE)
-	execute_process(
-		COMMAND git update-index --refresh
-		COMMAND git diff-index --quiet HEAD --
-		RESULT_VARIABLE ret
-	)
-	if(NOT ret EQUAL 0)
-		message(FATAL_ERROR "DIRTY")
-	endif()
+	fail_if_git_is_dirty()
 endif()
 
 # If we are submitting and we have passwrod to my server, set it.
