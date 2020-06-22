@@ -12,7 +12,7 @@ include(debug_variables)
 include(m4)
 get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/../src ABSOLUTE)
 get_filename_component(GENDIR ${CMAKE_CURRENT_SOURCE_DIR}/../gen ABSOLUTE)
-m4_add_options(lib.m4 ${GENDIR}/m4/yio_config.m4)
+m4_add_options(lib.m4)
 m4_add_include_directories(${SRCDIR})
 
 # Compiler options #######################################################

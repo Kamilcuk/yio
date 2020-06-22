@@ -1,5 +1,6 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -eu
+export SHELLOPTS
 
 name=$(basename "$0")
 
@@ -14,7 +15,7 @@ Options:
 A helper script to be run from cmake as m4 preprocessor.
 The -MF -MT options are the same as in gcc and can be used
 to generate dependency files.
-Dependency generation uses output from m4 and depends on `-dp`
+Dependency generation uses output from m4 and depends on '-dp'
 m4 option support and format.
 
 Written by Kamil Cukrowski.
@@ -32,7 +33,7 @@ fatal() {
 # Parse arguments
 target=
 depfile=
-while (($#)); do
+while [ "$#" -ne 0 ]; do
 	case "$1" in
 	-MF) depfile="$2"; shift; ;;
 	-MT) deptarget="$2"; shift; ;;
@@ -42,7 +43,7 @@ while (($#)); do
 	shift
 done
 
-if (( "$#" < 3 )); then
+if [ "$#" -lt 3 ]; then
 	usage
 	exit 2
 fi
@@ -52,7 +53,7 @@ outputf="$2"
 shift 2
 
 # Check m4 executable
-if [[ ! -x "$m4" ]] || ! hash "$m4" >/dev/null 2>&1; then
+if [ ! -x "$m4" ] || ! hash "$m4" >/dev/null 2>&1; then
 	fatal "No such command: $m4"
 fi
 
@@ -63,7 +64,7 @@ if ! mkdir -p "$fdir"; then
 fi
 
 # If the destination file exists and is not writable
-if [[ -e "$outputf" && ! -w "$outputf" ]]; then
+if [ -e "$outputf" ] && [ ! -w "$outputf" ]; then
 	# make it writable
 	if ! chmod +w "$outputf"; then
 		fatal "Could not chmod +w: $outputf"
@@ -76,14 +77,14 @@ deprgx="^m4debug: path search for \`.*' found \`\\(.*\\)'\$"
 if ! err=$( { "$m4" -dp "$@" > "$outputf" ;} 2>&1 ); then
 	# Remove the initial executable name from the error message
 	# for eclipse for fast navigation
-	sed "/$deprgx/"'d; s/^m4://' <<<"$err" >&2
+	printf "%s\n" "$err" | sed "/$deprgx/"'d; s/^m4://' >&2
 	exit 1
 fi
 
-if [[ -n "$depfile" ]]; then
+if [ -n "$depfile" ]; then
 	{
 		echo "${deptarget:-$outputf}:"
-		sed "/$deprgx/"'!d; s//\1/' <<<"$err"		
+		printf "%s\n" "$err" | sed "/$deprgx/"'!d; s//\1/'		
 	} | paste -sd ' ' > "$depfile"
 fi
 
