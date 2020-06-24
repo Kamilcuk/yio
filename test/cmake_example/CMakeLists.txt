@@ -3,6 +3,14 @@ project(yio_test LANGUAGES C)
 
 find_package(yio HINTS $ENV{YIODIR}	REQUIRED)
 
+foreach(i IN ITEMS yio_decimallib yio yuio)
+	if(NOT TARGET yio::${i})
+		message(FATAL_ERROR "yio::${i} target not found")
+	endif()
+	get_property(tmp TARGET yio::${i} PROPERTY IMPORTED_LOCATION)
+	message(STATUS "yio::${i} -> ${tmp}")
+endforeach()
+
 add_executable(${PROJECT_NAME} main.c)
 target_link_libraries(${PROJECT_NAME} PUBLIC yio::yio)
 
