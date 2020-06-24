@@ -24,7 +24,7 @@ m4_config_yio();
 
 /* ---------------------------------------------------------------- */
 
-int _yIO_print_wrong_type(yio_printctx_t *t);
+int _yIO_print_unhadled_type(yio_printctx_t *t);
 
 /**
  * @def _yIO_PRINT_FUNC_GENERIC
@@ -42,7 +42,7 @@ int _yIO_print_wrong_type(yio_printctx_t *t);
 				_yIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				_yIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
 				_yIO_PRINT_FUNC_GENERIC_COUNT() \
-		default: _yIO_print_wrong_type \
+		default: _yIO_print_unhadled_type \
 		)))
 
 /* ---------------------------------------------------------------------- */
@@ -92,7 +92,7 @@ int _yIO_scan_except_charpntpnt(yio_scanctx_t *t);
 /**
  * @}
  */
-int _yIO_scan_wrong_type(yio_scanctx_t *t);
+int _yIO_scan_unhandled_type(yio_scanctx_t *t);
 int _yIO_scan_char(yio_scanctx_t *t);
 int _yIO_scan_schar(yio_scanctx_t *t);
 int _yIO_scan_uchar(yio_scanctx_t *t);
@@ -123,9 +123,8 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 				char (* const)[sizeof(*arg)]: (_yIO_IS_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
 				const char (*)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 				const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array, \
-		default: _yIO_scan_wrong_type \
+		default: _yIO_scan_unhandled_type \
 		))
-
 
 
 
