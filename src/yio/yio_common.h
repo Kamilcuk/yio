@@ -13,12 +13,10 @@
 enum _yIO_TYPES {
 	YIO_TYPE_YIO,
 	YIO_TYPE_YWIO,
-	YIO_TYPE_Y8IO,
-	YIO_TYPE_Y16IO,
-	YIO_TYPE_Y32IO,
+	YIO_TYPE_YUIO,
 };
 
-#if defined(__CDT_PARSER__) || YIO_REALLY_CDT_PARSER
+#if defined __CDT_PARSER__ || YIO_REALLY_CDT_PARSER
 
 #define _Generic(...)  /**/
 
@@ -28,7 +26,14 @@ enum _yIO_TYPES {
  * These symbols should be defined by m4/cfg_*.m4 files.
  * @{
  */
+/**
+ * @brief The type of the currently compiled library
+ */
 #define YTYPE  YIO_TYPE_YIO
+#define N(name)    _yIO_##name
+#define yio(name)  yio_##name
+#define YIO(name)  YIO_##name
+
 /**
  * @param NAME  Symbol name
  * Declares the symbol within private yio namespace.
@@ -44,6 +49,7 @@ enum _yIO_TYPES {
  * Declares the symbol within private yio namespace
  */
 #define Yio(NAME)  yio_ ## NAME
+
 /**
  * Represents a character. A pointer to it represents a string.
  */

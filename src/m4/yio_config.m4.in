@@ -1,3 +1,4 @@
+m4_divert(-1)
 /**
  * @file
  * @author Kamil Cukrowski
@@ -21,3 +22,4 @@ m4_define(`m4_MLVLS~, `@YIO_M4_MLVLS@~)m4_dnl;
 #define m4_SLOTS_END  100
 m4_define(`m4_SLOTS_END~, `@YIO_M4_SLOTS_END@~)m4_dnl;
 
+m4_divert(0)m4_dnl

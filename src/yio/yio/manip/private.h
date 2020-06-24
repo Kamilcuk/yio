@@ -6,4 +6,5 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include "yio/yio/private.h"
+#include <yio/yio_common.h>
+#include <yio/yio/private.h>

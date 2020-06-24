@@ -11,11 +11,16 @@ function(log)
 	message(STATUS "yio: ${_log_list_filename}: ${ARGN}")
 endfunction()
 
-# 
+###########################################################################################
+# init
 
-set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR})
-set(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen)
-get_filename_component(GENDIR "${GENDIR}" ABSOLUTE)
+string(TOUPPER CMAKE_BUILD_TYPE build_type_upper)
+# Source directory
+get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
+# Generated directory
+get_filename_component(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen ABSOLUTE)
+# List of generated files by m4
+set(gensrcs)
 
 # Environment checks
 include(environment_checks.cmake)
@@ -40,12 +45,6 @@ configure_file(
 	${GENDIR}/yio/yio_config.h
 	@ONLY
 )
-
-# generate .m4 files ##################################################
-m4_add_options(lib.m4)
-m4_add_include_directories(${SRCDIR} ${GENDIR}/m4)
-m4_add_file_dependencies(${GENDIR}/m4/yio_config.m4)
-file(GLOB_RECURSE m4srcs *.c *.h)
 list(APPEND gensrcs ${GENDIR}/yio/yio_config.h)
 
 # generate error messages ####################
@@ -60,14 +59,35 @@ add_custom_command(
 		-D INPUT=${SRCDIR}/yio/yio_error.h
 		-P ${CMAKE_CURRENT_SOURCE_DIR}/yio/yio_error_messages.cmake
 	COMMENT "Generate yio/yio_error_messages.h file"
+	VERBATIM
 )
+list(APPEND gensrcs ${GENDIR}/yio/yio_error_messages.h)
 
-# Generate all files target ###########################################
-set(gensrcs
-	${m4_outputs}
-	${GENDIR}/yio/yio_config.h
-	${GENDIR}/yio/yio_config_gen.h
-	${GENDIR}/yio/yio_error_messages.h
+##############################################################################################
+# Preprocess files with m4.
+
+m4_add_options(
+	--fatal-warnings
+	--fatal-warnings
+	# pass context
+	-D m4_SRCDIR=${SRCDIR}
+	-D m4_GENDIR=${GENDIR}
+)
+if(build_type_upper STREQUAL "DEBUG")
+	m4_add_options(-D m4_NDEBUG=1)
+endif()
+m4_add_options(
+	# Always load library.
+	lib.m4
+	# Load our configuration.
+	${GENDIR}/m4/yio_config.m4
+)
+# Note: SRCDIR is included, so I can do `m4_include(yio/blabla)`.
+m4_add_include_directories(${SRCDIR})
+# Dependencies are generated for all m4 files in m4.cmake.
+# We add here what we generate ourselves.
+m4_add_file_dependencies(
+	${CMAKE_CURRENT_SOURCE_DIR}/../m4/lib.m4 
 	${GENDIR}/m4/yio_config.m4
 )
 

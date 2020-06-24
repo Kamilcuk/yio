@@ -6,7 +6,6 @@ m4_include(lib/lib.m4)
 
 m4_changecom(`/*~, `*/~)
 
-m4_sinclude(yio_config.m4)
 m4_include(m4_config.m4)
 
 /**

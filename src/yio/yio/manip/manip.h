@@ -14,6 +14,7 @@ m4_config_yio();
 #include "print_float.h"
 #include "print_chars.h"
 #include "print_int.h"
+#include "print_bool.h"
 #include "print_modifiers.h"
 #include "print_wchars.h"
 #include "print_count.h"
@@ -38,6 +39,7 @@ int _yIO_print_unhadled_type(yio_printctx_t *t);
 				_yIO_PRINT_FUNC_GENERIC_CHARS() \
 				_yIO_PRINT_FUNC_GENERIC_FLOATS() \
 				_yIO_PRINT_FUNC_GENERIC_WCHARS() \
+				_yIO_PRINT_FUNC_GENERIC_BOOL() \
 		default: _Generic((arg), \
 				_yIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				_yIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
@@ -125,7 +127,3 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 				const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 		default: _yIO_scan_unhandled_type \
 		))
-
-
-
-
