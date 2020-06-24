@@ -1,15 +1,21 @@
-#!/bin/sh
+#!/bin/bash
+set -euo pipefail
 
 name=$(basename "$0")
 
 usage() {
 	cat <<EOF
-Usage: $name \\
-	<m4_executable> <output_file> \\
-	<options_separated_by_semicolon> \\
-	<sources_and_additional_m4_options>
+Usage: $name [Options] -- <m4_executable> <output_file> <m4_options> 
+
+Options:
+  -MF <file>    Generate dependency file
+  -MT <target>  Target name for dependency file 
 
 A helper script to be run from cmake as m4 preprocessor.
+The -MF -MT options are the same as in gcc and can be used
+to generate dependency files.
+Dependency generation uses output from m4 and depends on `-dp`
+m4 option support and format.
 
 Written by Kamil Cukrowski.
 EOF
@@ -20,47 +26,72 @@ fatal() {
 	exit 2
 }
 
-# Main #######################
+#####################################################################
+# Main
 
-if [ "$#" -lt 4 ]; then
+# Parse arguments
+target=
+depfile=
+while (($#)); do
+	case "$1" in
+	-MF) depfile="$2"; shift; ;;
+	-MT) deptarget="$2"; shift; ;;
+	--) shift; break; ;;
+	*) break; ;;
+	esac
+	shift
+done
+
+if (( "$#" < 3 )); then
 	usage
 	exit 2
 fi
 
 m4="$1"
-f="$2"
-opts="$3"
-shift 3
+outputf="$2"
+shift 2
 
 # Check m4 executable
-if [ ! -x "$m4" ] && ! hash "$m4" >/dev/null 2>&1; then
+if [[ ! -x "$m4" ]] || ! hash "$m4" >/dev/null 2>&1; then
 	fatal "No such command: $m4"
 fi
 
 # Create destination directory
-fdir=$(dirname "$f")
+fdir=$(dirname "$outputf")
 if ! mkdir -p "$fdir"; then
 	fatal "Could not create directory: $fdir"
 fi
 
 # If the destination file exists and is not writable
-if [ -e "$f" -a ! -w "$f" ]; then
+if [[ -e "$outputf" && ! -w "$outputf" ]]; then
 	# make it writable
-	if ! chmod +w "$f" >/dev/null 1>&2; then
-		fatal "Could not chmod +w: $f"
+	if ! chmod +w "$outputf"; then
+		fatal "Could not chmod +w: $outputf"
 	fi
 fi
 
-if ! err=$( { IFS=';'; "$m4" $opts "$@" > "$f" ;} 2>&1 ); then
-	# remove the initial executable name from the error message
+# Matches m4debug dependency messages.
+deprgx="^m4debug: path search for \`.*' found \`\\(.*\\)'\$"
+
+if ! err=$( { "$m4" -dp "$@" > "$outputf" ;} 2>&1 ); then
+	# Remove the initial executable name from the error message
 	# for eclipse for fast navigation
-	printf "%s\n" "$err" | sed >&2 "s;^$m4:;;"
-	# if you want to see additional ": m4: "
-	# s;: ;&m4&;" >&2
+	sed "/$deprgx/"'d; s/^m4://' <<<"$err" >&2
 	exit 1
+fi
+
+if [[ -n "$depfile" ]]; then
+	{
+		echo "${deptarget:-$outputf}:"
+		sed "/$deprgx/"'!d; s//\1/' <<<"$err"		
+	} | paste -sd ' ' > "$depfile"
 fi
 
 # Make destination file not writable
 # so we don't edit it from IDE
-chmod -w "$f" >/dev/null >&1 ||:
+chmod -w "$outputf" >/dev/null >&1 ||:
+
+
+
+
 
