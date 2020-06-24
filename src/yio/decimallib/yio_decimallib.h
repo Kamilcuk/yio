@@ -15,12 +15,7 @@ m4_config();
 #define _Decimal$1 _Decimal32
 #endif
 
-m4_applyforeachdefine(
-`(
-		( 32, df,  "H"),
-		( 64, dd,  "D"),
-		(128, dl, "DD")
-)~,`m4_dnl;
+m4_applyforeachdefine(`((32), (64), (128))~,`m4_dnl;
 
 #ifdef _yIO_HAS_DEC$1
 

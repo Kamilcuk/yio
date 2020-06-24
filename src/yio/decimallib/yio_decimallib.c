@@ -8,7 +8,7 @@
  */
 #define __STDC_WANT_IEC_60559_DFP_EXT__
 m4_config();
-#include "yio_stupiddfp.h"
+#include "yio_decimallib.h"
 #include <yio/yio_config.h>
 #include <stdbool.h>
 #include <math.h>
@@ -104,6 +104,7 @@ _Decimal$1 log10d$1(_Decimal$1 y) {
 }
 
 _Decimal$1 frexpd$1(_Decimal$1 val, int *exp) {
+	// TODO: User proper bitmasks...
 	if (val == 0) {
 		*exp = 0;
 	} else {

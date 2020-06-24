@@ -190,10 +190,12 @@ function(file_glob_relative_to_gendir glob var)
 	set(${var} "${tmp2}" PARENT_SCOPE)
 endfunction()
 
-# add yio executable ##############################################
-file_glob_relative_to_gendir(GLOB auto_stupiddfp_srcs yio/stupiddfp/*.h yio/stupiddfp/*.c)
-yio_add_library(yio_stupiddfp 
-	${auto_stupiddfp_srcs}	
+##################################################################################
+# Add libraries
+ 
+file_glob_relative_to_gendir(GLOB auto_decimallib_srcs yio/decimallib/*.h yio/decimallib/*.c)
+yio_add_library(yio_decimallib 
+	${auto_decimallib_srcs}
 	yio/yio_config.h
 	yio/yio_config_gen.h
 )
