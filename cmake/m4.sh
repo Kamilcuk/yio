@@ -82,6 +82,7 @@ if ! err=$( { "$m4" -dp "$@" > "$outputf" ;} 2>&1 ); then
 fi
 
 if [ -n "$depfile" ]; then
+	mkdir -p "$(dirname "$depfile")"
 	{
 		echo "${deptarget:-$outputf}:"
 		printf "%s\n" "$err" | sed "/$deprgx/"'!d; s//\1/'		
