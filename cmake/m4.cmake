@@ -113,14 +113,28 @@ function(_m4_add_command_in output source)
 	file(RELATIVE_PATH outputbinrela ${CMAKE_BINARY_DIR} ${output})
 	file(RELATIVE_PATH sourcebinrela ${CMAKE_BINARY_DIR} ${source})
 	
+	if("${CMAKE_GENERATOR}" STREQUAL "Ninja")
+		# When use Nninja we can use DEPFILE
+		set(add_custom_command_depfile_args
+			BYPRODUCTS ${additional_args}
+			DEPFILE ${additional_args}
+		)
+		set(script_depfile_args 
+			-MT ${outputbinrela} -MF ${depfile}
+		)
+	else()
+		# Otherwise we have a problem to be figured out.
+		set(add_custom_command_depfile_args)
+		set(script_depfile_args)
+	endif()
+	
 	add_custom_command(
 		OUTPUT ${output}
 		MAIN_DEPENDENCY ${source}
-		DEPENDS ${_M4_SH_SCRIPT} # ${_M4_OPTIONS_DEPENDS_INIT}
-		BYPRODUCTS ${depfile}
-		DEPFILE ${depfile}
+		DEPENDS ${_M4_SH_SCRIPT} ${_M4_OPTIONS_DEPENDS_INIT}
+			${add_custom_command_depfile_args}
 		COMMAND ${_M4_SH_EXECUTABLE} ${_M4_SH_SCRIPT}
-			-MT ${outputbinrela} -MF ${depfile}
+			${script_depfile_args}
 			-- ${_M4_EXECUTABLE} ${output} ${ARGN} ${source}
 		COMMENT "m4: Generating ${sourcenice} from ${outputnice}"
 		VERBATIM
