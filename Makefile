@@ -52,7 +52,6 @@ BUILD_TESTING ?= ON
 CMAKE := $(NICE) cmake
 CMAKEFLAGS += -S .
 CMAKEFLAGS += -GNinja
-CMAKEFLAGS += $(CMAKEFLAGS_GENERATOR)
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 ifneq ($(CMAKE_C_FLAGS),)
@@ -224,14 +223,20 @@ doxygen_open: doxygen
 	
 # test building cmake project ##########################
 
+TEST_PROJECT_B = _build/test_project
+
 USAGE +=~ test_project - Test sample cmake project
-test_project: export B = _build/test_project
-test_project: build
-	$(CMAKE) -B $(B) $(CMAKEFLAGS) -D CMAKE_INSTALL_PREFIX=$(B)/testinstall
-	$(CMAKE) --build $(B) --target all
-	$(CMAKE) --build $(B) --target install
-	$(MAKE) YIODIR=$(PWD)/$(B)/testinstall -C test/cmake_example
-	$(CMAKE) --build $(B) --target yio_uninstall
+test_project:
+	$(CMAKE) -B $(TEST_PROJECT_B) $(CMAKEFLAGS) -D CMAKE_INSTALL_PREFIX=$(TEST_PROJECT_B)/testinstall
+	$(CMAKE) --build $(TEST_PROJECT_B) --target all
+	$(CMAKE) --build $(TEST_PROJECT_B) --target install
+	make YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall -C test/cmake_example
+	$(CMAKE) --build $(TEST_PROJECT_B) --target yio_uninstall
+
+USAGE +=~ clean_test_project - Cleans test_project
+clean_test_project:
+	rm -rf $(TEST_PROJECT_B)
+	make -C test/cmake_example clean
 	
 # standard ################################################
 
