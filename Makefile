@@ -208,6 +208,11 @@ USAGE +=~ doxygen - Generates doxygen html documentation in pages/doxygen
 doxygen: build_gen
 	# Copy source file into one directory.
 	./scripts/syncdir.sh ./gen/* _build/doxygen/input/
+	# Extract m4 documentation
+	mkdir -p _build/doxygen/input/m4/
+	find m4/ -type f -exec cat {} + | \
+		sed -n '\~.*\(/\*\*\)~{ s//\1/; : incomment; \~\(\*/\).*~{ s//\1/; p; b; }; p; n; b incomment; }; /^#/p' \
+		> _build/doxygen/input/m4/m4.h
 	# Generate doxygen documentation.
 	mkdir -p _build/doxygen/output
 	doxygen doc/Doxyfile
