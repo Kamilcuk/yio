@@ -81,6 +81,12 @@
  */
 #cmakedefine YIO_USE_OUTPUT_FD
 
+/**
+ * @def YIO_CHECK_VA_ARG_SIZES
+ * See cmake configuration
+ */
+#cmakedefine YIO_CHECK_VA_ARG_SIZES
+
 // check
 #ifndef _yIO_HAS_UNISTD_H
 #ifdef YIO_USE_OUTPUT_FD

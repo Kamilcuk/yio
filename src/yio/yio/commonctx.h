@@ -16,13 +16,16 @@ m4_config_yio();
 struct _yIO_commonctx_s {
 	/// va_list of current argument.
 	va_list *va;
+#ifdef YIO_CHECK_VA_ARG_SIZES
 	/// Iterator into an array of arguments sizes.
 	const size_t *argsizespnt;
+#endif
 };
 
 static inline _yIO_wur _yIO_nn() _yIO_rnn
 va_list *_yIO_commonctx_inc_va_list(struct _yIO_commonctx_s *commonctx,
 		size_t sizeof_realtype) {
+#ifdef YIO_CHECK_VA_ARG_SIZES
 	assert((commonctx) != NULL);
 	assert((commonctx)->argsizespnt != NULL);
 	assert(*(commonctx)->argsizespnt != 0 ||
@@ -30,6 +33,7 @@ va_list *_yIO_commonctx_inc_va_list(struct _yIO_commonctx_s *commonctx,
 	assert(*(commonctx)->argsizespnt == sizeof_realtype ||
 			!"You called va_arg with invalid type");
 	(void)sizeof_realtype;
+#endif
 	commonctx->argsizespnt++;
 	return commonctx->va;
 }
