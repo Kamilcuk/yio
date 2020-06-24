@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
 
-# somehow cmake complains that this file is generated from cmake
-# and cmake doesn't know from where.
-# well, silence it
-add_custom_command(
-	OUTPUT ${GENDIR}/m4/floatlist.m4
-	COMMAND ${CMAKE_COMMAND} -E true
-)
+# This script checks all that is needed from the environment
+# Ie. all possible needed functions
+# Posix compliance
+# Available strfrom* functions
+# Available headers
+# And all the rest
 
 # cmake
 include(CheckTypeSize)
@@ -75,16 +74,16 @@ set(floats
 	"_Float32"      "FLT32"       "f32"    "f32"
 	"_Float64"      "FLT64"       "f64"    "f64"
 	"_Float128"     "FLT128"      "f128"   "f128"
-	"_Float32x"     "FLT32X"      "f32x"   "f32x"
-	"_Float64x"     "FLT64X"      "f64x"   "f64x"
-	"_Float128x"    "FLT128X"     "f128x"  "f128x"
+#	"_Float32x"     "FLT32X"      "f32x"   "f32x"
+#	"_Float64x"     "FLT64X"      "f64x"   "f64x"
+#	"_Float128x"    "FLT128X"     "f128x"  "f128x"
 	
 	"_Decimal32"    "DEC32"       "d32"    "d32"
 	"_Decimal64"    "DEC64"       "d64"    "d64"
 	"_Decimal128"   "DEC128"      "d128"   "d128"
-	"_Decimal32x"   "DEC32X"      "d32x"   "d32x"
-	"_Decimal64x"   "DEC64X"      "d64x"   "d64x"
-	"_Decimal128x"  "DEC128X"     "d128x"  "d128x"
+#	"_Decimal32x"   "DEC32X"      "d32x"   "d32x"
+#	"_Decimal64x"   "DEC64X"      "d64x"   "d64x"
+#	"_Decimal128x"  "DEC128X"     "d128x"  "d128x"
 )
 
 set(be_verbose FALSE)
@@ -117,7 +116,7 @@ endforeach()
 # handle and detect stdfix
 
 foreach(type IN ITEMS _Fract _Accum)
-	if(NOT DEFINED _yIO_HAS_${i} OR be_verbose)
+	if(NOT DEFINED _yIO_HAS_${type} OR be_verbose)
 		log("Detecting: ${type}")
 	endif()
 	check_type_size_bool(${type} _yIO_HAS_${type} BUILTIN_TYPES_ONLY)

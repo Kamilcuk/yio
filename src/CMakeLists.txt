@@ -73,7 +73,6 @@ set(gensrcs
 	${GENDIR}/yio/yio_config_gen.h
 	${GENDIR}/yio/yio_error_messages.h
 	${GENDIR}/m4/yio_config.m4
-	${GENDIR}/m4/floatlist.m4
 )
 add_custom_target(_yio_gen DEPENDS ${gensrcs})
 
