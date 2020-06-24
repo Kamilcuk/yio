@@ -200,8 +200,8 @@ yio_add_library(yio_decimallib
 )
 
 file_glob_relative_to_gendir(GLOB auto_generic_srcs yio/*.h yio/*.c)
+file_glob_relative_to_gendir(GLOB auto_yio_bits_srcs yio/bits/*.h yio/bits/*.c)
 file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
-file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_bits_srcs yio/bits/*.h yio/bits/*.c)
 yio_add_library(yio
 	${auto_yio_bits_srcs}
 	${auto_generic_srcs}
@@ -213,6 +213,21 @@ yio_add_library(yio
 	${auto_yio_srcs}
 )
 
+file_glob_relative_to_gendir(GLOB_RECURSE auto_ywio_srcs yio/ywio/*.h yio/ywio/*.c)
+yio_add_library(ywio
+	ywio.h
+	${auto_ywio_srcs}
+)
+target_link_libraries(ywio PUBLIC yio)
+
+file_glob_relative_to_gendir(GLOB_RECURSE auto_yuio_srcs yio/yuio/*.h yio/yuio/*.c)
+yio_add_library(yuio
+	yuio.h
+	${auto_yuio_srcs}
+)
+target_link_libraries(yuio PUBLIC yio unistring)
+
+##################################################################################
 # install config.cmakecmake 
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/yioConfig.cmake
 	DESTINATION lib/yio/
