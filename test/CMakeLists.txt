@@ -10,8 +10,8 @@ include(debug_variables)
 # m4 ###################################################################
 # Initialize m4 preprocessor the same way as in ../src/CMakeLists.txt
 include(m4)
-set(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
-set(GENDIR ${CMAKE_CURRENT_SOURCE_DIR}/../gen)
+get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/../src ABSOLUTE)
+get_filename_component(GENDIR ${CMAKE_CURRENT_SOURCE_DIR}/../gen ABSOLUTE)
 m4_add_options(lib.m4)
 m4_add_include_directories(${SRCDIR} ${GENDIR}/m4)
 m4_add_file_dependencies(${GENDIR}/m4/yio_config.m4)
@@ -34,10 +34,14 @@ if(CMAKE_COMPILER_IS_GNUCC)
 			_FORTIFY_SOURCE=2
 		)
 	endif()
-endif(CMAKE_COMPILER_IS_GNUCC)
+endif()
 
 # Some output
-debug_variables("yio_test:" CMAKE_BUILD_TYPE BUILD_TESTING CMAKE_C_FLAGS)
+debug_variables(PREFIX "yio_test:"
+	CMAKE_BUILD_TYPE
+	BUILD_TESTING
+	CMAKE_C_FLAGS
+)
 
 # Detecting sources #################################################
 # List all directories in current testing directory
@@ -126,5 +130,6 @@ add_test(NAME yio_test_cmake
 	COMMAND ${CMAKE_COMMAND} -P test/test.cmake
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
 )
+set_property(TEST yio_test_cmake APPEND PROPERTY LABELS nomemcheck)
 
 
