@@ -8,6 +8,8 @@
  */
 m4_config();
 #define _GNU_SOURCE  1
+#include "uc_tools.h"
+#include <unistr.h>
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
@@ -20,7 +22,7 @@ m4_config();
 #include <assert.h>
 #include <errno.h>
 
-#define dbg(str, ...)  do;while(0)
+#define dbg(str, ...)  do{}while(0)
 #ifndef dbg
 #define dbg(str, ...)  fprintf(stderr, "%s:%3d: " str "\n", __func__, __LINE__, ##__VA_ARGS__)
 #endif

@@ -11,6 +11,7 @@ m4_config();
 #define YIO_UTF_TOOLS_H_
 
 #include <uniconv.h>
+#include <unistr.h>
 #include <stdio.h>
 #include <wchar.h>
 #include <sys/types.h>
