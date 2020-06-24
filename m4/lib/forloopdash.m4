@@ -1,11 +1,12 @@
 
 /**
- * m4_forloopdash(identifier, start_range, end_range, replacement, separator)
- * For each number between `start_range` to `end_range`
- * define `identifier` to dash joined with the number
- * and place `replacement` string joined with the separator.
+ * @ingroup m4
+ * For each number between @b start_range to @b end_range
+ * define @b identifier to dash joined with the number
+ * and place @b replacement string joined with the separator.
  */
-m4_define(`m4_forloopdash~,
+#define m4_forloopdash
+m4_define_function(`m4_forloopdash~,
 	`m4_ifelse(
 		m4_eval(`($2) <= ($3)~),
 		`1~,
@@ -29,12 +30,13 @@ m4_define(`m4_forloopdash~,
 			`~m4_dnl
 )~m4_dnl
 )~m4_dnl
-)
+)m4_dnl;
 
 /**
- * _m4_forloopdash(iterator, end, define_new_ierator, body_new_iterator, incr/decr)
+ * @ingroup m4
  * Internal function for m4_forloopdash
  */
+#define _m4_forloopdash
 m4_define(`_m4_forloopdash~,
 	`$3`_$1~$4`~m4_ifelse(
 		`$1~,
@@ -42,12 +44,12 @@ m4_define(`_m4_forloopdash~,
 		`~,
 		`$5$0($6(`$1~),`$2~,`$3~,`$4~,`$5~,`$6~)~m4_dnl
 )~m4_dnl
-)
+)m4_dnl;
 
 
 /**
- * @def m4_forloopdashX(start_range, end_range, substitution_with_X, separator)
  * @brief Substitute for count times the replacement with leading dash.
+ * @ingroup m4
  *
  * Replace X in substitution_with_X for the number with added leading dash
  * and join the replacement with the separator
@@ -62,17 +64,20 @@ m4_define(`_m4_forloopdash~,
  * results in:
  *     hello_1hello_2hello_3hello_4hello_5
  */
-m4_define(`m4_forloopdashX~,`m4_forloopdash(`X~,`$1~,`$2~,`$3~,`$4~)~)
+#define m4_forloopdashX
+m4_define_function(`m4_forloopdashX~,`m4_forloopdash(`X~,`$1~,`$2~,`$3~,`$4~)~)m4_dnl;
 
 /**
- * @def m4_forloopdashI(start_range, end_range, substitution_with_I, separator)
+ * @ingroup m4
  * @brief @see m4_forloopdashX
  */
-m4_define(`m4_forloopdashI~,`m4_forloopdash(`I~,`$1~,`$2~,`$3~,`$4~)~)
+#define m4_forloopdashI
+m4_define_function(`m4_forloopdashI~,`m4_forloopdash(`I~,`$1~,`$2~,`$3~,`$4~)~)m4_dnl;
 
 /**
- * @def m4_forloopdashY(start_range, end_range, substitution_with_I, separator)
+ * @ingroup m4
  * @brief @see m4_forloopdashX
  */
-m4_define(`m4_forloopdashY~,`m4_forloopdash(`Y~,`$1~,`$2~,`$3~,`$4~)~)
+#define m4_forloopdashY
+m4_define_function(`m4_forloopdashY~,`m4_forloopdash(`Y~,`$1~,`$2~,`$3~,`$4~)~)m4_dnl;
 

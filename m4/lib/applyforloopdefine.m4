@@ -16,14 +16,14 @@
 #define m4_applyforloopdefine(start_range, end_range, function_body, separator)
 
 m4_define(`m4_applyforloopdefine~, `m4_pushdef(
-	`_m4_applyforloopdefine_function~,
+	`_$0_function~,
 	`$3~)m4_forloop(
-		`_m4_applyforloopdefine_iterator~,
+		`_$0_iterator~,
 		`$1~,
 		`$2~, 
-		`_m4_applyforloopdefine_function(_m4_applyforloopdefine_iterator)~,
+		`_$0_function(_$0_iterator)~,
 		`$4~)m4_popdef(
-			`_m4_applyforloopdefine_function~)~)
+			`_$0_function~)~)
 
 m4_TEST(`m4_applyforloopdefine(1, 3, `arg=$1~, ` S ~)~)
 // PASS_REGULAR_EXPRESSION arg=1 S arg=2 S arg=3
