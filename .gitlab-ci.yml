@@ -7,7 +7,7 @@ variables:
   - DEBIAN_FRONTEND=noninteractive apt-get update -y
   - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
       make cmake m4 libc-dev clang gcc git valgrind ninja-build gcovr 
-      ca-certificates curl libunistring-dev
+      ca-certificates curl libunistring-dev ninja-build
 
 test:
   image: ubuntu

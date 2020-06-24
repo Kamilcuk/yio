@@ -91,10 +91,7 @@ cmake_host_system_information(RESULT CTEST_SITE QUERY HOSTNAME)
 
 set(CTEST_CONFIGURATION_TYPE Release)
 
-find_program(ninja ninja)
-if(ninja)
-	set(CTEST_CMAKE_GENERATOR "Ninja")
-endif()
+set(CTEST_CMAKE_GENERATOR "Ninja")
 
 cmake_host_system_information(RESULT NUMBER_OF_LOGICAL_CORES QUERY NUMBER_OF_LOGICAL_CORES)
 set(CTEST_PARALLEL_LEVEL ${NUMBER_OF_LOGICAL_CORES})
