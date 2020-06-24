@@ -14,15 +14,14 @@ int _yIO_print_wcharpnt(yio_printctx_t *t);
 int _yIO_print_constwcharpnt(yio_printctx_t *t);
 
 /**
- * @defgroup yp__ Printing overloads.
+ * @defgroup ypw
+ * @brief Wide characters printers.
  * @{
  */
 /// Print wchar_t character.
-#define ypwchar(wchar)         yiocb(_yIO_print_wchar, wchar)
+#define ypwchar(wchar)         yiocb(_yIO_print_wchar, (wchar))
 /// Print a string of wchar_t characters.
-#define ypwstrint(wstring)     yiocb(_Generic(0+(wstring), \
-		wchar_t *: _yIO_print_wstring, \
-		const wchar_t *: _yIO_print_constwcharpnt), wstring)
+#define ypwstring(wstring)     yiocb(_yIO_print_wcharpnt, (wstring))
 /**
  * @}
  */
