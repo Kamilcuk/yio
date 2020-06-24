@@ -106,7 +106,7 @@ function(m4_get_command output)
 endfunction()
 
 function(_m4_add_command_in output source)
-	file(RELATIVE_PATH outputnice ${CMAKE_SOURCE_DIR} ${output})
+	file(RELATIVE_PATH outputnice ${CMAKE_CURRENT_BINARY_DIR} ${output})
 	file(RELATIVE_PATH sourcenice ${CMAKE_SOURCE_DIR} ${source})
 	get_filename_component(sourcename ${source} NAME)
 	set(depfile ${CMAKE_CURRENT_BINARY_DIR}/${sourcenice}/${sourcename}.d)
@@ -131,12 +131,14 @@ function(_m4_add_command_in output source)
 	add_custom_command(
 		OUTPUT ${output}
 		MAIN_DEPENDENCY ${source}
-		DEPENDS ${_M4_SH_SCRIPT} ${_M4_OPTIONS_DEPENDS_INIT}
+		DEPENDS
+			${_M4_SH_SCRIPT} ${_M4_OPTIONS_DEPENDS_INIT}
 			${add_custom_command_depfile_args}
-		COMMAND ${_M4_SH_EXECUTABLE} ${_M4_SH_SCRIPT}
+		COMMAND
+			${_M4_SH_EXECUTABLE} ${_M4_SH_SCRIPT}
 			${script_depfile_args}
 			-- ${_M4_EXECUTABLE} ${output} ${ARGN} ${source}
-		COMMENT "m4: Generating ${sourcenice} from ${outputnice}"
+		COMMENT "m4: Generating ${outputnice} from ${sourcenice}"
 		VERBATIM
 	)
 endfunction()
@@ -184,7 +186,7 @@ function(m4_execute_process output source)
 		ERROR_VARIABLE  err
 		COMMAND
 			${_M4_SH_EXECUTABLE} ${_M4_SH_SCRIPT}
-			${_M4_EXECUTABLE} ${output} ${_M4_OPTIONS_INIT} ${ARGN} ${source}
+			-- ${_M4_EXECUTABLE} ${output} ${_M4_OPTIONS_INIT} ${ARGN} ${source}
 	)
 	if(NOT res EQUAL 0)
 		message(FATAL_ERROR 
