@@ -93,7 +93,7 @@ USAGE +=~ .build_% - Generic target build
 	@$(CMAKE) --build $(B) --target $*
 
 USAGE +=~ build_gen - Only generate the files from m4 preprocessor
-build_gen: .build__yio_gen
+build_gen: .build_yio_gen
 
 USAGE +=~ build_yio - Build the yio target
 build_yio: .build_yio
