@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.12)
 
+if(NOT "${PROJECT_NAME}" STREQUAL "yio")
+	message(FATAL_ERROR "DO NOT INCLUDE THIS FILE BY ITS OWN: PROJECT_NAME=${PROJECT_NAME}")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 include(CMakeDependentOption)
 include(m4)
@@ -130,7 +134,69 @@ if(files_not_in_gensrcs)
 endif()
 
 ################################################################################################
-# Compile options 
+# Installation configuration
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+# The directory where auto-generated installation files are placed
+get_filename_component(installgen "${CMAKE_CURRENT_BINARY_DIR}/installgen" ABSOLUTE)
+set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
+set(project_config "${installgen}/${PROJECT_NAME}Config.cmake")
+set(version_config "${installgen}/${PROJECT_NAME}ConfigVersion.cmake")
+set(install_targets)
+set(install_headers)
+
+# yio_install_library(name headers...)
+macro(yio_install_library name)
+	list(APPEND install_targets ${name})
+	list(APPEND install_headers ${ARGN})
+	set(install_targets "${install_targets}" PARENT_SCOPE)
+	set(install_headers "${install_headers}" PARENT_SCOPE)
+endmacro()
+
+
+function(yio_install_after_targets)
+	write_basic_package_version_file(
+	    "${version_config}"
+	    COMPATIBILITY SameMajorVersion
+	)
+	# Uses TARGETS_EXPORT_NAME by yioConfig.cmake.in
+	configure_package_config_file(
+	    "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+	    "${project_config}"
+	    INSTALL_DESTINATION "${config_install_dir}"
+	)
+	install(
+		TARGETS ${install_targets}
+		EXPORT yioTargets
+		LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
+		RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+		INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+	)
+	list(SORT install_headers)
+	list(REMOVE_DUPLICATES install_headers)
+	foreach(h IN LISTS install_headers)
+			get_filename_component(dir "${h}" DIRECTORY)
+			install(
+				FILES "${GENDIR}/${h}"
+				DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${dir}/"
+			)
+	endforeach()
+	install(
+		FILES "${project_config}" "${version_config}"
+		DESTINATION "${config_install_dir}"
+	)
+	install(
+		EXPORT yioTargets
+		DESTINATION "${config_install_dir}"
+		NAMESPACE yio::
+	)
+endfunction()
+
+################################################################################################
+# Compile options
 
 # @def yio_add_library(name sources)
 # Adds the library with the name <name>
@@ -187,29 +253,16 @@ function(yio_add_library name)
 	add_dependencies(${name} yio_gen)
 	target_link_libraries(${name} PUBLIC m)
 
-	# Install the library.
-	install(TARGETS ${name}
-		EXPORT yio
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-		INCLUDES DESTINATION include
-	)
-
 	# Extract list of headers.
 	set(headers "${argn}")
 	list(FILTER headers INCLUDE REGEX "\\.h$")
-	
-	# install the headers
-	foreach(h IN LISTS headers)
-        	get_filename_component(dir ${h} DIRECTORY)
-        	install(FILES "${GENDIR}/${h}" DESTINATION include/${dir}/)
-	endforeach()
 
+	yio_install_library(${name} ${headers})
 endfunction()
 
-# file(GLOB) but results in files with 
-# substituted ${SRCDIR} for ${GENDIR}
-function(file_glob_relative_to_gendir glob var)
+# Just like file(GLOB) but results in files 
+# with paths relative to SRCDIR.
+function(file_glob_relative_to_srcdir glob var)
 	file(${glob} tmp ${ARGN})
 	set(tmp2)
 	foreach(i IN LISTS tmp)
@@ -223,35 +276,30 @@ endfunction()
 ##################################################################################
 # Add libraries
  
-file_glob_relative_to_gendir(GLOB auto_decimallib_srcs yio/decimallib/*.h yio/decimallib/*.c)
+file_glob_relative_to_srcdir(GLOB auto_decimallib_srcs yio/decimallib/*.h yio/decimallib/*.c)
 yio_add_library(yio_decimallib 
 	${auto_decimallib_srcs}
 	yio/yio_config.h
 	yio/yio_config_gen.h
 )
 
-file_glob_relative_to_gendir(GLOB auto_generic_srcs yio/*.h yio/*.c)
-file_glob_relative_to_gendir(GLOB auto_yio_bits_srcs yio/bits/*.h yio/bits/*.c)
-file_glob_relative_to_gendir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
+file_glob_relative_to_srcdir(GLOB auto_generic_srcs yio/*.h yio/*.c)
+file_glob_relative_to_srcdir(GLOB auto_yio_bits_srcs yio/bits/*.h yio/bits/*.c)
+file_glob_relative_to_srcdir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
+file_glob_relative_to_srcdir(GLOB_RECURSE auto_ywio_srcs yio/ywio/*.h yio/ywio/*.c)
 yio_add_library(yio
 	${auto_yio_bits_srcs}
 	${auto_generic_srcs}
 	yio/yio_config.h
 	yio/yio_config_gen.h
 	yio/yio_error_messages.h
-	
 	yio.h
 	${auto_yio_srcs}
-)
-
-file_glob_relative_to_gendir(GLOB_RECURSE auto_ywio_srcs yio/ywio/*.h yio/ywio/*.c)
-yio_add_library(ywio
 	ywio.h
 	${auto_ywio_srcs}
 )
-target_link_libraries(ywio PUBLIC yio)
 
-file_glob_relative_to_gendir(GLOB_RECURSE auto_yuio_srcs yio/yuio/*.h yio/yuio/*.c)
+file_glob_relative_to_srcdir(GLOB_RECURSE auto_yuio_srcs yio/yuio/*.h yio/yuio/*.c)
 yio_add_library(yuio
 	yuio.h
 	${auto_yuio_srcs}
@@ -259,19 +307,8 @@ yio_add_library(yuio
 target_link_libraries(yuio PUBLIC yio unistring)
 
 ##################################################################################
-# Installation
 
-# install config.cmakecmake 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/yioConfig.cmake
-	DESTINATION lib/yio/
-)
-
-# and install the targets
-install(EXPORT yio
-	FILE yioTargets.cmake
-	NAMESPACE yio::
-	DESTINATION lib/yio
-)
+yio_install_after_targets()
 
 add_custom_target(
 	yio_uninstall 
