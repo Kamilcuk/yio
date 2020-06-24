@@ -1,5 +1,5 @@
 /**
- * @file changequote_to_tilde.m4
+ * @file
  *
  * Change quoting from standard m4 to my own
  * style with tilde used in this project.
