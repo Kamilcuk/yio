@@ -88,7 +88,6 @@ int _yIO_vec_yreformatf_in(_yIO_vec *t, yio_printdata_t *data, ...) {
 
 	if (buf == NULL) {
 		// NOTE! All is freed.
-		free(t->beg);
 		return -ENOMEM;
 	}
 	// we reassign bookeeping
