@@ -19,7 +19,7 @@
 m4_forloopX(6, m4_MLVLS, `m4_ifelse(m4_eval(X % 2), 0, `
 #define _yIO_GENERIC_GEN_`~X`~(m4_forloopY(1, m4_eval(X / 2), `_`~Y`~a,_`~Y`~b~, `,~))  `\~
 		m4_forloopY(1, m4_eval(X / 2), `_`~Y`~a:_`~Y`~b~, `,~)~)~)
-m4_dnl()
+m4_dnl
 #define _yIO_GENERIC_GEN_N(m4_seqdashcomma(1,m4_MLVLS),N,...)  \
 		_yIO_GENERIC_GEN_##N
 #define _yIO_GENERIC_GEN(...)  \
@@ -35,7 +35,7 @@ m4_dnl()
 m4_forloopX(3, m4_MLVLS,
 		``#define _yIO_APPLYFOREACH_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
 		m4_forloopX(1, X, ``f(_~X`)~~, `~)~
-)m4_dnl()
+)m4_dnl;
 #define _yIO_APPLYFOREACH_N(m4_seqdashcomma(0,m4_MLVLS),N,...)  \
 		_yIO_APPLYFOREACH_##N
 #define _yIO_APPLYFOREACH(...)  \
@@ -51,7 +51,7 @@ m4_forloopX(3, m4_MLVLS,
 m4_forloopX(3, m4_MLVLS,
 		``#define _yIO_APPLYFOREACHCOMMA_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
 		m4_forloopX(1, X, ``f(_~X`)~~, `,~)~
-)m4_dnl()
+)m4_dnl;
 #define _yIO_APPLYFOREACHCOMMA_N(m4_seqdashcomma(0, m4_MLVLS),N,...)  \
 		_yIO_APPLYFOREACHCOMMA_##N
 #define _yIO_APPLYFOREACHCOMMA(...)  \
@@ -67,7 +67,7 @@ m4_forloopX(3, m4_MLVLS,
 m4_forloopX(3, m4_MLVLS,
 		``#define _yIO_APPLYFOREACHSEP_~X`(f, s, ~m4_seqdashcomma(1,X)`)~  `\~
 		m4_forloopX(1, X, ``f(_~X`)~~, `s ~)~
-)m4_dnl()
+)m4_dnl;
 #define _yIO_APPLYFOREACHSEP_N(m4_seqdashcomma(0, m4_MLVLS),N,...)  \
 		_yIO_APPLYFOREACHSEP_##N
 #define _yIO_APPLYFOREACHSEP(callback, ...)  \
@@ -94,7 +94,7 @@ m4_forloopX(3, m4_MLVLS,
 m4_forloopX(3, m4_MLVLS,
 		``#define _yIO_JAPPLYFOREACH_~X`(b, a, f, ~m4_seqdashcomma(1,X)`)~  `\~
 		m4_forloopX(1, X, ``f(b, a, _~X`)~~)~
-)m4_dnl()
+)m4_dnl;
 #define _yIO_JAPPLYFOREACH_N(m4_seqdashcomma(0, m4_MLVLS),N,...)  \
 		_yIO_JAPPLYFOREACH_##N
 #define _yIO_JAPPLYFOREACH(before, after, ...)  \
@@ -118,7 +118,7 @@ m4_forloopX(3, m4_MLVLS,
 m4_forloopX(3, m4_MLVLS,
 		``#define _yIO_APPLYFOREACHUNPACK_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
 		m4_forloopX(1, X, ``f _~X` ~~ `~)~
-)m4_dnl()
+)m4_dnl;
 #define _yIO_APPLYFOREACHUNPACK_N(m4_seqdashcomma(0,m4_MLVLS),N,...)  \
 		_yIO_APPLYFOREACHUNPACK_##N
 #define _yIO_APPLYFOREACHUNPACK(...)  \
@@ -137,7 +137,7 @@ m4_forloopX(3, m4_MLVLS,
 m4_forloopX(3, m4_MLVLS,
 		``#define _yIO_APPLYFOREACHUNPACKCOMMA_~X`(f, ~m4_seqdashcomma(1,X)`)~  `\~
 		m4_forloopX(1, X, ``f _~X`~~, `,~)~
-)m4_dnl()
+)m4_dnl;
 #define _yIO_APPLYFOREACHUNPACKCOMMA_N(m4_seqdashcomma(0,m4_MLVLS),N,...)  \
 		_yIO_APPLYFOREACHUNPACKCOMMA_##N
 #define _yIO_APPLYFOREACHUNPACKCOMMA(...)  \
