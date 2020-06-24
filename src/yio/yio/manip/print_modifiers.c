@@ -5,7 +5,7 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config();
+m4_config(yio);
 #include "private.h"
 #include <stddef.h>
 

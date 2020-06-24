@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config();
+m4_config(yio);
 #include "private.h"
 #include <ctype.h>
 #include <yio/bits/yio_float_strfrom_stupid.h>

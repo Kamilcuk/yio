@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+m4_config();
 #pragma once
 
 #include "yio_macros_gen.h"

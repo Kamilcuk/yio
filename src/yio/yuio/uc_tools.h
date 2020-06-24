@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-
+m4_config();
 #ifndef YIO_UTF_TOOLS_H_
 #define YIO_UTF_TOOLS_H_
 

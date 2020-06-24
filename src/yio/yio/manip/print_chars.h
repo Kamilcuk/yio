@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-m4_config();
+m4_config(yio);
 
 int _yIO_print_char(yio_printctx_t *t);
 int _yIO_print_schar(yio_printctx_t *t);

@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config();
+m4_config(yio);
 #include "private.h"
 
 int _yIO_print_count(yio_printctx_t *t) {

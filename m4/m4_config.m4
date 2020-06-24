@@ -48,3 +48,20 @@ m4_define(`_m4_config_in~, `m4_ifdef(
 		`// Loading cfg_$1.m4
 m4_include(`cfg_$1.m4~)
 m4_lib_header($1)~)~)~)
+/**
+ * Configures the file to use normal strings configuration.
+ */
+#define m4_config_yio()
+m4_define_function(`m4_config_yio~, `m4_config(`yio~)~)m4_dnl;
+
+/**
+ * Configures the file to use wide strings configuration.
+ */
+#define m4_config_ywio()
+m4_define_function(`m4_config_ywio~, `m4_config(`ywio~)~)m4_dnl;
+
+/**
+ * Configures the file to use utf-8 strings configuration.
+ */
+#define m4_config_yuio()
+m4_define_function(`m4_config_yuio~, `m4_config(`yuio~)~)m4_dnl;

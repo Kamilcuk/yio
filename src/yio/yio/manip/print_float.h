@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-m4_config();
+m4_config(yio);
 
 m4_applyforeachdefine(`(
 		(, f),

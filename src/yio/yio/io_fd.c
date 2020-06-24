@@ -5,7 +5,7 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config();
+m4_config(yio);
 #include "private.h"
 #ifdef _yIO_HAS_UNISTD_H
 #include <unistd.h>

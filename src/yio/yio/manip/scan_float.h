@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-m4_config();
+m4_config(yio);
 
 int _yIO_scan_floatf(yio_scanctx_t *t);
 int _yIO_scan_floatpnt(yio_scanctx_t *t);

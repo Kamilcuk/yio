@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+m4_config();
 #define _GNU_SOURCE  1
 #include <stdio.h>
 #include <wchar.h>

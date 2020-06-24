@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config();
+m4_config(yio);
 
 m4_applyforloopdefine(100, m4_SLOTS_END, `m4_dnl;
 /**
