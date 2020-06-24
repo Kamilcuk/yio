@@ -6,3 +6,6 @@ all:
 	./$(B)/yio_test
 	cd $(B) && ctest
 
+clean:
+	rm -fr $(B)
+
