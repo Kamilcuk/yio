@@ -21,10 +21,8 @@ int _yIO_printctx_stdintparam_callback(void *arg) {
 }
 
 static inline
-int _yIO_printctx_stdintparam(struct _yIO_printctx_s *t,
-		const Ychar *ptr, const Ychar **endptr, int *res) {
-	return _yIO_commonctx_stdintparam(_yIO_printctx_stdintparam_callback, t,
-			ptr, endptr, res);
+int _yIO_printctx_stdintparam(struct _yIO_printctx_s *t, const Ychar *ptr, const Ychar **endptr, int *res) {
+	return _yIO_commonctx_stdintparam(_yIO_printctx_stdintparam_callback, t, ptr, endptr, res);
 }
 
 static inline
@@ -35,10 +33,8 @@ int _yIO_scanctx_stdintparam_callback(void *arg) {
 }
 
 static inline
-int _yIO_scanctx_stdintparam(struct _yIO_scanctx_s *t,
-		const Ychar *ptr, const Ychar **endptr, int *res) {
-	return _yIO_commonctx_stdintparam(_yIO_scanctx_stdintparam_callback, t,
-			ptr, endptr, res);
+int _yIO_scanctx_stdintparam(struct _yIO_scanctx_s *t, const Ychar *ptr, const Ychar **endptr, int *res) {
+	return _yIO_commonctx_stdintparam(_yIO_scanctx_stdintparam_callback, t, ptr, endptr, res);
 }
 
 const struct yio_printfmt_s _yIO_printfmt_default = {
@@ -54,26 +50,6 @@ const struct yio_scanfmt_s _yIO_scanfmt_default = {
 		.set = NULL,
 		.ignore = 0,
 };
-
-void _yIO_printfmt_println(const struct yio_printfmt_s *t) {
-#define PRIIT     "%02lx(%c)"
-#define ARGIT(x)  (unsigned long)x, isprint((unsigned char)x) ? (unsigned char)x : '?'
-	fprintf(stderr,
-			"width:% d precision:% d "
-			"fill:"PRIIT" align:"PRIIT" sign:"PRIIT" "
-			"hash:"PRIIT" group:"PRIIT" type:"PRIIT""
-			"\n"
-			,
-			t->width,
-			t->precision,
-			ARGIT(t->fill),
-			ARGIT(t->align),
-			ARGIT(t->sign),
-			ARGIT(t->hash),
-			ARGIT(t->grouping),
-			ARGIT(t->type)
-	);
-}
 
 static inline
 bool _yIO_strnulchrbool(const Ychar *s, Ychar c) {

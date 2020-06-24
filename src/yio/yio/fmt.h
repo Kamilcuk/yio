@@ -22,12 +22,6 @@ extern const struct yio_printfmt_s _yIO_printfmt_default;
 extern const struct yio_scanfmt_s _yIO_scanfmt_default;
 
 /**
- * @ingroup printfmt
- */
-_yIO_nn()
-void _yIO_printfmt_println(const struct yio_printfmt_s *t);
-
-/**
  * Parse pythong formatting string
  * @param c
  * @param pf
