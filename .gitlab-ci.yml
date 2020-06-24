@@ -1,5 +1,10 @@
 # .gitlab-ci.yml
 
+stages:
+- build
+- buildarm
+- pages
+
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
 
@@ -10,6 +15,7 @@ variables:
       ca-certificates curl libunistring-dev ninja-build
 
 test:
+  stage: build
   image: ubuntu
   script: 
   - *ubuntu_install_deps
@@ -18,12 +24,13 @@ test:
   - make test_project
 
 test_arm:
+  stage: buildarm
   image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
   script:
   - make gitlab_arm_cdash
 
 pages:
-  stage: deploy
+  stage: pages
   image: ubuntu
   script:
   - *ubuntu_install_deps
