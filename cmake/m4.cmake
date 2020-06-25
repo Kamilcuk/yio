@@ -116,8 +116,7 @@ function(_m4_add_command_in output source)
 	if("${CMAKE_GENERATOR}" STREQUAL "Ninja")
 		# When use Nninja we can use DEPFILE
 		set(add_custom_command_depfile_args
-			BYPRODUCTS ${additional_args}
-			DEPFILE ${additional_args}
+			DEPFILE ${depfile}
 		)
 		set(script_depfile_args 
 			-MT ${outputbinrela} -MF ${depfile}
