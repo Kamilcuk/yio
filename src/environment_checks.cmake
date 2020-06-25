@@ -107,7 +107,7 @@ foreach(i IN LISTS floats)
 	endif()
 	
 	foreach(j IN ITEMS FLOAT${suffix} exp10${suffix} strfrom${suffix2} strto${suffix2})
-		yio_config_gen_add(_yIO_HAS_${suffix})
+		yio_config_gen_add(_yIO_HAS_${j})
 	endforeach()
 	
 endforeach()
