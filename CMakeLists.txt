@@ -34,6 +34,7 @@ debug_variables(PREFIX "yio: "
 	CMAKE_C_FLAGS
 	CMAKE_BUILD_TYPE
 	CMAKE_VERBOSE_MAKEFILE
+	CMAKE_GENERATOR
 )
 
 add_subdirectory(src)
