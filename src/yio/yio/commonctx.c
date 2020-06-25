@@ -14,11 +14,13 @@ m4_config_yio();
 
 static inline
 int _yIO_digit_to_number(Ychar d) {
-#if YTYPE == YIO_TYPE_YIO
+#if YTYPE_YIO
 	return d - '0';
-#else
+#elif YTYPE_YWIO
 	const Ychar table[] = Yc("0123456789");
 	return table - Ystrchr(table, d);
+#else
+#error
 #endif
 }
 

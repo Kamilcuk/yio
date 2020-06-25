@@ -88,9 +88,9 @@ Ychar *_yIO_yreformatf(Ychar *str, yio_printdata_t *data, ...) {
 
 static inline
 size_t _yIO_fwrite(FILE* file, const Ychar* str, size_t size) {
-#if YTYPE == YTYPE_YIO
+#if YTYPE_YIO
 	return fwrite(str, 1, size, file);
-#elif YTYPE == YTYPE_YWIO
+#elif YTYPE_YWIO
 	for (size_t n = 0; n < size; n++) {
 		if (fputwc(str[n], file) == YEOF) {
 			return n;

@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio();
+m4_config_yio_template(`m4_dnl);
 #pragma once
-#include "yio/yio_common.h"
+#include "yio/yπio_common.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -22,7 +22,7 @@ m4_config_yio();
 /**
  * Print context.
  */
-typedef struct _yIO_printctx_s yio_printctx_t;
+typedef struct _yΩIO_printctx_s yπio_printctx_t;
 
 /**
  * Write data to output stream.
@@ -31,23 +31,23 @@ typedef struct _yIO_printctx_s yio_printctx_t;
  * @param count Count of characters to print
  * @return 0 on success, anything else on error
  */
-typedef int _yIO_printcb_t(void *arg, const Ychar *data, size_t count);
+typedef int _yΩIO_printcb_t(void *arg, const Ychar *data, size_t count);
 
 /**
  * The type of callback functions.
  * It is __expected__ that the first thing the function will do is read the arguments
- * from va_list. Even if function fails, the `*va` pointer __has to__ be correctly
+ * from va_list. Even if function fails, the @c *va pointer __has to__ be correctly
  * updated with the arguments read.
  * This is the most important contract.
  * @param t Printing context.
  * @return 0 on success, anything else on error.
  */
-typedef int (*_yIO_printfunc_t)(yio_printctx_t *t);
+typedef int (*_yΩIO_printfunc_t)(yπio_printctx_t *t);
 
 /**
  * Get's passed to generic printing functions as first argument.
  */
-typedef struct _yIO_printdata_s {
+typedef struct _yΩIO_printdata_s {
 	/**
 	 * Format string or NULL.
 	 */
@@ -55,18 +55,12 @@ typedef struct _yIO_printdata_s {
 	/**
 	 * Array of printing function pointers pointers.
 	 */
-	const _yIO_printfunc_t * const funcs;
+	const _yΩIO_printfunc_t * const funcs;
 	/**
 	 * Array of argument sizes for va_arg argument checking.
 	 */
 	const size_t * const argsizes;
-#if _yIO_USE_STRINGIFIED_ARGUMENTS
-	/**
-	 * Array of stringified arguments.
-	 */
-	const char * const * const strargs;
-#endif
-} const yio_printdata_t;
+} const yπio_printdata_t;
 
 /**
  * Write size count of bytes from ptr to output stream.
@@ -76,7 +70,7 @@ typedef struct _yIO_printdata_s {
  * @return 0 on success, anything else on error.
  */
 _yIO_wur _yIO_nn()
-int yio_printctx_out(yio_printctx_t *t, const Ychar *ptr, size_t size);
+int yπio_printctx_out(yπio_printctx_t *t, const Ychar *ptr, size_t size);
 
 /**
  * Calls the next context parsing function in chain.
@@ -85,24 +79,24 @@ int yio_printctx_out(yio_printctx_t *t, const Ychar *ptr, size_t size);
  * @return The return value of the next formatting function.
  */
 _yIO_wur _yIO_nn()
-int yio_printctx_next(yio_printctx_t *t);
+int yπio_printctx_next(yπio_printctx_t *t);
 
 /**
  * Get print context formatting options.
  * @param t
  * @return A valid pointer.
  */
-_yIO_wur _yIO_nn() _yIO_const
-struct yio_printfmt_s *yio_printctx_get_fmt(yio_printctx_t *t);
+_yIO_wur _yIO_nn() _yΩIO_const
+struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t);
 
 /**
- * Internal callback called from @see yio_printctx_print
+ * Internal callback called from @see yπio_printctx_print
  * @param t
  * @param data
  * @return
  */
 _yIO_wur _yIO_nn()
-int _yIO_printctx_print(yio_printctx_t *t, yio_printdata_t *data, ...);
+int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...);
 
 /**
  * Use it to print data from inside a printing context.
@@ -110,17 +104,17 @@ int _yIO_printctx_print(yio_printctx_t *t, yio_printdata_t *data, ...);
  * @param ... The printing parameters to print.
  * @return int 0 on success, anything else on error
  */
-#define yio_printctx_print(printctx, ...)   \
-		_yIO_printctx_print(printctx, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπio_printctx_print(printctx, ...)   \
+		_yΩIO_printctx_print(printctx, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 
 /**
- * Internal callback called from @see yio_printctx_va_arg*
+ * Internal callback called from @see yπio_printctx_va_arg*
  * @param t
  * @param sizeof_realtype
  * @return
  */
 _yIO_wur _yIO_nn()
-va_list *_yIO_printctx_inc_va_list(yio_printctx_t *t, size_t sizeof_realtype);
+va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype);
 
 /**
  * Use it to print data from inside a printing context.
@@ -128,53 +122,53 @@ va_list *_yIO_printctx_inc_va_list(yio_printctx_t *t, size_t sizeof_realtype);
  * @param ... the printing parameters to print.
  * @return int 0 on success, anything else on error
  */
-#define yio_printctx_printf(printctx, ...)  \
-		_yIO_printctx_print(printctx, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yπio_printctx_printf(printctx, ...)  \
+		_yΩIO_printctx_print(printctx, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
- * Get next argument from variadic arguments stack. The argument has type `type`.
+ * Get next argument from variadic arguments stack. The argument has type @c type.
  * The type argument undergoes implicit conversion when calling a variadic function,
  * so char, short is converted to int, float is converted to double.
- * If it errors on you, that means that `type` is not a promoted type, see _yIO_IS_PROMOTED_TYPE
- * @def yio_printctx_va_arg(printctx, type)
- * @param printctx Printing context, pointer to yio_printctx_t
+ * If it errors on you, that means that @c type is not a promoted type, see _yΩIO_IS_PROMOTED_TYPE
+ * @def yπio_printctx_va_arg(printctx, type)
+ * @param printctx Printing context, pointer to yπio_printctx_t
  * @param type Type of argument passed to va_list.
  * @return A value from the printcts va_list of type type.
  */
-#define yio_printctx_va_arg(printctx, type)  yio_printctx_va_arg2(printctx, type, type)
+#define yπio_printctx_va_arg(printctx, type)  yπio_printctx_va_arg2(printctx, type, type)
 
 /**
  * Get next argument of type 'realtype' from arguments stack.
  * The real argument type after implicit conversion is 'promotedtype'.
  * This function has only usage for 'realtype' equal to char, short or float.
- * @def yio_printctx_va_arg2(printctx, realtype, promotedtype)
- * @param printctx Printing context, pointer to yio_printctx_t
+ * @def yπio_printctx_va_arg2(printctx, realtype, promotedtype)
+ * @param printctx Printing context, pointer to yπio_printctx_t
  * @param realtype The real type that was passed to va_list.
  * @param promotedtype The promoted type of real type.
  * @return A value from the printcts va_list of type promotedtype.
  */
-#define yio_printctx_va_arg2(printctx, realtype, promotedtype)  \
-		va_arg(*_yIO_printctx_inc_va_list(printctx, sizeof(realtype)), promotedtype)
+#define yπio_printctx_va_arg2(printctx, realtype, promotedtype)  \
+		va_arg(*_yΩIO_printctx_inc_va_list(printctx, sizeof(realtype)), promotedtype)
 
 /**
  * Automatically promote the type for integer types.
  * Argument has to be an arithmetic type, so that it can be promoted.
- * @def yio_printctx_va_arg_num(printctx, numtype)
- * @param printctx Printing context, pointer to yio_printctx_t
+ * @def yπio_printctx_va_arg_num(printctx, numtype)
+ * @param printctx Printing context, pointer to yπio_printctx_t
  * @param numtype Numericall type, that arithmetics can be done for.
  * @return A value from the printcts va_list of type promoted numtype.
  */
 #ifndef __CDT_PARSER__
-#define yio_printctx_va_arg_num(printctx, numtype)  _Generic(+(numtype)1,\
-		int: yio_printctx_va_arg2(printctx, numtype, int), \
-		unsigned: yio_printctx_va_arg2(printctx, numtype, unsigned), \
-		float: yio_printctx_va_arg2(printctx, numtype, double), \
-		default: yio_printctx_va_arg2(printctx, numtype, numtype) \
+#define yπio_printctx_va_arg_num(printctx, numtype)  _Generic(+(numtype)1,\
+		int: yπio_printctx_va_arg2(printctx, numtype, int), \
+		unsigned: yπio_printctx_va_arg2(printctx, numtype, unsigned), \
+		float: yπio_printctx_va_arg2(printctx, numtype, double), \
+		default: yπio_printctx_va_arg2(printctx, numtype, numtype) \
 )
 #else
 // CDT_PARSER doesn't support _Generic
-#define yio_printctx_va_arg_num(printctx, numtype)  \
-		yio_printctx_va_arg(printctx, numtype)
+#define yπio_printctx_va_arg_num(printctx, numtype)  \
+		yπio_printctx_va_arg(printctx, numtype)
 #endif
 
 
@@ -189,18 +183,18 @@ va_list *_yIO_printctx_inc_va_list(yio_printctx_t *t, size_t sizeof_realtype);
  * @{
  */
 /**
- * Forward declaration of yio_scanctx_t.
+ * Forward declaration of yπio_scanctx_t.
  * This is an opaque structure not visible to users.
- * Use yio_scanctx_* functions to access it.
+ * Use yπio_scanctx_* functions to access it.
  */
-typedef struct _yIO_scanctx_s yio_scanctx_t;
+typedef struct _yΩIO_scanctx_s yπio_scanctx_t;
 
 /**
  * Scanner function.
  * @param t Pointer to scanning context.
  * @return 0 on success, anything else on error.
  */
-typedef int (*_yIO_scanfunc_t)(yio_scanctx_t *t);
+typedef int (*_yΩIO_scanfunc_t)(yπio_scanctx_t *t);
 
 /**
  * Read one byte from the input.
@@ -208,12 +202,12 @@ typedef int (*_yIO_scanfunc_t)(yio_scanctx_t *t);
  * @param data A valid character or EOF.
  * @return 0 on success, anything else on error
  */
-typedef int _yIO_scancb_t(void *arg, Yint *data);
+typedef int _yΩIO_scancb_t(void *arg, Yint *data);
 
 /**
  * A list of arguments created by macro substitution.
  */
-typedef const struct _yIO_scandata_s {
+typedef const struct _yΩIO_scandata_s {
 	/**
 	 * Format string or NULL.
 	 */
@@ -221,7 +215,7 @@ typedef const struct _yIO_scandata_s {
 	/**
 	 * Array of scanning function pointers pointers.
 	 */
-	const _yIO_scanfunc_t * const funcs;
+	const _yΩIO_scanfunc_t * const funcs;
 	/**
 	 * Array of destination memory sizes.
 	 */
@@ -230,13 +224,7 @@ typedef const struct _yIO_scandata_s {
 	 * Array of argument sizes for va_arg argument checking.
 	 */
 	const size_t * const argsizes;
-#if _yIO_USE_STRINGIFIED_ARGUMENTS
-	/**
-	 * Array of stringified arguments.
-	 */
-	const char * const * const strargs;
-#endif
-} yio_scandata_t;
+} yπio_scandata_t;
 
 /**
  * Read one character from input and save it in c.
@@ -245,16 +233,16 @@ typedef const struct _yIO_scandata_s {
  * @return 0 on success, otherwise error.
  */
 _yIO_wur _yIO_nn()
-int yio_scanctx_in(yio_scanctx_t *t, int *c);
+int yπio_scanctx_in(yπio_scanctx_t *t, int *c);
 
 /**
  * Does the same as ungetc.
- * The next call to yio_scanctx_in will re-return last character.
+ * The next call to yπio_scanctx_in will re-return last character.
  * Should be called as the last function when scanning ended.
  * @param t
  */
 _yIO_nn()
-void yio_scanctx_unin(yio_scanctx_t *t);
+void yπio_scanctx_unin(yπio_scanctx_t *t);
 
 /**
  * Call the next scanning function.
@@ -263,7 +251,7 @@ void yio_scanctx_unin(yio_scanctx_t *t);
  * @return The return value of the next scanning function.
  */
 _yIO_wur _yIO_nn()
-int yio_scanctx_next(yio_scanctx_t *t);
+int yπio_scanctx_next(yπio_scanctx_t *t);
 
 /**
  * Get formatting options.
@@ -271,7 +259,7 @@ int yio_scanctx_next(yio_scanctx_t *t);
  * @return The pointer to scanning formatting options.
  */
 _yIO_wur _yIO_nn() _yIO_const
-struct yio_scanfmt_s *yio_scanctx_get_fmt(yio_scanctx_t *t);
+struct yπio_scanfmt_s *yπio_scanctx_get_fmt(yπio_scanctx_t *t);
 
 /**
  * Get the buffer destination size of the current argument.
@@ -281,35 +269,35 @@ struct yio_scanfmt_s *yio_scanctx_get_fmt(yio_scanctx_t *t);
  * @return
  */
 _yIO_wur _yIO_nn()
-size_t yio_scanctx_arg_size_next(yio_scanctx_t *t);
+size_t yπio_scanctx_arg_size_next(yπio_scanctx_t *t);
 
 /**
- * Internal callback called by @see yio_scanctx_scan
+ * Internal callback called by @see yπio_scanctx_scan
  * @param t
  * @param data
  * @return
  */
 _yIO_wur _yIO_nn()
-int _yIO_scanctx_scan(yio_scanctx_t *t, yio_scandata_t *data, ...);
+int _yΩIO_scanctx_scan(yπio_scanctx_t *t, yπio_scandata_t *data, ...);
 
 /**
- * @def yio_scanctx_scan(scanctx, ...)
+ * @def yπio_scanctx_scan(scanctx, ...)
  * @brief Scan input from the scanning context
  * @param scanctx Scanning context
  * @param ... Yio arguments list
  * @return 0 on success, otherwise error.
  */
-#define yio_scanctx_scan(scanctx, ...)   _yIO_scanctx_scan(scanctx, YIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπio_scanctx_scan(scanctx, ...)   _yΩIO_scanctx_scan(scanctx, YIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
 
 /**
- * @def yio_scanctx_scanf(scanctx, ...)
+ * @def yπio_scanctx_scanf(scanctx, ...)
  * @brief Scan input from the scanning context
  * @param scanctx Scanning context
  * @param ... Yio format string
  * @param ... Yio arguments list
  * @return 0 on success, otherwise error.
  */
-#define yio_scanctx_scanf(scanctx, ...)  _yIO_scanctx_scan(scanctx, YIO_SCAN_ARGUMENTS(__VA_ARGS__))
+#define yπio_scanctx_scanf(scanctx, ...)  _yΩIO_scanctx_scan(scanctx, YIO_SCAN_ARGUMENTS(__VA_ARGS__))
 
 /**
  * Increment to the next element in va_list.
@@ -319,23 +307,24 @@ int _yIO_scanctx_scan(yio_scanctx_t *t, yio_scandata_t *data, ...);
  * @return Pointer to va_list.
  */
 _yIO_wur _yIO_nn()
-va_list *_yIO_scanctx_inc_va_list(yio_scanctx_t *t, size_t sizeof_realtype);
+va_list *_yΩIO_scanctx_inc_va_list(yπio_scanctx_t *t, size_t sizeof_realtype);
 
 /**
- * @def yio_scanctx_va_arg(scanctx, type)
- * @param scanctx Context to yio_scanctx_t
+ * @def yπio_scanctx_va_arg(scanctx, type)
+ * @param scanctx Context to yπio_scanctx_t
  * @param type Type
  * @return A variable of passed type from va_list.
  * Get next argument from variadic arguments stack. The argument has type @c type.
  * The type argument undergoes implicit conversion when calling a variadic function,
  * so char, short is converted to int, float is converted to double.
  * If it errors on you, that means that @c type is not a promoted type,
- * see #_yIO_IS_PROMOTED_TYPE
+ * see #_yΩIO_IS_PROMOTED_TYPE
  */
-#define yio_scanctx_va_arg(scanctx, type)  \
-		va_arg(*_yIO_scanctx_inc_va_list(scanctx, sizeof(type)), type)
+#define yπio_scanctx_va_arg(scanctx, type)  \
+		va_arg(*_yΩIO_scanctx_inc_va_list(scanctx, sizeof(type)), type)
 
 /**
  * @}
  */
 
+~)m4_dnl;

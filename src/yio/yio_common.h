@@ -4,6 +4,7 @@
  * @author Kamil Cukrowski
  * @copyright SPDX-License-Identifier: GPL-3.0-only
  */
+m4_config();
 #pragma once
 #include <stdbool.h>
 #include <stdlib.h>
@@ -26,29 +27,6 @@ enum _yIO_TYPES {
  * These symbols should be defined by m4/cfg_*.m4 files.
  * @{
  */
-/**
- * @brief The type of the currently compiled library
- */
-#define YTYPE  YIO_TYPE_YIO
-#define N(name)    _yIO_##name
-#define yio(name)  yio_##name
-#define YIO(name)  YIO_##name
-
-/**
- * @param NAME  Symbol name
- * Declares the symbol within private yio namespace.
- */
-#define Y_IO(NAME)  _yIO_ ## NAME
-/**
- * @param NAME  Symbol name
- * Declares the symbol within private yio namespace.
- */
-#define YIO(NAME)  YIO_ ## NAME
-/**
- * @param NAME  Symbol name
- * Declares the symbol within private yio namespace
- */
-#define Yio(NAME)  yio_ ## NAME
 
 /**
  * Represents a character. A pointer to it represents a string.
