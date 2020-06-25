@@ -1,12 +1,13 @@
 
-/**
+`/**
  * @ingroup m4
  * @param command The executable to run.
- * @param arguments... Arguments to the executable.
+ * @param arguments
+ * @param ... Arguments to the executable.
  * @brief Safer alternative to m4_esyscmd that qoutes arguments.
  * This function qoutes the arguments passed to shell.
  */
-#define m4_esysexec
+#define m4_esysexec(command, arguments, ...) ~
 
 m4_define_function(`m4_esysexec~,
 	`m4_esyscmd(m4_applyforeachq(`m4_shell_qoute~, `$@~, ` ~))~)
