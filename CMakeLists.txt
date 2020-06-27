@@ -18,7 +18,7 @@ endif()
 project(yio 
 	VERSION "${version}"
 	LANGUAGES C
-	DESCRIPTION "Yio Input Output Library"
+	DESCRIPTION "Yio Input Output C Library that aims in type-safe printf replacement"
 	HOMEPAGE_URL "https://gitlab.com/kamcuk/yio"
 )
 

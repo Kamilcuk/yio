@@ -1,0 +1,67 @@
+# Maintainer: Kamil Cukrowski <kamilcukrowski@gmail.com>
+
+_prefix=arm-none-eabi-
+pkgname=${_prefix}yio
+pkgver=0
+pkgrel=1
+pkgdesc="Yio Input Output C Library that aims in type-safe printf replacement"
+arch=(any)
+url="https://gitlab.com/kamcuk/yio/"
+license=(GPL)
+groups=()
+depends=()
+makedepends=(cmake m4 ${_prefix}gcc ${_prefix}newlib)
+optdepends=()
+provides=()
+conflicts=()
+replaces=()
+backup=()
+options=(!emptydirs !strip)
+#source=("git+https://gitlab.com/kamcuk/yio/")
+#md5sums=(SKIP)
+
+prepare() {
+	# Exported from makefile
+	ln -nsvf "$YIO_SRCDIR" yio
+}
+
+pkgver() {
+	cd yio
+	git describe --tags | sed 's/-/./g'
+}
+
+build() {
+	${_prefix}gcc --print-multi-lib |
+	while IFS=';' read -r dir opts; do
+		opts=$(sed 's/@/ -/g' <<<"$opts")
+		( set -x
+		cmake \
+			-B "build/$dir" \
+			-S "yio" \
+			-D CMAKE_BUILD_TYPE="none" \
+			-D CMAKE_SYSTEM_NAME="Generic" \
+			-D CMAKE_SYSTEM_PROCESSOR="ARM" \
+			-D CMAKE_C_COMPILER="arm-none-eabi-gcc" \
+			-D CMAKE_TRY_COMPILE_TARGET_TYPE="STATIC_LIBRARY" \
+			-D CMAKE_FIND_ROOT_PATH_MODE_PROGRAM="NEVER" \
+			-D CMAKE_FIND_ROOT_PATH_MODE_LIBRARY="ONLY" \
+			-D CMAKE_FIND_ROOT_PATH_MODE_INCLUDE="ONLY" \
+			-D CMAKE_FIND_ROOT_PATH_MODE_PACKAGE="ONLY" \
+			-D CMAKE_C_FLAGS_INIT="" \
+			-D CMAKE_C_FLAGS_RELEASE="" \
+			-D CMAKE_C_FLAGS="$opts -g -Os -ffunction-sections -fdata-sections" \
+			-D CMAKE_INSTALL_LIBDIR="$dir" \
+			-Wno-dev
+		cmake --build "build/$dir" --target yio
+		cmake --build "build/$dir" --target yio_decimallib
+		)
+	done
+}
+
+package() {
+	${_prefix}gcc --print-multi-lib |
+	while IFS=';' read dir opts; do
+		cmake --install "build/$dir" --prefix "$pkgdir/usr/arm-none-eabi/"
+	done
+}
+

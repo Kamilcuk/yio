@@ -1,0 +1,8 @@
+Origin: yio
+Label: yio
+Codename: %CODENAME%
+Architectures: i386 amd64
+Components: main
+Description: Apt repository for yio project
+SignWith: 5B2030B2391B690AC869E1B59AB6D219060C0B5B
+

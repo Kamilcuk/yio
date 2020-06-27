@@ -20,7 +20,27 @@ last cdash build: ![Passed tests](https://img.shields.io/badge/dynamic/json?colo
  - `y*` - Many common symbols.
  - `yio_*` - Functions and macros for implementators.
  - `_yIO_*` - All pletoria of private symbols.
- 
+
+### Installation
+
+#### Ubuntu or Debian
+
+```
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
+sudo apt-key adv -a --export 5B2030B2391B690AC869E1B59AB6D219060C0B5B | sudo apt-key add -
+echo 'deb https://kamcuk.gitlab.com/yio/debian buster main' | sudo tee /etc/apt/sources.list.d/yio.list
+```
+
+#### Archlinux
+
+```
+sudo pacman-key --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
+sudo pacman-key --finger 5B2030B2391B690AC869E1B59AB6D219060C0B5B
+sudo pacman-key --lsign-key 5B2030B2391B690AC869E1B59AB6D219060C0B5B
+printf "%s\n" '' '[yio]' 'Server = https://kamcuk.gitlab.com/yio/archlinux/$arch/' | sudo tee /etc/pacman.conf
+sudo pacman -Sy yio
+```
+
 ## :beginner: Examples :heart_eyes:
 
 > Chuck Norris counted to infinity... twice.  

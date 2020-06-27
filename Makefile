@@ -131,13 +131,14 @@ $(foreach i,gcc clang arm,$(eval $(call gitlab_cdash_decl_them,$(i))))
 .gitlab_cdash_%: .cdash_% ;
 
 USAGE +=~ gitlab_pages - Generate gitlab pages 
-gitlab_pages: doxygen badge
-
-USAGE +=~ badge - Generate badge 
-badge:
+gitlab_pages: doxygen
 	mkdir -p public
 	./scripts/badge_json_gen.sh > public/badge.json
 	cat public/badge.json
+	./scripts/create_public_index.sh
+
+pages_repos:
+	make -C pkg PREFIX=$(PWD)/public
 
 # cdash ##########################
 
@@ -220,7 +221,7 @@ doxygen: build_gen
 .PHONY: doxygen_open
 doxygen_open: doxygen
 	xdg-open public/doxygen/index.html
-	
+
 # test building cmake project ##########################
 
 TEST_PROJECT_B = _build/test_project
@@ -233,6 +234,9 @@ test_project:
 	make YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall -C test/cmake_example
 	$(CMAKE) --build $(TEST_PROJECT_B) --target yio_uninstall
 
+test_project_no_install: clean_test_project
+	make -C test/cmake_example
+
 USAGE +=~ clean_test_project - Cleans test_project
 clean_test_project:
 	rm -rf $(TEST_PROJECT_B)
@@ -241,12 +245,14 @@ clean_test_project:
 # standard ################################################
 
 USAGE +=~ clean - Remove _build directory
-clean:
+clean: clean_test_project
 	rm -fr ./_build
 
 USAGE +=~ distclean - Removes _build and public also
 distclean: clean
 	rm -fr ./public
+	$(MAKE) -C pkg/archlinux clean
+	$(MAKE) -C pkg/apt clean
 
 USAGE +=~ install - install project
 install: export CMAKE_BUILD_TYPE=Release

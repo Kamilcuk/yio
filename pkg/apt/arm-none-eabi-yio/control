@@ -1,0 +1,10 @@
+Source: yio-arm-none-eabi
+Section: unknown
+Priority: optional
+Maintainer: Kamil Cukrowski <kamilcukrowski@gmail.com>
+Package: yio-arm-none-eabi
+Version: @VERSION@
+Architecture: all
+Depends: binutils-arm-none-eabi, gcc-arm-none-eabi, libnewlib-arm-none-eabi
+Description: Yio Input Output C Library that aims in type-safe printf replacement
+
