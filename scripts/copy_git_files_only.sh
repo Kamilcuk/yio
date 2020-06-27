@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-cd "$(dirname "$0")"/..
-
 mkdir -p "$1"
+d=$(readlink -f "$1")
+cd "$(dirname "$0")/.."
 
 {
 	echo .git
@@ -11,11 +11,11 @@ mkdir -p "$1"
 } |
 if hash rsync >/dev/null 2>&1; then
 	( set -x
-	rsync --files-from=/dev/stdin -av . "$1"
+	rsync --files-from=/dev/stdin -av . "$d"
 	)
 else 
 	( set -x
-	xargs -t -d'\n' cp --parents -a -t "$1"
+	xargs -t -d'\n' cp --parents -a -t "$d"
 	)
 fi
 
