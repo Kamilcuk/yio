@@ -1,0 +1,6 @@
+# .dockerignore
+
+# Take only context part of build directory
+_build
+!_build/context
+

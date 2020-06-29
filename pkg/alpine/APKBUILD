@@ -1,7 +1,7 @@
 # Contributor: Kamil Cukrowski <kamilcukrowski@gmail.com>
 # Maintainer: Kamil Cukrowski <kamilcukrowski@gmail.com>
 pkgname=yio
-pkgver=$(git describe --tags)
+pkgver=$(git describe --tags | sed 's/v//; s/-/./g')
 pkgrel=0
 pkgdesc="Yio Input Output C Library that aims in type-safe printf replacement"
 url="https://github.com/Kamilcuk/kamil-scripts"
