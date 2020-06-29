@@ -44,7 +44,7 @@ WORKDIR /home/builder
 COPY _build/context/srcdir.tar.gz .
 RUN set -x &&\
 	\
-	tar -xaf srcdir.tar.gz &&\
+	tar -xzf srcdir.tar.gz &&\
 	cd srcdir/pkg/alpine &&\
 	apkbuild-lint APKBUILD &&\
 	sudo -u builder env YIO_SRCDIR="/home/builder/srcdir" abuild -r &&\

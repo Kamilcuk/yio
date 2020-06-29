@@ -11,7 +11,7 @@ ARG KAMIL_CUKROWSKI_SECRET_GPG_KEY=
 
 COPY _build/context/srcdir.tar.gz .
 RUN set -x &&\
-		tar -xaf srcdir.tar.gz &&\
+		tar -xzf srcdir.tar.gz &&\
 		cd srcdir &&\
 		addnone=$(if [[ "$(uname -m)" == x86_64 ]]; then echo arm-none-eabi-yio; fi) &&\
 		make -C pkg/archlinux PREFIX="/output" yio $addnone repo &&\

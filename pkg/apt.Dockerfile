@@ -17,8 +17,8 @@ COPY _build/context/arm-none-eabi-yio.tar.gz /
 COPY _build/context/srcdir.tar.gz /
 RUN set -x &&\
     \
-	tar -xaf arm-none-eabi-yio.tar.gz && \
-    tar -xaf srcdir.tar.gz && cd srcdir &&\
+	tar -xzf arm-none-eabi-yio.tar.gz && \
+    tar -xzf srcdir.tar.gz && cd srcdir &&\
 	make -C pkg/apt ARM_NONE_EABI_YIO_PACKAGE="/arm-none-eabi-yio" \
 		PREFIX="/output" package package-arm-none-eabi-yio repo  &&\
 	\
