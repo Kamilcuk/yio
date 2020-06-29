@@ -64,6 +64,7 @@ endmacro()
 # handle and detect floats
 
 # the list of floats
+#TODO: typedef _Complex float __attribute__((mode(TC))) _Complex128;
 set(floats
 	# type          MACRO_SUFFIX  suffix   suffix_for_str{from,to}
 	"float"         "FLT"         "f"      "f"
@@ -74,8 +75,8 @@ set(floats
 	"_Float32"      "FLT32"       "f32"    "f32"
 	"_Float64"      "FLT64"       "f64"    "f64"
 	"_Float128"     "FLT128"      "f128"   "f128"
-#	"_Float32x"     "FLT32X"      "f32x"   "f32x"
-#	"_Float64x"     "FLT64X"      "f64x"   "f64x"
+	"_Float32x"     "FLT32X"      "f32x"   "f32x"
+	"_Float64x"     "FLT64X"      "f64x"   "f64x"
 #	"_Float128x"    "FLT128X"     "f128x"  "f128x"
 	
 	"_Decimal32"    "DEC32"       "d32"    "d32"
