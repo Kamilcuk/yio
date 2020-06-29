@@ -40,7 +40,7 @@ pages_repos:
     DOCKER_TLS_CERTDIR: /certs
   script:
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - apk add --no-cache make git
+  - apk add --no-cache make git bash
   - make pages_repos
   artifacts:
     paths:
