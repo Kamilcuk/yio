@@ -1,21 +1,18 @@
-#!/bin/bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
 mkdir -p "$1"
 d=$(readlink -f "$1")
 cd "$(dirname "$0")/.."
 
-{
-	echo .git
-	git ls-files . --exclude-standard --others --cached
-} |
+./scripts/list_git_files_only.sh -z |
 if hash rsync >/dev/null 2>&1; then
 	( set -x
-	rsync --files-from=/dev/stdin -av . "$d"
+	rsync -0 --files-from=/dev/stdin -a . "$d"
 	)
 else 
 	( set -x
-	xargs -t -d'\n' cp --parents -a -t "$d"
+	xargs -0 -t cp --parents -a -t "$d"
 	)
 fi
 
