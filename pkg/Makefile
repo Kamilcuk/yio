@@ -36,7 +36,7 @@ $(ctx):
 	mkdir -p $(B)/srcdir
 	../scripts/copy_git_files_only.sh $(B)/srcdir
 	mkdir -p $(ctxdir)
-	tar -C _build -caf $(ctxdir)/srcdir.tar.gz srcdir || rm -f $(ctxdir)/srcdir.tar.gz
+	tar -C _build -czf $(ctxdir)/srcdir.tar.gz srcdir || { rm -f $(ctxdir)/srcdir.tar.gz; false; }
 
 # Abstract docker runner
 define docker_build_in #(docker_image_name,output_directory,docker_build_arguments)
@@ -46,7 +46,7 @@ define docker_build_in #(docker_image_name,output_directory,docker_build_argumen
 		-t $1 \
 		.
 	mkdir -p $2
-	docker run --rm $1 tar -C /output -caf - . | tar -C $2 -xva
+	docker run --rm $1 tar -C /output -czf - . | tar -C $2 -xvz
 endef
 # Note: the first argument _has to_ be blabal/distribution/architecture
 define docker_build #(output_directory_like_/distribution/architecture,docker_build_arguments)
@@ -78,7 +78,7 @@ $(nonetar): $(OUTPUT)/archlinux/x86_64
 	cd _build/arm-none-eabi-yio && tar -xaf arm-none-eabi-yio*.pkg.tar.xz
 	cd _build/arm-none-eabi-yio && rm -f arm-none-eabi-yio*.pkg.tar.xz *.pkg.tar
 	cd _build/arm-none-eabi-yio && rm .[^.]*
-	cd _build && tar -caf context/arm-none-eabi-yio.tar.gz arm-none-eabi-yio
+	cd _build && tar -czf context/arm-none-eabi-yio.tar.gz arm-none-eabi-yio
 
 ubuntu_x86_64: $(OUTPUT)/ubuntu/x86_64
 $(OUTPUT)/ubuntu/x86_64: $(nonetar)
