@@ -72,7 +72,7 @@ pages_build:
 deploy_chors_ce:
   extends: .deploy_chors_ce
   only:
-    - master
+    - tags
 deploy_chors_ce_manual:
   extends: .deploy_chors_ce
   when: manual
@@ -86,5 +86,5 @@ pages:
     paths:
     - public/
   only:
-    - master
+    - tags
 
