@@ -1,10 +1,9 @@
 # .gitlab-ci.yml
 
 stages:
-- build
-- buildarm
-- prepages
-- pages
+  - build
+  - pages
+  - deploy
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -25,13 +24,13 @@ test:
   - make test_project
 
 test_arm:
-  stage: buildarm
+  stage: build
   image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
   script:
   - make gitlab_arm_cdash
 
 pages_repos:
-  stage: prepages
+  stage: build
   image: docker:stable
   services:
   - docker:stable-dind
@@ -47,7 +46,7 @@ pages_repos:
     - public/
     expire_in: 1 week
 
-pages:
+pages_build:
   stage: pages
   image: ubuntu
   script:
@@ -57,5 +56,35 @@ pages:
   - make gitlab_pages
   artifacts:
     paths:
-    - public
+    - public/
+    expire_in: 1 week
+
+.deploy_chors_ce:
+  stage: deploy
+  image: alpine
+  script:
+  - apk add openssh
+  - eval $(ssh-agent -s)
+  - printenv "CHORS_GITLAB_SSH_PRIVATE_KEY" | base64 -d | ssh-add -
+  - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes 
+      -p60022 gitlab@karta.dyzio.pl yio
+
+deploy_chors_ce:
+  extends: .deploy_chors_ce
+  only:
+    - master
+deploy_chors_ce_manual:
+  extends: .deploy_chors_ce
+  when: manual
+
+pages:
+  stage: deploy
+  image: busybox
+  script:
+  - find public -type f
+  artifacts:
+    paths:
+    - public/
+  only:
+    - master
 
