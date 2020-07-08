@@ -9,4 +9,5 @@
 #include "yio_config.h"
 #include "yio_common.h"
 #include "yio_error.h"
+#include "yio_version.h"
 #include "yio_macros.h"

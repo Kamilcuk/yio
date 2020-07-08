@@ -1,0 +1,15 @@
+/**
+ * @file
+ * @date 5 kwi 2020
+ * @author Kamil Cukrowski
+ * @copyright
+ * SPDX-License-Identifier: GPL-3.0-only
+ */
+#pragma once
+
+#define YIO_VERSION         @YIO_VERSION@ul
+#define YIO_VERSION_STRING  "@YIO_VERSION_STRING@"
+
+unsigned long yio_get_version(void);
+const char *yio_get_version_string(void);
+

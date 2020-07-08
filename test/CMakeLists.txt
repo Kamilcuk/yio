@@ -4,7 +4,6 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 include(CTest)
 include(subdirlist)
 include(test_extract_properties_from_file)
-include(debug_variables)
 
 # m4 ###################################################################
 # Initialize m4 preprocessor the same way as in ../src/CMakeLists.txt
@@ -33,13 +32,6 @@ if(CMAKE_COMPILER_IS_GNUCC)
 		)
 	endif()
 endif()
-
-# Some output
-debug_variables(PREFIX "yio_test:"
-	CMAKE_BUILD_TYPE
-	BUILD_TESTING
-	CMAKE_C_FLAGS
-)
 
 # Detecting sources #################################################
 # List all directories in current testing directory
