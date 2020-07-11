@@ -286,6 +286,7 @@ file_glob_relative_to_srcdir(GLOB auto_decimallib_srcs yio/decimallib/*.h yio/de
 yio_add_library(yio_decimallib 
 	${auto_decimallib_srcs}
 	yio/yio_config.h
+	yio/yio_version.h
 	yio/yio_config_gen.h
 )
 
