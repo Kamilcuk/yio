@@ -74,9 +74,6 @@ STDBUF = $(shell hash stdbuf 2>/dev/null >/dev/null && echo stdbuf -oL -eL)
 
 all: usage 
 
-USAGE +=~ eclipse - Target run from IDE
-eclipse: build
-
 # Generic configure+build+test targets
 
 USAGE +=~ configure - Configure the project
@@ -103,6 +100,9 @@ build: .build_all
 USAGE +=~ test - Run tests using ctest
 test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
+USAGE +=~ test_rerun_failed - Run tests with --rerun-failed
+test_rerun_failed: CTESTFLAGS += --rerun-failed
+test_rerun_failed: test
 
 USAGE +=~ release - Build the project in release mode
 release: export CMAKE_BUILD_TYPE=Release
