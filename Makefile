@@ -228,11 +228,14 @@ TEST_PROJECT_B = _build/test_project
 
 USAGE +=~ test_project - Test sample cmake project
 test_project:
-	$(CMAKE) -B $(TEST_PROJECT_B) $(CMAKEFLAGS) -D CMAKE_INSTALL_PREFIX=$(TEST_PROJECT_B)/testinstall
+	$(CMAKE) -B $(TEST_PROJECT_B) $(CMAKEFLAGS) -D BUILD_TESTING=NO -D CMAKE_INSTALL_PREFIX=$(TEST_PROJECT_B)/testinstall
 	$(CMAKE) --build $(TEST_PROJECT_B) --target all
 	$(CMAKE) --build $(TEST_PROJECT_B) --target install
-	make YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall -C test/cmake_example
+	make YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall B=_build/cmake_example \
+		-C test/cmake_proj_tests/cmake_example
 	$(CMAKE) --build $(TEST_PROJECT_B) --target yio_uninstall
+	make YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall B=_build/cmake_subproject \
+		-C test/cmake_proj_tests/cmake_subproject
 
 test_project_no_install: clean_test_project
 	make -C test/cmake_example
