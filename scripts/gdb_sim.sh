@@ -147,19 +147,24 @@ fi
 echo 'run' >&11
 
 # Wait for line Starting program with a maximum timeout we give to gdb
-if ! out=$(
-		timeout 1 sed -E -u '
-			# This means that we could not start executable, most probably 
-			# because the architecture of executable does 
-			# not match architecture of debugger.
-			/unable to create simulator instance/q1
-			# Error from "load"
-			/No executable file specified/q1
-			# Executable started successfully
-			/Starting program: /q
-		' <&10)
-then
-	fatal "Could not start gdb: $out"
+ret=0
+out=$(
+	timeout 2 sed -E -u '
+		# This means that we could not start executable, most probably 
+		# because the architecture of executable does 
+		# not match architecture of debugger.
+		/unable to create simulator instance/q1
+		# Error from "load"
+		/No executable file specified/q1
+		# Executable started successfully
+		/Starting program: /q
+	' <&10) || ret=$?
+if ((ret != 0)); then
+	if ((ret == 124)); then
+		fatal "Could not start gdb: timeouted: $out"
+	else
+		fatal "Could not start gdb: $out"
+	fi
 fi
 
 # Tie standard input with input to gdb,
