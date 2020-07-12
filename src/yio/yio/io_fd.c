@@ -41,7 +41,7 @@ int _yIO_ydprintf(int fd, const struct _yIO_printdata_s *data, ...) {
 
 /* ---------------------------------------------------------------- */
 
-__attribute__((__access__(__write_only__, 2, 3)))
+_yIO_access(__write_only__, 2, 3)
 static inline
 int _yIO_ydscanf_cb_read_repeat(int fd, char *dest, size_t size) {
 	int ret = 0;
