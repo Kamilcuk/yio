@@ -22,11 +22,7 @@ const char *yio_strerror(int error) {
 	static_assert(sizeof(_yIO_error_messages)/sizeof(_yIO_error_messages[0]) < 100, "");
 	static_assert(sizeof(_yIO_error_messages)/sizeof(_yIO_error_messages[0]) ==
 			_yIO_ERROR_STOP - _yIO_ERROR_START - 1, "");
-	switch (error) {
-	case YIO_ERROR_ENOMEM: return "Not enough memory";
-	case YIO_ERROR_ENOSYS: return "Function not implemented";
-	case YIO_ERROR_EIO: return "Input/output error";
-	}
+
 	static_assert(_yIO_ERROR_START < _yIO_ERROR_STOP, "");
 	if (_yIO_ERROR_STOP <= error || error <= _yIO_ERROR_START) {
 		return unknown_error;

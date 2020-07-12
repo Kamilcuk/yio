@@ -20,11 +20,11 @@ extern "C" {
  */
 enum _yIO_errors_e {
 	YIO_ERROR_OK = 0,
-	YIO_ERROR_ENOMEM = -ENOMEM,    /// "Not enough memory", the same as ENOMEM
-	YIO_ERROR_ENOSYS = -ENOSYS,    /// "Function not implemented", basically the same as ENOSYS
-	YIO_ERROR_EIO = -EIO,          /// "Input/output error", means something wrong with FILE*
-	YIO_ERROR_ENOBUFS = -ENOBUFS,  /// "No buffer space available", snprintf has nowhere to write to
-	_yIO_ERROR_START = -2100,      /// Start of custom errors
+	_yIO_ERROR_START = -12300,     /// Start of custom errors
+	YIO_ERROR_ENOMEM,              /// GEN "Not enough memory"
+	YIO_ERROR_ENOSYS,              /// GEN "Function not implemented"
+	YIO_ERROR_EIO,                 /// GEN "Input/output error"
+	YIO_ERROR_ENOBUFS,             /// GEN "No buffer space available"
 	YIO_ERROR_FMT_INVALID,         /// GEN "Invalid format specifier"
 	YIO_ERROR_PYFMT_INVALID,       /// GEN "Invalid python format specifier"
 	YIO_ERROR_CFMT_INVALID,        /// GEN "Invalid C format specifier"
