@@ -50,6 +50,8 @@ void float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int precisi
 
 m4_applyforeachdefine(`((f, f), (, d), (l, l))~, `m4_dnl;
 
+#ifdef _yIO_HAS_strfrom$1
+
 // In case it's not defined in standard headers, so that we get a link time error.
 extern int strfrom$2(char *str, size_t n, const char *format, _yIO_FLOAT$1 fp);
 
@@ -83,5 +85,7 @@ int _yIO_float_astrfrom_strfrom$1(char **out, int precision, char spec, _yIO_FLO
 	*out = NULL;
 	return err;
 }
+
+#endif
 
 ~) m4_dnl;

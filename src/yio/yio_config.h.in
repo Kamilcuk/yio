@@ -12,6 +12,11 @@
  * @addtogroup config
  * @{
  */
+ 
+/**
+ * Internal variable set used to check if config is sourced.
+ */
+#define _yIO_HAS_CONFIG
 
 #if defined __DOXYGEN__ || defined __CDT_PARSER__
 /**

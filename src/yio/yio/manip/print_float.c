@@ -13,14 +13,8 @@ m4_config_yio_template(`m4_dnl);
 #include <yio/private/yio_float_strfrom_printf.h>
 #include <yio/private/yio_float_strfrom_strfrom.h>
 
-m4_applyforeachdefine((
-		m4_applyforeachdefine((
-				(f),
-				(),
-				(l)
-			),
-			`($1, strfrom$1),($1, stupid$1),($1, printf$1)~,
-			`,~)), `m4_dnl;
+// m4_generate_print_floats(type, suffix)
+m4_define(`m4_generate_print_floats~, `m4_dnl;
 
 static inline
 int _yΩIO_print_float_$2_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
@@ -52,10 +46,29 @@ int _yΩIO_print_float_$2pnt(yio_printctx_t *t) {
 	return _yIO_print_float_$2_in(t, var);
 }
 
-~)m4_dnl;
+~) m4_dnl;
 
-~)m4_dnl;
+~) m4_dnl;
 
-~)m4_dnl;
+m4_applyforeachdefine((
+		(f, strfromf),
+		(, strfrom),
+		(l, strfroml)
+), `m4_dnl;
+#ifdef _yIO_HAS_$2
+m4_generate_print_floats($1, $2)
+#endif
+~) m4_dnl;
 
+m4_applyforeachdefine((
+		m4_applyforeachdefine((
+				(f),
+				(),
+				(l)
+			),
+			`($1, stupid$1),($1, printf$1)~,
+			`,~)), `m4_dnl;
+m4_generate_print_floats($1, $2)
+~) m4_dnl;
 
+~) m4_dnl;
