@@ -21,6 +21,9 @@ cmake_push_check_state(RESET)
 
 set(CMAKE_REQUIRED_DEFINITIONS 
 	-D_GNU_SOURCE=1
+	-D _POSIX_C_SOURCE=1
+	-D _BSD_SOURCE=1
+	-D _SVID_SOURCE=1
 	-D__STDC_WANT_LIB_EXT2__=1
 	-D__STDC_WANT_DEC_FP__=1
 	-D__STDC_WANT_IEC_60559_DFP_EXT__=1
@@ -48,6 +51,10 @@ check_include_file("float.h"  _yIO_HAS_FLOAT_H)
 check_include_file("stdfix.h"  _yIO_HAS_STDFIX)
 check_type_size_bool(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
 check_symbol_exists_bool(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)
+
+check_type_size_bool("struct timespec" _yIO_HAS_timespec LANGUAGE C)
+check_type_size_bool("struct timeval" _yIO_HAS_timeval LANGUAGE C)
+check_symbol_exists_bool(localtime_r "time.h" _yIO_HAS_localtime_r LANGUAGE C)
 
 #########################################################################
 # Setup yio_config_gen.h

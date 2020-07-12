@@ -6,13 +6,13 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config(yio);
+m4_config_yio_template(`m4_dnl);
 #include "private.h"
 
 /* yvbprintf and yvbscanf helpers ------------------------------------------------------ */
 
 static inline _yIO_wur _yIO_nn() _yIO_rnn
-const Ychar *_yIO_strpbrk_braces(const Ychar *str) {
+const Ychar *_yΩIO_strpbrk_braces(const Ychar *str) {
 	while (*str) {
 		if (*str == Yc('{') || *str == Yc('}')) {
 			break;
@@ -28,7 +28,7 @@ int _yIO_yvbgeneric_iterate_until_format(const Ychar *fmt, const Ychar **endptr,
 	bool double_braces_found = false;
 	while (fmt[0]) {
 		const Ychar * const after_brace = fmt + double_braces_found;
-		const Ychar * const brace = _yIO_strpbrk_braces(after_brace);
+		const Ychar * const brace = _yΩIO_strpbrk_braces(after_brace);
 		if (after_brace != brace) {
 			const int err = callback(arg, fmt, brace);
 			if (err) return err;
@@ -53,15 +53,15 @@ int _yIO_yvbgeneric_iterate_until_format(const Ychar *fmt, const Ychar **endptr,
 }
 
 static inline
-int yvbprintf_iterate_until_format_callback(void *arg, const Ychar *begin, const Ychar *end) {
-	yio_printctx_t *t = arg;
-	return yio_printctx_out(t, begin, end - begin);
+int yπvbprintf_iterate_until_format_callback(void *arg, const Ychar *begin, const Ychar *end) {
+	yπio_printctx_t *t = arg;
+	return yio_printctx_raw_write(t, begin, end - begin);
 }
 
 /* yvbprintf ----------------------------------------------------------- */
 
 static inline
-int yvbprintf_in(yio_printctx_t *t) {
+int yπvbprintf_in(yπio_printctx_t *t) {
 	if (t->fmt == NULL) {
 		if (t->ifunc == NULL) {
 			return 0;
@@ -78,13 +78,11 @@ int yvbprintf_in(yio_printctx_t *t) {
 
 	while (1) {
 		int err = _yIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
-				yvbprintf_iterate_until_format_callback, t);
+				yπvbprintf_iterate_until_format_callback, t);
 		if (err) return err;
 		if (t->fmt[0] == Yc('\0')) break;
 
-		err = _yIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
-		if (err) return err;
-
+		t->pf = _yIO_printfmt_default;
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
 			return YIO_ERROR_TOO_MANY_FMT;
 		}
@@ -98,13 +96,13 @@ int yvbprintf_in(yio_printctx_t *t) {
 	return 0;
 }
 
-int yvbprintf(_yIO_printcb_t *out, void *arg, yio_printdata_t *data, va_list *va) {
+int yvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, va_list *va) {
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
-	yio_printctx_t _ctx = _yIO_printctx_init(out, arg, data, va);
-	yio_printctx_t * const t = &_ctx;
-	const int err = yvbprintf_in(t);
+	yπio_printctx_t _ctx = _yΩIO_printctx_init(out, arg, data, va);
+	yπio_printctx_t * const t = &_ctx;
+	const int err = yπvbprintf_in(t);
 	if (err) {
 		return -abs(err);
 	}
@@ -123,7 +121,7 @@ int _yIO_yvbscanf_iterate_until_format_callback(void *arg, const char *begin, co
 }
 
 static inline
-int _yIO_yvbscanf_in(yio_scanctx_t *t) {
+int _yIO_yvbscanf_in(yπio_scanctx_t *t) {
 	if (t->fmt == NULL) {
 		if (t->ifunc == NULL) {
 			return 0;
@@ -178,3 +176,5 @@ struct yio_scanret_s yvbscanf(_yIO_scancb_t *in, void *arg,
 	};
 	return scanret;
 }
+
+~)m4_dnl;

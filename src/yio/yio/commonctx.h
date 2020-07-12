@@ -16,6 +16,12 @@ m4_config_yio();
 struct _yIO_commonctx_s {
 	/// va_list of current argument.
 	va_list *va;
+	/// Format string.
+	const Ychar *fmt;
+	/// Copy of va_list when iterating
+	va_list *iva;
+	/// Copy of format string when iterating.
+	const Ychar *ifmt;
 #ifdef YIO_CHECK_VA_ARG_SIZES
 	/// Iterator into an array of arguments sizes.
 	const size_t *argsizespnt;

@@ -9,15 +9,15 @@ m4_config_yio_template(`m4_dnl);
 #include "private.h"
 
 int _yΩIO_print_bool(yπio_printctx_t *t) {
-	bool value = yπio_printctx_va_arg2(t, _Bool, int);
+	const bool value = yπio_printctx_va_arg_num(t, _Bool);
+	int err = yπio_printctx_init(t);
+	if (err) return err;
 	const Ychar *arr[] = { Yc("true"), Yc("false") };
-	const size_t arrlens[] = { 4, 5 };
 	if (yπio_printctx_get_fmt(t)->type == '\0') {
-		return yπio_printctx_out(t, arr[value], arrlens[value]);
+		return yπio_printctx_puts(t, arr[value]);
 	}
-	const Ychar zeroone[] = { Yc('0'), Yc('1') };
-	return yπio_printctx_out(t, &zeroone[value], 1);
+	const Ychar zeroone[][2] = { Yc("0"), Yc("1") };
+	return yπio_printctx_puts(t, zeroone[value]);
 }
 
-~)
-
+~)m4_dnl;

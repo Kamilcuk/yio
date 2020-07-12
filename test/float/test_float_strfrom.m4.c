@@ -1,9 +1,9 @@
 #define _GNU_SOURCE  1
 #define _ISOC99_SOURCE  1
-#include <yio/bits/yio_float.h>
-#include <yio/bits/yio_float_strfrom_printf.h>
-#include <yio/bits/yio_float_strfrom_strfrom.h>
-#include <yio/bits/yio_float_strfrom_stupid.h>
+#include <yio/private/yio_float.h>
+#include <yio/private/yio_float_strfrom_printf.h>
+#include <yio/private/yio_float_strfrom_strfrom.h>
+#include <yio/private/yio_float_strfrom_stupid.h>
 #include <yio_test.h>
 #include <math.h>
 #include <float.h>

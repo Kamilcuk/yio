@@ -16,7 +16,7 @@ int yio_printctx_out_wchar(yio_printctx_t *t, wchar_t wc) {
 	char s[MB_LEN_MAX];
 	const int len = wctomb(s, wc);
 	if (len < 0) return YIO_ERROR_WCTOMB_ERR;
-	return yio_printctx_out(t, s, len);
+	return yio_printctx_raw_write(t, s, len);
 }
 
 int _yIO_print_wchar(yio_printctx_t *t) {

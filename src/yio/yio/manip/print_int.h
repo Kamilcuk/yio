@@ -17,10 +17,10 @@ int _yIO_print_long(yio_printctx_t *t);
 int _yIO_print_ulong(yio_printctx_t *t);
 int _yIO_print_llong(yio_printctx_t *t);
 int _yIO_print_ullong(yio_printctx_t *t);
-int _yIO_print___int128(yio_printctx_t *t);
-int _yIO_print_u__int128(yio_printctx_t *t);
 
 #ifdef _yIO_HAS_INT128
+int _yIO_print___int128(yio_printctx_t *t);
+int _yIO_print_u__int128(yio_printctx_t *t);
 #define _yIO_PRINT_FUNC_GENERIC_INTS_INT128() \
 		__int128: _yIO_print___int128, \
 		unsigned __int128: _yIO_print_u__int128,

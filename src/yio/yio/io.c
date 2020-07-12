@@ -5,7 +5,7 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config(yio);
+m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include <limits.h>
 #include <string.h>
@@ -246,6 +246,7 @@ struct yio_scanret_s _yIO_yscanf(yio_scandata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	const struct yio_scanret_s ret = yvfscanf(stdin, data, &va);
+			// yvscanf(data, &va);
 	va_end(va);
 	return ret;
 }
@@ -283,3 +284,5 @@ struct yio_scanret_s yvfscanf(FILE *file, yio_scandata_t *data, va_list *va) {
 struct yio_scanret_s yvsscanf(char *src, yio_scandata_t *data, va_list *va) {
 	return yvbscanf(_yIO_ysscanf_cb, &src, data, va);
 }
+
+~)m4_dnl;

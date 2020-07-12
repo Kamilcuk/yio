@@ -8,7 +8,7 @@
  */
 m4_config_yio();
 #pragma once
-#include "yio/yio/ctx_public.h"
+#include "yio/yio/ctx.h"
 #include "yio/yio_config.h"
 #include "slots.h"
 #include "print_float.h"
@@ -18,6 +18,7 @@ m4_config_yio();
 #include "print_modifiers.h"
 #include "print_wchars.h"
 #include "print_count.h"
+#include "print_time.h"
 #include "scan_int.h"
 #include "scan_string.h"
 #include "scan_float.h"
@@ -40,6 +41,7 @@ int _yIO_print_unhadled_type(yio_printctx_t *t);
 				_yIO_PRINT_FUNC_GENERIC_FLOATS() \
 				_yIO_PRINT_FUNC_GENERIC_WCHARS() \
 				_yIO_PRINT_FUNC_GENERIC_BOOL() \
+				_yIO_PRINT_GENERIC_TIME() \
 		default: _Generic((arg), \
 				_yIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				_yIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \

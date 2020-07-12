@@ -41,10 +41,12 @@ int _yIO_ydprintf(int fd, const struct _yIO_printdata_s *data, ...) {
 
 /* ---------------------------------------------------------------- */
 
-int _yIO_ydscanf_cb_read_repeat(int fd, const char *dest, size_t size) {
+__attribute__((__access__(__write_only__, 2, 3)))
+static inline
+int _yIO_ydscanf_cb_read_repeat(int fd, char *dest, size_t size) {
 	int ret = 0;
 	while (size) {
-		const ssize_t readed = write(fd, dest, size);
+		const ssize_t readed = read(fd, dest, size);
 		if (ret < 0) {
 			if (errno == EAGAIN) {
 				ret = -1;

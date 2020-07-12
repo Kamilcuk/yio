@@ -9,19 +9,19 @@
 #include <yio_test.h>
 int main() {
 	char *buf;
-	buf = yformatf("{:+0{}}", 10, 3);
+	buf = yformatf("{:+0{}}", 3, 10);
 	_yIO_TEST(buf != NULL);
 	_yIO_TEST(strcmp(buf, "+000000003") == 0);
 	free(buf);
-	buf = yformatf("{:+0.{}}", 10, 3);
+	buf = yformatf("{:+0.{}}", 3, 10);
 	_yIO_TEST(buf != NULL);
 	_yIO_TEST(strcmp(buf, "+3") == 0);
 	free(buf);
-	buf = yformatf("{:+0{}.{}}", 10, 10, 3);
+	buf = yformatf("{:+0{}.{}}", 3, 10, 10);
 	_yIO_TEST(buf != NULL);
 	_yIO_TEST(strcmp(buf, "+000000003") == 0);
 	free(buf);
-	buf = yformatf("{:+0.{}}", 10, "12345678901234567890");
+	buf = yformatf("{:+0.{}}", "12345678901234567890", 10);
 	_yIO_TEST(buf != NULL);
 	_yIO_TEST(strcmp(buf, "1234567890") == 0, "%s", buf);
 	free(buf);

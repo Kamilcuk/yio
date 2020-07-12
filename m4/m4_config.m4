@@ -35,7 +35,7 @@ m4_define(`m4_config_generic~, `m4_dnl;
 #endif
 m4_ifdef(`YHEADERS~, `m4_ifelse(YHEADERS, `~, `~, `YHEADERS
 ~)~)m4_dnl
-#line m4_eval(m4___line__ + 2) "m4___file__"
+// #line m4_eval(m4___line__ + 1) "m4___file__"
 m4_dnl ~)m4_dnl;
 
 `/**
@@ -61,7 +61,7 @@ m4_define(`_m4_config_loaded~, `1~)m4_dnl;
 m4_include(`config_$1.m4~)m4_dnl
 ~)m4_dnl
 m4_config_generic()m4_dnl~)m4_dnl
-m4_dnl~)m4_dnl;
+~)m4_dnl;
 
 `/**
  * @ingroup m4
@@ -129,8 +129,12 @@ m4_include(m4_SRCDIR`/yio/yio/$1~)~)m4_dnl;
 `/**
  * @ingroup m4
  * Combines @c m4_config_yio and @c m4_config_template.
+<code>
+m4_config_yio_template(`m4_dnl);
+COPY ME!
+~)m4_dnl;
+</code>
  */
 #define m4_config_yio_template() ~
 m4_define_function(`m4_config_yio_template~,
-`m4_config_yio()
-m4_config_template(`$1~)~)
+`m4_config_yio()m4_config_template(`$1~)~)

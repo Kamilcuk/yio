@@ -12,13 +12,20 @@
 
 static inline
 void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
-	struct yio_printfmt_s pf;
-	memset(&pf, -1, sizeof(pf));
+	struct yio_printfmt_s pf = _yIO_printfmt_default;
 	const char *endptr = (const char *)-1;
 	const int err = _yIO_pfmt_parse((void*)1, &pf, str, &endptr);
-	_yIO_TEST_MSG(err == 0, "%s", str);
-	_yIO_TEST_MSG(endptr == str + strlen(str), "%s", str);
-	_yIO_TEST_MSG(memcmp(&pf, &shouldbe, sizeof(pf)) == 0, "%s", str);
+	_yIO_TEST(err == 0, "%s", str);
+	_yIO_TEST(endptr == str + strlen(str), "%s", str);
+	_yIO_TEST(pf.width == shouldbe.width);
+	_yIO_TEST(pf.precision == shouldbe.precision);
+	_yIO_TEST(pf.fill == shouldbe.fill, "%s", str);
+	_yIO_TEST(pf.align == shouldbe.align, "%s", str);
+	_yIO_TEST(pf.sign == shouldbe.sign, "%s", str);
+	_yIO_TEST(pf.grouping == shouldbe.grouping);
+	_yIO_TEST(pf.type == shouldbe.type);
+	_yIO_TEST(pf.hash == shouldbe.hash);
+	_yIO_TEST(memcmp(&pf, &shouldbe, sizeof(pf)) == 0, "%s", str);
 }
 
 static inline
@@ -27,9 +34,19 @@ void test_cfmt(struct yio_printfmt_s shouldbe, const char *str) {
 	memset(&pf, -1, sizeof(pf));
 	const char *endptr = (const char *)-1;
 	const int err = _yIO_cfmt_parse((void*)1, &pf, str, &endptr);
-	_yIO_TEST_MSG(err == 0, "%s", str);
-	_yIO_TEST_MSG(endptr == str + strlen(str), "%s", str);
-	_yIO_TEST_MSG(memcmp(&pf, &shouldbe, sizeof(pf)) == 0, "%s", str);
+	_yIO_TEST(err == 0, "%s", str);
+	_yIO_TEST(endptr == str + strlen(str), "%s", str);
+	_yIO_TEST(err == 0, "%s", str);
+	_yIO_TEST(endptr == str + strlen(str), "%s", str);
+	_yIO_TEST(pf.width == shouldbe.width);
+	_yIO_TEST(pf.precision == shouldbe.precision);
+	_yIO_TEST(pf.fill == shouldbe.fill);
+	_yIO_TEST(pf.align == shouldbe.align);
+	_yIO_TEST(pf.sign == shouldbe.sign);
+	_yIO_TEST(pf.grouping == shouldbe.grouping);
+	_yIO_TEST(pf.type == shouldbe.type);
+	_yIO_TEST(pf.hash == shouldbe.hash);
+	_yIO_TEST(memcmp(&pf, &shouldbe, sizeof(pf)) == 0, "%s", str);
 }
 
 int main() {

@@ -297,11 +297,11 @@ yio_add_library(yio_decimallib
 )
 
 file_glob_relative_to_srcdir(GLOB auto_generic_srcs yio/*.h yio/*.c)
-file_glob_relative_to_srcdir(GLOB auto_yio_bits_srcs yio/bits/*.h yio/bits/*.c)
+file_glob_relative_to_srcdir(GLOB auto_yio_private_srcs yio/private/*.h yio/private/*.c)
 file_glob_relative_to_srcdir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
 file_glob_relative_to_srcdir(GLOB_RECURSE auto_ywio_srcs yio/ywio/*.h yio/ywio/*.c)
 yio_add_library(yio
-	${auto_yio_bits_srcs}
+	${auto_yio_private_srcs}
 	${auto_generic_srcs}
 	yio/yio_config.h
 	yio/yio_config_gen.h

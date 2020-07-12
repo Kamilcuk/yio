@@ -7,7 +7,7 @@
  * @brief
  */
 #include <yio_test.h>
-#include <yio/bits/yio_buf.h>
+#include <yio/private/yio_buf.h>
 
 static inline
 int _yIO_buf_test_remove_trailing_zeros(const char *in, const char *out) {
