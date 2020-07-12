@@ -72,11 +72,6 @@ typedef int Yint;
 #define _yIO_const        __attribute__((__const__))
 #define _yIO_rnn          __attribute__((__returns_nonnull__))
 #define _yIO_format(...)  __attribute__((__format__(__VA_ARGS__)))
-#if __GNUC__ > 10
-#define _yIO_access(...)  __attribute__((__acces__(__VA_ARGS__)))
-#else
-#define _yIO_access(...)
-#endif
 #else
 /// Mark that function returns nonnull.
 #define _yIO_nn(...)
@@ -90,6 +85,10 @@ typedef int Yint;
 #define _yIO_rnn
 /// Function formats like printf
 #define _yIO_format(...)
+#endif
+#if __GNUC__ > 10
+#define _yIO_access(...)  __attribute__((__acces__(__VA_ARGS__)))
+#else
 /// Attribute access
 #define _yIO_access(...)
 #endif
