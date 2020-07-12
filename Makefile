@@ -37,9 +37,9 @@ B_SUFFIX ?=
 B ?= _build/$(SYSTEM)$(CMAKE_BUILD_TYPE)$(B_SUFFIX)
 
 # check if we have nice
-NICE += $(shell hash nice 2>/dev/null >/dev/null && echo nice)
+NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
 # check if we have ionice from util-linux
-NICE += $(shell hash ionice 2>/dev/null >/dev/null && ionice --version 2>&1 | grep -q util-linux && echo ionice)
+NICE += $(shell hash ionice >/dev/null 2>&1 && ionice --version 2>&1 | grep -q util-linux && echo ionice)
 
 CTEST := $(NICE) ctest
 CTESTFLAGS += --output-on-failure 
@@ -81,15 +81,13 @@ all: usage
 
 USAGE +=~ configure - Configure the project
 configure:
-	@echo $(CMAKE) -B $(B) $(CMAKEFLAGS)
-	@$(CMAKE) -B $(B) $(CMAKEFLAGS)
+	$(CMAKE) -B $(B) $(CMAKEFLAGS)
 	@ln -nvfs $(B)/src/gen gen ||:
 
 USAGE +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: configure
-	@echo $(CMAKE) --build $(B) --target $*
-	@$(CMAKE) --build $(B) --target $*
+	$(CMAKE) --build $(B) --target $*
 
 USAGE +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen
@@ -124,6 +122,28 @@ cmake-gui:
 USAGE +=~ ccmake - Runs ccmake
 ccmake:
 	ccmake -B $(B) $(CMAKEFLAGS)
+
+# Exotic Targets ##################################################
+
+define _arm
+$1: B = _build/arm-none-eabi
+$1: CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/arm-none-eabi-gcc.cmake
+$1: CMAKEFLAGS += -DCMAKE_CROSSCOMPILING_EMULATOR=$(PWD)/scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
+endef
+USAGE +=~ arm - Test building with arm-none-eabi
+$(eval $(call _arm,arm))
+arm: build
+USAGE +=~ test_arm - Run tests on with arm-none-eabi
+$(eval $(call _arm,test_arm))
+test_arm: test
+
+define _sdcc_pic16
+$1: B = _build/sdcc
+$1: CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/sdcc.cmake
+endef
+USAGE +=~ sdcc_pic16 - Tests building with sdcc_pic16
+$(eval $(call _sdcc_pic16,sdcc_pic16))
+sdcc_pic16: build
 
 # Gitlab ####################################
 
