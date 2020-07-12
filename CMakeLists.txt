@@ -53,6 +53,12 @@ yio_debug_variables(
 	UNISTRING_LIB
 )
 
+foreach(i IN ITEMS CMAKE_TOOLCHAIN_FILE CMAKE_CROSSCOMPILING_EMULATOR)
+	if(DEFINED "${i}" AND NOT EXISTS "${${i}}")
+		message(FATAL_ERROR "${i} is defined but file does not exists")
+	endif()
+endforeach()
+
 add_subdirectory(src)
 
 if((YIO_BUILD_TESTING OR "yio" STREQUAL PROJECT_NAME) 
