@@ -105,6 +105,11 @@ USAGE +=~ test_rerun_failed - Run tests with --rerun-failed
 test_rerun_failed: CTESTFLAGS += --rerun-failed
 test_rerun_failed: test
 
+USAGE +=~ debug - Build the project in debug mode
+debug: export CMAKE_BUILD_TYPE=Debug
+debug:
+	@+$(CMAKE) build 
+
 USAGE +=~ release - Build the project in release mode
 release: export CMAKE_BUILD_TYPE=Release
 release:
