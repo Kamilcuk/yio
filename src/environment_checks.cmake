@@ -47,6 +47,13 @@ endif()
 # some generic checks
 
 check_include_file("unistd.h" _yIO_HAS_UNISTD_H)
+if(_yIO_HAS_UNISTD_H)
+	list(APPEND CMAKE_REQUIRED_INCLUDES
+		"unistd.h"
+		"sys/time.h"
+	)
+endif()
+
 check_include_file("float.h"  _yIO_HAS_FLOAT_H)
 check_include_file("stdfix.h"  _yIO_HAS_STDFIX)
 check_type_size_bool(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)

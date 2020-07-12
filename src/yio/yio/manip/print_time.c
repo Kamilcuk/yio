@@ -10,6 +10,9 @@ m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include "yio/private/yio_time.h"
 #include <time.h>
+#ifdef _yIO_HAS_UNISTD_H
+#include <sys/time.h>
+#endif
 
 int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt) {
 	int ret = 0;
