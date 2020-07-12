@@ -23,11 +23,10 @@ m4_config() m4_dnl;
 #include <stdio.h>
 #include <assert.h>
 #include <string.h>
-#include <string.h>
 #include <limits.h>
-#include <stdio.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #define ASSERTMSG(expr, fmt, ...) do { \
 	if (!(expr)) { \
@@ -80,8 +79,9 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 	*out = NULL;
 
 	char spec = spec0;
-	_yIO_vec _v_mem = _yIO_vec_init();
+	_yIO_vec _v_mem;
 	_yIO_vec * const v = &_v_mem;
+	_yIO_vec_init(v);
 
 	// take minus out of the way
 	const bool negative = signbit(val);

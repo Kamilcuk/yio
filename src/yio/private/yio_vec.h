@@ -27,8 +27,9 @@ typedef struct _yIO_vec {
 } _yIO_vec;
 
 static inline
-_yIO_vec _yIO_vec_init(void) {
-	return (_yIO_vec){NULL, NULL, NULL};
+void _yIO_vec_init(_yIO_vec *t) {
+	const _yIO_vec ret = {NULL, NULL, NULL};
+	*t = ret;
 }
 
 static inline
@@ -46,7 +47,7 @@ int _yIO_vec_allocate_more(_yIO_vec *t) {
 		// NOTE! in case of allocation error
 		// all resources are freed
 		free(t->beg);
-		return -ENOMEM;
+		return YIO_ERROR_ENOMEM;
 	}
 	t->beg = p;
 	t->pos = t->beg + pos;
@@ -88,7 +89,7 @@ int _yIO_vec_yreformatf_in(_yIO_vec *t, yio_printdata_t *data, ...) {
 
 	if (buf == NULL) {
 		// NOTE! All is freed.
-		return -ENOMEM;
+		return YIO_ERROR_ENOMEM;
 	}
 	// we reassign bookeeping
 	// this will mess things up

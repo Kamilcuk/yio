@@ -12,7 +12,8 @@
 static inline
 int _yIO_buf_test_remove_trailing_zeros(const char *in, const char *out) {
 	char _buf[20];
-	_yIO_buf b = _yIO_buf_init(_buf);
+	_yIO_buf b;
+	_yIO_buf_init(&b, _buf);
 	_yIO_buf_puts(&b, in);
 	_yIO_buf_remove_trailing_zeros(&b);
 	_yIO_buf_end(&b);

@@ -25,8 +25,9 @@ typedef struct _yIO_buf {
 } _yIO_buf;
 
 static inline
-_yIO_buf _yIO_buf_init(char *dest) {
-	return (_yIO_buf){dest, 0};
+void _yIO_buf_init(_yIO_buf *t, char *dest) {
+	const _yIO_buf n = {dest, 0};
+	*t = n;
 }
 
 static inline
