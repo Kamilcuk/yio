@@ -59,7 +59,7 @@ elseif(DASHBOARD_MODE STREQUAL "clang")
 	
 elseif(DASHBOARD_MODE STREQUAL "arm")
 	set_ifunset(SYSTEM "armv4t-none-gcc")
-	find_file(CMAKE_TOOLCHAIN_FILE toolchain-arm-none-eabi.cmake PATHS ./cmake)
+	find_file(CMAKE_TOOLCHAIN_FILE arm-none-eabi-gcc.cmake PATHS ./cmake/Toolchain)
 	find_file(CMAKE_CROSSCOMPILING_EMULATOR cmake_crosscompiling_emulator_arm_none_gdb.sh PATHS ./scripts)
 	
 else()

@@ -9,7 +9,7 @@ set(CMAKE_C_FLAGS_INIT
 	" -ffunction-sections -fdata-sections "
 	CACHE INTERNAL "")
 set(CMAKE_EXE_LINKER_FLAGS_INIT
-	" -Wl,--gc-sections --specs=rdimon.specs -u_printf_float -u_scanf_float " 
+	" -ffunction-sections -fdata-sections -Wl,--gc-sections --specs=rdimon.specs -u_printf_float -u_scanf_float " 
 	CACHE INTERNAL "")
 
 set(CMAKE_C_FLAGS_DEBUG_INIT "-Ogdb3 -g" CACHE INTERNAL "")
