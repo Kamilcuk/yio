@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-m4_config(yio);
+m4_config_yio() m4_dnl;
 
 /**
  * @defgroup yp__mod

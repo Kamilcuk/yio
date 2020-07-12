@@ -6,8 +6,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+m4_config_yio() m4_dnl;
 #pragma once
-m4_config(yio);
+#include "private.h"
 
 m4_applyforeachdefine(`(
 		(f, f, float),

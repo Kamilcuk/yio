@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config();
+m4_config() m4_dnl;
 #pragma once
-#include <yio/yio_config.h>
+#include "../yio_config.h"
 
 #ifdef __CDT_PARSER__
 #define _yIO_HAS_FLOAT$1

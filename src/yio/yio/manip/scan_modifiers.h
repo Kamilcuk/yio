@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-m4_config(yio);
+m4_config_yio() m4_dnl;
 
 int _yIO_scan_ignore(yio_scanctx_t *t);
 int _yIO_scan_width_int(yio_scanctx_t *t) ;

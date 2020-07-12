@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio();
+m4_config_yio() m4_dnl;
 #pragma once
 #include "yio/yio_common.h"
 #include <assert.h>

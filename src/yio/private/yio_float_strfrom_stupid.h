@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config();
+m4_config() m4_dnl;
 #pragma once
 #include "yio_float.h"
 

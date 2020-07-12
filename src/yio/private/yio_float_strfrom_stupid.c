@@ -7,7 +7,7 @@
  * @brief
  */
 #define _GNU_SOURCE
-m4_config();
+m4_config() m4_dnl;
 #include "yio_float_strfrom_stupid.h"
 #include "yio_buf.h"
 #include "yio_vec.h"

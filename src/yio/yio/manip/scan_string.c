@@ -5,7 +5,7 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config(yio);
+m4_config_yio() m4_dnl;
 #include "private.h"
 
 int _yIO_scan_string(yio_scanctx_t *t) {

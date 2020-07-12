@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-m4_config();
+m4_config() m4_dnl;
 #include <yio/yio_config.h>
 
 #ifdef __CDT_PARSER__

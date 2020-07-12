@@ -8,7 +8,7 @@
  */
 #define _GNU_SOURCE  1
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
-m4_config();
+m4_config() m4_dnl;
 #include "yio_float_strfrom_strfrom.h"
 #include <yio.h>
 #include <yio/yio_config.h>

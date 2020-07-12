@@ -4,7 +4,7 @@
  * @author Kamil Cukrowski
  * @copyright SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config();
+m4_config() m4_dnl;
 #pragma once
 #include <stdbool.h>
 #include <stdlib.h>
