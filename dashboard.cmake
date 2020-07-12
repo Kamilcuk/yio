@@ -99,7 +99,8 @@ set(CTEST_PARALLEL_LEVEL ${NUMBER_OF_LOGICAL_CORES})
 # Setup configure flags
 list(APPEND CONFIGURE_FLAGS "-DBUILD_TESTING=1")
 list(APPEND CONFIGURE_FLAGS "-DYIO_BUILD_TESTING=1")
-list(APPEND CONFIGURE_FLAGS "--log-level=DEBUG")
+list(APPEND CONFIGURE_FLAGS "--log-level=TRACE")
+list(APPEND CONFIGURE_FLAGS "-DYIO_TRACE=1")
 foreach(i IN ITEMS 
 		CMAKE_TOOLCHAIN_FILE
 		CMAKE_CROSSCOMPILING_EMULATOR
@@ -113,11 +114,12 @@ endforeach()
 find_program(CTEST_UPDATE_COMMAND NAMES git)
 find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
-	
+
 #######################################################################################
 # Debug variables
 
-debug_variables(PREFIX "dashboard: "
+set(YIO_TRACE 1)
+yio_debug_variables(
 	DASHBOARD_MODE
 	CTEST_SOURCE_DIRECTORY
 	CTEST_BINARY_DIRECTORY

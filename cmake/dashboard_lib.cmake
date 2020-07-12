@@ -1,5 +1,5 @@
 
-include(debug_variables)
+include(yio_debug_variables)
 include(assert_is_valid_bool_only)
 
 ## @def set_default(var value)
@@ -47,7 +47,7 @@ macro(lib_ctest_empty_binary_directory)
 endmacro()
 
 macro(lib_ctest_start)
-	debug_variables(PREFIX "lib_ctest_start" CTEST_BUILD_NAME)
+	yio_debug_variables(PREFIX "lib_ctest_start" CTEST_BUILD_NAME)
 	logln("ctest_start(${ARGV})")
 	ctest_start(${ARGV})
 endmacro()

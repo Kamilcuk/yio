@@ -306,12 +306,14 @@ yio_add_library(yio
 	${auto_ywio_srcs}
 )
 
-file_glob_relative_to_srcdir(GLOB_RECURSE auto_yuio_srcs yio/yuio/*.h yio/yuio/*.c)
-yio_add_library(yuio
-	yuio.h
-	${auto_yuio_srcs}
-)
-target_link_libraries(yuio PUBLIC yio unistring)
+if(UNISTRING_LIB)
+	file_glob_relative_to_srcdir(GLOB_RECURSE auto_yuio_srcs yio/yuio/*.h yio/yuio/*.c)
+	yio_add_library(yuio
+		yuio.h
+		${auto_yuio_srcs}
+	)
+	target_link_libraries(yuio PUBLIC yio ${UNISTRING_LIB})
+endif()
 
 ##################################################################################
 

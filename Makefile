@@ -54,12 +54,12 @@ CMAKEFLAGS += -S .
 CMAKEFLAGS += $(shell hash ninja >/dev/null 2>&1 && echo -GNinja)
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-CMAKEFLAGS += --log-level=trace
+CMAKEFLAGS += --log-level=TRACE
+CMAKEFLAGS += -DYIO_TRACE=1
 ifneq ($(CMAKE_C_FLAGS),)
 CMAKEFLAGS += -DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
 endif
 CMAKEFLAGS += -DBUILD_TESTING=$(BUILD_TESTING)
-
 
 ifeq ($(SYSTEM),armv4t)
 armv4t_CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/toolchain-arm-none-eabi.cmake
@@ -108,12 +108,12 @@ test_rerun_failed: test
 USAGE +=~ debug - Build the project in debug mode
 debug: export CMAKE_BUILD_TYPE=Debug
 debug:
-	@+$(CMAKE) build 
+	@+$(MAKE) build 
 
 USAGE +=~ release - Build the project in release mode
 release: export CMAKE_BUILD_TYPE=Release
 release:
-	@+$(CMAKE) build
+	@+$(MAKE) build
 
 USAGE +=~ cmake-gui - Runs cmake-gui
 cmake-gui:
@@ -269,8 +269,8 @@ clean_test_project:
 # standard ################################################
 
 USAGE +=~ clean - Remove _build directory
-clean: clean_test_project
-	rm -fr ./_build
+clean:
+	rm -fr _build
 
 USAGE +=~ distclean - Removes _build and public also
 distclean: clean
