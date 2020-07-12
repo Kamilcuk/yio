@@ -232,6 +232,12 @@ function(yio_add_library name)
 	target_include_directories(${name} PUBLIC
 		$<BUILD_INTERFACE:${GENDIR}>
 	)
+	target_compile_features(${name} PUBLIC
+		c_std_11
+		c_function_prototypes
+		c_static_assert
+		c_variadic_macros
+	)
 	
 	# Add compiler options.
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR

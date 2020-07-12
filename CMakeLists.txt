@@ -13,6 +13,10 @@ project(yio
 
 include(force_build_dir_without_cmakelists)
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
+
 find_library(UNISTRING_LIB unistring)
 yio_debug_variables(
 	BUILD_TESTING
