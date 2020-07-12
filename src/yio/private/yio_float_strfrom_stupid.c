@@ -38,6 +38,7 @@ m4_config();
 
 
 m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
+#ifdef _yIO_HAS_FLOAT$1
 
 #define TYPE     _yIO_FLOAT$1
 #define PRI      _yIO_FLOAT_PRI$1
@@ -253,4 +254,5 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 #undef FREXP2
 #undef FREXP10
 
+#endif // _yIO_HAS_FLOAT$1
 ~)

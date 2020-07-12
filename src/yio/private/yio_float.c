@@ -18,6 +18,8 @@ m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
 
 /* suffix $1 ---------------------------------------------------- */
 
+#ifdef _yIO_HAS_FLOAT$1
+
 // newlib doesn't have exp10l
 #ifdef _yIO_HAS_exp10$1
 #define EXP10$1    exp10$1
@@ -44,6 +46,8 @@ _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp) {
 	}
 	return val;
 }
+
+#endif // _yIO_HAS_FLOAT$1
 
 ~) m4_dnl m4_applyforeachdefine
 
