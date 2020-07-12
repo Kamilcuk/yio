@@ -248,7 +248,6 @@ function(yio_add_library name)
 			-Wextra
 			-Wwrite-strings
 			-Wno-unused-function
-			-Wno-unused-argument
 			-Wno-unused-parameter
 		)
 	endif()
