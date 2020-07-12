@@ -27,7 +27,7 @@ int _yscan_A(yio_scanctx_t *t) {
 }
 
 // Custom yio callbacks to be used with yio invokations.
-// For type safety, make sure your arguments are proper type with `_Generic`.
+// For type safety, make sure your arguments are proper type with _Generic.
 #define yprint_A(var)  yiocb( _yprint_A, _Generic((var), struct A: (var), const struct A: (var)) )
 #define yscan_A(var)   yiocb(  _yscan_A, _Generic((var), struct A *:(var)) )
 
