@@ -9,4 +9,6 @@ public
 old
 gen
 *.bak
+massif*
+vg*
 
