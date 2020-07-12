@@ -102,10 +102,10 @@ _yIO_wur _yIO_nn()
 int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...);
 
 _yIO_wur _yIO_nn()
-int _yIO_printformat_generic(yπio_printctx_t *t, size_t str_len, const char str[str_len], bool is_number, bool is_positive);
+int _yIO_printformat_generic(yπio_printctx_t *t, size_t str_len, const char str[], bool is_number, bool is_positive);
 
 _yIO_wur _yIO_nn() static inline
-int yπio_printctx_putsn(yπio_printctx_t *t, size_t str_len, const Ychar str[str_len]) {
+int yπio_printctx_putsn(yπio_printctx_t *t, size_t str_len, const Ychar str[]) {
 	return _yIO_printformat_generic(t, str_len, str, false, false);
 }
 
@@ -115,7 +115,7 @@ int yπio_printctx_puts(yπio_printctx_t *t, const Ychar str[]) {
 }
 
 _yIO_wur _yIO_nn() static inline
-int yπio_printctx_putsn_number(yπio_printctx_t *t, size_t str_len, const Ychar str[str_len], bool is_positive) {
+int yπio_printctx_putsn_number(yπio_printctx_t *t, size_t str_len, const Ychar str[], bool is_positive) {
 	return _yIO_printformat_generic(t, str_len, str, true, is_positive);
 }
 
