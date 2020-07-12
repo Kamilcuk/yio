@@ -1,4 +1,6 @@
 #!/bin/bash
+shopt -u lastpipe
+set -e -u +o pipefail
 export SHELLOPTS
 
 name=$(basename "$0")
@@ -84,6 +86,7 @@ else
 fi
 
 # Create temporary directory
+umask 077
 tmp=$(mktemp -d)
 trap_exit() {
 	kill "${childpid:-}" "${inputterpid:-}" >/dev/null 2>&1 ||:
@@ -112,18 +115,17 @@ gdbchild() {
 		stdbuf -oL "$@" 2>&1
 	fi
 }
-gdbchild "$gdb" -quiet --args "$executable" "${arguments[@]}" >"$in" <"$out" &
+gdbchild "$gdb" -quiet --args "$executable" "${arguments[@]}" <"$out" >"$in" &
 childpid=$!
-
-exec 10< "$in"
 exec 11> "$out"
+exec 10< "$in"
 
 # Unique uuid to grep for from gdb output
-# to know ehere does the executable start from
+# to know where does the executable start from
 uuid=68ba305a-5761-4afb-bff8-079ea0619b4f
 
 # Gdb startup configuration.
-cat >&11 <<EOF
+cat >&11 <<'EOF'
 set confirm off
 target sim
 load
@@ -133,12 +135,12 @@ break _Exit
 break raise
 break signal
 break abort
-set \$r0=0
+set $r0=0
 EOF
 
 if "${interactive:-false}"; then
 	echo "::: Starting interactive gdb session :::"
-    cat 0<&10- >&10- &
+    while IFS= read -r line; do printf "%s\n" "$line"; done <&10- >&10- &
     cat 1>&11- <&11- 
     exit
 fi
@@ -149,7 +151,7 @@ echo 'run' >&11
 # Wait for line Starting program with a maximum timeout we give to gdb
 ret=0
 out=$(
-	timeout 2 sed -E -u '
+	timeout 10 sed -E -u '
 		# This means that we could not start executable, most probably 
 		# because the architecture of executable does 
 		# not match architecture of debugger.
@@ -169,8 +171,10 @@ fi
 
 # Tie standard input with input to gdb,
 # so that we can write in terminal something to the program.
-cat <&0 >&11 10<&- &
+while IFS= read -r line; do printf "%s\n" "$line"; done >&11 10>&- <&0 &
 inputterpid=$!
+# Close stdin, it's no longer needed.
+exec 0<&-
 
 # Wait for specified string that tells us the execution ended.
 # While at the same time output everything that is inputted.
@@ -185,16 +189,18 @@ sed -E -n -u '
 	x;/was empty line/{s/.*//;p};x
 	# Print the line.
 	p
-' <&10 11>&-
+' <&10
 
 # Inputter is not loger needed - should be killed,
 # but it could have been killed already by EOF from input.
 kill "$inputterpid" 2>/dev/null ||:
+wait "$inputterpid" ||:
 
 # Exit gdb
-cat >&11 <<EOF
+cat >&11 <<'EOF'
+
 info registers
-quit \$r0
+quit $r0
 quit
 EOF
 # Close input - send EOF to gdb
@@ -211,7 +217,6 @@ wait "$childpid" || ret=$?
 if ((ret)); then
 	echo "$0: $executable exited with $ret" >&2
 fi
-kill "$inputterpid" 2>/dev/null ||:
 wait
 exit "$ret"
 
