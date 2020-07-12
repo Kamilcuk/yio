@@ -225,26 +225,41 @@ doxygen_open: doxygen
 
 # test building cmake project ##########################
 
-TEST_PROJECT_B = _build/test_project
+TEST_PROJECT_B = _build/test_project_yio
 
 USAGE +=~ test_project - Test sample cmake project
 test_project:
 	$(CMAKE) -B $(TEST_PROJECT_B) $(CMAKEFLAGS) -D BUILD_TESTING=NO -D CMAKE_INSTALL_PREFIX=$(TEST_PROJECT_B)/testinstall
 	$(CMAKE) --build $(TEST_PROJECT_B) --target all
 	$(CMAKE) --build $(TEST_PROJECT_B) --target install
-	make YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall B=_build/cmake_example \
-		-C test/cmake_proj_tests/cmake_example
+	MAKEFLAGS= $(MAKE) -C test/cmake_proj_tests/cmake_example \
+		YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall \
+		B=$(PWD)/_build/test_project
 	$(CMAKE) --build $(TEST_PROJECT_B) --target yio_uninstall
-	make YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall B=_build/cmake_subproject \
-		-C test/cmake_proj_tests/cmake_subproject
 
+USAGE +=~ test_project_add_subdirectory - Test cmake project that uses add_subdirectory
+test_project_add_subdirectory:
+	MAKEFLAGS= $(MAKE) -C test/cmake_proj_tests/cmake_subproject \
+		YIODIR=$(PWD)/$(TEST_PROJECT_B)/testinstall \
+		B=$(PWD)/_build/test_project_add_subdirectory
+
+USAGE +=~ test_project_add_subdirectory - Install globally cmake project and tests add_subdirectory
+test_project_install_add_subdirectory:
+	$(CMAKE) -B $(TEST_PROJECT_B) $(CMAKEFLAGS) -D BUILD_TESTING=NO -D CMAKE_INSTALL_PREFIX=/usr/local/
+	$(CMAKE) --build $(TEST_PROJECT_B) --target all
+	sudo $(CMAKE) --build $(TEST_PROJECT_B) --target install
+	MAKEFLAGS= $(MAKE) -C test/cmake_proj_tests/cmake_example \
+		B=$(PWD)/_build/test_project_install_add_subdirectory
+	sudo $(CMAKE) --build $(TEST_PROJECT_B) --target yio_uninstall 
+
+USAGE +=~ test_project_no_install - Test cmake project using system wide yio installation
 test_project_no_install: clean_test_project
-	make -C test/cmake_example
+	MAKEFLAGS= $(MAKE) -C test/cmake_proj_tests/cmake_example \
+		B=$(PWD)/_build/test_project_no_install
 
-USAGE +=~ clean_test_project - Cleans test_project
+USAGE +=~ clean_test_project - Cleans test_projects
 clean_test_project:
-	rm -rf $(TEST_PROJECT_B)
-	make -C test/cmake_example clean
+	rm -rf _build/test_project*
 	
 # standard ################################################
 

@@ -2,7 +2,7 @@ B=_build
 all:
 	cmake -H. -B$(B)
 	cmake --build $(B)
-	./$(B)/yio_test
+	$(B)/yio_test
 	cd $(B) && ctest
 
 clean:

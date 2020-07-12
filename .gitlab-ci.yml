@@ -22,6 +22,7 @@ test:
   - make gitlab_gcc_cdash
   - make gitlab_clang_cdash
   - make test_project
+  - make test_project_add_subdirectory
 
 test_arm:
   stage: build
