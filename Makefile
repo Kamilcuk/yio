@@ -45,7 +45,9 @@ CTEST := $(NICE) ctest
 CTESTFLAGS += --output-on-failure 
 CTESTFLAGS += -j $(shell nproc) # --verbose --rerun-failed
 
-CMAKE_C_FLAGS ?= 
+CMAKE_C_FLAGS ?=
+
+CDASHFLAGS ?=
 
 BUILD_TESTING ?= ON
 
