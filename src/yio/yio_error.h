@@ -10,6 +10,7 @@
 extern "C" {
 #endif
 
+#include "yio_common.h"
 #include <errno.h>
 
 /**
@@ -48,10 +49,7 @@ enum _yIO_errors_e {
  * @return The function never returns null and always returns
  * a valid pointer to a string with static storage duration.
  */
-#ifdef __GNUC__
-__attribute__((__const__))
-__attribute__((__returns_nonnull__))
-#endif
+_yIO_const _yIO_rnn
 const char *yio_strerror(int error);
 
 #ifdef __cplusplus
