@@ -138,6 +138,9 @@ foreach(i IN LISTS floats)
 	
 endforeach()
 
+set(_yIO_HAS_strfrom ${_yIO_HAS_strfromd})
+yio_config_gen_add(_yIO_HAS_strfrom)
+
 #########################################################################
 # handle and detect stdfix
 
