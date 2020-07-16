@@ -12,7 +12,7 @@ m4_config() m4_dnl;
 #include "yio_buf.h"
 #include "yio_vec.h"
 #include "yio_float.h"
-#include <yio.h>
+#include "private.h"
 
 #include <assert.h>
 #include <math.h>

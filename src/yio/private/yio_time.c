@@ -6,10 +6,13 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#include "yio_time.h"
+#include "private.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <yio.h>
+#include <assert.h>
+#include <stdint.h>
 
 int _yIO_astrftime_nonzero(char **strp, const size_t initialsize, const char *fmt, const struct tm *tm) {
 	size_t bufsize = initialsize;

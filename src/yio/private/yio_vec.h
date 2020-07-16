@@ -9,7 +9,7 @@
  * This library solely exists for yio_float_strfrom_stupid.c
  */
 #pragma once
-#include <yio.h>
+#include "private.h"
 #include <stddef.h>
 #include <stdbool.h>
 #include <ctype.h>

@@ -8,7 +8,7 @@
  */
 #define __STDC_WANT_IEC_60559_TYPES_EXT__
 #include "yio_decimal.h"
-#include <yio/yio_config.h>
+#include "private.h"
 #include <math.h>
 
 m4_applyforeachdefine(`((32, df), (64, dd), (128, dl))~, `m4_dnl;

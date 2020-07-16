@@ -10,9 +10,7 @@
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 m4_config() m4_dnl;
 #include "yio_float_strfrom_strfrom.h"
-#include <yio.h>
-#include <yio/yio_config.h>
-#include <yio/intprops.h>
+#include "private.h"
 #include <assert.h>
 #include <stddef.h>
 #include <limits.h>

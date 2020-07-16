@@ -7,10 +7,11 @@
  * @brief
  */
 #pragma once
+#define _yIO_PRIVATE  1
 #include "public.h"
 #include "io.h"
 #include "ctx_private.h"
 #include "fmt_private.h"
-#include <yio/yio_private.h>
+#include "../yio_private.h"
 #include <string.h>
 #include <limits.h>

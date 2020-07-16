@@ -123,4 +123,9 @@ add_test(NAME yio_test_cmake
 )
 set_property(TEST yio_test_cmake APPEND PROPERTY LABELS nomemcheck)
 
+# test if there are any absolute includes in the source tree
+add_test(NAME find_absolute_includes
+	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/absolute_includes_find.sh ${GENDIR}
+)
+
 

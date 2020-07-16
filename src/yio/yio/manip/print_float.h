@@ -8,7 +8,7 @@
  */
 m4_config_yio() m4_dnl;
 #pragma once
-#include "private.h"
+#include "../../private/yio_float.h"
 
 m4_applyforeachdefine(`(
 		(f, f, float),

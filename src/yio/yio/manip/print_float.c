@@ -9,9 +9,6 @@
 m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include <ctype.h>
-#include <yio/private/yio_float_strfrom_stupid.h>
-#include <yio/private/yio_float_strfrom_printf.h>
-#include <yio/private/yio_float_strfrom_strfrom.h>
 
 // m4_generate_print_floats(type, suffix)
 m4_define(`m4_generate_print_floats~, `m4_dnl;

@@ -8,7 +8,6 @@
  */
 m4_config_yio_template(`m4_dnl);
 #pragma once
-#include "private.h"
 #include <time.h>
 
 /**

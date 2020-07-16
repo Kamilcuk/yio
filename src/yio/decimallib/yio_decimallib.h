@@ -8,7 +8,7 @@
  */
 #pragma once
 m4_config() m4_dnl;
-#include <yio/yio_config.h>
+
 
 #if __CDT_PARSER__
 #define _yIO_HAS_DEC$1

@@ -9,3 +9,6 @@
 #include "../../yio_common.h"
 #include "../../../yio.h"
 #include "../private.h"
+#include "../../private/yio_float_strfrom_stupid.h"
+#include "../../private/yio_float_strfrom_strfrom.h"
+#include "../../private/yio_float_strfrom_printf.h"

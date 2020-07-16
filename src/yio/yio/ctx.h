@@ -8,7 +8,7 @@
  */
 m4_config_yio_template(`m4_dnl);
 #pragma once
-#include <yio/yio_common.h>
+#include "../yio_common.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

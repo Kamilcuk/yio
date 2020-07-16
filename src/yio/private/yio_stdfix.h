@@ -8,7 +8,7 @@
  */
 #pragma once
 m4_config() m4_dnl;
-#include <yio/yio_config.h>
+#include "private.h"
 #if _yIO_HAS_STDFIX
 #include <stdfix.h>
 

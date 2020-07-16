@@ -7,7 +7,6 @@
  * @brief
  */
 #pragma once
-#include <yio/yio_config.h>
 
 int _yIO_scan_int(yio_scanctx_t *t);
 int _yIO_scan_short(yio_scanctx_t *t);
