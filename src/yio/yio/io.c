@@ -135,6 +135,7 @@ int _yIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	struct _yIO_yreaprintf_ctx_s *p = arg;
 	const size_t count = p->size + size + 1;
 	assert(count < SIZE_MAX / sizeof(*p->str));
+
 	void * const pnt = realloc(p->str, sizeof(*p->str) * count);
 	if (pnt == NULL) {
 		free(p->str);
@@ -143,9 +144,11 @@ int _yIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 		return YIO_ERROR_ENOMEM;
 	}
 	p->str = pnt;
+
 	memcpy(p->str + p->size, ptr, size);
 	assert(p->size < SIZE_MAX - size);
 	p->size += size;
+
 	return 0;
 }
 
@@ -184,9 +187,13 @@ int yvaprintf(Ychar **strp, yio_printdata_t *data, va_list *va) {
 int yvreaprintf(Ychar **strp, yio_printdata_t *data, va_list *va) {
 	struct _yIO_yreaprintf_ctx_s ctx = {
 			.str = *strp,
-			.size = (*strp != NULL ? strlen(*strp) : 0),
+			.size = (*strp != NULL) ? strlen(*strp) : 0,
 	};
 	const int ret =  yvbprintf(_yIO_yreaprintf_cb, &ctx, data, va);
+	if (ret < 0) {
+		free(ctx.str);
+		ctx.str = NULL;
+	}
 	*strp = ctx.str;
 	if (ctx.str != NULL) {
 		ctx.str[ctx.size] = '\0';
