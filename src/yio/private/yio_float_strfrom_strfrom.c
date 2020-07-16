@@ -69,7 +69,7 @@ int _yIO_float_astrfrom_strfrom$1(char **out, int precision, char spec, _yIO_FLO
 
 	char * const buf = malloc(len + 1);
 	if (buf == NULL) {
-		err = -ENOMEM;
+		err = YIO_ERROR_ENOMEM;
 		goto ERROR;
 	}
 
