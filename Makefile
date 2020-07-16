@@ -29,7 +29,7 @@ export CDASH_KARTA_DYZIO_PL_PASSWORD
 
 CMAKE_BUILD_TYPE ?= Debug
 export CMAKE_BUILD_TYPE
- 
+
 SYSTEM ?=
 export SYSTEM
 
@@ -42,7 +42,7 @@ NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
 NICE += $(shell hash ionice >/dev/null 2>&1 && ionice --version 2>&1 | grep -q util-linux && echo ionice)
 
 CTEST := $(NICE) ctest
-CTESTFLAGS += --output-on-failure 
+CTESTFLAGS += --output-on-failure
 CTESTFLAGS += -j $(shell nproc) # --verbose --rerun-failed
 
 CMAKE_C_FLAGS ?=
@@ -63,26 +63,20 @@ CMAKEFLAGS += -DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
 endif
 CMAKEFLAGS += -DBUILD_TESTING=$(BUILD_TESTING)
 
-ifeq ($(SYSTEM),armv4t)
-armv4t_CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/toolchain-arm-none-eabi.cmake
-armv4t_CMAKEFLAGS += -DCMAKE_CROSSCOMPILING_EMULATOR=$(PWD)/scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
-CMAKEFLAGS += $(armv4t_CMAKEFLAGS)
-endif
-
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
-STDBUF = $(shell hash stdbuf 2>/dev/null >/dev/null && echo stdbuf -oL -eL) 
+STDBUF = $(shell hash stdbuf 2>/dev/null >/dev/null && echo stdbuf -oL -eL)
 
 # Targets ###################################################################
 
-all: usage 
+all: usage
 
 # Generic configure+build+test targets
 
 USAGE +=~ configure - Configure the project
 configure:
 	$(CMAKE) -B $(B) $(CMAKEFLAGS)
-	@ln -nvfs $(B)/src/gen gen ||:
+	@ln -nvfs $(B)/gen gen ||:
 
 USAGE +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
@@ -94,13 +88,22 @@ build_gen: .build_yio_gen
 
 USAGE +=~ build_yio - Build the yio target
 build_yio: .build_yio
-	
+
 USAGE +=~ build - Build the project
 build: .build_all
 
 USAGE +=~ test - Run tests using ctest
 test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
+
+USAGE +=~ test_R_% - Run tests matching regular expression
+test_R_%: build
+	cd $(B) && $(CTEST) $(CTESTFLAGS) -R "$*"
+
+USAGE +=~ test_R_% - Run tests with labels matching regex
+test_L_%: build
+	cd $(B) && $(CTEST) $(CTESTFLAGS) -L "$*"
+
 USAGE +=~ test_rerun_failed - Run tests with --rerun-failed
 test_rerun_failed: CTESTFLAGS += --rerun-failed
 test_rerun_failed: test
@@ -108,7 +111,7 @@ test_rerun_failed: test
 USAGE +=~ debug - Build the project in debug mode
 debug: export CMAKE_BUILD_TYPE=Debug
 debug:
-	@+$(MAKE) build 
+	@+$(MAKE) build
 
 USAGE +=~ release - Build the project in release mode
 release: export CMAKE_BUILD_TYPE=Release
@@ -118,24 +121,25 @@ release:
 USAGE +=~ cmake-gui - Runs cmake-gui
 cmake-gui:
 	cmake-gui -B $(B) $(CMAKEFLAGS)
-	
+
 USAGE +=~ ccmake - Runs ccmake
 ccmake:
 	ccmake -B $(B) $(CMAKEFLAGS)
 
 # Exotic Targets ##################################################
 
-define _arm
-$1: B = _build/arm-none-eabi
-$1: CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/arm-none-eabi-gcc.cmake
-$1: CMAKEFLAGS += -DCMAKE_CROSSCOMPILING_EMULATOR=$(PWD)/scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
-endef
+ifeq ($(SYSTEM),arm)
+CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/arm-none-eabi-gcc.cmake
+endif
+
 USAGE +=~ arm - Test building with arm-none-eabi
-$(eval $(call _arm,arm))
-arm: build
-USAGE +=~ test_arm - Run tests on with arm-none-eabi
-$(eval $(call _arm,test_arm))
-test_arm: test
+arm: ; @$(MAKE) SYSTEM=arm build
+
+USAGE +=~ test_arm - Run tests with arm-none-eabi
+test_arm: ; @$(MAKE) SYSTEM=arm test
+
+USAGE +=~ test_arm_R_% - Run tests matching regex on arm-none-eabi
+test_arm_R_%: ; @$(MAKE) SYSTEM=arm test_R_$*
 
 define _sdcc_pic16
 $1: B = _build/sdcc
@@ -158,7 +162,7 @@ $(foreach i,gcc clang arm,$(eval $(call gitlab_cdash_decl_them,$(i))))
 .gitlab_cdash_%: export override CDASHFLAGS := -DMODEL=Continous -DWITH_UPDATE=ON -DWITH_SUBMIT=ON $(CDASHFLAGS)
 .gitlab_cdash_%: .cdash_% ;
 
-USAGE +=~ gitlab_pages - Generate gitlab pages 
+USAGE +=~ gitlab_pages - Generate gitlab pages
 gitlab_pages: doxygen
 	mkdir -p public
 	./scripts/badge_json_gen.sh > public/badge.json
@@ -277,7 +281,7 @@ test_project_install_add_subdirectory:
 	sudo $(CMAKE) --build $(TEST_PROJECT_B) --target install
 	MAKEFLAGS= $(MAKE) -C test/cmake_proj_tests/cmake_example \
 		B=$(PWD)/_build/test_project_install_add_subdirectory
-	sudo $(CMAKE) --build $(TEST_PROJECT_B) --target yio_uninstall 
+	sudo $(CMAKE) --build $(TEST_PROJECT_B) --target yio_uninstall
 
 USAGE +=~ test_project_no_install - Test cmake project using system wide yio installation
 test_project_no_install: clean_test_project
@@ -287,7 +291,7 @@ test_project_no_install: clean_test_project
 USAGE +=~ clean_test_project - Cleans test_projects
 clean_test_project:
 	rm -rf _build/test_project*
-	
+
 # standard ################################################
 
 USAGE +=~ clean - Remove _build directory
@@ -327,7 +331,7 @@ Variables passed to dashboard_chors.cmake that you can set with CDASHFLAGS=...:
   WITH_COVERAGE   - Run and test coverage build. Default ON
   WITH_SANITIZE   - Run and test sanitize build. Default ON
   WITH_SUBMIT     - Submit to dashboard. Default OFF
-    
+
 Variables set internally that you should not set:
   B                 - Build directory, ./_build
   B_SUFFIX          - Suffix to be added to build directory
@@ -342,7 +346,7 @@ USAGE +=~ usage - Prints this text
 usage:
 	@./scripts/gen_make_help.sh "$$USAGESTRING" "$$TGTSUSAGES"
 
-# All targets added to USAGE are phony 
+# All targets added to USAGE are phony
 .PHONY: $(TGTSUSAGES: -%=)
 .PHONY: all
 

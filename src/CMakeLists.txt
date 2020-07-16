@@ -1,3 +1,4 @@
+# src/CMakeLists.txt
 cmake_minimum_required(VERSION 3.12)
 
 if(NOT "${PROJECT_NAME}" STREQUAL "yio")
@@ -17,11 +18,13 @@ endfunction()
 ###########################################################################################
 # init
 
-string(TOUPPER CMAKE_BUILD_TYPE build_type_upper)
-# Source directory
-get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR} ABSOLUTE)
-# Generated directory
-get_filename_component(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen ABSOLUTE)
+# sanity check
+foreach(i IN ITEMS SRCDIR GENDIR CMAKE_BUILD_TYPE_UPPER)
+	if(NOT DEFINED ${i})
+		message(FATAL_ERROR "${i} is not defined, but should be in parent cmake script")
+	endif()
+endforeach()
+
 # List of generated files by m4
 set(gensrcs)
 
@@ -311,6 +314,7 @@ yio_add_library(yio
 	${auto_ywio_srcs}
 )
 
+# UNISTRING_LIB found in parent CMakeLists.txt
 if(UNISTRING_LIB)
 	file_glob_relative_to_srcdir(GLOB_RECURSE auto_yuio_srcs yio/yuio/*.h yio/yuio/*.c)
 	yio_add_library(yuio

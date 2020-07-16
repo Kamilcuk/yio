@@ -1,15 +1,16 @@
-cmake_minimum_required(VERSION 3.0)
-list(APPEND CMAKE_MODULE_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
+# test/CMakeLists.txt
+cmake_minimum_required(VERSION 3.12)
 
-include(CTest)
+if(NOT "${PROJECT_NAME}" STREQUAL "yio")
+	message(FATAL_ERROR "DO NOT INCLUDE THIS FILE BY ITS OWN: PROJECT_NAME=${PROJECT_NAME}")
+endif()
+
 include(subdirlist)
 include(test_extract_properties_from_file)
 
 # m4 ###################################################################
 # Initialize m4 preprocessor the same way as in ../src/CMakeLists.txt
 include(m4)
-get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/../src ABSOLUTE)
-get_filename_component(GENDIR ${CMAKE_CURRENT_SOURCE_DIR}/../gen ABSOLUTE)
 m4_add_options(lib.m4)
 m4_add_include_directories(${SRCDIR})
 
