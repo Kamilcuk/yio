@@ -101,7 +101,7 @@ macro(lib_ctest_submit)
 		# Try submitting the result 3 times
 		foreach(_lib_i RANGE 1 3)
 			logln("ctest_submit(${ARGV} ***)")
-			ctest_submit(${ARGV} ${LIB_SUBMIT_FLAGS} RETURN_VALUE _lib_ret)
+			ctest_submit(${ARGV} ${LIB_SUBMIT_FLAGS} CAPTURE_CMAKE_ERROR _lib_ret)
 			if(_lib_ret EQUAL 0)
 				break()
 			endif()
