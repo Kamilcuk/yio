@@ -71,25 +71,25 @@ $(OUTPUT)/archlinux/x86_64:
 # arm-none-eabi-yio.tar.gz is the same for all distributions...
 # So I'll extract it from archlinux package and then inject
 # into ubuntu and debian, who cares
-nonetar=_build/context/arm-none-eabi-yio.tar.gz
+nonetar=_build/context/arm-none-eabi-yio.tar.zst
 $(nonetar): $(OUTPUT)/archlinux/x86_64
 	mkdir -p _build/arm-none-eabi-yio
-	cp $(OUTPUT)/archlinux/x86_64/arm-none-eabi-yio*.pkg.tar.xz _build/arm-none-eabi-yio
-	cd _build/arm-none-eabi-yio && tar -xaf arm-none-eabi-yio*.pkg.tar.xz
-	cd _build/arm-none-eabi-yio && rm -f arm-none-eabi-yio*.pkg.tar.xz *.pkg.tar
+	cp $(OUTPUT)/archlinux/x86_64/arm-none-eabi-yio*.pkg.tar.zst _build/arm-none-eabi-yio
+	cd _build/arm-none-eabi-yio && tar -xaf arm-none-eabi-yio*.pkg.tar.zst
+	cd _build/arm-none-eabi-yio && rm -f arm-none-eabi-yio*.pkg.tar.zst *.pkg.tar
 	cd _build/arm-none-eabi-yio && rm .[^.]*
 	cd _build && tar -czf context/arm-none-eabi-yio.tar.gz arm-none-eabi-yio
 
-ubuntu_x86_64: $(OUTPUT)/ubuntu/x86_64
-$(OUTPUT)/ubuntu/x86_64: $(nonetar)
-	$(call docker_build,$@, \
+ubuntu_x86_64: $(OUTPUT)/ubuntu
+$(OUTPUT)/ubuntu: $(nonetar)
+	$(call docker_build_in,yio_ubuntu_x86_64,$@, \
 		--file apt.Dockerfile \
 		--build-arg FROM=ubuntu \
 	)
 
-debian_x86_64: $(OUTPUT)/debian/x86_64
-$(OUTPUT)/debian/x86_64: $(nonetar)
-	$(call docker_build,$@, \
+debian_x86_64: $(OUTPUT)/debian
+$(OUTPUT)/debian: $(nonetar)
+	$(call docker_build_in,yio_debian_x86_64,$@, \
 		--file apt.Dockerfile \
 		--build-arg FROM=debian \
 	)
