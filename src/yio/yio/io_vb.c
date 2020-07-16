@@ -91,8 +91,8 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 			return ifuncret;
 		}
 		t->ifunc++;
-
 	}
+
 	return 0;
 }
 
@@ -106,9 +106,7 @@ int yvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, va_list
 	if (err) {
 		return -abs(err);
 	}
-	if (t->writtencnt > INT_MAX) {
-		return INT_MAX;
-	}
+	assert(t->writtencnt < (size_t)INT_MAX);
 	return t->writtencnt;
 }
 
