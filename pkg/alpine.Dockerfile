@@ -53,5 +53,5 @@ RUN set -x &&\
 	sudo -u builder abuild-sign -k /home/builder/.abuild/kamilcukrowski@gmail.com.rsa \
 		/home/builder/packages/*/*/APKINDEX.tar.gz &&\
 	cp -va /home/builder/packages/pkg/*/* /output &&\
-	openssl rsa -in /etc/apk/keys/kamilcukrowski@gmail.com.rsa.pub -pubout -out /output/kamilcukrowski@gmail.com.rsa.pub
+	openssl rsa -in /home/builder/.abuild/kamilcukrowski@gmail.com.rsa -pubout -out /output/kamilcukrowski@gmail.com.rsa.pub
 
