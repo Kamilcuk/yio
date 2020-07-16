@@ -21,9 +21,22 @@ last cdash build: ![Passed tests](https://img.shields.io/badge/dynamic/json?colo
  - `yio_*` - Functions and macros for implementators.
  - `_yIO_*` - All pletoria of private symbols.
 
+### Dependencies
+
+- `cmake` for compilation
+- `m4` for file generation
+- `bash` for various tasks
+
 ### Installation
 
-#### Ubuntu or Debian
+#### CMake
+
+Add this repo to your project and add the main CMakeLists.txt as a subdirectory.
+I think this would be the preferred way to use this library.
+
+#### Debian
+
+WARNING: MAY NOT WORK
 
 ```
 sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
@@ -33,7 +46,21 @@ sudo apt-get update
 sudo apt-get install -y yio
 ```
 
+#### Ubuntu
+
+WARNING: MAY NOT WORK
+
+```
+sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
+sudo apt-key adv -a --export 5B2030B2391B690AC869E1B59AB6D219060C0B5B | sudo apt-key add -
+echo 'deb https://kamcuk.gitlab.io/yio/ubuntu foster main' | sudo tee -a /etc/apt/sources.list.d/yio.list
+sudo apt-get update
+sudo apt-get install -y yio
+```
+
 #### Archlinux
+
+WARNING: MAY NOT WORK
 
 ```
 sudo pacman-key --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
@@ -45,6 +72,8 @@ sudo pacman -Sy yio
 ```
 
 ### Alpine
+
+WARNING: MAY NOT WORK and does not work, because the public key is wrong.
 
 ```
 uget 'https://kamcuk.gitlab.io/yio/alpine/kamilcukrowski@gmail.com.rsa.pub' -O /etc/apk/keys/kamilcukrowski@gmail.com.rsa.pub
