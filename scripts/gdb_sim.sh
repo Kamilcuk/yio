@@ -3,6 +3,11 @@ shopt -u lastpipe
 set -e -u +o pipefail
 export SHELLOPTS
 
+trap_err() {
+    echo "Error on line $1" >&2
+}
+trap 'trap_err $LINENO' ERR
+
 name=$(basename "$0")
 usage() {
 	cat <<EOF
@@ -75,7 +80,7 @@ if [[ -z "$gdb" ]]; then
 		*"ARM, EABI"*) gdb=arm-none-eabi-gdb; ;;
 		esac
 	esac
-	
+
 	if ! hash "$gdb" >/dev/null; then
 		fatal "Could not found matching gdb executable"
 	fi
@@ -102,9 +107,10 @@ gdbchild() {
 	if (($# == 0)); then
 		echo "gdb_sim.sh: gdbchild: ERROR: Wrong number of arguments" >&2
 		exit 1
-	fi 
+	fi
 	declare -g verbose
 	if "$verbose"; then
+		/bin/printf "%q\n" "+" "$@" | paste -sd' ' >&2
 		stdbuf -oL tee >(sed -u 's/^/< /' >&2) |
 		stdbuf -oL "$@" 2>&1 |
 		stdbuf -oL tee >(sed -u 's/^/> /' >&2)
@@ -129,19 +135,14 @@ cat >&11 <<'EOF'
 set confirm off
 target sim
 load
-break exit
 break _exit
-break _Exit
-break raise
-break signal
-break abort
-set $r0=0
+break _kill
 EOF
 
-if "${interactive:-false}"; then
+if "$interactive"; then
 	echo "::: Starting interactive gdb session :::"
-    while IFS= read -r line; do printf "%s\n" "$line"; done <&10- >&10- &
-    cat 1>&11- <&11- 
+    cat <&10 11>&- >&1 &
+    cat >&11 10>&- <&0
     exit
 fi
 
@@ -152,8 +153,8 @@ echo 'run' >&11
 ret=0
 out=$(
 	timeout 10 sed -E -u '
-		# This means that we could not start executable, most probably 
-		# because the architecture of executable does 
+		# This means that we could not start executable, most probably
+		# because the architecture of executable does
 		# not match architecture of debugger.
 		/unable to create simulator instance/q1
 		# Error from "load"
@@ -178,31 +179,75 @@ exec 0<&-
 
 # Wait for specified string that tells us the execution ended.
 # While at the same time output everything that is inputted.
-sed -E -n -u '
+{ exit_reason=$(
+	sed -n -u '
 	# Gdb write an empty line before exiting,
 	# so we will buffer empty lines in hold space.
 	/^$/{s/.*/was empty line/;h;d;N}
-	# quit if end of execution is found
-	/^\[Inferior [0-9]+ \(process [0-9]+\) exited .*]$/q
-	/^Breakpoint [0-9]+, 0x[[:xdigit:]]+ in /q
+	# Quit if end of execution is found.
+	/\[Inferior [0-9]\+ (process [0-9]\+) exited \(.*\)]$/b end
+	/Breakpoint [0-9]\+, 0x[[:xdigit:]]\+ in \([^[:blank:]]*\) ()$/b end
 	# If we did not quit, but we buffered empty line print it.
 	x;/was empty line/{s/.*//;p};x
 	# Print the line.
 	p
-' <&10
+	# Start again
+	d
+
+	: end {
+		# Add a newline on the matched part.
+		s//\n\1/
+		# Output anything before the string if there is anything.
+		h
+		s/\n.*//
+		/^$/!p
+		g
+		# Replace the newline for uuid and print it.
+		s/.*\n/'"$uuid"'/
+		p
+		# Quit
+		q
+	}
+	' <&10 |
+	# Output everything except the uuid line on terminal
+	stdbuf -oL tee >(grep --line-buffered -v "^$uuid" >&3) |
+	# Grab the uuid line
+	sed '/^'"$uuid"'/!d; s///'
+) ;} 3>&1
 
 # Inputter is not loger needed - should be killed,
 # but it could have been killed already by EOF from input.
 kill "$inputterpid" 2>/dev/null ||:
 wait "$inputterpid" ||:
 
-# Exit gdb
-cat >&11 <<'EOF'
+# Make sure user writes a newline, so out inputs are properly parsed.
+echo >&11
+# info
+if "$verbose"; then
+	echo "+ exit_reason=$exit_reason"
+	echo 'info registers' >&11
+fi
 
-info registers
-quit $r0
-quit
-EOF
+# Exit gdb depending on exit reason
+case "$exit_reason" in
+_exit)
+	# https://github.com/bminor/newlib/blob/master/libgloss/arm/_kill.c#L18
+	# Get the status argument
+	echo 'quit $r1' >&11
+	;;
+_kill)
+	# https://github.com/bminor/newlib/blob/master/libgloss/arm/_kill.c
+	# Get the second argument
+	echo 'quit $r2' >&11
+	;;
+successfully)
+	# All ok
+	;;
+*)
+	fatal "Unknown exit reason aquired from gdb: $exit_reason"
+	;;
+esac
+
 # Close input - send EOF to gdb
 exec 11>&-
 # Ignore everything from output to /dev/null
@@ -214,9 +259,28 @@ exec 10<&-
 # Get gdb return status
 ret=0
 wait "$childpid" || ret=$?
-if ((ret)); then
-	echo "$0: $executable exited with $ret" >&2
-fi
 wait
+
+if ((ret)); then
+	# Sadly newlib signal numbers and linux are not aligned
+	strsignal() {
+		case "$1" in
+		6) echo 'Aborted'; ;;
+		11) echo 'Segmentation fault'; ;;
+		esac
+	}
+
+	if [[ "$exit_reason" = "_kill" ]]; then
+		strsignal=$(strsignal "$ret")
+		echo "$(basename "$0"): Signal $ret: ${strsignal:+$strsignal }$executable" >&2
+		# If signal was the reasin, add 128 just like the shell.
+		if ((ret < 128)); then
+			ret=$((128 + ret))
+		fi
+	#else
+	#	echo "$0: $executable exited with $ret" >&2
+	fi
+fi
+
 exit "$ret"
 
