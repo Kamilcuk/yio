@@ -25,7 +25,6 @@ build() {
 		-B "build" \
 		-S "yio" \
 		-DCMAKE_BUILD_TYPE="Release" \
-		-DBUILD_SHARED_LIBS="ON" \
 		-Wno-dev
 	cmake --build build
 }

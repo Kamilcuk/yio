@@ -22,7 +22,6 @@ $(BUILDDIR)/package-yio:
 		-S ../.. \
 		-B $(BUILDDIR)/yio \
 		-D CMAKE_BUILD_TYPE=Release \
-		-D BUILD_SHARED_LIBS="ON" \
 		-Wno-dev
 	cd $(BUILDDIR)/yio && cpack -G DEB
 	touch $@
