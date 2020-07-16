@@ -11,13 +11,13 @@ m4_config_yio() m4_dnl;
 #include "../../private/yio_float.h"
 
 m4_applyforeachdefine(`(
-		(f, f, float),
-		(fpnt, f, float *),
-		(, , double),
-		(l, l, long double)
+		(f, float),
+		(fpnt, float *),
+		(, double),
+		(l, long double)
 )~,`m4_dnl;
 
-#ifdef _yIO_HAS_FLOAT$2
+#ifdef _yIO_HAS_FLOAT$1
 
 int _yIO_print_float_strfrom$1(yio_printctx_t *t);
 int _yIO_print_float_stupid$1(yio_printctx_t *t);
@@ -36,13 +36,13 @@ int _yIO_print_float$1(yio_printctx_t *t) {
 #endif // _yIO_HAS_strfrom$1
 }
 #define _yIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
-		$3: _yIO_print_float$1,
+		$2: _yIO_print_float$1,
 
-#else  // _yIO_HAS_FLOAT$2
+#else  // _yIO_HAS_FLOAT$1
 
 #define _yIO_PRINT_FUNC_GENERIC_FLOAT$1()
 
-#endif // _yIO_HAS_FLOAT$2
+#endif // _yIO_HAS_FLOAT$1
 
 ~)m4_dnl;
 
