@@ -9,7 +9,7 @@ fi
 echo 'Installing packages'
 pacman-key --init
 pacman -Sy --noconfirm --needed archlinux-keyring
-pacman -Suy --noconfirm --needed make m4 cmake gcc git ca-certificates curl libunistring ninja sudo base-devel vim base-devel
+pacman -Suy --noconfirm --needed make m4 cmake gcc git ca-certificates curl libunistring ninja sudo base-devel vim base-devel tar
 echo 'Cleanup'
 printf 'y\ny\n' | pacman -Scc ||:
 
