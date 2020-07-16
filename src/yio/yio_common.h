@@ -65,33 +65,47 @@ typedef int Yint;
  * @brief Macros used for compiler compatibility
  * @{
  */
-#if defined(__GNUC__)
+#ifdef __GNUC__
 #define _yIO_nn(...)      __attribute__((__nonnull__(__VA_ARGS__)))
 #define _yIO_wur          __attribute__((__warn_unused_result__))
 #define _yIO_malloc       __attribute__((__malloc__))
 #define _yIO_const        __attribute__((__const__))
 #define _yIO_rnn          __attribute__((__returns_nonnull__))
 #define _yIO_format(...)  __attribute__((__format__(__VA_ARGS__)))
-#else
+#if __GNUC__ >= 10
+#define _yIO_access(...)  __attribute__((__access__(__VA_ARGS__)))
+#endif
+#endif // __GNUC__
+
+#ifndef _yIO_nn
 /// Mark that function returns nonnull.
 #define _yIO_nn(...)
+#endif
+#ifndef _yIO_wur
 /// Warn on function unused return value.
 #define _yIO_wur
+#endif
+#ifndef _yIO_malloc
 /// Function allocates new memory and returns it.
 #define _yIO_malloc
+#endif
+#ifndef _yIO_const
 /// Function is a const-like function.
 #define _yIO_const
+#endif
+#ifndef _yIO_rnn
 /// Function never returns null.
 #define _yIO_rnn
+#endif
+#ifndef _yIO_format
 /// Function formats like printf
 #define _yIO_format(...)
 #endif
-#if __GNUC__ > 10
-#define _yIO_access(...)  __attribute__((__acces__(__VA_ARGS__)))
-#else
+#ifndef _yIO_access
 /// Attribute access
 #define _yIO_access(...)
 #endif
+
 /**
  * @}
  */
