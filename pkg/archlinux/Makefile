@@ -28,7 +28,7 @@ $(P)/yio.db.tar.xz: yio $(wildcard $(B)/*/*.pkg.tar.xz)
 	mkdir -p $(P)
 	find $(B)/build-* -maxdepth 1 -mindepth 1 -type f -name '*.pkg.tar.*' -exec cp -v {} $(P) \;
 	cd $(P) && find . -maxdepth 1 -mindepth 1 -type f -name '*.pkg.tar.*' '!' -name '*.pkg.tar.*.sig' -exec repo-add $(SIGN) yio.db.tar.xz {} \;
-	find $(P) -type f
+	find $(P) -type f | sort
 
 clean:
 	rm -rf $(B)
