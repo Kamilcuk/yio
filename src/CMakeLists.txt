@@ -106,6 +106,11 @@ m4_add_file_dependencies(
 	${GENDIR}/m4/yio_config.m4
 )
 
+yio_debug_variables(
+	_M4_OPTIONS_INIT
+	_M4_OPTIONS_DEPENDS_INIT
+)
+
 file(GLOB_RECURSE m4srcs *.c *.h)
 foreach(source IN LISTS m4srcs)
 	file(RELATIVE_PATH sourcenice ${SRCDIR} ${source})
