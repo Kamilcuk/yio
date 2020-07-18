@@ -5,7 +5,7 @@ string(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(yio_debug_variables)
 
 include(src/version.cmake)
-project(yio 
+project(yio
 	VERSION "${YIO_PROJECT_VERSION}"
 	LANGUAGES C
 	DESCRIPTION "Yio Input Output C Library that aims in type-safe printf replacement"
@@ -17,13 +17,6 @@ include(force_build_dir_without_cmakelists)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
-
-if(1)
-	find_program(CCACHE_COMMAND "ccache")
-	if(CCACHE_COMMAND)
-	    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
-	endif()
-endif()
 
 if(0)
 	find_program(CPPCHECK_COMMAND "cppcheck")
@@ -39,7 +32,22 @@ get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/src ABSOLUTE)
 # Generated directory
 get_filename_component(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen ABSOLUTE)
 
+# If this is starting cmake project
+if("${CMAKE_PROJECT_NAME}" STREQUAL "yio")
+	# Use ccache if available
+	find_program(CCACHE_COMMAND "ccache")
+	if(CCACHE_COMMAND)
+	    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
+	endif()
+
+	# Create symlink from gen to GENDIR for development purpouses
+	execute_process(
+		COMMAND ${CMAKE_COMMAND} -E create_symlink ${GENDIR} ${CMAKE_CURRENT_SOURCE_DIR}/gen
+	)
+endif()
+
 find_library(UNISTRING_LIB unistring)
+
 yio_debug_variables(
 	BUILD_TESTING
 	YIO_BUILD_TESTING
@@ -91,7 +99,7 @@ endforeach()
 
 add_subdirectory(src)
 
-if((YIO_BUILD_TESTING OR "yio" STREQUAL PROJECT_NAME) 
+if((YIO_BUILD_TESTING OR "yio" STREQUAL PROJECT_NAME)
 		AND BUILD_TESTING)
 	include(CTest)
     add_subdirectory(test)
