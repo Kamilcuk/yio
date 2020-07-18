@@ -49,7 +49,7 @@ yπio_printctx_t _yΩIO_printctx_init(
 		_yΩIO_printcb_t *out, void *outarg,
 		const yπio_printdata_t *data,
 		va_list *va) {
-	const yπio_printctx_t ret = {
+	const yπio_printctx_t _yIO_printctx = {
 		.data = data,
 		.c.va = va,
 m4_ifdef(`m4_DEBUG~, `m4_dnl;
@@ -60,7 +60,7 @@ m4_ifdef(`m4_DEBUG~, `m4_dnl;
 		.outarg = outarg,
 		.fmt = va_arg(*va, const char *),
 	};
-	return ret;
+	return _yIO_printctx;
 }
 
 /* scanctx ----------------------------------------------------------- */
@@ -98,7 +98,7 @@ yio_scanctx_t _yIO_scanctx_init(
 		_yIO_scancb_t *in, void *inarg,
 		const yio_scandata_t *data,
 		va_list *va) {
-	return (yio_scanctx_t){
+	const yπio_scanctx_t _yIO_scanctx = {
 		.data = data,
 		.c.va = va,
 m4_ifdef(`m4_DEBUG~, `m4_dnl;
@@ -108,8 +108,9 @@ m4_ifdef(`m4_DEBUG~, `m4_dnl;
 		.in = in,
 		.argpntsizespnt = data->argpntsizes,
 		.inarg = inarg,
-		.fmt = data->fmt,
+		.fmt = va_arg(*va, const char *),
 	};
+	return _yIO_scanctx;
 }
 
 ~)m4_dnl;

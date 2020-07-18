@@ -9,11 +9,11 @@
 m4_config_yio_template(`m4_dnl);
 #pragma once
 
-#if defined __GNUC__ && ! defined YIO_USE_NONGNU_MACROS //&&0
-#include "yio_macros_gnu.h"
-#else
-#include "yio_macros_nongnu.h"
-#endif
+/**
+ * @defgroup yio_macros
+ * Macros used for defining printing function dispatch
+ * @{
+ */
 
 `
 /**
@@ -65,41 +65,34 @@ m4_define_function(`m4_yio_macros_derefsizes~,
 m4_define_function(`m4_yio_macros_args~,
 `_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)($1, _yIO_ESC _yIO_FIRST $1)~)m4_dnl;
 
-/* print ----------------------------------------------------------------------------------------------------------------- */
+/**
+ * @}
+ */
 
+/**
+ * On __GNUC__ use @c __extentions({...})
+ * Optimized to files for better include times, cause the files are insanely big.
+ */
+#if defined __GNUC__ && ! defined YIO_USE_NONGNU_MACROS //&&0
+#include "yio_macros_gnu.h"
+#else
+#include "yio_macros_nongnu.h"
+#endif
+
+/* _yIO_print_arguments_N ----------------------------------------------------------------------------------------------------------------- */
+
+/**
+ * Initial overload of argument over number of arguments.
+ */
 #define _yIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
 		_yIO_print_arguments_##N
 
 
-/* _yIO_scan_arguments ----------------------------------------------------------------------------------------------------- */
+/* _yIO_scan_arguments_N ----------------------------------------------------------------------------------------------------- */
 
-#define _yIO_scan_arguments_1(func_gen,fmt)  \
-		&(const yio_scandata_t){(fmt),NULL,NULL,NULL}
-
-m4_applyforloopdefine(2, m4_MLVLS, `
-#define _yIO_scan_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
-	&(const yπio_scandata_t){ \
-		(fmt), \
-		(const _yIO_scanfunc_t[]){ \
-			m4_forloopdashX(2, $1, `m4_yio_macros_funcs(X, func_gen)~, ` \
-			~) \
-			NULL \
-		}, \
-		(const size_t[]){ \
-			m4_forloopdashX(2, $1, `m4_yio_macros_derefsizes(X)~, ` \
-			~) \
-			0 \
-		}, \
-		(const size_t[]){ \
-			m4_forloopdashX(2, $1, `m4_yio_macros_argsizes(X)~, ` \
-			~) \
-			0 \
-		}, \
-	} \
-	m4_forloopdashX(2, $1, `m4_yio_macros_args(X)~, ` \
-	~)
-~) m4_dnl _yIO_scan_arguments_$1 ;
-
+/**
+ * Initial overload of argument over number of arguments.
+ */
 #define _yIO_scan_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
 		_yIO_scan_arguments_##N
 

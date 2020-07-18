@@ -232,10 +232,6 @@ typedef int _yΩIO_scancb_t(void *arg, Yint *data);
  */
 typedef const struct _yΩIO_scandata_s {
 	/**
-	 * Format string or NULL.
-	 */
-	const Ychar * const fmt;
-	/**
 	 * Array of scanning function pointers pointers.
 	 */
 	const _yΩIO_scanfunc_t * const funcs;
@@ -243,10 +239,12 @@ typedef const struct _yΩIO_scandata_s {
 	 * Array of destination memory sizes.
 	 */
 	const size_t * const argpntsizes;
+m4_ifdef(`m4_DEBUG~, `m4_dnl;
 	/**
 	 * Array of argument sizes for va_arg argument checking.
 	 */
 	const size_t * const argsizes;
+~)m4_dnl;
 } yπio_scandata_t;
 
 /**
@@ -300,7 +298,7 @@ size_t yπio_scanctx_arg_size_next(yπio_scanctx_t *t);
  * @param data
  * @return
  */
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn(1, 2)
 int _yΩIO_scanctx_scan(yπio_scanctx_t *t, yπio_scandata_t *data, ...);
 
 /**

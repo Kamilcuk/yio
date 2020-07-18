@@ -121,10 +121,10 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 				_yIO_SCAN_FUNC_GENERIC_INTS() \
 				_yIO_SCAN_FUNC_GENERIC_FLOATS() \
 				const char *: _yIO_scan_string_literal, \
-				char *: (_yIO_IS_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
+				char *: (_yIO_IS_CHARACTER_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
 				char **: _yIO_scan_charpntpnt, \
-				char (*)[sizeof(*arg)]: (_yIO_IS_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
-				char (* const)[sizeof(*arg)]: (_yIO_IS_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
+				char (*)[sizeof(*arg)]: (_yIO_IS_CHARACTER_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
+				char (* const)[sizeof(*arg)]: (_yIO_IS_CHARACTER_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
 				const char (*)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 				const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 		default: _yIO_scan_unhandled_type \
