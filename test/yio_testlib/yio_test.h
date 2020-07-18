@@ -2,6 +2,13 @@
 #pragma once
 #include <yio.h>
 
+#ifndef _yIO_VERBOSE
+#define _yIO_VERBOSE 1
+#endif
+
+_yIO_nn()
+void _yIO__testing(bool verbose, const char *expr, const char *file, int line);
+
 _yIO_format(__printf__, 4, 5)  _yIO_nn()
 void _yIO__test_failed(const char *expr, const char *file, int line, const char *fmt, ...);
 
@@ -22,4 +29,8 @@ void _yIO__test_failed(const char *expr, const char *file, int line, const char 
  * @see _yIO_TEST
  */
 #define _yIO_TEST_MSG(expr, str, ...)  \
-		if (!(expr)) _yIO__test_failed(#expr, __FILE__, __LINE__, str, ##__VA_ARGS__)
+	do { \
+		if ((_yIO__testing(_yIO_VERBOSE, #expr, __FILE__, __LINE__), !(expr))) { \
+			_yIO__test_failed(#expr, __FILE__, __LINE__, str, ##__VA_ARGS__); \
+		} \
+	} while(0)

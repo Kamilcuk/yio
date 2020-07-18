@@ -30,12 +30,19 @@ void _yIO__test_failed_atexit(void) {
 	_Exit(EXIT_FAILURE);
 }
 
+void _yIO__testing(bool verbose, const char *expr, const char *file, int line) {
+	if (!verbose) return;
+	const char *relative_file = _yIO__test_get_relative_filepath(file);
+	printf("%s:%d: Testing %s\n", relative_file, line, expr);
+	return;
+}
+
 void _yIO__test_failed(const char *expr, const char *file, int line, const char *fmt, ...) {
 
 	fflush(stdout);
 
-	const char *realtive_file = _yIO__test_get_relative_filepath(file);
-	fprintf(stderr, "%s:%d: ERROR: %s", realtive_file, line, expr);
+	const char *relative_file = _yIO__test_get_relative_filepath(file);
+	fprintf(stderr, "%s:%d: ERROR: %s", relative_file, line, expr);
 	if (strlen(fmt) != 0 && !(strlen(fmt) == 1 && fmt[0] == ' ')) {
 		fprintf(stderr, ": ");
 		va_list va;
