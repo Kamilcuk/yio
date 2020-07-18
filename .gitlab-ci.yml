@@ -20,9 +20,13 @@ test:
   script: 
   - *ubuntu_install_deps
   - make gitlab_gcc_cdash
+  - make gitlab_metrics
   - make gitlab_clang_cdash
   - make test_project
   - make test_project_add_subdirectory
+  artifacts:
+    reports:
+      metrics: metrics.txt
 
 test_arm:
   stage: build

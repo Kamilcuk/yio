@@ -178,6 +178,9 @@ gitlab_pages: doxygen
 pages_repos:
 	make -C pkg PREFIX=$(PWD)/public
 
+gitlab_metrics:
+	./scripts/metrics.sh _build/Release | tee metrics.txt
+
 # cdash ##########################
 
 CDASHFLAGS ?=
