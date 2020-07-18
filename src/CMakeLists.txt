@@ -86,8 +86,10 @@ m4_add_options(
 	-D m4_SRCDIR=${SRCDIR}
 	-D m4_GENDIR=${GENDIR}
 )
-if(build_type_upper STREQUAL "DEBUG")
-	m4_add_options(-D m4_NDEBUG=1)
+if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
+	m4_add_options(-D m4_DEBUG=1)
+else()
+	m4_add_options(-D m4_NDEBUG=1 -D m4_RELEASE=1)
 endif()
 m4_add_options(
 	# Always load library.

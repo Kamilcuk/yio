@@ -49,15 +49,18 @@ yπio_printctx_t _yΩIO_printctx_init(
 		_yΩIO_printcb_t *out, void *outarg,
 		const yπio_printdata_t *data,
 		va_list *va) {
-	return (yπio_printctx_t){
+	const yπio_printctx_t ret = {
 		.data = data,
 		.c.va = va,
+m4_ifdef(`m4_DEBUG~, `m4_dnl;
 		.c.argsizespnt = data->argsizes,
+~)m4_dnl;
 		.ifunc = data->funcs,
 		.out = out,
 		.outarg = outarg,
-		.fmt = data->fmt,
+		.fmt = va_arg(*va, const char *),
 	};
+	return ret;
 }
 
 /* scanctx ----------------------------------------------------------- */
@@ -98,7 +101,9 @@ yio_scanctx_t _yIO_scanctx_init(
 	return (yio_scanctx_t){
 		.data = data,
 		.c.va = va,
+m4_ifdef(`m4_DEBUG~, `m4_dnl;
 		.c.argsizespnt = data->argsizes,
+~)m4_dnl;
 		.ifunc = data->funcs,
 		.in = in,
 		.argpntsizespnt = data->argpntsizes,

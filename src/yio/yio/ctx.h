@@ -49,17 +49,15 @@ typedef int (*_yΩIO_printfunc_t)(yπio_printctx_t *t);
  */
 typedef struct _yΩIO_printdata_s {
 	/**
-	 * Format string or NULL.
-	 */
-	const Ychar * const fmt;
-	/**
 	 * Array of printing function pointers pointers.
 	 */
 	const _yΩIO_printfunc_t * const funcs;
+m4_ifdef(`m4_DEBUG~, `m4_dnl;
 	/**
 	 * Array of argument sizes for va_arg argument checking.
 	 */
 	const size_t * const argsizes;
+~)m4_dnl;
 } const yπio_printdata_t;
 
 _yIO_wur _yIO_nn()
@@ -98,7 +96,7 @@ struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t);
  * @param data
  * @return
  */
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn(1, 2)
 int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...);
 
 _yIO_wur _yIO_nn()

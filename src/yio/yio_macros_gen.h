@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+m4_config() m4_dnl;
 #pragma once
 
 /* --------------------------------------------------------------------------------------------- */
@@ -41,7 +42,7 @@
  * @param callback The callback to call.
  * @param ... Additional arguments to call.
  */
-#define yiocb(callback, ...)  ((callback, ##__VA_ARGS__),_yIO_61COMMAS)
+#define yiocb(callback, ...)  ((callback __VA_OPT__(,) __VA_ARGS__),_yIO_61COMMAS)
 
 /* -------------------------------------------------------------------------------------------- */
 
@@ -166,105 +167,3 @@ m4_applyforloopdefine(2, m4_MLVLS, `m4_dnl;
 		m4_applyforloopdefine(2, 120, `!(s)[$1]?$1:m4_ifelse(m4_eval($1%5),`1~,`\
 		~)~) \
 		-1)
-
-/* _yIO_print_arguments ----------------------------------------------------------------------------------------------------- */
-
-#define _yIO_print_arguments_1(func_gen, fmt)  \
-		&(const yio_printdata_t){(fmt), NULL, NULL}
-
-m4_applyforloopdefine(2, m4_MLVLS, `
-#define _yIO_print_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
-	&(const yio_printdata_t){ \
-		(fmt), \
-		(const _yIO_printfunc_t[]){ \
-m4_forloopdashX(2, $1,
-`			_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_SECONDX, func_gen)(X, _yIO_FIRST _yIO_FIRST X), \
-~) \
-			NULL \
-		}, \
-		(const size_t[]){ \
-m4_forloopdashX(2, $1,
-`		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_I1FSDPC_XF2, _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX)(X, _yIO_ESC _yIO_FIRST X) \
-~) \
-			0 \
-		}, \
-	} \
-m4_forloopdashX(2, $1,
-`	_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)(X, _yIO_ESC _yIO_FIRST X) \
-~)
-~) m4_dnl ;
-
-#define _yIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
-		_yIO_print_arguments_##N
-
-
-/* _yIO_scan_arguments ----------------------------------------------------------------------------------------------------- */
-
-#define _yIO_scan_arguments_1(func_gen,fmt)  \
-		&(const yio_scandata_t){(fmt),NULL,NULL,NULL}
-
-m4_applyforloopdefine(2, m4_MLVLS, `
-#define _yIO_scan_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
-	&(const yio_scandata_t){ \
-		(fmt), \
-		(const _yIO_scanfunc_t[]){ \
-m4_forloopdashX(2, $1,
-`			_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_SECONDX, func_gen)(X, _yIO_FIRST _yIO_FIRST X), \
-~) \
-			NULL \
-		}, \
-m4_dnl  .argpntsizes = \
-		(const size_t[]){ \
-m4_forloopdashX(2, $1,
-`		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_EMPTY, _yIO_FIRSTSIZEOFDEREFPOSTCOMMA)(X, _yIO_ESC _yIO_FIRST X) \
-~) \
-			0 \
-		}, \
-m4_dnl  .argsizes = \
-		(const size_t[]){ \
-m4_forloopdashX(2, $1,
-`		_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_I1FSDPC_XF2, _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX)(X, _yIO_ESC _yIO_FIRST X) \
-~) \
-			0 \
-		}, \
-	} \
-m4_forloopdashX(2, $1,
-`	_yIO_IFBA62A_IN(_yIO_ESC X)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)(X, _yIO_ESC _yIO_FIRST X) \
-~)
-~) m4_dnl ;
-
-#define _yIO_scan_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
-		_yIO_scan_arguments_##N
-
-/* -------------------------------------------------------------------------------------------- */
-
-//#if defined(__CDT_PARSER__) && !CDT_PARSER_IN
-//#define CDT_PARSER_IN 1
-//#include "../../gen/yio/yio_macros_gen.h"
-//
-//#ifdef __CDT_PARSER__
-//_yIO_IFBA62A(c, _yIO_ISPRINTFUNCBRACES, func_gen);
-//_yIO_IFBA62A(yiocb(c, d), _yIO_ISPRINTFUNCBRACES, func_gen);
-//_yIO_print_arguments_2(FG, b, arg);
-//_yIO_print_arguments_2(FG, b, yiocb(f));
-//_yIO_print_arguments_2(FG, b, yiocb(f, arg));
-//_yIO_print_arguments_2(FG, b, yiocb(f, arg1, arg2));
-//
-//
-//_yIO_scan_arguments_2(FG, b, arg);
-//_yIO_scan_arguments_2(FG, b, yiocb(f));
-//_yIO_scan_arguments_2(FG, b, yiocb(f, arg));
-//_yIO_scan_arguments_2(FG, b, yiocb(f, arg1, arg2));
-//
-//_yIO_scan_arguments_3(FG, b, arg1, arg3);
-//_yIO_scan_arguments_3(FG, b, yiocb(f), arg3);
-//_yIO_scan_arguments_3(FG, b, yiocb(f, arg1), arg3);
-//_yIO_scan_arguments_3(FG, b, yiocb(f, arg1, arg2), arg3);
-//
-//_yIO_scan_arguments_3(FG, b, arg, yiocb(f));
-//_yIO_scan_arguments_3(FG, b, yiocb(f1), yiocb(f2, arg1));
-//_yIO_scan_arguments_3(FG, b, yiocb(f1, arg), yiocb(f2, arg1, arg2));
-//_yIO_scan_arguments_3(FG, b, yiocb(f1, arg1, arg2), arg3);
-//#endif
-//
-//#endif // __CDT_PARSER__
