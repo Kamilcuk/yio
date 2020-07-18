@@ -41,7 +41,7 @@ NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
 # check if we have ionice from util-linux
 NICE += $(shell hash ionice >/dev/null 2>&1 && ionice --version 2>&1 | grep -q util-linux && echo ionice)
 
-CTEST := $(NICE) ctest
+CTEST := ulimit -c 0; $(NICE) ctest
 CTESTFLAGS += --output-on-failure
 CTESTFLAGS += -j $(shell nproc) # --verbose --rerun-failed
 
@@ -52,7 +52,7 @@ CDASHFLAGS ?=
 BUILD_TESTING ?= ON
 
 CMAKE := $(NICE) cmake
-CMAKEFLAGS += -S .
+CMAKEFLAGS += -S.
 CMAKEFLAGS += $(shell hash ninja >/dev/null 2>&1 && echo -GNinja)
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -62,10 +62,12 @@ ifneq ($(CMAKE_C_FLAGS),)
 CMAKEFLAGS += -DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
 endif
 CMAKEFLAGS += -DBUILD_TESTING=$(BUILD_TESTING)
+CMAKEADDFLAGS ?=
+CMAKEFLAGS += $(CMAKEADDFLAGS)
 
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
-STDBUF = $(shell hash stdbuf 2>/dev/null >/dev/null && echo stdbuf -oL -eL)
+STDBUF = $(shell hash stdbuf >/dev/null 2>&1 && echo stdbuf -oL -eL)
 
 # Targets ###################################################################
 
@@ -75,8 +77,7 @@ all: usage
 
 USAGE +=~ configure - Configure the project
 configure:
-	$(CMAKE) -B $(B) $(CMAKEFLAGS)
-	@ln -nvfs $(B)/gen gen ||:
+	$(CMAKE) -B$(B) $(CMAKEFLAGS)
 
 USAGE +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
@@ -117,6 +118,11 @@ USAGE +=~ release - Build the project in release mode
 release: export CMAKE_BUILD_TYPE=Release
 release:
 	@+$(MAKE) build
+
+USAGE +=~ release_test - Build and test the project in release mode
+release_test: export CMAKE_BUILD_TYPE=Release
+release_test:
+	@+$(MAKE) test
 
 USAGE +=~ cmake-gui - Runs cmake-gui
 cmake-gui:
