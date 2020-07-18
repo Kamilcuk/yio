@@ -37,5 +37,20 @@ int main() {
 	_yIO_TEST(!_yIO_IS_STRING_LITERAL("a"[0]));
 	_yIO_TEST(!_yIO_IS_STRING_LITERAL(*""));
 	_yIO_TEST(_yIO_SCAN_FUNC_GENERIC("\n") == _yIO_scan_string_literal);
+
+	_yIO_TEST(_yIO_IS_CHARACTER_STRING_LITERAL("a"));
+	_yIO_TEST(_yIO_IS_CHARACTER_STRING_LITERAL("abc"));
+	_yIO_TEST(_yIO_IS_CHARACTER_STRING_LITERAL("abc" "def"));
+	_yIO_TEST(!_yIO_IS_CHARACTER_STRING_LITERAL(L"abc" "def"));
+	_yIO_TEST(!_yIO_IS_CHARACTER_STRING_LITERAL(L"abc" "def"));
+	_yIO_TEST(!_yIO_IS_CHARACTER_STRING_LITERAL(nfsdjnfd nasj));
+
+	_yIO_TEST(!_yIO_IS_WIDE_STRING_LITERAL("a"));
+	_yIO_TEST(!_yIO_IS_WIDE_STRING_LITERAL("abc"));
+	_yIO_TEST(_yIO_IS_WIDE_STRING_LITERAL(L"abc" "def"));
+	_yIO_TEST(!_yIO_IS_WIDE_STRING_LITERAL(u8"abc" "def"));
+	_yIO_TEST(!_yIO_IS_WIDE_STRING_LITERAL(U"abc" "def"));
+	_yIO_TEST(!_yIO_IS_WIDE_STRING_LITERAL(fdsnjfsdan));
+
 	return 0;
 }
