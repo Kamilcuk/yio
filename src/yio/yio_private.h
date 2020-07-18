@@ -9,7 +9,6 @@
 #include "yio_public.h"
 #include "intprops.h"
 #include "yio_common.h"
-#include "yio_macros_priv.h"
 #include <string.h>
 
 #define _yIO_STATIC_ASSERT(x)  ((void)sizeof(struct _yIO_sTaTiS_aSsErT{int _yIO_sTaTiS_aSsErT : (x)?1:-1;}))

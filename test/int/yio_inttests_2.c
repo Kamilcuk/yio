@@ -41,7 +41,14 @@ int _yio_inttest2_ ## SUFFIX(int *err, const char *fmt, \
 	return 0; \
 }
 
-_yIO_APPLYFOREACHUNPACK(_yio_inttest2, _yIO_INTEGERS_LIST2())
+_yio_inttest2(int, int)
+_yio_inttest2(uint, unsigned)
+_yio_inttest2(short, short)
+_yio_inttest2(ushort, unsigned short)
+_yio_inttest2(long, long)
+_yio_inttest2(ulong, unsigned long)
+_yio_inttest2(llong, long long)
+_yio_inttest2(ullong, unsigned long long)
 
 int main() {
 	int err = 0;
