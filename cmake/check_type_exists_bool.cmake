@@ -4,6 +4,10 @@ include(var_to_0_or_1)
 # check_type_exists_bool
 # small wrapper around check_type_size to get "1" or "0" as result
 function(check_type_exists_bool)
+	if(DEFINED HAVE_${ARGV1})
+		return()
+	endif()
+
 	if(NOT CMAKE_REQUIRED_QUIET)
 		message(CHECK_START "Check size of ${ARGV0}")
 	endif()
