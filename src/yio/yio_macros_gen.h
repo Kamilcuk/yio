@@ -42,7 +42,7 @@ m4_config() m4_dnl;
  * @param callback The callback to call.
  * @param ... Additional arguments to call.
  */
-#define yiocb(callback, ...)  ((callback __VA_OPT__(,) __VA_ARGS__),_yIO_61COMMAS)
+#define yiocb(callback, ...)  ((callback, ##__VA_ARGS__),_yIO_61COMMAS)
 
 /* -------------------------------------------------------------------------------------------- */
 
