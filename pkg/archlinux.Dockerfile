@@ -5,7 +5,10 @@ RUN /docker-setup.sh && rm docker-setup.sh
 SHELL ["/bin/bash", "-c"]
 ARG KAMIL_CUKROWSKI_SECRET_GPG_KEY
 RUN set -x &&\
+		# Allow running makepkg as root user
 		sed -i "s/if (( EUID == 0 )); then/if false; then/" /usr/bin/makepkg &&\
+		# Disable extended attributes in bsdtar in repo-add
+		sed -i "s/bsdtar -xf /bsdtar --no-xattr -xf /" /usr/bin/repo-add &&\
 		{ base64 -d | gpg --import ;} <<<"$KAMIL_CUKROWSKI_SECRET_GPG_KEY"
 ARG KAMIL_CUKROWSKI_SECRET_GPG_KEY=
 
