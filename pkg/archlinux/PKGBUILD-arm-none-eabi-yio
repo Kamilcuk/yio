@@ -38,7 +38,7 @@ build() {
 		cmake \
 			-B "build/$dir" \
 			-S "yio" \
-			-D CMAKE_BUILD_TYPE="none" \
+			-D CMAKE_BUILD_TYPE="None" \
 			-D CMAKE_SYSTEM_NAME="Generic" \
 			-D CMAKE_SYSTEM_PROCESSOR="ARM" \
 			-D CMAKE_C_COMPILER="arm-none-eabi-gcc" \
@@ -50,8 +50,7 @@ build() {
 			-D CMAKE_C_FLAGS_INIT="" \
 			-D CMAKE_C_FLAGS_RELEASE="" \
 			-D CMAKE_C_FLAGS="$opts -g -Os -ffunction-sections -fdata-sections" \
-			-D CMAKE_INSTALL_LIBDIR="$dir" \
-			-Wno-dev
+			-D CMAKE_INSTALL_LIBDIR="$dir"
 		cmake --build "build/$dir" --target yio
 		cmake --build "build/$dir" --target yio_decimallib
 		)

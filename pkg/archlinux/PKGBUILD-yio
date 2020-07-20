@@ -33,9 +33,7 @@ build() {
 	cmake \
 		-B "build" \
 		-S "yio" \
-		-DCMAKE_BUILD_TYPE="Release" \
-		-DCMAKE_EXE_LINKER_FLAGS="${LDFLAGS}" \
-		-Wno-dev
+		-D CMAKE_BUILD_TYPE="None"
 	cmake --build build
 }
 

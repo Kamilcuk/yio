@@ -24,8 +24,7 @@ build() {
 	cmake \
 		-B "build" \
 		-S "yio" \
-		-DCMAKE_BUILD_TYPE="Release" \
-		-Wno-dev
+		-D CMAKE_BUILD_TYPE="Release"
 	cmake --build build
 }
 
