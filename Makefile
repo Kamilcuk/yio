@@ -40,6 +40,8 @@ B ?= _build/$(SYSTEM)$(CMAKE_BUILD_TYPE)$(B_SUFFIX)
 NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
 # check if we have ionice from util-linux
 NICE += $(shell hash ionice >/dev/null 2>&1 && ionice --version 2>&1 | grep -q util-linux && echo ionice)
+# Protect against non-existent sudo command
+SUDO += $(shell hash sudo >/dev/null 2>&1 && echo sudo)
 
 CTEST := ulimit -c 0; $(NICE) ctest
 CTESTFLAGS += --output-on-failure
@@ -97,6 +99,14 @@ USAGE +=~ test - Run tests using ctest
 test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
 
+test_before_commit:
+	$(MAKE) test
+	$(MAKE) test_project_add_subdirectory
+	$(MAKE) test_project_install_add_subdirectory
+	$(MAKE) cdash_gcc
+	$(MAKE) cdash_arm
+	$(MAKE) pages_repos
+
 USAGE +=~ test_R_% - Run tests matching regular expression
 test_R_%: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS) -R "$*"
@@ -146,6 +156,12 @@ test_arm: ; @$(MAKE) SYSTEM=arm test
 
 USAGE +=~ test_arm_R_% - Run tests matching regex on arm-none-eabi
 test_arm_R_%: ; @$(MAKE) SYSTEM=arm test_R_$*
+
+ifeq ($(SYSTEM),arm2)
+CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/arm-none-eabi-gcc.cmake
+CMAKEFLAGS += -DCMAKE_C_FLAGS=" -mthumb -march=armv7e-m -mfloat-abi=soft -g -Os -ffunction-sections -fdata-sections -flto "
+endif
+test_arm2: ; $(MAKE) SYSTEM=arm2 test
 
 define _sdcc_pic16
 $1: B = _build/sdcc
@@ -212,7 +228,7 @@ testcdash_$(1): .cdashnocopy_$(1)
 endef # cdash_decl_them
 $(foreach i,gcc clang arm,$(eval $(call cdash_decl_them,$(i))))
 
-USAGE +=~ cdashnocopy_all - Runs cdashnocopy_all
+USAGE +=~ testcdash_all - Runs cdashnocopy_all
 testcdash_all: cdashnocopy_all ;
 
 USAGE +=~ cdashnocopy_all - Runs all possible cdashnocopy_*
@@ -316,6 +332,32 @@ distclean: clean
 USAGE +=~ install - install project
 install: export CMAKE_BUILD_TYPE=Release
 install: .build_install
+
+USAGE +=~ install_pkg - Automatically detect package manager and install package
+ifneq (,$(wildcard /etc/arch-release))
+install_pkg: install_archlinux
+else ifneq (,$(wildcard /etc/debian_version))
+install_pkg: install_deb
+else
+install_pkg:
+	$(error Unhandled operating system)
+endif
+
+USAGE +=~ install_archlinux - Install the package on archlinux
+install_archlinux:
+	$(MAKE) -C pkg/archlinux yio
+	$(SUDO) pacman -U pkg/archlinux/_build/build-yio/yio*.pkg.tar.*[^g]
+
+USAGE +=~ install_archlinux_arm_none-eabi - Install the arm-none-eabi-yio package on archlinux
+install_archlinux_arm_none_eabi:
+	$(MAKE) -C pkg/archlinux yio-arm-none-eabi
+	$(SUDO) pacman -S pkg/archlinux/_build/build-arm-none-eabi-yio/yio*.pkg.tar.*[^g]
+
+USAGE +=~ install_deb - Install a deb package
+install_deb: export CMAKE_BUILD_TYPE=Release
+install_deb: build_yio
+	cd _build/Release && cpack -G DEB
+	$(SUDO) dpkg -i _build/Release/*.deb
 
 USAGE +=~ uninstall - uninstall files
 uninstall: export CMAKE_BUILD_TYPE=Release
