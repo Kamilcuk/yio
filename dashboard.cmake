@@ -115,6 +115,8 @@ find_program(CTEST_UPDATE_COMMAND NAMES git)
 find_program(CTEST_COVERAGE_COMMAND NAMES gcov)
 find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 
+set(CTEST_CUSTOM_COVERAGE_EXCLUDE ".*/test/.*")
+
 #######################################################################################
 # Debug variables
 
