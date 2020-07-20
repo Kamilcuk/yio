@@ -77,7 +77,7 @@ deprgx="^m4debug: path search for \`.*' found \`\\(.*\\)'\$"
 if ! err=$( { "$m4" -dp "$@" > "$outputf" ;} 2>&1 ); then
 	# Remove the initial executable name from the error message
 	# for eclipse for fast navigation
-	printf "%s\n" "$err" | sed "/$deprgx/"'d; s/^m4://' >&2
+	printf "%s\n" "$err" | sed "/$deprgx/"'d; s/^[^[:blank:]]*m4://' >&2
 	exit 1
 fi
 
