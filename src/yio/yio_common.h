@@ -17,7 +17,7 @@ enum _yIO_TYPES {
 	YIO_TYPE_YUIO,
 };
 
-#if defined __CDT_PARSER__ || YIO_REALLY_CDT_PARSER
+#if YIO_REALLY_CDT_PARSER
 
 #define _Generic(...)  /**/
 
@@ -58,7 +58,7 @@ typedef int Yint;
  * @}
  */
 
-#endif // __CDT_PARSER__
+#endif // YIO_REALLY_CDT_PARSER
 
 /**
  * @defgroup compilermacros
@@ -72,6 +72,7 @@ typedef int Yint;
 #define _yIO_const        __attribute__((__const__))
 #define _yIO_rnn          __attribute__((__returns_nonnull__))
 #define _yIO_format(...)  __attribute__((__format__(__VA_ARGS__)))
+#define _yIO_deprecated(...)  __attribute__((__deprecated(__VA_ARGS__)))
 #if __GNUC__ >= 10
 #define _yIO_access(...)  __attribute__((__access__(__VA_ARGS__)))
 #endif
