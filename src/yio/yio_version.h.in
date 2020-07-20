@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#define YIO_VERSION         @YIO_VERSION@ul
+#define YIO_VERSION         @YIO_VERSION@UL
 #define YIO_VERSION_STRING  "@YIO_VERSION_STRING@"
 
 unsigned long yio_get_version(void);
