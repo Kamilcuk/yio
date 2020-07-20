@@ -44,6 +44,29 @@ if("${CMAKE_PROJECT_NAME}" STREQUAL "yio")
 	execute_process(
 		COMMAND ${CMAKE_COMMAND} -E create_symlink ${GENDIR} ${CMAKE_CURRENT_SOURCE_DIR}/gen
 	)
+
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tags
+		COMMAND sh -c '
+			git ls-files -z --exclude-standard --others --cached test/ src/ |
+			xargs -z -t ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
+			'
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		VERBATIM
+	)
+	add_custom_command(
+		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/tags
+		COMMAND ${CMAKE_COMMAND} -E create_symlink
+			${CMAKE_CURRENT_BINARY_DIR}/tags
+			${CMAKE_CURRENT_SOURCE_DIR}/tags
+	)
+	add_custom_target(yio_tags
+			DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tags
+	)
+else()
+	add_custom_target(yio_tags
+			COMMAND ${CMAKE_COMMAND} -E true
+	)
 endif()
 
 find_library(UNISTRING_LIB unistring)
