@@ -14,10 +14,16 @@ include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CMakePushCheckState)
 include(foreach_count_items)
-include(check_type_size_bool)
+include(check_type_exists_bool)
 include(check_symbol_exists_bool)
 
 cmake_push_check_state(RESET)
+
+# In case of compiling with lto (or just for safety with gcc)
+# add -fno-lto, otherwise size checking does not work perfectly
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_FLAGS MATCHES "-flto")
+	set(CMAKE_REQUIRED_FLAGS "-fno-lto")
+endif()
 
 set(CMAKE_REQUIRED_DEFINITIONS 
 	-D_GNU_SOURCE=1
@@ -56,11 +62,11 @@ endif()
 
 check_include_file("float.h"  _yIO_HAS_FLOAT_H)
 check_include_file("stdfix.h"  _yIO_HAS_STDFIX)
-check_type_size_bool(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
+check_type_exists_bool(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
 check_symbol_exists_bool(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)
 
-check_type_size_bool("struct timespec" _yIO_HAS_timespec LANGUAGE C)
-check_type_size_bool("struct timeval" _yIO_HAS_timeval LANGUAGE C)
+check_type_exists_bool("struct timespec" _yIO_HAS_timespec LANGUAGE C)
+check_type_exists_bool("struct timeval" _yIO_HAS_timeval LANGUAGE C)
 check_symbol_exists_bool(localtime_r "time.h" _yIO_HAS_localtime_r LANGUAGE C)
 
 #########################################################################
@@ -124,7 +130,7 @@ foreach(i IN LISTS floats)
 	if(NOT DEFINED _yIO_HAS_FLOAT${suffix} OR be_verbose)
 		log("Detecting: '${type}' '${msuffix}' '${suffix}' '${suffix2}'")
 		
-		check_type_size_bool(${type} _yIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
+		check_type_exists_bool(${type} _yIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
 		if(_yIO_HAS_FLOAT${suffix})
 			check_symbol_exists_bool(exp10${suffix} "math.h" _yIO_HAS_exp10${suffix})
 			check_symbol_exists_bool(strfrom${suffix2} "stdlib.h" _yIO_HAS_strfrom${suffix2})
@@ -148,7 +154,7 @@ foreach(type IN ITEMS _Fract _Accum)
 	if(NOT DEFINED _yIO_HAS_${type} OR be_verbose)
 		log("Detecting: ${type}")
 	endif()
-	check_type_size_bool(${type} _yIO_HAS_${type} BUILTIN_TYPES_ONLY)
+	check_type_exists_bool(${type} _yIO_HAS_${type} BUILTIN_TYPES_ONLY)
 	yio_config_gen_add(_yIO_HAS_${type})
 endforeach()
 
