@@ -6,16 +6,24 @@
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <sys/wait.h>
 #include <sys/prctl.h> // prctl(), PR_SET_PDEATHSIG
 
-static void _erron(int status, int exitstatus, const char *expr, const char *func, int linenum) {
-	if (!status) return;
-	error_at_line(exitstatus, errno, func, linenum, "Expression %s failed", expr);
-}
+/* -------------------------------------------------------------------------------- */
 
-#define erron(expr)         _erron((expr), EXIT_FAILURE, #expr, __func__, __LINE__)
-#define erron_noexit(expr)  _erron((expr), 0, #expr, __func__, __LINE__)
+#define _erron(status, exitstatus, func, linenum, fmt, ...)  do { \
+	if (status) { \
+		error_at_line(exitstatus, errno, func, linenum, fmt, ##__VA_ARGS__); \
+	} \
+} while (0)
+
+#define errmsg(...)               _erron(1, EXIT_FAILURE, __func__, __LINE__, __VA_ARGS__)
+#define erron(expr)               _erron((expr), EXIT_FAILURE, __func__, __LINE__, "Expression %s failed", #expr)
+#define erronmsg(expr, fmt, ...)  _erron((expr), EXIT_FAILURE, __func__, __LINE__, "Expression %s failed: " fmt, #expr, ##__VA_ARGS__)
+#define erron_noexit(expr)        _erron((expr), 0, __func__, __LINE__, "Expression %s failed", #expr)
+
+/* -------------------------------------------------------------------------------- */
 
 static void usage() {
 	printf(
@@ -23,7 +31,7 @@ static void usage() {
 		"\n"
 		"Redirect the first argument beeing a string of any character\n"
 		"as standard input to program.\n"
-		"\n"	
+		"\n"
 		"Written by Kamil Cukrowski 2020\n"
 		"\n"
 	);
@@ -33,7 +41,7 @@ static void usage() {
 static int childprocess(int fd[2], char *cmd[]) {
 	erron(close(fd[1]) == -1);
 	erron(dup2(fd[0], STDIN_FILENO) == -1);
-	erron(execvp(cmd[0], cmd));
+	erronmsg(execvp(cmd[0], cmd), "cmd[0]=%s", cmd[0]);
 	return EXIT_FAILURE;
 }
 
@@ -54,7 +62,7 @@ static int parentprocess(int fd[2], const char *str) {
 		if (writeret == -1 && errno == EPIPE) {
 			break;
 		}
-		erron(writeret == -1 &&!"write to child failed");
+		erronmsg(writeret == -1, "write to child failed");
 		str += writeret;
 		length -= writeret;
 	}
@@ -67,8 +75,15 @@ static int parentprocess(int fd[2], const char *str) {
 	int stat = 0;
 	erron(waitpid(child, &stat, 0) == -1);
 	child = -1;
-	erron(WIFEXITED(stat) == 0 ||!"child did not exit normally");
-	return WEXITSTATUS(stat);
+	if (WIFEXITED(stat)) {
+		return WEXITSTATUS(stat);
+	} else if (WIFSIGNALED(stat)) {
+		errmsg("child received a %d signal: %s", WTERMSIG(stat), strsignal(WTERMSIG(stat)));
+		return 128 + WTERMSIG(stat);
+	} else {
+		errmsg("child did not exit normally nor received a signal");
+	}
+	return -1;
 }
 
 int main(int argc, char *argv[]) {
