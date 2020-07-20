@@ -3,7 +3,7 @@
 #include <yio.h>
 
 #ifndef _yIO_VERBOSE
-#define _yIO_VERBOSE 1
+#define _yIO_VERBOSE 0
 #endif
 
 _yIO_nn()
