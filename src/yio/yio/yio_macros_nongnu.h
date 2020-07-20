@@ -16,59 +16,44 @@ m4_divert(0)m4_dnl;
 /* print ------------------------------------------------------------------------- */
 
 #define _yIO_print_arguments_1(func_gen, fmt)  \
-		&(const yio_printdata_t){0}, (const char *)(fmt)
+		(const _yIO_printfunc_t[]){0}, \
+		m4_yio_macros_fmt_and_args(1)
 
 m4_applyforloopdefine(2, m4_MLVLS, `m4_dnl;
 #define _yIO_print_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
-	&(const yio_printdata_t){ \
 		(const _yIO_printfunc_t[]){ \
 			m4_forloopdashX(2, $1, `m4_yio_macros_funcs(X, func_gen)~, ` \
 			~) \
-			NULL, \
+			NULL \
 		}, \
-m4_ifdef(`m4_DEBUG~, `m4_dnl; \
-		(const size_t[]){ \
-			m4_forloopdashX(2, $1, `m4_yio_macros_argsizes(X)~, ` \
-			~) \
-			0 \
-		}, \
-~)m4_dnl; \
-	}, \
-	(const char *)(fmt) \
-	m4_forloopdashX(2, $1, `m4_yio_macros_args(X)~, ` \
-	~)m4_dnl;
+		m4_yio_macros_fmt_and_args($1)
 
 ~)m4_dnl;
 
 /* scan ------------------------------------------------------------------------------- */
 
 #define _yIO_scan_arguments_1(func_gen,fmt)  \
-		&(const yio_scandata_t){0},(const char*)(fmt)
+		&(const yio_scandata_t){0}, \
+		m4_yio_macros_fmt_and_args(1)
 
-m4_applyforloopdefine(2, m4_MLVLS, `
+
+m4_applyforloopdefine(2, m4_MLVLS, `m4_dnl;
 #define _yIO_scan_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
-	&(const yπio_scandata_t){ \
-		(const _yIO_scanfunc_t[]){ \
-			m4_forloopdashX(2, $1, `m4_yio_macros_funcs(X, func_gen)~, ` \
-			~) \
-			NULL \
+		&(const yπio_scandata_t){ \
+			(const _yIO_scanfunc_t[]){ \
+				m4_forloopdashX(2, $1, `m4_yio_macros_funcs(X, func_gen)~, ` \
+				~) \
+				NULL \
+			}, \
+			(const size_t[]){ \
+				m4_forloopdashX(2, $1, `m4_yio_macros_derefsizes(X)~, ` \
+				~) \
+				0 \
+			} \
 		}, \
-		(const size_t[]){ \
-			m4_forloopdashX(2, $1, `m4_yio_macros_derefsizes(X)~, ` \
-			~) \
-			0 \
-		}, \
-m4_ifdef(`m4_DEBUG~, `m4_dnl; \
-		(const size_t[]){ \
-			m4_forloopdashX(2, $1, `m4_yio_macros_argsizes(X)~, ` \
-			~) \
-			0 \
-		}, \
-~)m4_dnl; \
-	}, \
-	(const char*)(fmt) \
-	m4_forloopdashX(2, $1, `m4_yio_macros_args(X)~, ` \
-	~)
+		m4_yio_macros_fmt_and_args($1)
+
 ~) m4_dnl _yIO_scan_arguments_$1 ;
 
 ~)m4_dnl;
+

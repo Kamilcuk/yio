@@ -8,6 +8,8 @@
  */
 m4_config_yio_template(`m4_dnl);
 #include "private.h"
+#include <stdlib.h>
+#include <assert.h>
 
 /* yvbprintf and yvbscanf helpers ------------------------------------------------------ */
 

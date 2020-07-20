@@ -28,7 +28,7 @@ int _yIO_ybprintf(_yIO_printcb_t *out, void *arg, yio_printdata_t *data, ...) {
 	return ret;
 }
 
-int _yIO_yprintf(const struct _yIO_printdata_s *data, ...) {
+int _yIO_yprintf(yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	const int ret = yvprintf(data, &va);
@@ -36,7 +36,7 @@ int _yIO_yprintf(const struct _yIO_printdata_s *data, ...) {
 	return ret;
 }
 
-int _yIO_yfprintf(FILE *file, const struct _yIO_printdata_s *data, ...) {
+int _yIO_yfprintf(FILE *file, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	const int ret = yvfprintf(file, data, &va);
@@ -293,3 +293,4 @@ struct yio_scanret_s yvsscanf(char *src, yio_scandata_t *data, va_list *va) {
 }
 
 ~)m4_dnl;
+

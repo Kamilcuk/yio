@@ -5,7 +5,7 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio() m4_dnl;
+m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #ifdef _yIO_HAS_UNISTD_H
 #include <unistd.h>
@@ -31,7 +31,7 @@ int yvdprintf(int fd, yio_printdata_t *data, va_list *va) {
 	return yvbprintf(_yIO_yvdprintf_cb, &fd, data, va);
 }
 
-int _yIO_ydprintf(int fd, const struct _yIO_printdata_s *data, ...) {
+int _yIO_ydprintf(int fd, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
 	const int ret = yvdprintf(fd, data, &va);
@@ -88,3 +88,4 @@ struct yio_scanret_s _yIO_ydscanf(int fd, yio_scandata_t *data, ...) {
 }
 
 #endif // _yIO_HAS_UNISTD
+~)m4_dnl;

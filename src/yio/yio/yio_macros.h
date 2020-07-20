@@ -61,9 +61,51 @@ m4_define_function(`m4_yio_macros_derefsizes~,
  * Otherwise @c _yIO_PRECOMMAFIRST a leading command is added so this doesn't need a comma.
  * @param _i Argument to apply the transofrmation on
  */
-#define m4_yio_macros_args(_i) ~
-m4_define_function(`m4_yio_macros_args~,
+#define m4_yio_macros_gen_args(_i) ~
+m4_define_function(`m4_yio_macros_gen_args~,
 `_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)($1, _yIO_ESC _yIO_FIRST $1)~)m4_dnl;
+
+
+`
+/**
+ * Add formatting and additional arguments to be passed from macros.
+ *
+ * The first argument is the formatting string passed to va_list.
+ * Then if the development build is enabled IN M4 SO BEFORE BUILDING,
+ *    the second argument is the list of argument sizes.
+ *    Each one corresponds to the size of real argument
+ *    that will be taken from va_list.
+ * Then the normal va_list of all the other argument follow.
+ * This macro is shared by both print and scan functions,
+ * because it's the same - just the *ctx differs.
+ *
+ * The size_t list uses a compund literal, there is no need to optimize
+ * it to __extension__({const size_t []..}) because it shouldn't make
+ * to release builds.
+ *
+ * @param _i The count of arguments passed to function.
+ */
+#define m4_yio_macros_rest_of_args(_i) ~
+m4_define_function(`m4_yio_macros_fmt_and_args~, `m4_dnl; \
+(const char *)(fmt)m4_dnl; \
+m4_ifdef(`m4_DEBUG~, `m4_dnl; \
+, \
+m4_ifelse(`$1~, `1~, `m4_dnl; \
+m4_dnl If only one argument, then just pass nothing for argsizes and pass fmt \
+		(const size_t[]){0} \
+~, `m4_dnl; \
+		(const size_t[]){ \
+			m4_forloopdashX(2, $1, `m4_yio_macros_argsizes(X)~, ` \
+			~) \
+			0 \
+		} \
+~)m4_dnl; \
+~)m4_dnl; \
+m4_ifelse(`$1~, `1~, `~, `m4_dnl; \
+		m4_forloopdashX(2, $1, `m4_yio_macros_gen_args(X)~, ` \
+		~)m4_dnl; \
+~)m4_dnl; \
+~)m4_dnl;
 
 /**
  * @}

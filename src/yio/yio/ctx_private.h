@@ -31,7 +31,7 @@ struct _yΩIO_printctx_s {
 	/// Iterator in callback functions.
 	const _yΩIO_printfunc_t *ifunc;
 	/// The pointer to the data.
-	const struct _yΩIO_printdata_s * const data;
+	const yπio_printdata_t * const data;
 	/// The outputting function.
 	_yΩIO_printcb_t * const out;
 	/// User argument for outputting functions.
@@ -49,17 +49,18 @@ yπio_printctx_t _yΩIO_printctx_init(
 		_yΩIO_printcb_t *out, void *outarg,
 		const yπio_printdata_t *data,
 		va_list *va) {
-	const yπio_printctx_t _yIO_printctx = {
+	yπio_printctx_t _yIO_printctx = {
 		.data = data,
 		.c.va = va,
-m4_ifdef(`m4_DEBUG~, `m4_dnl;
-		.c.argsizespnt = data->argsizes,
-~)m4_dnl;
-		.ifunc = data->funcs,
 		.out = out,
 		.outarg = outarg,
-		.fmt = va_arg(*va, const char *),
+		.ifunc = data,
 	};
+	_yIO_printctx.fmt = va_arg(*va, const char *);
+m4_ifdef(`m4_DEBUG~, `m4_dnl;
+	// Debug build also has size_t argument passed
+	_yIO_printctx.c.argsizespnt = va_arg(*va, const size_t*);
+~)m4_dnl;
 	return _yIO_printctx;
 }
 
@@ -68,7 +69,7 @@ m4_ifdef(`m4_DEBUG~, `m4_dnl;
 /**
  * The structure that allows for scanning context manipulation.
  */
-struct _yIO_scanctx_s {
+struct _yΩIO_scanctx_s {
 	/// Common.
 	struct _yIO_commonctx_s c;
 	/// Iterator in callback functions.
@@ -98,18 +99,19 @@ yio_scanctx_t _yIO_scanctx_init(
 		_yIO_scancb_t *in, void *inarg,
 		const yio_scandata_t *data,
 		va_list *va) {
-	const yπio_scanctx_t _yIO_scanctx = {
+	yπio_scanctx_t _yIO_scanctx = {
 		.data = data,
 		.c.va = va,
-m4_ifdef(`m4_DEBUG~, `m4_dnl;
-		.c.argsizespnt = data->argsizes,
-~)m4_dnl;
 		.ifunc = data->funcs,
 		.in = in,
 		.argpntsizespnt = data->argpntsizes,
 		.inarg = inarg,
-		.fmt = va_arg(*va, const char *),
 	};
+	_yIO_scanctx.fmt = va_arg(*va, const char *);
+m4_ifdef(`m4_DEBUG~, `m4_dnl;
+	// Debug build also has size_t argument passed
+	_yIO_scanctx.c.argsizespnt = va_arg(*va, const size_t *);
+~)m4_dnl;
 	return _yIO_scanctx;
 }
 

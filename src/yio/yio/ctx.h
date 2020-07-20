@@ -46,19 +46,9 @@ typedef int (*_yΩIO_printfunc_t)(yπio_printctx_t *t);
 
 /**
  * Get's passed to generic printing functions as first argument.
+ * Array of printing function pointers pointers.
  */
-typedef struct _yΩIO_printdata_s {
-	/**
-	 * Array of printing function pointers pointers.
-	 */
-	const _yΩIO_printfunc_t * const funcs;
-m4_ifdef(`m4_DEBUG~, `m4_dnl;
-	/**
-	 * Array of argument sizes for va_arg argument checking.
-	 */
-	const size_t * const argsizes;
-~)m4_dnl;
-} const yπio_printdata_t;
+typedef const _yΩIO_printfunc_t yπio_printdata_t;
 
 _yIO_wur _yIO_nn()
 int yπio_printctx_init(yπio_printctx_t *t);
@@ -239,12 +229,6 @@ typedef const struct _yΩIO_scandata_s {
 	 * Array of destination memory sizes.
 	 */
 	const size_t * const argpntsizes;
-m4_ifdef(`m4_DEBUG~, `m4_dnl;
-	/**
-	 * Array of argument sizes for va_arg argument checking.
-	 */
-	const size_t * const argsizes;
-~)m4_dnl;
 } yπio_scandata_t;
 
 /**
