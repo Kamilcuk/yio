@@ -122,8 +122,7 @@ endforeach()
 
 add_subdirectory(src)
 
-if((YIO_BUILD_TESTING OR "yio" STREQUAL PROJECT_NAME)
-		AND BUILD_TESTING)
+if((YIO_BUILD_TESTING OR YIO_TRACE) AND BUILD_TESTING)
 	include(CTest)
     add_subdirectory(test)
 endif()
