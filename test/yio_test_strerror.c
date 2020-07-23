@@ -13,4 +13,4 @@ int main() {
 	yprintf("{}\n", yio_strerror(err));
 }
 // PASS_REGULAR_EXPRESSION 1 Too many .*
-// PASS_REGULAR_EXPRESSION Invalid .*format specifier
+// PASS_REGULAR_EXPRESSION Function not implemented

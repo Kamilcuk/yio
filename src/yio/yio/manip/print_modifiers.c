@@ -78,8 +78,17 @@ int _yIO_print_cfmt(yio_printctx_t *t) {
 int _yIO_print_pfmt(yio_printctx_t *t) {
 	const char *str = yio_printctx_va_arg(t, const char *);
 	const char *endptr = NULL;
-	int err = _yIO_pfmt_parse(t, &t->pf, str, &endptr);
-	if (err) return err;
+	if (str[0] == '{') {
+		str++;
+	}
+	if (str[0] != '}' && str[0] != ':') {
+		return YIO_ERROR_PYFMT_INVALID;
+	}
+	if (str[0] == ':') {
+		str++;
+		int err = _yIO_pfmt_parse(t, &t->pf, str, &endptr);
+		if (err) return err;
+	}
 	if ((size_t)(endptr - str) != Ystrlen(str)) {
 		return YIO_ERROR_PYFMT_INVALID;
 	}

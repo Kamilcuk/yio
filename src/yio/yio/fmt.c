@@ -62,14 +62,6 @@ bool _yIO_strnulchrbool(const Ychar *s, Ychar c) {
 int _yIO_pfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 		const Ychar *fmt, const Ychar **endptr) {
 	/*
-	replacement_field ::=  "{" [field_name] ["!" conversion] [":" format_spec] "}"
-	field_name        ::=  arg_name ("." attribute_name | "[" element_index "]")*
-	arg_name          ::=  [identifier | digit+]
-	attribute_name    ::=  identifier
-	element_index     ::=  digit+ | index_string
-	index_string      ::=  <any source character except "]"> +
-	conversion        ::=  "r" | "s" | "a"
-	format_spec       ::=  <described in the next section>
 	format_spec     ::=  [[fill]align][sign][#][0][width][grouping_option][.precision][type]
 	fill            ::=  <any character>
 	align           ::=  "<" | ">" | "=" | "^"
@@ -81,18 +73,10 @@ int _yIO_pfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 	 */
 	int ret = 0;
 
-	if (fmt[0] == '{') {
-		fmt++;
-	}
 	if (fmt[0] == '}') {
 		fmt++;
 		goto EXIT;
 	}
-	if (fmt[0] != ':') {
-		ret = YIO_ERROR_PYFMT_INVALID;
-		goto EXIT;
-	}
-	++fmt;
 	if (fmt[0] == '\0') {
 		ret = YIO_ERROR_PYFMT_INVALID;
 		goto EXIT;
@@ -117,18 +101,18 @@ int _yIO_pfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 	pf->grouping = _yIO_strnulchrbool(Yc("_,"), fmt[0]) ? fmt++[0] : 0;
 	if (fmt[0] == '.') {
 		++fmt;
-		const char *endptr;
-		err = _yIO_printctx_stdintparam(c, fmt, &endptr, &pf->precision);
+		const char *endparamptr;
+		err = _yIO_printctx_stdintparam(c, fmt, &endparamptr, &pf->precision);
 		if (err) {
 			ret = err;
 			goto EXIT;
 		}
 		// If there is a dot, there must be precision.
-		if (endptr == fmt) {
+		if (endparamptr == fmt) {
 			ret = YIO_ERROR_PYFMT_INVALID;
 			goto EXIT;
 		}
-		fmt = endptr;
+		fmt = endparamptr;
 	} else {
 		pf->precision = -1;
 	}
@@ -164,7 +148,7 @@ int _yIO_cfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 		bool dobreak = false;
 		switch (fmt[0]) {
 		case Yc('+'): pf->sign = Yc('+'); break;
-		case Yc('-'): pf->sign = Yc('-'); break;
+		case Yc('-'): pf->align = Yc('<'); break;
 		case Yc(' '): pf->fill = Yc(' '); break;
 		case Yc('#'): pf->hash = Yc('#'); break;
 		case Yc('0'): pf->fill = Yc('0'); break;
@@ -186,7 +170,7 @@ int _yIO_cfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 	if (*fmt == Yc('.')) {
 		fmt++;
 
-		int err = _yIO_printctx_stdintparam(c, fmt, &fmt, &pf->precision);
+		err = _yIO_printctx_stdintparam(c, fmt, &fmt, &pf->precision);
 		if (err) {
 			ret = err;
 			goto EXIT;
@@ -201,7 +185,7 @@ int _yIO_cfmt_parse(struct _yIO_printctx_s *c, struct yio_printfmt_s *pf,
 	}
 
 	// conversion format specifier
-	pf->type = _yIO_strnulchrbool(Yc("bcdeEfFgGnosxX"), fmt[0]) ? fmt++[0] : 0;
+	pf->type = _yIO_strnulchrbool(Yc("csdioxXufFeEaAgGnp"), fmt[0]) ? fmt++[0] : 0;
 
 	EXIT:
 	*endptr = fmt;

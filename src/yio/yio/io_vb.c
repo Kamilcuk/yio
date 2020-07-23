@@ -84,7 +84,16 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 		if (err) return err;
 		if (t->fmt[0] == Yc('\0')) break;
 
+		assert(t->fmt[0] == '{');
+		t->fmt++;
+		if (t->fmt[0] != ':' && t->fmt[0] != '}') {
+			return YIO_ERROR_ENOSYS;
+		}
+		if (t->fmt[0] == ':') {
+			t->fmt++;
+		}
 		t->pf = _yIO_printfmt_default;
+
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
 			return YIO_ERROR_TOO_MANY_FMT;
 		}
