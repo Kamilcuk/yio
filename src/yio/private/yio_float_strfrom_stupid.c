@@ -86,7 +86,7 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 	// take minus out of the way
 	const bool negative = signbit(val);
 	if (negative) {
-		const int err = _yIO_vec_putc(v, '-');
+		err = _yIO_vec_putc(v, '-');
 		if (err) return err;
 		val = FABS(val);
 	}
