@@ -14,13 +14,14 @@ m4_config_yio_template(`m4_dnl);
 #include <sys/time.h>
 #endif
 
-int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt) {
+int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, char **endptr) {
 	int ret = 0;
 	while (fmt[0] != '\0') {
 		if (fmt[0] == '{' || fmt[0] == '}') {
 			if (fmt[1] != fmt[0]) {
 				if (fmt[0] == '{') {
-					return -1;
+					ret = -1;
+					goto EXIT;
 				}
 				// fmt[0] == '}'
 				break;
@@ -36,12 +37,14 @@ int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt) {
 		}
 	}
 	if (fmt[0] != '}') {
-		return -1;
+		ret = -2;
+		goto EXIT;
 	}
 	// empty string results in %c
 	if (ret == 0) {
 		if (dest) strcpy(dest, "%c ");
-		return 3;
+		ret = 3;
+		goto EXIT;
 	}
 	if (dest) {
 		// Add additional special space so that strftime
@@ -50,7 +53,12 @@ int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt) {
 		*dest = '\0';
 	}
 	// Return +1 for additional space.
-	return ret + 1;
+	ret += 1;
+	EXIT:
+	if (endptr) {
+		*endptr = (void*)fmt;
+	}
+	return ret;
 }
 
 static inline
@@ -58,7 +66,9 @@ int _yIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	int ret = 0;
 
 	const char *format_string = t->fmt;
-	int len = _yIO_print_time_in_extract_format_add_space(NULL, format_string);
+	char *tmp;
+	int len = _yIO_print_time_in_extract_format_add_space(NULL, format_string, &tmp);
+	t->fmt = tmp + 1;
 	if (len < 0) {
 		ret = YIO_ERROR_PYFMT_INVALID;
 		goto FORMAT_EXTRACT_ERROR;
@@ -68,7 +78,7 @@ int _yIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 		ret = YIO_ERROR_ENOMEM;
 		goto FORMAT_MALLOC_ERROR;
 	}
-	const int len2 = _yIO_print_time_in_extract_format_add_space(format, format_string);
+	const int len2 = _yIO_print_time_in_extract_format_add_space(format, format_string, NULL);
 	(void)len2; assert(len2 == len);
 
 	// 80 is somewhat a psuedo standard here
@@ -174,6 +184,8 @@ m4_print_time_gen3(struct tm, _yIO_print_tm)
 
 static inline
 int _yIO_print_timespec_in(yπio_printctx_t *t, const struct timespec *ts) {
+	int err = yπio_printctx_init(t);
+	if (err) return err;
 	return yπio_printctx_printf(t, "{}.{:09}", ts->tv_sec, ts->tv_nsec);
 }
 
@@ -187,6 +199,8 @@ m4_print_time_gen3(struct timespec, _yIO_print_timespec)
 
 static inline
 int _yIO_print_timeval_in(yπio_printctx_t *t, const struct timeval *ts) {
+	int err = yπio_printctx_init(t);
+	if (err) return err;
 	return yπio_printctx_printf(t, "{}.{:06}", ts->tv_sec, ts->tv_usec);
 }
 

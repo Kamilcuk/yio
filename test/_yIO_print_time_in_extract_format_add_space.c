@@ -10,11 +10,11 @@
 
 #define TEST(FORMAT, RESULT) do{ \
 		char dest[250]; \
-		int ret = _yIO_print_time_in_extract_format_add_space(dest, FORMAT); \
-		int ret2 = _yIO_print_time_in_extract_format_add_space(NULL, FORMAT); \
+		int ret = _yIO_print_time_in_extract_format_add_space(dest, FORMAT, NULL); \
+		int ret2 = _yIO_print_time_in_extract_format_add_space(NULL, FORMAT, NULL); \
 		_yIO_TEST(ret == ret2, "ret=%d ret2=%d\n", ret, ret2); \
 		if (RESULT == NULL) { \
-			_yIO_TEST(ret == -1, "result is NULL, but ret=%d - FORMAT='%s'", ret, FORMAT); \
+			_yIO_TEST(ret < 0, "result is NULL, but ret=%d - FORMAT='%s'", ret, FORMAT); \
 		} else { \
 			_yIO_TEST((size_t)ret < sizeof(dest), \
 					"ret=%d sizeof(dest)=%d FORMAT='%s'", (int)ret, (int)sizeof(dest), FORMAT); \

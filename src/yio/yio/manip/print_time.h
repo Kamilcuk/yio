@@ -18,11 +18,11 @@ m4_config_yio_template(`m4_dnl);
  * @param dest Either a NULL or a valid pointer to allocated memory enough
  * to hold the result.
  * @param fmt
- * @return -1 on error. Otherwise returns the number of bytes excluding
+ * @return Negative on error. Otherwise returns the number of bytes excluding
  * zero terminating character that would have been written to or were written to
  * @c dest depending if it's a null pointer or not.
  */
-int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt);
+int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, char **enptr);
 
 m4_define_function(`m4_print_time_gen1~,m4_dnl;
 int $1(yπio_printctx_t *t);
@@ -60,7 +60,7 @@ m4_print_time_gen1(_yIO_print_timespec)
 #define _yIO_PRINT_GENERIC_TIMESPEC()
 #endif // _yIO_HAS_timespec
 
-#ifndef _yIO_HAS_timeval
+#ifdef _yIO_HAS_timeval
 m4_print_time_gen1(_yIO_print_timeval)
 #define _yIO_PRINT_GENERIC_TIMEVAL() \
 		m4_print_time_gen2(struct timeval, _yIO_print_timeval)
