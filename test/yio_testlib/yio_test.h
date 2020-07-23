@@ -35,7 +35,7 @@ void _yIO__test_failed(const char *expr, const char *file, int line, const char 
 
 #define _yIO_test_compare_printformat_in(pf1, pf2, X) \
 		_yIO_TEST(pf1.X == pf2.X, "'%s' %d(%c) %d(%c)", \
-				str, pf1.X, isprint(pf1.X)?pf1.X:'?', pf2.X, isprint(pf2.X)?pf2.X:'?')
+				str, pf1.X, isprint((unsigned)pf1.X)?pf1.X:'?', pf2.X, isprint((unsigned)pf2.X)?pf2.X:'?')
 
 
 #define _yIO_test_compare_printformat(pf1, pf2) \
