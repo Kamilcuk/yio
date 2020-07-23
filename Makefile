@@ -172,17 +172,16 @@ CPPCHECK_FLAGS_INIT = \
 	--suppress=unmatchedSuppression \
 	--suppress=unreadVariable \
 	--suppress=unusedFunction \
-	--inconclusive \
 	--library=posix \
 	--report-progress  \
 	-x c
 CPPCHECK_FLAGS = --quiet --enable=all
 cppcheck: linuxincdir = $(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
 cppcheck: release
-	cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
+	nice cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
 
 ctags:
-	git ls-files -z --exclude-standard --others --cached test/ src/ | xargs -0 ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
+	git ls-files -z --exclude-standard --others --cached test/ src/ | xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
 
 # Gitlab ####################################
 
