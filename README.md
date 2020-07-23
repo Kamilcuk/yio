@@ -5,88 +5,107 @@
 
 :star: `Yio Input Output` library is aiming to be python-like type-safe `printf` and `scanf` replacement for C language.
 
+
+
+[[_TOC_]]
+
+# dev
+
 [doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/index.html) [cdash dashboard](https://cdash.karta.dyzio.pl/index.php?project=Yio)
 
 master: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
-
 devel: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/devel/pipeline.svg)
 
 last cdash build: ![Passed tests](https://img.shields.io/badge/dynamic/json?color=blue&label=Passed%20tests&query=pass&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
 ![Failed tests](https://img.shields.io/badge/dynamic/json?color=blue&label=Failed%20tests&query=fail&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
 ![Tests time](https://img.shields.io/badge/dynamic/json?color=blue&label=Tests%20time&query=time&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
- 
-### Namespaces:
 
- - `y*` - Many common symbols.
- - `yio_*` - Functions and macros for implementators.
- - `_yIO_*` - All pletoria of private symbols.
+# Installation
 
-### Dependencies
-
-- `cmake` for compilation
-- `m4` for file generation
-- `bash` for various tasks
-
-### Installation
-
-#### CMake
-
-Add this repo to your project and add the main CMakeLists.txt as a subdirectory.
-I think this would be the preferred way to use this library.
-
-#### Debian
-
-WARNING: MAY NOT WORK
+### Debian
 
 ```
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
-sudo apt-key adv -a --export 5B2030B2391B690AC869E1B59AB6D219060C0B5B | sudo apt-key add -
+sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-keys 9AB6D219060C0B5B
+sudo apt-key adv -a --export 9AB6D219060C0B5B | sudo apt-key add -
 echo 'deb https://kamcuk.gitlab.io/yio/debian buster main' | sudo tee -a /etc/apt/sources.list.d/yio.list
 sudo apt-get update
 sudo apt-get install -y yio
 ```
 
-#### Ubuntu
-
-WARNING: MAY NOT WORK
+### Ubuntu
 
 ```
-sudo apt-key adv --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
-sudo apt-key adv -a --export 5B2030B2391B690AC869E1B59AB6D219060C0B5B | sudo apt-key add -
-echo 'deb https://kamcuk.gitlab.io/yio/ubuntu foster main' | sudo tee -a /etc/apt/sources.list.d/yio.list
+sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-keys 9AB6D219060C0B5B
+sudo apt-key adv -a --export 9AB6D219060C0B5B | sudo apt-key add -
+echo 'deb https://kamcuk.gitlab.io/yio/ubuntu focal main' | sudo tee -a /etc/apt/sources.list.d/yio.list
 sudo apt-get update
 sudo apt-get install -y yio
-```
-
-#### Archlinux
-
-WARNING: MAY NOT WORK
 
 ```
-sudo pacman-key --keyserver hkp://keys.gnupg.net --recv-keys 5B2030B2391B690AC869E1B59AB6D219060C0B5B
-sudo pacman-key --finger 5B2030B2391B690AC869E1B59AB6D219060C0B5B
-sudo pacman-key --lsign-key 5B2030B2391B690AC869E1B59AB6D219060C0B5B
+
+### Archlinux
+
+```
+sudo pacman-key --keyserver hkp://pool.sks-keyservers.net --recv-keys 9AB6D219060C0B5B
+sudo pacman-key --lsign-key 9AB6D219060C0B5B
 sudo cp /etc/pacman.conf /etc/pacman.con.backup
 printf "%s\n" '' '[yio]' 'Server = https://kamcuk.gitlab.io/yio/archlinux/$arch/' '' | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy yio
+sudo pacman -Sy --noconfirm yio
 ```
 
 ### Alpine
 
-WARNING: MAY NOT WORK and does not work, because the public key is wrong.
+```
+apk add -X https://kamcuk.gitlab.io/yio/alpine/ --allow-untrusted yio
+```
+
+WARNING: The following does not work, I don't know how to make it work, because the public key is wrong and I don't know how to import it or maybe sign it properly, dunno.
 
 ```
-uget 'https://kamcuk.gitlab.io/yio/alpine/kamilcukrowski@gmail.com.rsa.pub' -O /etc/apk/keys/kamilcukrowski@gmail.com.rsa.pub
+wget 'https://kamcuk.gitlab.io/yio/alpine/kamilcukrowski@gmail.com.rsa.pub' -O /etc/apk/keys/kamilcukrowski@gmail.com.rsa.pu
 echo 'https://kamcuk.gitlab.io/yio/alpine/' >> /etc/apk/repositories
 apk add yio
 ```
 
-## :beginner: Examples :heart_eyes:
+## CMake
+
+Add this repo to your project as a git submodule and add the main CMakeLists.txt as a subdirectory.
+I think this would be the preferred way to use this library.
+
+### Dependencies
+
+- `cmake` is used for compilation
+- `m4` is used as templating system for file generation
+- `bash` and `make` are used for various administration tasks
+
+### CMake as add subdirectory
+
+```
+# Ie. clone the library your preferred way 
+if(NOT EXISTS third_party/yio)
+	execute_process(
+		COMMAND git clone https://gitlab.com/kamcuk/yio/ third_party/yio
+	)
+endif()
+
+add_subdirectory(yio)
+target_link_libraries(yourtarget yio)
+```
+
+### CMake with find_package after installation
+
+```
+find_package(yio REQUIRED)
+target_link_libraries(yourtarget yio::yio)
+```
+
+# :beginner: Examples :heart_eyes:
 
 > Chuck Norris counted to infinity... twice.  
 > -- unknown :repeat:
 
 The following program does what you think it does:
+<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:15,endLineNumber:7,positionColumn:15,positionLineNumber:7,selectionStartColumn:15,selectionStartLineNumber:7,startColumn:15,startLineNumber:7),source:'%23include+%3Cyio.h%3E%0A%0A%23include+%3Cyio.h%3E%0Aint+main()+%7B%0A++++yprint(%22How+old+are+you%3F%5Cn%22)%3B%0A++++int+a%3B%0A++++yscan(%26a)%3B%0A++++yprint(%22You+are+%22,+a,+%22+years+old.%5Cn%22)%3B%0A%7D%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'25',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'0'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
 
 ```
 #include <yio.h>
@@ -98,23 +117,31 @@ int main() {
 }
 ```
 
-There are two set of functions available - one that end with `f` and other do not. Those that end with `f` are to be read as "yio print Format" and accept a formatting string:
+You can change the type of `a` to `long` or `short` and both functions `yscan` and `yprint` will properly work.
+There are two "set" of functions available - one that end with `f` and other do not.
+Those that end with `f` are to be read as "yio print Format" and accept a python-like formatting string specifier:
+<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:5,endLineNumber:5,positionColumn:5,positionLineNumber:5,selectionStartColumn:5,selectionStartLineNumber:5,startColumn:5,startLineNumber:5),source:'%23include+%3Cyio.h%3E%0A%0Aint+main()+%7B%0A++++yprintf(%22%7B:%3E10%7D+%7B:%3C10%7D%5Cn%22,+%22time%22,+%22value%22)%3B%0A++++yprintf(%22%7B:%3E10%7D+%7B:%3C10%7D%5Cn%22,+(time_t)123,+456ull)%3B%0A%7D%0A%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'1'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
 
 ```
-   yprintf("{:>10} {:<10}\n", "time", "value");
-   yprintf("{:>10} {:<10}\n", (time_t)123, 456ull);
+yprintf("{:>10} {:<10}\n", "time", "value");
+yprintf("{:>10} {:<10}\n", (time_t)123, 456ull);
 ```
 
-But no worries, the no-`f`-suffix version also accept a formatting modifiers:
+In addition the library also accepts a _custom modifier_ functions.
+Such function are specially crafted and can affect the formatting output of the function.
+They are used with no-`f`-suffix-version of the function to specify formatting options, or to specify explicit type to print the variable witt.
+They can also accepts a formatting modifiers:
+<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:77,endLineNumber:4,positionColumn:77,positionLineNumber:4,selectionStartColumn:77,selectionStartLineNumber:4,startColumn:77,startLineNumber:4),source:'%23include+%3Cyio.h%3E%0Aint+main()+%7B%0A++++yprint(yppfmt(%22%7B:%3E10%7D%22),+%22time%22,+%22+%22,+yppfmt(%22%7B:%3C10%7D%22),+%22value%22,+%22%5Cn%22)%3B%0A++++yprint(yppfmt(%22%7B:%3E10%7D%22),+(time_t)123,+%22+%22,+yppfmt(%22%7B:%3C10%7D%22),+456,+%22%5Cn%22)%3B%0A%7D%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'25',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'0'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
 
 ```
-   yprint(yppfmt("{:>10}"), "time", " ", yppfmt("{:<10}"), "value", "\n");
-   yprint(yppfmt("{:>10}"), (time_t)123, " ", yppfmt("{:<10}"), 456, "\n");
+yprint(yppfmt("{:>10}"), "time", " ", yppfmt("{:<10}"), "value", "\n");
+yprint(yppfmt("{:>10}"), (time_t)123, " ", yppfmt("{:<10}"), 456, "\n");
 ```
 
-The style takes some time to get used to, but it's worth it. Maaany more examples are available in [tests/01_examples](tests/01_examples) directory.
+Mny more examples are available in [tests/01_examples](tests/01_examples) and overall in [test](test) directory.
+And of course the ultimate `yformat` that allows for allocating the buffer and works just as you would expect:
+<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:5,endLineNumber:4,positionColumn:5,positionLineNumber:4,selectionStartColumn:5,selectionStartLineNumber:4,startColumn:5,startLineNumber:4),source:'%23include+%3Cyio.h%3E%0Aint+main()+%7B%0A++++char+*str+%3D+yformat(%22Hello%22,+(char)!'+!')%3B%0A++++if+(str+%3D%3D+NULL)+abort()%3B%0A++++str+%3D+yreformat(str,+%22world%22,+%22%5Cn%22)%3B%0A++++if+(str+%3D%3D+NULL)+abort()%3B%0A++++yprint(str)%3B+//+prints+!'Hello+world!'%0A++++free(str)%3B%0A%7D%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'25',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'0'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
 
-And of course the ultimate `format`:
 
 ```
    char *str = yformat("Hello", (char)' ');
@@ -124,6 +151,31 @@ And of course the ultimate `format`:
    yprint(str); // prints 'Hello world'
    free(str);
 ```
+
+### Namespaces:
+
+ - `y*` - Many common symbols, like `yprintf` or `yppfmt` or `yscanf`.
+ - `yio_*` - Public functions and symbol for implementators of implementators of _custom modifiers_.
+ - `YIO_*` - Macros, options and constants.
+ - `_yIO_*` - All pletoria of private symbols that is used by the library.
+
+# Specification and internal info
+
+Generally the idea is to adhere to [standard format specification](https://en.cppreference.com/w/cpp/utility/format/formatter#Standard_format_specification),
+but many, many features are implemented yet.
+
+- All standard types work
+- `b` `B` `x` `X` `o` `O` `c` `d` work
+- `<` `>` `^` work
+- `g` `G` `f` `F` `a` `A` `e` `E` work
+    - There are three "backends" to print floating points.
+      The library will prefer to use `strfrom*` functions if they are available.
+      You can use YIO_PRINT_FLOAT_WITH macro to choose the printing function, see yio/yio/manip/print_float.h
+- No, `L` locale specific is not implemented. Locale is handled in a chaotic way.
+- Specifying `arg-id` is not implemented.
+ 
+
+# Archaic and references
 
 ## :cyclone: History and design choices :school:
 
@@ -247,9 +299,12 @@ So the float should be that way:
 > Yea, sure.  
 > -- :beer: me
 
-## :passport_control: Author
+# :passport_control: Author and license
 
 Written by :japanese_ogre: Kamil Cukrowski 2020  \<kamilcukrowski :postbox: gmail.com\>.
+
+I would be happy to rephrase the license to be more like newlib, so users can use it 
+in embedded targets, but I do not know really how.
 
 ```
 Yio Input Output library
