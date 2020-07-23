@@ -1,8 +1,8 @@
 
 ## @def yio_debug_variables(PREFIX)
 ## Outputs all variables passed to it with values.
-function(yio_debug_variables _yio_PREFIX)
-	if(NOT YIO_TRACE)
+function(yio_debug_variables)
+	if(NOT YIO_DEV)
 		return()
 	endif()
 	

@@ -32,8 +32,8 @@ get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/src ABSOLUTE)
 # Generated directory
 get_filename_component(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen ABSOLUTE)
 
-# If this is starting cmake project
-if("${CMAKE_PROJECT_NAME}" STREQUAL "yio")
+# YIO_DEV is internal variable set if the developer of this library is building it
+if(YIO_DEV)
 	# Use ccache if available
 	find_program(CCACHE_COMMAND "ccache")
 	if(CCACHE_COMMAND)
@@ -122,7 +122,7 @@ endforeach()
 
 add_subdirectory(src)
 
-if((YIO_BUILD_TESTING OR YIO_TRACE) AND BUILD_TESTING)
+if((YIO_BUILD_TESTING OR YIO_DEV) AND BUILD_TESTING)
 	include(CTest)
     add_subdirectory(test)
 endif()
