@@ -20,7 +20,7 @@ extern "C" {
  * See yio_error_messages_gen.cmake script
  */
 enum _yIO_errors_e {
-	YIO_ERROR_OK = 0,
+	YIO_ERROR_OK = 0,              /// "Success"
 	_yIO_ERROR_START = -12300,     /// Start of custom errors
 	YIO_ERROR_ENOMEM,              /// GEN "Not enough memory"
 	YIO_ERROR_ENOSYS,              /// GEN "Function not implemented"
