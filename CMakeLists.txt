@@ -18,13 +18,6 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)
 
-if(0)
-	find_program(CPPCHECK_COMMAND "cppcheck")
-	if(CPPCHECK_COMMAND)
-		set(CMAKE_C_CPPCHECK "${CPPCHECK_COMMAND}")
-	endif()
-endif()
-
 # Upper build type to be used in if statements
 string(TOUPPER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_UPPER)
 # Source directory
@@ -34,10 +27,22 @@ get_filename_component(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen ABSOLUTE)
 
 # YIO_DEV is internal variable set if the developer of this library is building it
 if(YIO_DEV)
+	set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+
 	# Use ccache if available
 	find_program(CCACHE_COMMAND "ccache")
 	if(CCACHE_COMMAND)
 	    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
+	endif()
+
+	if($ENV{YIO_USE_CPPLINT})
+		find_program(CPPLINT_COMMAND "cpplint")
+		if(NOT CPPLINT_COMMAND)
+			message(FATAL_ERROR "cpplint not found")
+		endif()
+		set(CMAKE_C_CPPLINT "${CPPLINT_COMMAND}"
+			"--filter=-whitespace,-legal/copyright,-runtime/int,-build/include_subdir"
+		)
 	endif()
 
 	# Create symlink from gen to GENDIR for development purpouses
@@ -45,27 +50,18 @@ if(YIO_DEV)
 		COMMAND ${CMAKE_COMMAND} -E create_symlink ${GENDIR} ${CMAKE_CURRENT_SOURCE_DIR}/gen
 	)
 
-	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/tags
-		COMMAND sh -c '
-			git ls-files -z --exclude-standard --others --cached test/ src/ |
-			xargs -z -t ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
-			'
-		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-		VERBATIM
-	)
-	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/tags
+	# Create symlink to compile_commands.json for IDE to pick it up
+	execute_process(
 		COMMAND ${CMAKE_COMMAND} -E create_symlink
-			${CMAKE_CURRENT_BINARY_DIR}/tags
+			${CMAKE_BINARY_DIR}/compile_commands.json
+			${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
+	)
+
+	# Create symlink to ctags
+	execute_process(
+		COMMAND ${CMAKE_COMMAND} -E create_symlink
+			${CMAKE_BINARY_DIR}/tags
 			${CMAKE_CURRENT_SOURCE_DIR}/tags
-	)
-	add_custom_target(yio_tags
-			DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tags
-	)
-else()
-	add_custom_target(yio_tags
-			COMMAND ${CMAKE_COMMAND} -E true
 	)
 endif()
 
@@ -112,6 +108,7 @@ yio_debug_variables(
 	CMAKE_FIND_ROOT_PATH_MODE_PACKAGE
 	CCACHE_FOUND
 	UNISTRING_LIB
+	CPPLINT_COMMAND
 )
 
 foreach(i IN ITEMS CMAKE_TOOLCHAIN_FILE CMAKE_CROSSCOMPILING_EMULATOR)

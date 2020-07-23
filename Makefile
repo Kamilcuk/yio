@@ -1,22 +1,7 @@
 # Makefile
 
-define NL
-
-
-endef
-
-# Check that given variables are set and all have non-empty values,
-# die with an error otherwise.
-#
-# Params:
-#   1. Variable name(s) to test.
-#   2. (optional) Error message to print.
-check_defined = \
-    $(strip $(foreach 1,$1, \
-        $(call __check_defined,$1,$(strip $(value 2)))))
-__check_defined = \
-    $(if $(value $1),, \
-      $(error Undefined $1$(if $2, ($2))))
+include scripts/makefile_lib.mk
+-include local_makefile.mk
 
 SHELL = bash
 
@@ -43,9 +28,9 @@ NICE += $(shell hash ionice >/dev/null 2>&1 && ionice --version 2>&1 | grep -q u
 # Protect against non-existent sudo command
 SUDO += $(shell hash sudo >/dev/null 2>&1 && echo sudo)
 
-CTEST := ulimit -c 0; $(NICE) ctest
-CTESTFLAGS += --output-on-failure
+CTESTFLAGS_INIT += --output-on-failure
 CTESTFLAGS += -j $(shell nproc) # --verbose --rerun-failed
+CTEST = ulimit -c 0; $(NICE) ctest $(CTESTFLAGS_INIT)
 
 CMAKE_C_FLAGS ?=
 
@@ -116,7 +101,7 @@ test_L_%: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS) -L "$*"
 
 USAGE +=~ test_rerun_failed - Run tests with --rerun-failed
-test_rerun_failed: CTESTFLAGS += --rerun-failed
+test_rerun_failed: CTESTFLAGS_INIT += --rerun-failed
 test_rerun_failed: test
 
 USAGE +=~ debug - Build the project in debug mode
@@ -170,6 +155,34 @@ endef
 USAGE +=~ sdcc_pic16 - Tests building with sdcc_pic16
 $(eval $(call _sdcc_pic16,sdcc_pic16))
 sdcc_pic16: build
+
+
+CPPCHECK_FLAGS_INIT = \
+	--project=_build/Release/compile_commands.json \
+	-j $(shell nproc) \
+	-U__DOXYGEN__ \
+	-U__CDT_PARSER__ \
+	-UYIO_REALLY_CDT_PARSER \
+	-UNDEBUG \
+	-I${linuxincdir}/include \
+	-I/usr/local/include \
+	-I${linuxincdir}/include-fixed \
+	-I/usr/include \
+	-I${PWD}/gen \
+	--suppress=unmatchedSuppression \
+	--suppress=unreadVariable \
+	--suppress=unusedFunction \
+	--inconclusive \
+	--library=posix \
+	--report-progress  \
+	-x c
+CPPCHECK_FLAGS = --quiet --enable=all
+cppcheck: linuxincdir = $(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
+cppcheck: release
+	cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
+
+ctags:
+	git ls-files -z --exclude-standard --others --cached test/ src/ | xargs -0 ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
 
 # Gitlab ####################################
 
