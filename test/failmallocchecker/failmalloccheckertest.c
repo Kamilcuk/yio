@@ -23,7 +23,7 @@ int lib() {
 	void *a = malloc(1);
 	void *b = calloc(1, 2);
 	void *c = realloc(a, 3);
-	if (!c) free(a);
+	if (c == NULL) free(a);
 	free(b);
 	free(c);
 	ssize_t s = write(STDOUT_FILENO, (char[1]){'0' + (a == NULL)}, 1);
@@ -33,10 +33,11 @@ int lib() {
 	s = write(STDOUT_FILENO, (char[1]){'0' + (c == NULL)}, 1);
 	test(s == 1);
 	s = write(STDOUT_FILENO, (char[1]){'\n'}, 1);
+	test(s == 1);
 	return
-			(a == NULL) ? 0x01 : 0x00 |
-			(b == NULL) ? 0x02 : 0x00 |
-			(c == NULL) ? 0x04 : 0x00 ;
+			((a == NULL) ? 0x01 : 0x00) |
+			((b == NULL) ? 0x02 : 0x00) |
+			((c == NULL) ? 0x04 : 0x00) ;
 }
 
 void test_me() {
