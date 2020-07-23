@@ -67,16 +67,23 @@ echo 'https://kamcuk.gitlab.io/yio/alpine/' >> /etc/apk/repositories
 apk add yio
 ```
 
-## CMake
+## Build, compilation and CMake
 
 Add this repo to your project as a git submodule and add the main CMakeLists.txt as a subdirectory.
 I think this would be the preferred way to use this library.
 
-### Dependencies
+### Build dependencies
 
 - `cmake` is used for compilation
 - `m4` is used as templating system for file generation
 - `bash` and `make` are used for various administration tasks
+
+### Compilation and installation with CMake
+
+```
+cmake -S . -B _build
+cmake --build _build --target install
+```
 
 ### CMake as add subdirectory
 
