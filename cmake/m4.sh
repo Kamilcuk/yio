@@ -6,11 +6,14 @@ name=$(basename "$0")
 
 usage() {
 	cat <<EOF
-Usage: $name [Options] -- <m4_executable> <output_file> <m4_options>
+Usage: $name [Options] -- <m4_options>
 
 Options:
   -MF <file>    Generate dependency file
   -MT <target>  Target name for dependency file
+  -e <m4_executable>  Set the path to m4 executable
+  -o <output_file>    Output to this file
+  -h                  Print this text and exit
 
 A helper script to be run from cmake as m4 preprocessor.
 The -MF -MT options are the same as in gcc and can be used
@@ -31,26 +34,27 @@ fatal() {
 # Main
 
 # Parse arguments
-target=
 depfile=
+deptarget=
+outputf=/dev/stdout
+m4=m4
 while [ "$#" -ne 0 ]; do
 	case "$1" in
 	-MF) depfile="$2"; shift; ;;
 	-MT) deptarget="$2"; shift; ;;
+	-e) m4="$2"; shift; ;;
+	-o) outputf="$2"; shift; ;;
+	-h) usage; exit; ;;
 	--) shift; break; ;;
-	*) break; ;;
+	*) fatal "Unknown argument passed"; ;;
 	esac
 	shift
 done
 
-if [ "$#" -lt 3 ]; then
+if [ "$#" -lt 1 ]; then
 	usage
 	exit 2
 fi
-
-m4="$1"
-outputf="$2"
-shift 2
 
 # Check m4 executable
 if [ ! -x "$m4" ] || ! hash "$m4" >/dev/null 2>&1; then

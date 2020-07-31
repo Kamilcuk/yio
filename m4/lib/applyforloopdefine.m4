@@ -1,5 +1,5 @@
 
-/**
+`/**
  * @def m4_applyforloopdefine(start_range, end_range, function_body, separator)
  * @ingroup m4
  * @param start_range A number to start counting from, inclusive.
@@ -13,7 +13,7 @@
  * defined function. Optionally non-empty separator can be used
  * to separate elements.
  */
-#define m4_applyforloopdefine(start_range, end_range, function_body, separator)
+#define m4_applyforloopdefine(start_range, end_range, function_body, separator) ~
 
 m4_define(`m4_applyforloopdefine~, `m4_pushdef(
 	`_$0_function~,

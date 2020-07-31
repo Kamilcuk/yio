@@ -91,7 +91,39 @@ if(YIO_DEV)
 	)
 endif()
 
+######################################################################
+
 find_library(UNISTRING_LIB unistring)
+
+######################################################################
+
+include(m4)
+m4_add_options(
+	--fatal-warnings
+	--fatal-warnings
+	# pass context
+	-D m4_SRCDIR=${SRCDIR}
+	-D m4_GENDIR=${GENDIR}
+)
+if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
+	m4_add_options(-D m4_DEBUG=1)
+else()
+	m4_add_options(-D m4_NDEBUG=1 -D m4_RELEASE=1)
+endif()
+m4_add_files(
+	# Always load library.
+	${CMAKE_CURRENT_SOURCE_DIR}/m4/lib.m4
+)
+# Note: SRCDIR is included, so I can do `m4_include(yio/blabla)`.
+m4_add_include_directories(${SRCDIR})
+
+m4_add_files(
+	# Load our configuration.
+	# Note - file is generated from src/CMakeLists.txt
+	${CMAKE_CURRENT_BINARY_DIR}/src/m4gen/yio_config.m4
+)
+
+######################################################################
 
 yio_debug_variables(
 	BUILD_TESTING
@@ -135,6 +167,8 @@ yio_debug_variables(
 	CCACHE_FOUND
 	UNISTRING_LIB
 	CPPLINT_COMMAND
+	_M4_OPTIONS_INIT
+	_M4_FILES_INIT
 )
 
 foreach(i IN ITEMS CMAKE_TOOLCHAIN_FILE CMAKE_CROSSCOMPILING_EMULATOR)
