@@ -80,32 +80,6 @@ list(APPEND gensrcs ${GENDIR}/yio/yio_error_messages.h)
 ##############################################################################################
 # Preprocess files with m4.
 
-m4_add_options(
-	--fatal-warnings
-	--fatal-warnings
-	# pass context
-	-D m4_SRCDIR=${SRCDIR}
-	-D m4_GENDIR=${GENDIR}
-)
-if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
-	m4_add_options(-D m4_DEBUG=1)
-else()
-	m4_add_options(-D m4_NDEBUG=1 -D m4_RELEASE=1)
-endif()
-m4_add_files(
-	# Always load library.
-	${CMAKE_CURRENT_SOURCE_DIR}/../m4/lib.m4 
-	# Load our configuration.
-	${CMAKE_CURRENT_BINARY_DIR}/m4gen/yio_config.m4
-)
-# Note: SRCDIR is included, so I can do `m4_include(yio/blabla)`.
-m4_add_include_directories(${SRCDIR})
-
-yio_debug_variables(
-	_M4_OPTIONS_INIT
-	_M4_OPTIONS_DEPENDS_INIT
-)
-
 file(GLOB_RECURSE m4srcs *.c *.h)
 list(FILTER m4srcs EXCLUDE REGEX "src/yio/template/")
 list(FILTER m4srcs EXCLUDE REGEX "src/yio/yio/")
@@ -115,8 +89,9 @@ foreach(source IN LISTS m4srcs)
 	file(RELATIVE_PATH sourcenice ${SRCDIR} ${source})
 	set(output ${GENDIR}/${sourcenice})
 	# dbg("m4_add_command ${output} ${source}")
-	m4_add_command(${output} ${source}
-		-D m4_SOURCE=${source}
+	m4_add_command(
+		OUTPUT ${output}
+		SOURCE ${source}
 	)
 	list(APPEND gensrcs ${output})
 endforeach()
