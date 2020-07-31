@@ -25,4 +25,3 @@ m4_define_function(`Yprintf~, `printf($@)~)
 m4_define_name(`YPRI~, `"ls"~)
 
 m4_divert(0)m4_dnl
-#include <wchar.h>

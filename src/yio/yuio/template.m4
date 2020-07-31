@@ -25,4 +25,3 @@ m4_define_function(`Yprintf~, `ulc_printf($@)~)
 m4_define_name(`YPRI~, `"llU"~)
 
 m4_divert(0)m4_dnl
-#include <unitypes.h>
