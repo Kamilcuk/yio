@@ -2,18 +2,13 @@ include_guard()
 
 ##########################################################################
 
-find_program(_M4_SH_EXECUTABLE sh DOC "Patch to shell")
-if(NOT _M4_SH_EXECUTABLE)
-	message(FATAL_ERROR "shell not found")
-endif()
-
-find_program(_M4_EXECUTABLE m4 DOC "Patch to m4 executable")
-if(NOT _M4_EXECUTABLE)
+find_program(M4_COMMAND m4 DOC "Patch to m4 executable")
+if(NOT M4_COMMAND)
 	message(FATAL_ERROR "m4 executable not found")
 endif()
 
 # The executable script to run
-set(_M4_SH_SCRIPT ${CMAKE_CURRENT_LIST_DIR}/m4.sh)
+set(M4_CMAKE_SCRIPT ${CMAKE_CURRENT_LIST_DIR}/m4_script.cmake)
 
 ##########################################################################
 # m4_add_* options
@@ -78,7 +73,7 @@ macro(_m4_get_command_args)
 
 	set(output "${M4_GET_COMMAND_ARGS_OUTPUT}")
 	list(GET M4_GET_COMMAND_ARGS_SOURCE -1 source)
-	file(RELATIVE_PATH outputnice "${CMAKE_CURRENT_BINARY_DIR}" "${output}")
+	file(RELATIVE_PATH outputnice "${CMAKE_BINARY_DIR}" "${output}")
 	file(RELATIVE_PATH sourcenice "${CMAKE_SOURCE_DIR}" "${source}")
 	get_filename_component(sourcename "${source}" NAME)
 	get_filename_component(outputname "${output}" NAME)
@@ -89,10 +84,11 @@ macro(_m4_get_command_args)
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
 		# When use Nninja we can use DEPFILE
 		set(add_custom_command_depfile_args
-			DEPFILE ${depfile}
+			DEPFILE "${depfile}"
 		)
 		set(script_depfile_args
-			-MT ${outputbinrela} -MF ${depfile}
+			-D "DEPNAME=${outputbinrela}"
+			-D "DEPFILE=${depfile}"
 		)
 	else()
 		# Otherwise we have a problem to be figured out.
@@ -100,15 +96,20 @@ macro(_m4_get_command_args)
 		set(script_depfile_args)
 	endif()
 
-	set(m4_script_opts
-		-e ${_M4_EXECUTABLE}
-		-o ${output}
-		--
+	set(m4_script_m4_args
 		-D m4_SOURCE=${source}
 		${_M4_OPTIONS_INIT}
 		${M4_GET_COMMAND_ARGS_OPTIONS}
 		${_M4_FILES_INIT}
 		${M4_GET_COMMAND_ARGS_SOURCE}
+	)
+	string(REPLACE ";" "\\;" m4_script_m4_args "${m4_script_m4_args}")
+
+	set(m4_script_opts
+		-D "OUTPUT=${output}"
+		-D "M4_COMMAND=${M4_COMMAND}"
+		-D "M4_ARGS=${m4_script_m4_args}"
+		-P ${M4_CMAKE_SCRIPT}
 	)
 
 	set(add_custom_command_args
@@ -116,21 +117,22 @@ macro(_m4_get_command_args)
 		OUTPUT
 			${output}
 		DEPENDS
-			${M4_GET_COMMAND_ARGS_SOURCE}
+			${M4_CMAKE_SCRIPT}
 			${_M4_FILES_INIT}
-			${_M4_SH_SCRIPT}
+			${M4_GET_COMMAND_ARGS_SOURCE}
 		${add_custom_command_depfile_args}
 		COMMAND
-			${_M4_SH_EXECUTABLE} ${_M4_SH_SCRIPT}
+			${CMAKE_COMMAND}
 			${script_depfile_args}
-			${m4_script_opts}
+			"${m4_script_opts}"
 		VERBATIM
 	)
 
 	set(execute_process_args
 		COMMAND
-			${_M4_SH_EXECUTABLE} ${_M4_SH_SCRIPT}
-			${m4_script_opts}
+			${CMAKE_COMMAND}
+			"${m4_script_opts}"
+		VERBATIM
 	)
 
 endmacro()

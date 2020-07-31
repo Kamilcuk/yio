@@ -1,0 +1,88 @@
+cmake_minimum_required(VERSION 3.1)
+
+# Escape string for makefile
+macro(escape str)
+	string(REGEX REPLACE "([ \t\n#])" "\\\\1" "${str}" "${${str}}") 
+endmacro()
+
+foreach(i IN ITEMS
+		M4_COMMAND
+		OUTPUT
+		M4_ARGS
+)
+	if(NOT DEFINED ${i})
+		message(FATAL_ERROR "m4_script.cmake: ${i} is not defined")
+	endif()
+endforeach()
+
+###############################################################
+
+if(EXISTS ${OUTPUT}.tmp)
+	file(REMOVE ${OUTPUT}.tmp)
+endif()
+execute_process(
+	COMMAND ${M4_COMMAND} --debug=i ${M4_ARGS}
+	RESULT_VARIABLE result
+	OUTPUT_FILE ${OUTPUT}.tmp
+	ERROR_VARIABLE error_raw
+)
+get_filename_component(outputdir "${OUTPUT}" DIRECTORY)
+file(
+	COPY ${OUTPUT}.tmp
+	DESTINATION ${outputdir}
+	FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
+)
+file(RENAME ${OUTPUT}.tmp ${OUTPUT})
+file(REMOVE ${OUTPUT}.tmp)
+
+###############################################################
+
+# From stderr output from m4
+# Extract and ignore debug lines
+# And extra debug lines about input read and extract from them
+# the filename of files that were read
+set(error)
+set(deps)
+string(REGEX REPLACE "\n" ";" error_raw "${error_raw}")
+foreach(line IN LISTS error_raw)
+	if(line STREQUAL "")
+		continue()
+	endif()
+	if(line MATCHES "^m4debug: ")
+		if(line MATCHES "^m4debug: input read from ([^\n]*)")
+			string(REGEX REPLACE "m4debug: input read from ([^\n]*)" "\\1" line "${line}")
+			if(line STREQUAL "stdin")
+				continue()
+			endif()
+			escape(line)
+			string(APPEND deps " ${line}")
+		endif()
+	else()
+		# Remove executable name from error line
+		# So that my eclipse picks up source file
+		# Then add something on the end of line, so I know it's m4
+		string(REGEX REPLACE "^${M4_COMMAND}:" "" line "${line} (m4)")
+		string(APPEND error "\n${line}")
+	endif()
+endforeach()
+string(REGEX REPLACE "^\n" "" error "${error}")
+
+###############################################################
+
+if(NOT result EQUAL 0)
+	message("${error}")
+	message(FATAL_ERROR)
+endif()	
+
+###############################################################
+
+# Generate depdency file
+if(DEFINED DEPFILE)
+	if(NOT DEFINED DEPNAME)
+		set(DEPNAME ${OUTPUT})
+	endif()
+	escape(DEPNAME)
+	file(WRITE ${DEPFILE} "${DEPNAME}:${deps}\n")
+endif()
+
+	
