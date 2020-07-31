@@ -10,11 +10,58 @@ include(test_extract_properties_from_file)
 
 set(ENV{LC_ALL} "en_US.utf-8")
 
-# m4 ###################################################################
-# Initialize m4 preprocessor the same way as in ../src/CMakeLists.txt
-include(m4)
-m4_add_options(lib.m4)
-m4_add_include_directories(${SRCDIR})
+####################################################################
+
+set(YIO_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+function(yio_add_test name file)
+	# message(STATUS "Adding test ${name} ${file}")
+	add_executable(${name} ${file})
+	target_link_libraries(${name} PRIVATE _yio_testlib m)
+	add_dependencies(build_tests ${name})
+
+	set(realfile "${file}")
+	if(ARGC GREATER_EQUAL 3)
+		set(realfile "${ARGV2}")
+	endif()
+
+	if(NOT realfile STREQUAL "")
+		file(STRINGS ${realfile} input REGEX "^// INPUT ")
+		
+		if(NOT input)
+			add_test(NAME ${name} COMMAND ${name})
+			set_tests_properties(${name} PROPERTIES LABELS normal)
+		else()
+			string(REGEX REPLACE "^[ \t]*// INPUT " "" input "${input}")
+			string(REGEX REPLACE ";[ \t]*// INPUT " "\n" input "${input}")
+			add_test(NAME ${name}
+				COMMAND ${CMAKE_CURRENT_BINARY_DIR}/redirectstdin/src/redirectstdin-build/redirectstdin
+						${input} ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:${name}>
+			)
+			set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED redirectstdin)
+			set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
+		endif()
+		set_property(TEST ${name} APPEND PROPERTY TIMEOUT 5)
+		
+		test_extract_properties_from_file(${name} ${realfile})
+	else()
+		add_test(NAME ${name} COMMAND ${name})
+		set_tests_properties(${name} PROPERTIES LABELS normal)
+	endif()
+
+	if($ENV{YIO_TEST_BUILDING})
+		set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL TRUE)
+
+		add_test(NAME build_${name}
+			COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${name}
+		)
+		set_property(TEST build_${name} PROPERTY FIXTURES_SETUP build_${name})
+		set_property(TEST build_${name} APPEND PROPERTY LABELS nomemcheck)
+		set_property(TEST build_${name} APPEND PROPERTY LABELS compile)
+
+		set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED build_${name})
+	endif()
+endfunction()
 
 #####################################################################
 
@@ -76,53 +123,11 @@ foreach(file IN LISTS srcs)
 	string(REPLACE "/" "_" name "${name}")
 	string(REPLACE "\\" "_" name "${name}")
 	string(REGEX REPLACE "\\..*$" "" name "${name}")
-
-	# message(STATUS "Adding test ${name} ${file}")
-	add_executable(${name} ${file})
-	target_link_libraries(${name} PRIVATE _yio_testlib m)
-	add_dependencies(build_tests ${name})
-
-	file(STRINGS ${file} input REGEX "^// INPUT ")
-	if(NOT input)
-		add_test(NAME ${name} COMMAND ${name})
-		set_tests_properties(${name} PROPERTIES LABELS normal)
-	else()
-		string(REGEX REPLACE "^[ \t]*// INPUT " "" input "${input}")
-		string(REGEX REPLACE ";[ \t]*// INPUT " "\n" input "${input}")
-		add_test(NAME ${name}
-			# COMMAND bash --noprofile --norc -c "exec \"$2\" <<<\"$1\"" _ ${input} $<TARGET_FILE:${name}>
-			COMMAND ${CMAKE_CURRENT_BINARY_DIR}/redirectstdin/src/redirectstdin-build/redirectstdin
-					${input} ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:${name}>
-		)
-		# set_property(TEST ${name} APPEND PROPERTY LABELS nomemcheck)
-		set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED redirectstdin)
-		set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
-	endif()
-	set_property(TEST ${name} APPEND PROPERTY TIMEOUT 5)
-
-	test_extract_properties_from_file(${name} ${file})
-
-	if($ENV{YIO_TEST_BUILDING})
-		set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL TRUE)
-
-		add_test(NAME build_${name}
-			COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target ${name}
-		)
-		set_property(TEST build_${name} PROPERTY FIXTURES_SETUP build_${name})
-		set_property(TEST build_${name} APPEND PROPERTY LABELS nomemcheck)
-		set_property(TEST build_${name} APPEND PROPERTY LABELS compile)
-
-		set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED build_${name})
-	endif()
-
+	
+	yio_add_test("${name}" "${file}")
 endforeach()
 
-# test cmake too!
-add_test(NAME yio_test_cmake
-	COMMAND ${CMAKE_COMMAND} -P test/test.cmake
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
-)
-set_property(TEST yio_test_cmake APPEND PROPERTY LABELS nomemcheck)
+######################################################################################
 
 # test if there are any absolute includes in the source tree
 add_test(NAME find_absolute_includes
