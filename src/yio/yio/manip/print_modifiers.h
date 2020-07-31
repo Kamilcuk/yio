@@ -7,7 +7,6 @@
  * @brief
  */
 #pragma once
-m4_config_yio() m4_dnl;
 
 /**
  * @defgroup yp__mod
@@ -51,7 +50,6 @@ int _yIO_print_nounitbuf(yio_printctx_t *t);
 #define ypnounitbuf()     yiocb(_yIO_print_nounitbuf)
 
 int _yIO_print_pfmt(yio_printctx_t *t);
-int _yIO_print_cfmt(yio_printctx_t *t);
 
 /**
  * Format output by reading python format string.
@@ -65,19 +63,6 @@ int _yIO_print_cfmt(yio_printctx_t *t);
 #define _yIO_yppfmt_N(_0,_1,_2,N,...)  _yIO_yppfmt_##N
 #define yppfmt(...)  \
 		yiocb(_yIO_print_pfmt, _yIO_yppfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
-
-/**
- * Format output by reading C format string.
- * @def ypcfmt(...)
- * @param ... C formatting string like "%s".
- * @param ... Optional up to two int values.
- */
-#define _yIO_ypcfmt_0(fmt)                fmt
-#define _yIO_ypcfmt_1(fmt, spec)          fmt, _Generic((spec),int:(spec))
-#define _yIO_ypcfmt_2(fmt, spec, spec2)   fmt, _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
-#define _yIO_ypcfmt_N(_0,_1,_2,N,...)  _yIO_ypcfmt_##N
-#define ypcfmt(...)  \
-		yiocb(_yIO_print_cfmt, _yIO_ypcfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
 
 /**
  * @}

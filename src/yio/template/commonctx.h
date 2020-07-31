@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #pragma once
 #include "yio/yio_common.h"
 #include <assert.h>
@@ -52,5 +51,4 @@ _yIO_wur _yIO_nn()
 int _yΩIO_commonctx_stdintparam(int (*get_va_arg_int)(void *arg), void *arg,
 		const Ychar *ptr, const Ychar **endptr, int *res);
 
-~)m4_dnl config_template_yio ;
 

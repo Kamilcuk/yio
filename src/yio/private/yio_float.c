@@ -7,7 +7,6 @@
  * @brief
  */
 #define _GNU_SOURCE
-m4_config()
 #include "yio_float.h"
 #include <math.h>
 #include <stddef.h>

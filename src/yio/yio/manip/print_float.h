@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio() m4_dnl;
 #pragma once
 #include "../../private/yio_float.h"
 
@@ -23,9 +22,9 @@ m4_applyforeachdefine(`(
 
 #ifdef _yIO_HAS_FLOAT$1
 
-int _yIO_print_float_strfrom$1(yio_printctx_t *t);
-int _yIO_print_float_stupid$1(yio_printctx_t *t);
-int _yIO_print_float_printf$1(yio_printctx_t *t);
+int _yΩIO_print_float_strfrom$1(yπio_printctx_t *t);
+int _yΩIO_print_float_stupid$1(yπio_printctx_t *t);
+int _yΩIO_print_float_printf$1(yπio_printctx_t *t);
 
 static inline
 int _yIO_print_float$1(yio_printctx_t *t) {

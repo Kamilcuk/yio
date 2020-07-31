@@ -6,51 +6,83 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio() m4_dnl;
 #pragma once
-#include "yio/yio/ctx.h"
-#include "yio/yio_config.h"
+#include "../ctx.h"
+#include "../../yio_config.h"
 #include "slots.h"
-#include "print_float.h"
-#include "print_chars.h"
-#include "print_int.h"
+#include "unhandled.h"
 #include "print_bool.h"
+#include "print_chars.h"
+
+#if _yIO_TYPE_YIO
+#include "print_float.h"
+#include "print_int.h"
 #include "print_modifiers.h"
 #include "print_wchars.h"
 #include "print_count.h"
 #include "print_time.h"
+#include "print_cfmt.h"
 #include "scan_int.h"
 #include "scan_string.h"
 #include "scan_float.h"
 #include "scan_modifiers.h"
+#endif
 
 /* ---------------------------------------------------------------- */
 
-int _yIO_print_unhadled_type(yio_printctx_t *t);
+
+/* ---------------------------------------------------------------- */
 
 /**
- * @def _yIO_PRINT_FUNC_GENERIC
+ * @def _yΩIO_PRINT_FUNC_GENERIC
  * For one argument choose the printing function dynamically using _Generic macro
  */
-#define _yIO_PRINT_FUNC_GENERIC(arg, ...) \
+#if _yIO_TYPE_YIO
+#define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
-				_yIO_PRINT_FUNC_GENERIC_SLOTS() \
+				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
 		default: _Generic((arg), \
-				_yIO_PRINT_FUNC_GENERIC_INTS() \
-				_yIO_PRINT_FUNC_GENERIC_CHARS() \
-				_yIO_PRINT_FUNC_GENERIC_FLOATS() \
-				_yIO_PRINT_FUNC_GENERIC_WCHARS() \
-				_yIO_PRINT_FUNC_GENERIC_BOOL() \
-				_yIO_PRINT_GENERIC_TIME() \
+				_yΩIO_PRINT_FUNC_GENERIC_INTS() \
+				_yΩIO_PRINT_FUNC_GENERIC_CHARS() \
+				_yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
+				_yΩIO_PRINT_FUNC_GENERIC_WCHARS() \
+				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
+				_yΩIO_PRINT_GENERIC_TIME() \
 		default: _Generic((arg), \
-				_yIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
-				_yIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
-				_yIO_PRINT_FUNC_GENERIC_COUNT() \
-		default: _yIO_print_unhadled_type \
+				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
+				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
+				_yΩIO_PRINT_FUNC_GENERIC_COUNT() \
+		default: _yΩIO_print_unhadled_type \
 		)))
+#elif _yIO_TYPE_YWIO
+#define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
+		_Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
+		default: _Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
+				_yΩIO_PRINT_FUNC_GENERIC_CHARS() \
+		default: _Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
+		default: _yΩIO_print_unhadled_type \
+		)))
+#elif _yIO_TYPE_YUIO
+#define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
+		_Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
+		default: _Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
+				_yΩIO_PRINT_FUNC_GENERIC_CHARS() \
+		default: _Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
+		default: _yΩIO_print_unhadled_type \
+		)))
+#else
+#error
+#endif
 
 /* ---------------------------------------------------------------------- */
 
+#if _yIO_TYPE_YIO
 int _yIO_scan_until(yio_scanctx_t *t);
 int _yIO_scan_until_charpntpnt(yio_scanctx_t *t);
 int _yIO_scan_except(yio_scanctx_t *t);
@@ -96,7 +128,6 @@ int _yIO_scan_except_charpntpnt(yio_scanctx_t *t);
 /**
  * @}
  */
-int _yIO_scan_unhandled_type(yio_scanctx_t *t);
 int _yIO_scan_char(yio_scanctx_t *t);
 int _yIO_scan_schar(yio_scanctx_t *t);
 int _yIO_scan_uchar(yio_scanctx_t *t);
@@ -110,13 +141,16 @@ int _yIO_scan_string_literal(yio_scanctx_t *t);
 int _yIO_scan_string(yio_scanctx_t *t);
 int _yIO_scan_charpntpnt(yio_scanctx_t *t);
 int _yIO_scan_const_char_array(yio_scanctx_t *t);
+#endif
 
 /**
+ * @def _yIO_SCAN_FUNC_GENERIC
  * Choose the scanning function of argument using _Generic macro
  */
-#define _yIO_SCAN_FUNC_GENERIC(arg, ...) \
+#if _yIO_TYPE_YIO
+#define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
-				_yIO_SCAN_FUNC_GENERIC_SLOTS() \
+				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
 		default: _Generic((arg), \
 				_yIO_SCAN_FUNC_GENERIC_INTS() \
 				_yIO_SCAN_FUNC_GENERIC_FLOATS() \
@@ -127,5 +161,21 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
 				char (* const)[sizeof(*arg)]: (_yIO_IS_CHARACTER_STRING_LITERAL(arg) ? _yIO_scan_string_literal : _yIO_scan_string), \
 				const char (*)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 				const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array, \
-		default: _yIO_scan_unhandled_type \
+		default: _yΩIO_scan_unhandled_type \
 		))
+#elif _yIO_TYPE_YWIO
+#define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
+		_Generic((arg), \
+				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
+		default: _yΩIO_scan_unhandled_type \
+		)
+#elif _yIO_TYPE_YUIO
+#define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
+		_Generic((arg), \
+				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
+		default: _yΩIO_scan_unhandled_type \
+		)
+#else
+#error
+#endif
+

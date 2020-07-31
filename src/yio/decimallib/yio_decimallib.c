@@ -7,7 +7,6 @@
  * @brief
  */
 #define __STDC_WANT_IEC_60559_DFP_EXT__
-m4_config() m4_dnl;
 #include "yio_decimallib.h"
 #include <stdbool.h>
 #include <math.h>

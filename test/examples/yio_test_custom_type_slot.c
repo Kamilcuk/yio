@@ -10,8 +10,8 @@
 // The slots are macro substituted and currently
 // slots are generated from 100 to 199. So you can use any number in that region,
 // so take a random number and use it.
-#define YIO_PRINT_SLOT_100()  struct A: _yprint_A, const struct A: _yprint_A,
-#define YIO_SCAN_SLOT_100()   struct A *: _yscan_A,
+#define YIO_PRINT_SLOT_100  struct A: _yprint_A, const struct A: _yprint_A,
+#define YIO_SCAN_SLOT_100   struct A *: _yscan_A,
 
 // Remember, as with feature_test_macros(5), first macro, then includes
 #include <yio.h>

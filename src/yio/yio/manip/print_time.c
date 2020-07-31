@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include "yio/private/yio_time.h"
 #include <time.h>
@@ -97,7 +96,7 @@ int _yIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 
 	// We pass length - 1 cause without extra space we allocated in format string.
 	// Note that this _can_ result in an empty string here.
-	ret = yπio_printctx_putsn(t, length - 1, buf);
+	ret = yπio_printctx_put(t, buf, length - 1);
 
 	STRFTIME_ERROR:
 	// If buf was dynamically allocated, free it.
@@ -208,4 +207,3 @@ m4_print_time_gen3(struct timeval, _yIO_print_timeval)
 
 #endif // _yIO_HAS_timeval
 
-~) m4_dnl m4_config_yio_template ;

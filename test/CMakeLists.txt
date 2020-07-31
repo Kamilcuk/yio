@@ -8,31 +8,13 @@ endif()
 include(subdirlist)
 include(test_extract_properties_from_file)
 
+set(ENV{LC_ALL} "en_US.utf-8")
+
 # m4 ###################################################################
 # Initialize m4 preprocessor the same way as in ../src/CMakeLists.txt
 include(m4)
 m4_add_options(lib.m4)
 m4_add_include_directories(${SRCDIR})
-
-# Compiler options #######################################################
-if(CMAKE_COMPILER_IS_GNUCC)
-	add_compile_options(
-		$<$<CONFIG:DEBUG>:-Os>
-		$<$<CONFIG:DEBUG>:-ggdb3>
-		-Wall
-		-Wextra
-		-Wattribute-warning
-	)
-	if(0)
-		add_compile_options(
-			-O0
-		)
-	else()
-		add_compile_definitions(
-			_FORTIFY_SOURCE=2
-		)
-	endif()
-endif()
 
 #####################################################################
 
@@ -120,7 +102,7 @@ foreach(file IN LISTS srcs)
 
 	test_extract_properties_from_file(${name} ${file})
 
-	if($ENV{YIO_BUILD_TESTING})
+	if($ENV{YIO_TEST_BUILDING})
 		set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL TRUE)
 
 		add_test(NAME build_${name}

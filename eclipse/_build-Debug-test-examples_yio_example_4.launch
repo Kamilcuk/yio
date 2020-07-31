@@ -22,7 +22,7 @@
     <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="_build/Debug/test/examples_yio_example_4"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="yio"/>
     <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="true"/>
-    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value="cdt.managedbuild.toolchain.gnu.base.2040386828"/>
     <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
         <listEntry value="/yio"/>
     </listAttribute>

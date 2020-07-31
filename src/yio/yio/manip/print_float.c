@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include <ctype.h>
 
@@ -18,11 +17,10 @@ int _yΩIO_print_float_$2_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 	const char type = t->pf.type ? t->pf.type : 'g';
 	const int precision =  t->pf.precision;
 	char *buf = NULL;
-	int err = 0;
-	err = _yIO_float_astrfrom_$2(&buf, precision, type, var);
-	if (err) return err;
+	const int len = _yIO_float_astrfrom_$2(&buf, precision, type, var);
+	if (len < 0) return len;
 	const bool is_negative = buf[0] == '-';
-	err = yπio_printctx_puts_number(t, buf + is_negative, !is_negative);
+	int err = yπio_printctx_put_number(t, buf + is_negative, len - is_negative, !is_negative);
 	free(buf);
 	return err;
 }
@@ -36,7 +34,7 @@ int _yΩIO_print_float_$2(yπio_printctx_t *t) {
 
 m4_ifelse(`$1~, `f~, `m4_dnl;
 
-int _yΩIO_print_float_$2pnt(yio_printctx_t *t) {
+int _yΩIO_print_float_$2pnt(yπio_printctx_t *t) {
 	const _yIO_FLOAT$1 var = * yio_printctx_va_arg(t, _yIO_FLOAT$1 *);
 	const int err = yio_printctx_init(t);
 	if (err) return err;
@@ -68,4 +66,3 @@ m4_applyforeachdefine((
 m4_generate_print_floats($1, $2)
 ~) m4_dnl;
 
-~) m4_dnl;

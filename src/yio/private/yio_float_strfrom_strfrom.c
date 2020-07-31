@@ -8,7 +8,6 @@
  */
 #define _GNU_SOURCE  1
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
-m4_config() m4_dnl;
 #include "yio_float_strfrom_strfrom.h"
 #include "private.h"
 #include <assert.h>
@@ -78,7 +77,7 @@ int _yIO_float_astrfrom_strfrom$1(char **out, int precision, char spec, _yIO_FLO
 	assert(len2 == len);
 
 	*out = buf;
-	return 0;
+	return len;
 	ERROR:
 	*out = NULL;
 	return err;

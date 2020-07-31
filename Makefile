@@ -181,7 +181,12 @@ cppcheck: release
 	nice cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
 
 ctags:
-	git ls-files -z --exclude-standard --others --cached test/ src/ | xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
+	git ls-files -z --exclude-standard --others --cached test/ src/ | \
+	xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
+
+ctags_gen:
+	find gen/ test/ -type f -print0 | \
+	xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
 
 # Gitlab ####################################
 

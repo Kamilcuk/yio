@@ -1,6 +1,7 @@
 
 #pragma once
 #include <yio.h>
+#include <ywio.h>
 #include <ctype.h>
 
 #ifndef _yIO_VERBOSE

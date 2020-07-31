@@ -5,14 +5,15 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 
 static inline
-int _yΩIO_print_constornot_charpnt(yπio_printctx_t *t, const char *arg) {
+int _yΩIO_print_constornot_charpnt(yπio_printctx_t *t, const char *str) {
 	const int err = yπio_printctx_init(t);
 	if (err) return err;
-	return yio_printctx_puts(t, arg);
+	const struct yπio_printfmt_s *pf = yπio_printctx_get_fmt(t);
+	const size_t len = pf->precision >= 0 ? _yIO_strnlen(str, pf->precision) : strlen(str);
+	return yπio_printctx_put(t, str, len);
 }
 
 static inline
@@ -48,4 +49,3 @@ int _yΩIO_print_constcharpnt(yπio_printctx_t *t) {
 	return _yΩIO_print_constornot_charpnt(t, arg);
 }
 
-~)m4_dnl;

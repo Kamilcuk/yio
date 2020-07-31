@@ -24,6 +24,8 @@ set(_M4_OPTIONS_INIT "")
 # Also see end of this file
 set(_M4_OPTIONS_DEPENDS_INIT "")
 
+set(_m4_FILES_INIT "")
+
 # The executable script to run
 set(_M4_SH_SCRIPT ${CMAKE_CURRENT_LIST_DIR}/m4.sh)
 
@@ -59,6 +61,14 @@ function(m4_add_include_directories)
 	set(_M4_OPTIONS_INIT ${_M4_OPTIONS_INIT} PARENT_SCOPE)
 	# set(_M4_OPTIONS_DEPENDS_INIT ${_M4_OPTIONS_DEPENDS_INIT} PARENT_SCOPE)
 endfunction()
+
+macro(m4_add_files)
+	if(ARGC GREATER 1 AND TARGET ARGV1)
+		message(FATAL_ERROR "m4_add_files passed target name ${ARGV1}")
+	endif()
+	list(APPEND _m4_FILES_INIT ${ARGN})
+	m4_add_file_dependencies(${ARGN})
+endmacro()
 
 macro(m4_add_file_dependencies)
 	list(APPEND _M4_OPTIONS_DEPENDS_INIT ${ARGN})
@@ -109,7 +119,8 @@ function(_m4_add_command_in output source)
 	file(RELATIVE_PATH outputnice ${CMAKE_CURRENT_BINARY_DIR} ${output})
 	file(RELATIVE_PATH sourcenice ${CMAKE_SOURCE_DIR} ${source})
 	get_filename_component(sourcename ${source} NAME)
-	set(depfile ${CMAKE_CURRENT_BINARY_DIR}/${sourcenice}/${sourcename}.d)
+	get_filename_component(outputname ${output} NAME)
+	get_filename_component(depfile ${CMAKE_CURRENT_BINARY_DIR}/${output}.d ABSOLUTE)
 	file(RELATIVE_PATH outputbinrela ${CMAKE_BINARY_DIR} ${output})
 	file(RELATIVE_PATH sourcebinrela ${CMAKE_BINARY_DIR} ${source})
 	
@@ -127,6 +138,9 @@ function(_m4_add_command_in output source)
 		set(script_depfile_args)
 	endif()
 	
+	if($ENV{YIO_M4_CMAKE_DEBUG})
+		message(STATUS "m4.cmake:add_custom_command(OUTPUT ${output} DEPENDS ${source} OPTIONS ${ARGN})")
+	endif()
 	add_custom_command(
 		OUTPUT ${output}
 		MAIN_DEPENDENCY ${source}
@@ -152,6 +166,7 @@ function(m4_add_command output source)
 		${source}
 		${_M4_OPTIONS_INIT}
 		${ARGN}
+		${_m4_FILES_INIT}
 	)
 endfunction()
 

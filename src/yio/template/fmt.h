@@ -6,27 +6,27 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio() m4_dnl;
 #pragma once
 #include <stdbool.h>
+#include <wchar.h>
 
-static const Ychar YIO_NUL = Yc('\0');
+static const Ychar YΩIO_NUL = Yc('\0');
 
-static const Ychar YIO_ALIGN_LEFT = Yc('<');
-static const Ychar YIO_ALIGN_RIGHT = Yc('>');
-static const Ychar YIO_ALIGN_PADSIGN = Yc('=');
-static const Ychar YIO_ALIGN_CENTER = Yc('^');
+static const Ychar YΩIO_ALIGN_LEFT = Yc('<');
+static const Ychar YΩIO_ALIGN_RIGHT = Yc('>');
+static const Ychar YΩIO_ALIGN_PADSIGN = Yc('=');
+static const Ychar YΩIO_ALIGN_CENTER = Yc('^');
 
-static const Ychar YIO_SIGN_ALWAYS = Yc('+');
-static const Ychar YIO_SIGN_NEGATIVE = Yc('-');
-static const Ychar YIO_SIGN_ALWAYSSPACE = Yc(' ');
+static const Ychar YΩIO_SIGN_ALWAYS = Yc('+');
+static const Ychar YΩIO_SIGN_NEGATIVE = Yc('-');
+static const Ychar YΩIO_SIGN_ALWAYSSPACE = Yc(' ');
 
-static const Ychar YIO_GROUPING_COMMA = Yc(',');
-static const Ychar YIO_GROUPING_UNDERSCORE = Yc('_');
-static const Ychar YIO_GROUPING_NONE = Yc('\0');
+static const Ychar YΩIO_GROUPING_COMMA = Yc(',');
+static const Ychar YΩIO_GROUPING_UNDERSCORE = Yc('_');
+static const Ychar YΩIO_GROUPING_NONE = Yc('\0');
 
-static const bool YIO_HASH_ON = true;
-static const bool YIO_HASH_OFF = false;
+static const bool YΩIO_HASH_ON = true;
+static const bool YΩIO_HASH_OFF = false;
 
 /**
  * @defgroup printfmt Printing format
@@ -35,7 +35,7 @@ static const bool YIO_HASH_OFF = false;
 /**
  * Printing formatting options.
  */
-struct yio_printfmt_s {
+struct yπio_printfmt_s {
 	/**
 	 * The field width. Negative when unset.
 	 */
@@ -80,7 +80,7 @@ struct yio_printfmt_s {
 /**
  * Scanning formatting options.
  */
-struct yio_scanfmt_s {
+struct yπio_scanfmt_s {
 	/**
 	 * Field width - how many character can you read from input.
 	 * Negative means endless.

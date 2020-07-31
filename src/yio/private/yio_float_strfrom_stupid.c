@@ -7,7 +7,6 @@
  * @brief
  */
 #define _GNU_SOURCE
-m4_config() m4_dnl;
 #include "yio_float_strfrom_stupid.h"
 #include "yio_buf.h"
 #include "yio_vec.h"
@@ -242,7 +241,7 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 	err = _yIO_vec_putc(v, '\0');
 	if (err) return err;
 	*out = _yIO_vec_data(v);
-	return 0;
+	return _yIO_vec_size(v);
 }
 
 #undef TYPE

@@ -12,3 +12,4 @@
 #include "../../private/yio_float_strfrom_stupid.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
 #include "../../private/yio_float_strfrom_printf.h"
+#include "../../private/yio_strnlen.h"

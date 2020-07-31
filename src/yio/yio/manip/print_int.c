@@ -5,7 +5,6 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include <ctype.h>
 #include <stdbool.h>
@@ -55,12 +54,12 @@ m4_applyforeachdefine((
 ), `m4_dnl;
 m4_ifelse(`$3~,`~,`~,`#ifdef $3
 ~) m4_dnl;
-int _yΩIO_print_$1(yio_printctx_t *t) {
+int _yΩIO_print_$1(yπio_printctx_t *t) {
 	$2 arg = yio_printctx_va_arg_num(t, $2);
 	int err = yio_printctx_init(t);
 	if (err) return err;
 
-	Ychar res[sizeof($2) * CHAR_BIT + 1] = {0};
+	Ychar res[sizeof($2) * CHAR_BIT] = {0};
 	Ychar * num = res + sizeof(res);
 	(--num)[0] = '\0';
 	const Ychar type = yio_printctx_get_fmt(t)->type;
@@ -85,10 +84,10 @@ m4_ifelse(m4_regexp(`$2~,`unsigned~),`-1~,
 			(--num)[0] = format[arg % radix];
 		} while (arg /= radix);
 	}
-	return yπio_printctx_puts_number(t, num, !negative);
+	const size_t length = res + sizeof(res) - num - 1;
+	return yπio_printctx_put_number(t, num, length, !negative);
 }
 m4_ifelse(`$3~,`~,`~,`#endif // $3
 ~) m4_dnl;
 ~)m4_dnl;
 
-~)m4_dnl;

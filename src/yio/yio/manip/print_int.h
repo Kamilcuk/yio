@@ -7,7 +7,6 @@
  * @brief
  */
 #pragma once
-m4_config_yio() m4_dnl;
 
 int _yIO_print_short(yio_printctx_t *t);
 int _yIO_print_ushort(yio_printctx_t *t);

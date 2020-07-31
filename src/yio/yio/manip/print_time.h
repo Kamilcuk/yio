@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #pragma once
 #include <time.h>
 
@@ -73,4 +72,3 @@ m4_print_time_gen1(_yIO_print_timeval)
 		_yIO_PRINT_GENERIC_TIMESPEC() \
 		_yIO_PRINT_GENERIC_TIMEVAL()
 
-~)m4_dnl m4_config_yio_template ;

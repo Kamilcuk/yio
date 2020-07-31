@@ -7,7 +7,6 @@
  * @brief
  */
 #pragma once
-m4_config() m4_dnl;
 
 
 #if __CDT_PARSER__

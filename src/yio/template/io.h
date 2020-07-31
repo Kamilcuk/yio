@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #pragma once
 #include "ctx.h"
 #include <stdio.h>
@@ -28,32 +27,32 @@ m4_config_yio_template(`m4_dnl);
  * @return Number of characters written or negative on error.
  */
 _yIO_nn(1, 3, 4)
-int yπvbprintf(_yIO_printcb_t *out, void *arg, yio_printdata_t *data, va_list *va);
+int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, va_list *va);
 /**
  * Similar to printf() call.
  * @see yvbprintf
  */
 _yIO_nn()
-int yπvprintf(yio_printdata_t *data, va_list *va);
+int yπvprintf(yπio_printdata_t *data, va_list *va);
 /**
  * Similar to fprintf() call.
  * @see yvbprintf
  */
 _yIO_nn()
-int yπvfprintf(FILE *file, yio_printdata_t *data, va_list *va);
+int yπvfprintf(FILE *file, yπio_printdata_t *data, va_list *va);
 /**
  * Similar to snprintf() call.
  * @see yvbprintf
  */
 _yIO_nn()
-int yπvsprintf(Ychar *dest, size_t size, yio_printdata_t *data, va_list *va);
+int yπvsprintf(Ychar *dest, size_t size, yπio_printdata_t *data, va_list *va);
 /**
  * Works as-if the call to GNU extension asprintf().
  * Equal to doing: *strp = NULL; yvreasrintf(strp, ...);
  * @see yvreasprintf
  */
 _yIO_nn()
-int yπvaprintf(Ychar **strp, yio_printdata_t *data, va_list *va);
+int yπvaprintf(Ychar **strp, yπio_printdata_t *data, va_list *va);
 /**
  * Reallocates a string to append the printed characters.
  * @param strp If is NULL, a new string is allocated, otherwise it is reallocated.
@@ -63,13 +62,13 @@ int yπvaprintf(Ychar **strp, yio_printdata_t *data, va_list *va);
  *         In case of memory error the pointer strp is freed and is set to NULL.
  */
 _yIO_nn()
-int yπvreaprintf(Ychar **strp, yio_printdata_t *data, va_list *va);
+int yπvreaprintf(Ychar **strp, yπio_printdata_t *data, va_list *va);
 /**
- * Calls yvreformatf(NULL, ...). See yvreformatf.
- * @see yvreformatf
+ * Calls yπvreformatf(NULL, ...). See yπvreformatf.
+ * @see yπvreformatf
  */
 _yIO_malloc _yIO_nn() _yIO_wur
-Ychar *yπvformatf(yio_printdata_t *data, va_list *va);
+Ychar *yπvformatf(yπio_printdata_t *data, va_list *va);
 /**
  * Dynamically allocates memory for formatted string.
  *
@@ -87,13 +86,13 @@ Ychar *yπvformatf(yio_printdata_t *data, va_list *va);
  *         calling this function. *
  */
 _yIO_nn(2, 3) _yIO_wur
-Ychar *yπvreformatf(Ychar *str, yio_printdata_t *data, va_list *va);
+Ychar *yπvreformatf(Ychar *str, yπio_printdata_t *data, va_list *va);
 /**
  * Output to the file descriptor. Similar to POSIX dprintf() call.
  * @see yvbprintf
  */
 _yIO_nn()
-int yπvdprintf(int fd, yio_printdata_t *data, va_list *va);
+int yπvdprintf(int fd, yπio_printdata_t *data, va_list *va);
 /**
  * @}
  */
@@ -108,23 +107,23 @@ int yπvdprintf(int fd, yio_printdata_t *data, va_list *va);
  * @{
  */
 _yIO_nn(1, 2)
-int _yΩIO_ybprintf(_yIO_printcb_t *out, void *arg, yio_printdata_t *data, ...);
+int _yΩIO_ybprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, ...);
 _yIO_nn(1)
-int _yΩIO_yprintf(yio_printdata_t *data, ...);
+int _yΩIO_yprintf(yπio_printdata_t *data, ...);
 _yIO_nn(1, 2)
-int _yΩIO_yfprintf(FILE *file, yio_printdata_t *data, ...);
+int _yΩIO_yfprintf(FILE *file, yπio_printdata_t *data, ...);
 _yIO_nn(1, 3)
-int _yΩIO_ysprintf(Ychar *dest, size_t size, yio_printdata_t *data, ...);
+int _yΩIO_ysprintf(Ychar *dest, size_t size, yπio_printdata_t *data, ...);
 _yIO_nn(1, 2)
-int _yΩIO_yaprintf(Ychar **strp, yio_printdata_t *data, ...);
+int _yΩIO_yaprintf(Ychar **strp, yπio_printdata_t *data, ...);
 _yIO_nn(1, 2)
-int _yΩIO_yreaprintf(Ychar **strp, yio_printdata_t *data, ...);
+int _yΩIO_yreaprintf(Ychar **strp, yπio_printdata_t *data, ...);
 _yIO_nn(1) _yIO_malloc _yIO_wur
-Ychar *_yΩIO_yformatf(yio_printdata_t *data, ...);
+Ychar *_yΩIO_yformatf(yπio_printdata_t *data, ...);
 _yIO_nn(1, 2) _yIO_wur
-Ychar *_yΩIO_yreformatf(Ychar *str, yio_printdata_t *data, ...);
+Ychar *_yΩIO_yreformatf(Ychar *str, yπio_printdata_t *data, ...);
 _yIO_nn(2)
-int _yΩIO_ydprintf(int fd, yio_printdata_t *data, ...);
+int _yΩIO_ydprintf(int fd, yπio_printdata_t *data, ...);
 /**
  * @}
  */
@@ -160,15 +159,15 @@ int _yΩIO_ydprintf(int fd, yio_printdata_t *data, ...);
  * @see yvbprintf
  * @{
  */
-#define yπbprint(cb, arg, ...)     _yIO_ybprintf(cb, arg, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπprint(...)               _yIO_yprintf(YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπfprint(file, ...)        _yIO_yfprintf(file, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπsprint(dest, size, ...)  _yIO_ysprintf(dest, size, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπaprint(strp, ...)        _yIO_yaprintf(strp, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπreaprint(strp, ...)      _yIO_yreaprintf(strp, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπformat(...)              _yIO_yformatf(YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπreformat(str, ...)       _yIO_yreformatf(str, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yπdprint(fd, ...)          _yIO_ydprintf(fd, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπbprint(cb, arg, ...)     _yΩIO_ybprintf(cb, arg, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπprint(...)               _yΩIO_yprintf(YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπfprint(file, ...)        _yΩIO_yfprintf(file, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπsprint(dest, size, ...)  _yΩIO_ysprintf(dest, size, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπaprint(strp, ...)        _yΩIO_yaprintf(strp, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπreaprint(strp, ...)      _yΩIO_yreaprintf(strp, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπformat(...)              _yΩIO_yformatf(YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπreformat(str, ...)       _yΩIO_yreformatf(str, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπdprint(fd, ...)          _yΩIO_ydprintf(fd, YΩIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * @}
  */
@@ -214,19 +213,19 @@ struct yπio_scanret_s {
  * @return struct yio_scanret_s
  */
 _yIO_nn(1, 3, 4) _yIO_wur
-struct yπio_scanret_s yπvbscanf(_yIO_scancb_t *in, void *arg, yio_scandata_t *data, va_list *va);
+struct yπio_scanret_s yπvbscanf(_yΩIO_scancb_t *in, void *arg, yπio_scandata_t *data, va_list *va);
 /// Scans from standard input.
 _yIO_nn() _yIO_wur
-struct yπio_scanret_s yπvscanf(yio_scandata_t *data, va_list *va);
+struct yπio_scanret_s yπvscanf(yπio_scandata_t *data, va_list *va);
 /// Scans from FILE*.
 _yIO_nn() _yIO_wur
-struct yπio_scanret_s yπvfscanf(FILE *file, yio_scandata_t *data, va_list *va);
+struct yπio_scanret_s yπvfscanf(FILE *file, yπio_scandata_t *data, va_list *va);
 /// Scans from a string \b str .
 _yIO_nn() _yIO_wur
-struct yπio_scanret_s yπvsscanf(Ychar *src, yio_scandata_t *data, va_list *va);
+struct yπio_scanret_s yπvsscanf(const Ychar *src, yπio_scandata_t *data, va_list *va);
 /// Scans from a file descriptor.
 _yIO_nn() _yIO_wur
-struct yπio_scanret_s yπvdscanf(int fd, yio_scandata_t *data, va_list *va);
+struct yπio_scanret_s yπvdscanf(int fd, yπio_scandata_t *data, va_list *va);
 /**
  * @}
  */
@@ -241,11 +240,11 @@ struct yπio_scanret_s yπvdscanf(int fd, yio_scandata_t *data, va_list *va);
  * @return struct yio_scanret_s
  * @{
  */
-#define ybscanf(cb, arg, ...)  _yIO_ybscanf(cb, arg, YIO_SCAN_ARGUMENTS(__VA_ARGS__))
-#define yscanf(...)            _yIO_yscanf(YIO_SCAN_ARGUMENTS(__VA_ARGS__))
-#define yfscanf(file, ...)     _yIO_yfscanf(file, YIO_SCAN_ARGUMENTS(__VA_ARGS__))
-#define ysscanf(src, ...)      _yIO_ysscanf(src, YIO_SCAN_ARGUMENTS(__VA_ARGS__))
-#define ydscanf(fd, ...)       _yIO_yscanf(fd, YIO_SCAN_ARGUMENTS(__VA_ARGS__))
+#define yπbscanf(cb, arg, ...)  _yΩIO_ybscanf(cb, arg, YΩIO_SCAN_ARGUMENTS(__VA_ARGS__))
+#define yπscanf(...)            _yΩIO_yscanf(YΩIO_SCAN_ARGUMENTS(__VA_ARGS__))
+#define yπfscanf(file, ...)     _yΩIO_yfscanf(file, YΩIO_SCAN_ARGUMENTS(__VA_ARGS__))
+#define yπsscanf(src, ...)      _yΩIO_ysscanf(src, YΩIO_SCAN_ARGUMENTS(__VA_ARGS__))
+#define yπdscanf(fd, ...)       _yΩIO_yscanf(fd, YΩIO_SCAN_ARGUMENTS(__VA_ARGS__))
 /**
  * @}
  */
@@ -260,15 +259,15 @@ struct yπio_scanret_s yπvdscanf(int fd, yio_scandata_t *data, va_list *va);
  * @{
  */
 _yIO_nn(1, 3) _yIO_wur
-struct yio_scanret_s _yIO_ybscanf(_yIO_scancb_t *in, void *arg, yio_scandata_t *data, ...);
+struct yπio_scanret_s _yΩIO_ybscanf(_yΩIO_scancb_t *in, void *arg, yπio_scandata_t *data, ...);
 _yIO_nn(1) _yIO_wur
-struct yio_scanret_s _yIO_yscanf(yio_scandata_t *data, ...);
+struct yπio_scanret_s _yΩIO_yscanf(yπio_scandata_t *data, ...);
 _yIO_nn(1, 2) _yIO_wur
-struct yio_scanret_s _yIO_yfscanf(FILE *file, yio_scandata_t *data, ...);
+struct yπio_scanret_s _yΩIO_yfscanf(FILE *file, yπio_scandata_t *data, ...);
 _yIO_nn(1, 2) _yIO_wur
-struct yio_scanret_s _yIO_ysscanf(Ychar *src, yio_scandata_t *data, ...);
+struct yπio_scanret_s _yΩIO_ysscanf(const Ychar *src, yπio_scandata_t *data, ...);
 _yIO_nn(2) _yIO_wur
-struct yio_scanret_s _yIO_ydscanf(int fd, yio_scandata_t *data, ...);
+struct yπio_scanret_s _yΩIO_ydscanf(int fd, yπio_scandata_t *data, ...);
 /**
  * @}
  */
@@ -279,41 +278,41 @@ struct yio_scanret_s _yIO_ydscanf(int fd, yio_scandata_t *data, ...);
  * @}
  * @ingroup y__scan
  * @brief Constructs Yio scanning data and calls internal Yio operation function.
- * @see yvbscanf
+ * @see yπvbscanf
  * @{
  */
 /**
  * Scan from standard input.
- * @param cb See yvbscanf
- * @param arg See yvbscanf
+ * @param cb See yπvbscanf
+ * @param arg See yπvbscanf
  * @param ...
- * @return struct yio_scanret_s
+ * @return struct yπio_scanret_s
  */
-#define ybscan(cb, arg, ...)  _yIO_ybscanf(cb, arg, YIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπbscan(cb, arg, ...)  _yΩIO_ybscanf(cb, arg, YΩIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * Scan from standard input.
  * @param ...
- * @return struct yio_scanret_s
+ * @return struct yπio_scanret_s
  */
-#define yscan(...)            _yIO_yscanf(YIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπscan(...)            _yΩIO_yscanf(YΩIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * @param file FILE* to scan from.
  * @param ...
- * @return struct yio_scanret_s
+ * @return struct yπio_scanret_s
  */
-#define yfscan(file, ...)     _yIO_yfscanf(file, YIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπfscan(file, ...)     _yΩIO_yfscanf(file, YΩIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * @param src char* String to scan data from.
  * @param ...
- * @return struct yio_scanret_s
+ * @return struct yπio_scanret_s
  */
-#define ysscan(src, ...)      _yIO_ysscanf(src, YIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπsscan(src, ...)      _yΩIO_ysscanf(src, YΩIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * Scan from file descriptor.
  * @param ...
- * @return struct yio_scanret_s
+ * @return struct yπio_scanret_s
  */
-#define ydscan(fd, ...)       _yIO_ydscanf(fd, YIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
+#define yπdscan(fd, ...)       _yΩIO_ydscanf(fd, YΩIO_SCAN_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * @}
  */
@@ -321,7 +320,7 @@ struct yio_scanret_s _yIO_ydscanf(int fd, yio_scandata_t *data, ...);
 /* ---------------------------------------------------------------------------- */
 
 /**
- * YIO_PRINT_ARGUMENTS
+ * YΩIO_PRINT_ARGUMENTS
  * Create argument list for yprint functions
  * If an argument doesn't has 62 commas, then the function for it is chosen
  *    using _Generic expression with _yIO_PRINT_FUNC_GENERIC.
@@ -334,19 +333,18 @@ struct yio_scanret_s _yIO_ydscanf(int fd, yio_scandata_t *data, ...);
  * Is expanded to:
  *    yprint((const _yIO_func_t[]){ _Generic((1), int: _yIO_print_int), function, NULL }, 1, 2, 3);
  *
- * The first argument is an array of functions to handle arguments, delimetered with NULL.
+ * The first argument is an array of functions to handle arguments, delimitered with NULL.
  * The rest of the arguments are unchanged and appended to ellipsis argument.
  */
-#define YIO_PRINT_ARGUMENTS(...)  \
-		_yIO_print_arguments_N(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(_yIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
+#define YΩIO_PRINT_ARGUMENTS(...)  \
+		_yΩIO_print_arguments_N(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(_yΩIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
 
 /**
- * @def YIO_SCAN_ARGUMENTS(...)
+ * @def YΩIO_SCAN_ARGUMENTS(...)
  * @param ... Scan arguments list.
- * Just like YIO_PRINT_ARGUMENTS.
+ * Just like YΩIO_PRINT_ARGUMENTS.
  */
-#define YIO_SCAN_ARGUMENTS(...)  \
-		_yIO_scan_arguments_N(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(_yIO_SCAN_FUNC_GENERIC, __VA_ARGS__)
+#define YΩIO_SCAN_ARGUMENTS(...)  \
+		_yΩIO_scan_arguments_N(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(_yΩIO_SCAN_FUNC_GENERIC, __VA_ARGS__)
 
 
-~)m4_dnl;

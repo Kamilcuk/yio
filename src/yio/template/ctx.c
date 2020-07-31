@@ -5,18 +5,18 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <ctype.h>
 #include <limits.h>
 
+
 /* printctx ---------------------------------------------------- */
 
 int yπio_printctx_init(yπio_printctx_t *t) {
 	if (t->fmt) {
-		const int err = _yIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
+		const int err = _yΩIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
 		if (err) return err;
 	}
 	return 0;
@@ -65,13 +65,16 @@ int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...) {
 
 /* printformat --------------------------------------------------- */
 
-typedef struct _yIO_printformat_t {
+typedef struct _yΩIO_printformat_t {
 	yπio_printctx_t *t;
+#if _yIO_TYPE_YUIO
+	size_t bytes_len;
+#endif
 	size_t str_len;
 	size_t alllen;
 	bool is_number;
 	bool is_positive;
-} _yIO_printformat_t;
+} _yΩIO_printformat_t;
 
 /**
  * Construct print formatting options.
@@ -89,70 +92,77 @@ typedef struct _yIO_printformat_t {
  * @return
  */
 static inline
-_yIO_printformat_t _yIO_printformat_init(yπio_printctx_t *t,
-		size_t str_len, bool is_number, bool is_positive) {
-	_yIO_printformat_t ret = {
+void _yΩIO_printformat_init(_yΩIO_printformat_t *pf, yπio_printctx_t *t,
+		const Ychar *str, size_t str_len, bool is_number, bool is_positive) {
+	_yΩIO_printformat_t ret = {
 			.t = t,
 			.str_len = str_len,
 			.is_number = is_number,
 			.is_positive = is_positive,
 	};
-	return ret;
+	(void)str;
+#if _yIO_TYPE_YUIO
+	ret.bytes_len = str_len;
+	if (!is_number) {
+		ret.str_len = u32_width(str, sizeof(str), locale_charset());
+	}
+#endif
+	*pf = ret;
 }
 
 static inline
-int _yIO_printformat_prefix__print_sign_hash(yπio_printctx_t *t,
-		const struct yio_printfmt_s *f,
+int _yΩIO_printformat_prefix__print_sign_hash(yπio_printctx_t *t,
+		const struct yπio_printfmt_s *f,
 		bool has_sign, bool has_hash, bool is_positive) {
 	if (has_sign) {
-		const char c = is_positive ? f->sign : Yc('-');
-		const int err = yio_printctx_raw_write(t, &c, 1);
+		const Ychar c = is_positive ? f->sign : Yc('-');
+		const int err = yπio_printctx_raw_write(t, &c, 1);
 		if (err) return err;
 	}
 	if (has_hash) {
 		assert(Yisprint(f->type));
 		const Ychar buf[2] = { Yc('0'), f->type, };
-		const int err = yio_printctx_raw_write(t, buf, sizeof(buf));
+		const int err = yπio_printctx_raw_write(t, buf, sizeof(buf));
 		if (err) return err;
 	}
 	return 0;
 }
 
 static inline
-int _yIO_printformat_prefix(_yIO_printformat_t *pf) {
+int _yΩIO_printformat_prefix(_yΩIO_printformat_t *pf) {
 	yπio_printctx_t * const t = pf->t;
-	struct yio_printfmt_s * const f = &pf->t->pf;
+	struct yπio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	const bool is_positive = pf->is_positive;
 	size_t * const alllen0 = &pf->alllen;
 	const size_t len = pf->str_len;
 
 	const bool has_hash = is_number && f->hash && Ystrchr(Yc("xXoObB"), f->type) != NULL;
-	const bool has_sign = is_number && (f->sign == YIO_SIGN_ALWAYS ||
-					f->sign == YIO_SIGN_ALWAYSSPACE || is_positive == false);
+	const bool has_sign = is_number && (f->sign == YΩIO_SIGN_ALWAYS ||
+					f->sign == YΩIO_SIGN_ALWAYSSPACE || is_positive == false);
 	const size_t alllen = len + 2 * has_hash + has_sign;
 	*alllen0 = alllen;
 	const size_t width = f->width > 0 ? f->width : 0;
 
-	if (f->align == YIO_ALIGN_PADSIGN) {
-		const int err = _yIO_printformat_prefix__print_sign_hash(t, f,
+	if (f->align == YΩIO_ALIGN_PADSIGN) {
+		const int err = _yΩIO_printformat_prefix__print_sign_hash(t, f,
 				has_sign, has_hash, is_positive);
 		if (err) return err;
 	}
 
-	if ((f->align == YIO_ALIGN_PADSIGN ||
-			f->align == YIO_ALIGN_RIGHT ||
-			f->align == YIO_ALIGN_CENTER) && width > alllen) {
+	if ((f->align == YΩIO_ALIGN_PADSIGN ||
+			f->align == YΩIO_ALIGN_RIGHT ||
+			f->align == YΩIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = width - alllen;
-		size_t diff = f->align == YIO_ALIGN_CENTER ? tmp / 2 + !!(tmp % 2) : tmp;
+		size_t diff = f->align == YΩIO_ALIGN_CENTER ? tmp / 2 + !!(tmp % 2) : tmp;
 		while (diff--) {
-			const int err = yio_printctx_raw_write(t, &f->fill, 1);
+			const int err = yπio_printctx_raw_write(t, &f->fill, 1);
 			if (err) return err;
 		}
 	}
 
-	if (f->align != YIO_ALIGN_PADSIGN) {
-		const int err = _yIO_printformat_prefix__print_sign_hash(t, f,
+	if (f->align != YΩIO_ALIGN_PADSIGN) {
+		const int err = _yΩIO_printformat_prefix__print_sign_hash(t, f,
 				has_sign, has_hash, is_positive);
 		if (err) return err;
 	}
@@ -161,17 +171,17 @@ int _yIO_printformat_prefix(_yIO_printformat_t *pf) {
 }
 
 static inline
-int _yIO_printformat_suffix(_yIO_printformat_t *pf) {
+int _yΩIO_printformat_suffix(_yΩIO_printformat_t *pf) {
 	yπio_printctx_t * const t = pf->t;
-	struct yio_printfmt_s * const f = &pf->t->pf;
+	struct yπio_printfmt_s * const f = &pf->t->pf;
 	const size_t alllen = pf->alllen;
 
 	const size_t width = f->width > 0 ? f->width : 0;
-	if ((f->align == YIO_ALIGN_LEFT || f->align == YIO_ALIGN_CENTER) && width > alllen) {
+	if ((f->align == YΩIO_ALIGN_LEFT || f->align == YΩIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
-		size_t diff = f->align == YIO_ALIGN_CENTER ? tmp / 2: tmp;
+		size_t diff = f->align == YΩIO_ALIGN_CENTER ? tmp / 2: tmp;
 		while (diff--) {
-			const int err = yio_printctx_raw_write(t, &f->fill, 1);
+			const int err = yπio_printctx_raw_write(t, &f->fill, 1);
 			if (err) return err;
 		}
 	}
@@ -179,7 +189,7 @@ int _yIO_printformat_suffix(_yIO_printformat_t *pf) {
 }
 
 static inline
-const char *_yIO_str_comma_or_end(const Ychar str[]) {
+const Ychar *_yΩIO_str_comma_or_end(const Ychar str[]) {
 	for (; str[0] != Yc('\0') && str[0] != Yc('.'); ++str) {
 		continue;
 	}
@@ -187,14 +197,14 @@ const char *_yIO_str_comma_or_end(const Ychar str[]) {
 }
 
 static inline
-int _yIO_print_format_generic_number_grouping(yio_printctx_t *t, Ychar grouping,
+int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, Ychar grouping,
 		const Ychar str[], size_t str_len) {
 
 	assert(Yisprint((unsigned char)grouping));
 	int err = 0;
 	// Find end of string (integer) or comma (floating point)
 	const Ychar * const str0 = str;
-	const Ychar *comma_or_end = _yIO_str_comma_or_end(str);
+	const Ychar *comma_or_end = _yΩIO_str_comma_or_end(str);
 	// Calculate size of first block.
 	const size_t blocksize = 3;
 	const size_t numberscnt = comma_or_end - str;
@@ -204,12 +214,12 @@ int _yIO_print_format_generic_number_grouping(yio_printctx_t *t, Ychar grouping,
 	// Print nn_nnn_nnn_nnn_nnn_nnn[.nnnnnnnn]
 	if (firstblock) {
 		// print the first non divisible by blocksize
-		err = yio_printctx_raw_write(t, str, firstblock);
+		err = yπio_printctx_raw_write(t, str, firstblock);
 		str += firstblock;
 		if (err) return err;
 		// if there are more numbers to write, write the grouping character
 		if (str != comma_or_end) {
-			err = yio_printctx_raw_write(t, &grouping, 1);
+			err = yπio_printctx_raw_write(t, &grouping, 1);
 			if (err) return err;
 		}
 	}
@@ -219,7 +229,7 @@ int _yIO_print_format_generic_number_grouping(yio_printctx_t *t, Ychar grouping,
 			// we get here either by writing first block and printing grouping
 			// or by printing nothing by far
 			// or by the loop
-			err = yio_printctx_raw_write(t, str, blocksize);
+			err = yπio_printctx_raw_write(t, str, blocksize);
 			str += blocksize;
 			if (err) return err;
 			// we check if the end is between grouping and end
@@ -228,7 +238,7 @@ int _yIO_print_format_generic_number_grouping(yio_printctx_t *t, Ychar grouping,
 				break;
 			}
 			// print the grounping between
-			err = yio_printctx_raw_write(t, &grouping, 1);
+			err = yπio_printctx_raw_write(t, &grouping, 1);
 			if (err) return err;
 		}
 	}
@@ -238,7 +248,7 @@ int _yIO_print_format_generic_number_grouping(yio_printctx_t *t, Ychar grouping,
 	assert(str_len >= written_so_far);
 	const size_t left_to_write = str_len - written_so_far;
 	if (left_to_write) {
-		err = yio_printctx_raw_write(t, str, left_to_write);
+		err = yπio_printctx_raw_write(t, str, left_to_write);
 		if (err) return err;
 	}
 
@@ -246,43 +256,75 @@ int _yIO_print_format_generic_number_grouping(yio_printctx_t *t, Ychar grouping,
 }
 
 static inline
-int _yIO_printformat_print(_yIO_printformat_t *pf, const Ychar str[]) {
+int _yΩIO_printformat_print(_yΩIO_printformat_t *pf, const Ychar str[]) {
 	yπio_printctx_t * const t = pf->t;
-	struct yio_printfmt_s * const f = &pf->t->pf;
+	struct yπio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	const Ychar grouping = f->grouping;
 	const size_t str_len = pf->str_len;
 
-	if (is_number == true && grouping != YIO_GROUPING_NONE) {
-		const int err = _yIO_print_format_generic_number_grouping(t, grouping, str, str_len);
+	if (is_number == true && grouping != YΩIO_GROUPING_NONE) {
+		const int err = _yΩIO_print_format_generic_number_grouping(t, grouping, str, str_len);
 		if (err) return err;
 	} else {
 		const int precision = f->precision;
 		const size_t to_print =
 				is_number == true || precision < 0 || (size_t)precision >= str_len ?
 						str_len : (size_t)precision;
-		const int err = yio_printctx_raw_write(t, str, to_print);
+		const int err = yπio_printctx_raw_write(t, str, to_print);
 		if (err) return err;
 	}
 
 	return 0;
 }
 
-int _yIO_printformat_generic(yπio_printctx_t * restrict t,
-		size_t str_len, const char str[restrict], bool is_number, bool is_positive) {
-	_yIO_printformat_t pf = _yIO_printformat_init(t, str_len, is_number, is_positive);
-	int err = _yIO_printformat_prefix(&pf);
+int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
+		const Ychar str[restrict], size_t str_len, bool is_number, bool is_positive) {
+	_yΩIO_printformat_t pf;
+	_yΩIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
+	int err = _yΩIO_printformat_prefix(&pf);
 	if (err) return err;
-	err = _yIO_printformat_print(&pf, str);
+	err = _yΩIO_printformat_print(&pf, str);
 	if (err) return err;
-	err = _yIO_printformat_suffix(&pf);
+	err = _yΩIO_printformat_suffix(&pf);
 	if (err) return err;
 	return 0;
 }
 
+int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
+		const char str[], size_t str_len, bool is_number, bool is_positive) {
+#if _yIO_TYPE_YIO
+	return _yΩIO_printformat_generic(t, str, str_len, is_number, is_positive);
+#elif _yIO_TYPE_YWIO
+	wchar_t *buf = malloc(sizeof(wchar_t) * (str_len + 1));
+	if (buf == NULL) return YIO_ERROR_ENOMEM;
+	mbstate_t ps;
+	memset(&ps, 0, sizeof(ps));
+	const char *src = str;
+	size_t r = mbsrtowcs(buf, &src, str_len, &ps);
+	if (r == (size_t)-1 || src != NULL) {
+		free(buf);
+		return YIO_ERROR_WCTOMB_ERR;
+	}
+	const int ret = _yΩIO_printformat_generic(t, buf, r, is_number, is_positive);
+	free(buf);
+	return ret;
+#elif _yIO_TYPE_YUIO
+	size_t length = 0;
+	ucs4_t *buf = u32_conv_from_encoding(locale_charset(), iconveh_question_mark,
+			str, str_len, NULL, NULL, &length);
+	if (buf == NULL) return YIO_ERROR_ENOMEM;
+	const int ret = _yΩIO_printformat_generic(t, buf, length, is_number, is_positive);
+	free(buf);
+	return ret;
+#else
+#error
+#endif
+}
+
 /* scanctx ---------------------------------------------------- */
 
-int yπio_scanctx_in(yio_scanctx_t *t, int *c) {
+int yπio_scanctx_in(yπio_scanctx_t *t, Yint *c) {
 	assert(t != NULL);
 	if (t->unin) {
 		t->unin = false;
@@ -299,13 +341,13 @@ int yπio_scanctx_in(yio_scanctx_t *t, int *c) {
 	return 0;
 }
 
-void yπio_scanctx_unin(yio_scanctx_t *t) {
+void yπio_scanctx_unin(yπio_scanctx_t *t) {
 	assert(t->unin == false);
 	t->unin = true;
 	// _yIO_dbgln("unin '%s'", _yIO_printc(t->ch));
 }
 
-int yπio_scanctx_next(yio_scanctx_t *t) {
+int yπio_scanctx_next(yπio_scanctx_t *t) {
 	assert(t != NULL);
 	assert(t->ifunc != NULL);
 	assert(*t->ifunc != NULL);
@@ -314,11 +356,11 @@ int yπio_scanctx_next(yio_scanctx_t *t) {
 	return (*t->ifunc)(t);
 }
 
-struct yio_scanfmt_s *yπio_scanctx_get_fmt(yio_scanctx_t *t) {
+struct yπio_scanfmt_s *yπio_scanctx_get_fmt(yπio_scanctx_t *t) {
 	return &t->sf;
 }
 
-size_t yπio_scanctx_arg_size_next(yio_scanctx_t *t) {
+size_t yπio_scanctx_arg_size_next(yπio_scanctx_t *t) {
 	assert(t != NULL);
 	assert(t->argpntsizespnt != NULL);
 	assert(*t->argpntsizespnt != 0 ||
@@ -326,15 +368,15 @@ size_t yπio_scanctx_arg_size_next(yio_scanctx_t *t) {
 	return *t->argpntsizespnt++;
 }
 
-va_list *_yΩIO_scanctx_inc_va_list(yio_scanctx_t *t, size_t sizeof_realtype) {
+va_list *_yΩIO_scanctx_inc_va_list(yπio_scanctx_t *t, size_t sizeof_realtype) {
 	return _yΩIO_commonctx_inc_va_list(&t->c, sizeof_realtype);
 }
 
-int _yΩIO_scanctx_scan(yio_scanctx_t *t, yπio_scandata_t *data, ...) {
+int _yΩIO_scanctx_scan(yπio_scanctx_t *t, yπio_scandata_t *data, ...) {
 	assert(t != NULL);
 	va_list va;
 	va_start(va, data);
-	struct yio_scanret_s ret = yπvbscanf(t->in, t->inarg, data, &va);
+	struct yπio_scanret_s ret = yπvbscanf(t->in, t->inarg, data, &va);
 	va_end(va);
 	assert(t->scannedcnt < (size_t)INT_MAX - ret.count);
 	t->scannedcnt += ret.count;
@@ -345,6 +387,5 @@ int _yΩIO_scanctx_scan(yio_scanctx_t *t, yπio_scandata_t *data, ...) {
 	return ret.error;
 }
 
-~)m4_dnl;
 
 

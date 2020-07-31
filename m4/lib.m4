@@ -1,12 +1,10 @@
 m4_divert(-1)
 
-m4_include(changequote_to_tilde.m4)
+m4_include(lib_changequote_to_tilde.m4)
 
 m4_include(lib/lib.m4)
 
 m4_changecom(`/*~, `*/~)
-
-m4_include(m4_config.m4)
 
 /**
  * @defgroup m4 

@@ -5,7 +5,6 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include <limits.h>
 #include <string.h>
@@ -20,101 +19,103 @@ m4_config_yio_template(`m4_dnl);
 
 /* _yIO_y*printf ------------------------------------------------------------------------ */
 
-int _yIO_ybprintf(_yIO_printcb_t *out, void *arg, yio_printdata_t *data, ...) {
+int _yΩIO_ybprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const int ret = yvbprintf(out, arg, data, &va);
+	const int ret = yπvbprintf(out, arg, data, &va);
 	va_end(va);
 	return ret;
 }
 
-int _yIO_yprintf(yπio_printdata_t *data, ...) {
+int _yΩIO_yprintf(yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const int ret = yvprintf(data, &va);
+	const int ret = yπvprintf(data, &va);
 	va_end(va);
 	return ret;
 }
 
-int _yIO_yfprintf(FILE *file, yπio_printdata_t *data, ...) {
+int _yΩIO_yfprintf(FILE *file, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const int ret = yvfprintf(file, data, &va);
+	const int ret = yπvfprintf(file, data, &va);
 	va_end(va);
 	return ret;
 }
 
-int _yIO_ysprintf(Ychar *dest, size_t size, yio_printdata_t *data, ...) {
+int _yΩIO_ysprintf(Ychar *dest, size_t size, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const int ret = yvsprintf(dest, size, data, &va);
+	const int ret = yπvsprintf(dest, size, data, &va);
 	va_end(va);
 	return ret;
 }
 
-int _yIO_yaprintf(Ychar **strp, yio_printdata_t *data, ...) {
+int _yΩIO_yaprintf(Ychar **strp, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const int ret = yvaprintf(strp, data, &va);
+	const int ret = yπvaprintf(strp, data, &va);
 	va_end(va);
 	return ret;
 }
 
-int _yIO_yreaprintf(Ychar **strp, yio_printdata_t *data, ...) {
+int _yΩIO_yreaprintf(Ychar **strp, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const int ret = yvreaprintf(strp, data, &va);
+	const int ret = yπvreaprintf(strp, data, &va);
 	va_end(va);
 	return ret;
 }
 
-Ychar *_yIO_yformatf(yio_printdata_t *data, ...) {
+Ychar *_yΩIO_yformatf(yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	char * const ret = yvformatf(data, &va);
+	Ychar * const ret = yπvformatf(data, &va);
 	va_end(va);
 	return ret;
 }
 
-Ychar *_yIO_yreformatf(Ychar *str, yio_printdata_t *data, ...) {
+Ychar *_yΩIO_yreformatf(Ychar *str, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	char * const ret = yvreformatf(str, data, &va);
+	Ychar * const ret = yπvreformatf(str, data, &va);
 	va_end(va);
 	return ret;
 }
 
 /* Callbacks and contexts ----------------------------------------------------- */
 
-static inline
-size_t _yIO_fwrite(FILE* file, const Ychar* str, size_t size) {
-#if YTYPE_YIO
+static inline _yIO_access(__read_only__, 2, 3) _yIO_wur _yIO_nn()
+size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
+#if _yΩIO_TYPE == _yIO_TYPE
 	return fwrite(str, 1, size, file);
-#elif YTYPE_YWIO
+#elif _yΩIO_TYPE == _yWIO_TYPE
 	for (size_t n = 0; n < size; n++) {
 		if (fputwc(str[n], file) == YEOF) {
 			return n;
 		}
 	}
 	return size;
+#else
+#error
 #endif
 }
 
-static
-int _yIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
+static _yIO_access(__read_only__, 2, 3) _yIO_wur _yIO_nn()
+int _yΩIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	FILE *f = arg;
-	const size_t cnt = _yIO_fwrite(f, ptr, size);
+	const size_t cnt = _yΩIO_fwrite(f, ptr, size);
 	return cnt == size ? 0 : YIO_ERROR_EIO;
 }
 
-struct _yIO_yvsprintf_ctx_s {
+struct _yΩIO_yvsprintf_ctx_s {
 	Ychar *dest;
 	size_t size;
 };
 
 static
-int _yIO_yvsprintf_cb(void *arg, const Ychar *ptr, size_t size) {
-	struct _yIO_yvsprintf_ctx_s *c = arg;
+int _yΩIO_yvsprintf_cb(void *arg, const Ychar *ptr, size_t size) {
+	struct _yΩIO_yvsprintf_ctx_s *c = arg;
 	if (c->size == 0) {
 		return 0;
 	}
@@ -125,14 +126,14 @@ int _yIO_yvsprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	return not_enough_space ? YIO_ERROR_ENOBUFS : 0;
 }
 
-struct _yIO_yreaprintf_ctx_s {
+struct _yΩIO_yreaprintf_ctx_s {
 	Ychar *str;
 	size_t size;
 };
 
 static
-int _yIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
-	struct _yIO_yreaprintf_ctx_s *p = arg;
+int _yΩIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
+	struct _yΩIO_yreaprintf_ctx_s *p = arg;
 	const size_t count = p->size + size + 1;
 	assert(count < SIZE_MAX / sizeof(*p->str));
 
@@ -155,41 +156,41 @@ int _yIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 
 /* yv*printf except yvbprintf ------------------------------------------------------ */
 
-int yvprintf(yio_printdata_t *data, va_list *va) {
+int yπvprintf(yπio_printdata_t *data, va_list *va) {
 #ifdef YIO_USE_OUTPUT_FD
-	return yvdprintf(1, data, va);
+	return yπvdprintf(1, data, va);
 #else
-	return yvfprintf(stdout, data, va);
+	return yπvfprintf(stdout, data, va);
 #endif
 }
 
-int yvfprintf(FILE *file, yio_printdata_t *data, va_list *va) {
-	return yvbprintf(_yIO_yvfprintf_cb, file, data, va);
+int yπvfprintf(FILE *file, yπio_printdata_t *data, va_list *va) {
+	return yπvbprintf(_yΩIO_yvfprintf_cb, file, data, va);
 }
 
-int yvsprintf(Ychar *dest, size_t size, yio_printdata_t *data, va_list *va) {
-	struct _yIO_yvsprintf_ctx_s ctx = {
+int yπvsprintf(Ychar *dest, size_t size, yπio_printdata_t *data, va_list *va) {
+	struct _yΩIO_yvsprintf_ctx_s ctx = {
 			.dest = dest,
 			.size = size,
 	};
-	const int ret = yvbprintf(_yIO_yvsprintf_cb, &ctx, data, va);
+	const int ret = yπvbprintf(_yΩIO_yvsprintf_cb, &ctx, data, va);
 	if (size > 0) {
 		ctx.dest[0] = Yc('\0');
 	}
 	return ret;
 }
 
-int yvaprintf(Ychar **strp, yio_printdata_t *data, va_list *va) {
+int yπvaprintf(Ychar **strp, yπio_printdata_t *data, va_list *va) {
 	*strp = NULL;
-	return yvreaprintf(strp, data, va);
+	return yπvreaprintf(strp, data, va);
 }
 
-int yvreaprintf(Ychar **strp, yio_printdata_t *data, va_list *va) {
-	struct _yIO_yreaprintf_ctx_s ctx = {
+int yπvreaprintf(Ychar **strp, yπio_printdata_t *data, va_list *va) {
+	struct _yΩIO_yreaprintf_ctx_s ctx = {
 			.str = *strp,
-			.size = (*strp != NULL) ? strlen(*strp) : 0,
+			.size = (*strp != NULL) ? Ystrlen(*strp) : 0,
 	};
-	const int ret =  yvbprintf(_yIO_yreaprintf_cb, &ctx, data, va);
+	const int ret =  yπvbprintf(_yΩIO_yreaprintf_cb, &ctx, data, va);
 	if (ret < 0) {
 		free(ctx.str);
 		ctx.str = NULL;
@@ -201,12 +202,12 @@ int yvreaprintf(Ychar **strp, yio_printdata_t *data, va_list *va) {
 	return ret;
 }
 
-Ychar *yvformatf(yio_printdata_t *data, va_list *va) {
-	return yvreformatf(NULL, data, va);
+Ychar *yπvformatf(yπio_printdata_t *data, va_list *va) {
+	return yπvreformatf(NULL, data, va);
 }
 
-Ychar *yvreformatf(Ychar *str, yio_printdata_t *data, va_list *va) {
-	const int ret = yvreaprintf(&str, data, va);
+Ychar *yπvreformatf(Ychar *str, yπio_printdata_t *data, va_list *va) {
+	const int ret = yπvreaprintf(&str, data, va);
 	if (ret < 0) {
 		return NULL;
 	}
@@ -216,7 +217,7 @@ Ychar *yvreformatf(Ychar *str, yio_printdata_t *data, va_list *va) {
 /* Private Scan Callback --------------------------------------------------- */
 
 static
-int _yIO_yfscanf_cb(void *arg, Yint *data) {
+int _yΩIO_yfscanf_cb(void *arg, Yint *data) {
 	FILE *f = arg;
 	*data = Yfgetc(f);
 	if (*data == YEOF) {
@@ -228,8 +229,8 @@ int _yIO_yfscanf_cb(void *arg, Yint *data) {
 }
 
 static
-int _yIO_ysscanf_cb(void *arg, int *data) {
-	char * restrict * restrict src = arg;
+int _yΩIO_ysscanf_cb(void *arg, Yint *data) {
+	Ychar * restrict * restrict src = arg;
 	*data = (*src)[0];
 	if (*data == Yc('\0')) {
 		*data = YEOF;
@@ -241,56 +242,55 @@ int _yIO_ysscanf_cb(void *arg, int *data) {
 
 /* Private Scan Symbols ------------------------------------------------------ */
 
-struct yio_scanret_s _yIO_ybscanf(_yIO_scancb_t *in, void *arg, yio_scandata_t *data, ...) {
+struct yπio_scanret_s _yΩIO_ybscanf(_yΩIO_scancb_t *in, void *arg, yπio_scandata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const struct yio_scanret_s ret = yvbscanf(in, arg, data, &va);
+	const struct yπio_scanret_s ret = yπvbscanf(in, arg, data, &va);
 	va_end(va);
 	return ret;
 }
 
-struct yio_scanret_s _yIO_yscanf(yio_scandata_t *data, ...) {
+struct yπio_scanret_s _yΩIO_yscanf(yπio_scandata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const struct yio_scanret_s ret = yvfscanf(stdin, data, &va);
+	const struct yπio_scanret_s ret = yπvfscanf(stdin, data, &va);
 			// yvscanf(data, &va);
 	va_end(va);
 	return ret;
 }
 
-struct yio_scanret_s _yIO_yfscanf(FILE *file, yio_scandata_t *data, ...) {
+struct yπio_scanret_s _yΩIO_yfscanf(FILE *file, yπio_scandata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const struct yio_scanret_s ret = yvfscanf(file, data, &va);
+	const struct yπio_scanret_s ret = yπvfscanf(file, data, &va);
 	va_end(va);
 	return ret;
 }
 
-struct yio_scanret_s _yIO_ysscanf(char *src, yio_scandata_t *data, ...) {
+struct yπio_scanret_s _yΩIO_ysscanf(const Ychar *src, yπio_scandata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const struct yio_scanret_s ret = yvsscanf(src, data, &va);
+	const struct yπio_scanret_s ret = yπvsscanf(src, data, &va);
 	va_end(va);
 	return ret;
 }
 
 /* Exported Print Symbols Except yvbscanf -------------------------------------- */
 
-struct yio_scanret_s yvscanf(yio_scandata_t *data, va_list *va) {
+struct yπio_scanret_s yπvscanf(yπio_scandata_t *data, va_list *va) {
 #ifdef YIO_USE_INPUT_FD
-	return _yIO_ydscanf(0, data, va);
+	return _yΩIO_ydscanf(0, data, va);
 #else
-	return _yIO_yfscanf(stdin, data, va);
+	return _yΩIO_yfscanf(stdin, data, va);
 #endif
 }
 
-struct yio_scanret_s yvfscanf(FILE *file, yio_scandata_t *data, va_list *va) {
-	return yvbscanf(_yIO_yfscanf_cb, file, data, va);
+struct yπio_scanret_s yπvfscanf(FILE *file, yπio_scandata_t *data, va_list *va) {
+	return yπvbscanf(_yΩIO_yfscanf_cb, file, data, va);
 }
 
-struct yio_scanret_s yvsscanf(char *src, yio_scandata_t *data, va_list *va) {
-	return yvbscanf(_yIO_ysscanf_cb, &src, data, va);
+struct yπio_scanret_s yπvsscanf(const Ychar *src, yπio_scandata_t *data, va_list *va) {
+	return yπvbscanf(_yΩIO_ysscanf_cb, &src, data, va);
 }
 
-~)m4_dnl;
 

@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #include <stdlib.h>
 #include <assert.h>
@@ -25,7 +24,7 @@ const Ychar *_yΩIO_strpbrk_braces(const Ychar *str) {
 }
 
 static inline
-int _yIO_yvbgeneric_iterate_until_format(const Ychar *fmt, const Ychar **endptr,
+int _yΩIO_yvbgeneric_iterate_until_format(const Ychar *fmt, const Ychar **endptr,
 		int (*callback)(void *arg, const Ychar *begin, const Ychar *end), void *arg) {
 	bool double_braces_found = false;
 	while (fmt[0]) {
@@ -57,7 +56,7 @@ int _yIO_yvbgeneric_iterate_until_format(const Ychar *fmt, const Ychar **endptr,
 static inline
 int yπvbprintf_iterate_until_format_callback(void *arg, const Ychar *begin, const Ychar *end) {
 	yπio_printctx_t *t = arg;
-	return yio_printctx_raw_write(t, begin, end - begin);
+	return yπio_printctx_raw_write(t, begin, end - begin);
 }
 
 /* yvbprintf ----------------------------------------------------------- */
@@ -69,7 +68,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 			return 0;
 		}
 		for (; *t->ifunc != NULL; ++t->ifunc) {
-			t->pf = _yIO_printfmt_default;
+			t->pf = _yΩIO_printfmt_default;
 			const int ifuncret = (*t->ifunc)(t);
 			if (ifuncret) {
 				return ifuncret;
@@ -79,7 +78,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 	}
 
 	while (1) {
-		int err = _yIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
+		int err = _yΩIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
 				yπvbprintf_iterate_until_format_callback, t);
 		if (err) return err;
 		if (t->fmt[0] == Yc('\0')) break;
@@ -92,7 +91,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 		if (t->fmt[0] == ':') {
 			t->fmt++;
 		}
-		t->pf = _yIO_printfmt_default;
+		t->pf = _yΩIO_printfmt_default;
 
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
 			return YIO_ERROR_TOO_MANY_FMT;
@@ -107,7 +106,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 	return 0;
 }
 
-int yvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, va_list *va) {
+int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, va_list *va) {
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
@@ -124,19 +123,19 @@ int yvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, va_list
 /* yvbscan ----------------------------------------------------------------------------- */
 
 static inline
-int _yIO_yvbscanf_iterate_until_format_callback(void *arg, const char *begin, const char *end) {
-	yio_scanctx_t *t = arg;
-	return _yIO_scan_string_literal_in(t, begin, end);
+int _yΩIO_yvbscanf_iterate_until_format_callback(void *arg, const Ychar *begin, const Ychar *end) {
+	yπio_scanctx_t *t = arg;
+	return _yΩIO_scan_string_literal_in(t, begin, end);
 }
 
 static inline
-int _yIO_yvbscanf_in(yπio_scanctx_t *t) {
+int _yΩIO_yvbscanf_in(yπio_scanctx_t *t) {
 	if (t->fmt == NULL) {
 		if (t->ifunc == NULL) {
 			return 0;
 		}
 		for (; *t->ifunc != NULL; ++t->ifunc) {
-			t->sf = _yIO_scanfmt_default;
+			t->sf = _yΩIO_scanfmt_default;
 			const int ifuncret = (*t->ifunc)(t);
 			if (ifuncret) {
 				return ifuncret;
@@ -146,12 +145,12 @@ int _yIO_yvbscanf_in(yπio_scanctx_t *t) {
 	}
 
 	while (1) {
-		int err = _yIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
-				_yIO_yvbscanf_iterate_until_format_callback, t);
+		int err = _yΩIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
+				_yΩIO_yvbscanf_iterate_until_format_callback, t);
 		if (err) return err;
 		if (t->fmt[0] == Yc('\0')) break;
 
-		err = _yIO_scan_parse_scanfmt(t, &t->sf, t->fmt, &t->fmt);
+		err = _yΩIO_scan_parse_scanfmt(t, &t->sf, t->fmt, &t->fmt);
 		if (err) return err;
 
 		if (t->sf.ignore && t->sf.type) {
@@ -171,13 +170,13 @@ int _yIO_yvbscanf_in(yπio_scanctx_t *t) {
 	return 0;
 }
 
-struct yio_scanret_s yvbscanf(_yIO_scancb_t *in, void *arg,
-		yio_scandata_t *data,
+struct yπio_scanret_s yπvbscanf(_yΩIO_scancb_t *in, void *arg,
+		yπio_scandata_t *data,
 		va_list *va) {
-	yio_scanctx_t _ctx = _yIO_scanctx_init(in, arg, data, va);
-	yio_scanctx_t * const t = &_ctx;
-	const int err = _yIO_yvbscanf_in(t);
-	const struct yio_scanret_s scanret = {
+	yπio_scanctx_t _ctx = _yΩIO_scanctx_init(in, arg, data, va);
+	yπio_scanctx_t * const t = &_ctx;
+	const int err = _yΩIO_yvbscanf_in(t);
+	const struct yπio_scanret_s scanret = {
 			.error = err,
 			.count = t->scannedcnt,
 			.nitem = t->ifunc - data->funcs,
@@ -186,4 +185,3 @@ struct yio_scanret_s yvbscanf(_yIO_scancb_t *in, void *arg,
 	return scanret;
 }
 
-~)m4_dnl;

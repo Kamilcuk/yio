@@ -12,3 +12,4 @@
 #include "io.h"
 #include "manip/manip.h"
 #include "yio_macros.h"
+#include <wchar.h>

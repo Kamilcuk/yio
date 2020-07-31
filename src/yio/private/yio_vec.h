@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define _yIO_chunk  16
+#define _yIO_chunk  32
 
 typedef struct _yIO_vec {
 	char *beg;
@@ -72,6 +72,11 @@ int _yIO_vec_puts(_yIO_vec *t, const char *s) {
 		if (err) return err;
 	}
 	return 0;
+}
+
+static inline
+size_t _yIO_vec_size(const _yIO_vec *t) {
+	return t->pos - t->beg;
 }
 
 static inline

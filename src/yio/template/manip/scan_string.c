@@ -5,18 +5,17 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio() m4_dnl;
 #include "private.h"
 
-int _yIO_scan_string(yio_scanctx_t *t) {
-	char * str = yio_scanctx_va_arg(t, char *);
-	const size_t strsize = yio_scanctx_arg_size_next(t);
-	const struct yio_scanfmt_s *f = yio_scanctx_get_fmt(t);
+int _yΩIO_scan_string(yπio_scanctx_t *t) {
+	char * str = yπio_scanctx_va_arg(t, char *);
+	const size_t strsize = yπio_scanctx_arg_size_next(t);
+	const struct yπio_scanfmt_s *f = yπio_scanctx_get_fmt(t);
 	const size_t width = f->width < 0 ? INT_MAX : f->width;
 	int err = 0;
 	char * const str0 = str;
 	int count = ((strsize - 1) < width) ? strsize - 1 : width;
-	for (int c = 0; (err = yio_scanctx_in(t, &c)) == 0 && c != EOF; ) {
+	for (Yint c = 0; (err = yπio_scanctx_in(t, &c)) == 0 && c != YEOF; ) {
 		if (c == ' ' || c == '\t' || c == '\n') {
 			break;
 		}
@@ -31,7 +30,7 @@ int _yIO_scan_string(yio_scanctx_t *t) {
 		*str = '\0';
 	}
 	if (count) {
-		yio_scanctx_unin(t);
+		yπio_scanctx_unin(t);
 	}
 	if (str0 == str) {
 		err = YIO_ERROR_SCAN_NOTHING;
@@ -39,30 +38,30 @@ int _yIO_scan_string(yio_scanctx_t *t) {
 	return err;
 }
 
-int _yIO_scan_string_literal_in(yio_scanctx_t *t, const char *str, const char *end) {
+int _yΩIO_scan_string_literal_in(yπio_scanctx_t *t, const Ychar *str, const Ychar *end) {
 	for (; str != end; str++) {
-		int c;
-		const int err = yio_scanctx_in(t, &c);
+		Yint c;
+		const int err = yπio_scanctx_in(t, &c);
 		// _yIO_dbgln("11 err=%d fmt[0]=%s c=%s", err, _yIO_printc(fmt[0]), _yIO_printc(c));
 		if (err) return err;
-		if (str[0] != c) {
+		if ((Yint)str[0] != c) {
 			return YIO_ERROR_SCAN_NOT_MATCHED;
 		}
 	}
 	return 0;
 }
 
-int _yIO_scan_string_literal(yio_scanctx_t *t) {
-	const char * str = yio_scanctx_va_arg(t, char *);
-	return _yIO_scan_string_literal_in(t, str, str + strlen(str));
+int _yΩIO_scan_string_literal(yπio_scanctx_t *t) {
+	const char * str = yπio_scanctx_va_arg(t, char *);
+	return _yΩIO_scan_string_literal_in(t, (void*)str, (void*)str + strlen(str));
 }
 
-int _yIO_scan_except(yio_scanctx_t *t) {
-	const char *until = yio_scanctx_va_arg(t, const char *);
-	size_t destsize = yio_scanctx_va_arg(t, size_t);
-	char *str = yio_scanctx_va_arg(t, char *);
+int _yΩIO_scan_except(yπio_scanctx_t *t) {
+	const char *until = yπio_scanctx_va_arg(t, const char *);
+	size_t destsize = yπio_scanctx_va_arg(t, size_t);
+	char *str = yπio_scanctx_va_arg(t, char *);
 	int err = 0;
-	for (int c = 0; (err = yio_scanctx_in(t, &c)) == 0 && c != EOF; ) {
+	for (Yint c = 0; (err = yπio_scanctx_in(t, &c)) == 0 && c != YEOF; ) {
 		if (strchr(until, c) != NULL) {
 			break;
 		}
@@ -74,22 +73,22 @@ int _yIO_scan_except(yio_scanctx_t *t) {
 		destsize--;
 	}
 	*str = '\0';
-	yio_scanctx_unin(t);
+	yπio_scanctx_unin(t);
 	if (err == 0 && destsize == 1) {
 		return YIO_ERROR_ENOMEM;
 	}
 	return err;
 }
 
-int _yIO_scan_except_charpntpnt(yio_scanctx_t *t) {
-	const char * const until = yio_scanctx_va_arg(t, const char *);
-	const size_t ignored = yio_scanctx_va_arg(t, size_t);
+int _yΩIO_scan_except_charpntpnt(yπio_scanctx_t *t) {
+	const char * const until = yπio_scanctx_va_arg(t, const char *);
+	const size_t ignored = yπio_scanctx_va_arg(t, size_t);
 	(void)ignored;
 	assert(ignored == sizeof(char*));
-	char ** const dest = yio_scanctx_va_arg(t, char **);
+	char ** const dest = yπio_scanctx_va_arg(t, char **);
 	char *str = NULL;
 	int err;
-	for (int c = 0; (err = yio_scanctx_in(t, &c)) == 0 && c != EOF; ) {
+	for (Yint c = 0; (err = yπio_scanctx_in(t, &c)) == 0 && c != YEOF; ) {
 		if (strchr(until, c) != NULL) {
 			break;
 		}

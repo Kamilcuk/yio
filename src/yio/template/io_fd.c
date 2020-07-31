@@ -5,19 +5,21 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio_template(`m4_dnl);
 #include "private.h"
 #ifdef _yIO_HAS_UNISTD_H
 #include <unistd.h>
 #include <errno.h>
 
-int _yIO_yvdprintf_cb(void *arg, const Ychar *ptr0, size_t size) {
+static inline _yIO_access(__read_only__, 2, 3)
+int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	const int fd = *(int*)arg;
-	const char *ptr = (const char *)ptr0;
 	int ret = 0;
 	while (size) {
 		const ssize_t written = write(fd, ptr, size);
 		if (ret < 0) {
+			if (errno == EAGAIN) {
+				continue;
+			}
 			ret = EIO;
 			break;
 		}
@@ -26,24 +28,53 @@ int _yIO_yvdprintf_cb(void *arg, const Ychar *ptr0, size_t size) {
 	}
 	return ret;
 }
-
-int yvdprintf(int fd, yio_printdata_t *data, va_list *va) {
-	return yvbprintf(_yIO_yvdprintf_cb, &fd, data, va);
+#include <locale.h>
+static inline _yIO_access(__read_only__, 2, 3)
+int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
+#if _yIO_TYPE_YIO
+	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
+#elif _yIO_TYPE_YWIO
+	mbstate_t ps;
+	memset(&ps, 0, sizeof(ps));
+	while (size--) {
+		char s[MB_LEN_MAX];
+		const int wr = wcrtomb(s, *ptr++, &ps);
+		if (wr < 0) return YIO_ERROR_WCTOMB_ERR;
+		const int r = _yΩIO_yπvdprintf_cb_in(arg, s, wr);
+		if (r < 0) return r;
+	}
+	return 0;
+#elif _yIO_TYPE_YUIO
+	size_t length = 0;
+	const char * const string = u32_conv_to_encoding(locale_charset(),
+			iconveh_question_mark, ptr, size, NULL, NULL, &length);
+	if (string == NULL) return YIO_ERROR_U32_CONV_TO_ENCODING;
+	const int r = _yΩIO_yπvdprintf_cb_in(arg, string, length);
+	if (r < 0) return r;
+	free((void*)string);
+	return 0;
+#else
+#error
+#endif
 }
 
-int _yIO_ydprintf(int fd, yπio_printdata_t *data, ...) {
+int yπvdprintf(int fd, yπio_printdata_t *data, va_list *va) {
+	return yπvbprintf(_yΩIO_yπvdprintf_cb, &fd, data, va);
+}
+
+int _yΩIO_ydprintf(int fd, yπio_printdata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const int ret = yvdprintf(fd, data, &va);
+	const int ret = yπvdprintf(fd, data, &va);
 	va_end(va);
 	return ret;
 }
 
 /* ---------------------------------------------------------------- */
 
-_yIO_access(__write_only__, 2, 3)
-static inline
-int _yIO_ydscanf_cb_read_repeat(int fd, char *dest, size_t size) {
+static inline _yIO_access(__write_only__, 2, 3)
+int _yΩIO_ydscanf_cb_read_repeat(int fd, void *dest0, size_t size) {
+	char *dest = dest0;
 	int ret = 0;
 	while (size) {
 		const ssize_t readed = read(fd, dest, size);
@@ -62,10 +93,10 @@ int _yIO_ydscanf_cb_read_repeat(int fd, char *dest, size_t size) {
 }
 
 static
-int _yIO_ydscanf_cb(void *arg, Yint *data) {
+int _yΩIO_ydscanf_cb(void *arg, Yint *data) {
 	const int fd = *(int*)arg;
 	Ychar c = 0;
-	int ret = _yIO_ydscanf_cb_read_repeat(fd, &c, sizeof(c));
+	int ret = _yΩIO_ydscanf_cb_read_repeat(fd, &c, sizeof(c));
 	if (ret == -1) {
 		*data = YEOF;
 		ret = 0;
@@ -75,17 +106,16 @@ int _yIO_ydscanf_cb(void *arg, Yint *data) {
 	return ret;
 }
 
-struct yio_scanret_s yvdscanf(int fd, yio_scandata_t *data, va_list *va) {
-	return yvbscanf(&_yIO_ydscanf_cb, &fd, data, va);
+struct yπio_scanret_s yπvdscanf(int fd, yπio_scandata_t *data, va_list *va) {
+	return yπvbscanf(&_yΩIO_ydscanf_cb, &fd, data, va);
 }
 
-struct yio_scanret_s _yIO_ydscanf(int fd, yio_scandata_t *data, ...) {
+struct yπio_scanret_s _yΩIO_ydscanf(int fd, yπio_scandata_t *data, ...) {
 	va_list va;
 	va_start(va, data);
-	const struct yio_scanret_s ret = yvdscanf(fd, data, &va);
+	const struct yπio_scanret_s ret = yπvdscanf(fd, data, &va);
 	va_end(va);
 	return ret;
 }
 
 #endif // _yIO_HAS_UNISTD
-~)m4_dnl;

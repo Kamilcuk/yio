@@ -7,7 +7,6 @@
  * @brief
  */
 #define _GNU_SOURCE
-m4_config() m4_dnl;
 #include "yio_float_strfrom_printf.h"
 #include "private.h"
 #include <assert.h>
@@ -67,7 +66,7 @@ int _yIO_float_astrfrom_asprintf$1(char **out, const char *fmt, _yIO_FLOAT$1 val
 	if (err <= 0) {
 		return -ENOMEM;
 	}
-	return 0;
+	return err;
 }
 
 static inline
@@ -84,7 +83,7 @@ int _yIO_float_astrfrom_snprintf$1(char **out, const char *fmt, _yIO_FLOAT$1 val
 	(void)len2;
 	assert(len2 == len);
 	*out = buf;
-	return 0;
+	return len2;
 }
 
 int _yIO_float_astrfrom_printf$1(char **out, int precision, char spec, _yIO_FLOAT$1 val) {

@@ -5,7 +5,6 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_config_yio_template(`m4_dnl);
 #pragma once
 #include "yio/yio_common.h"
 #include "commonctx.h"
@@ -41,7 +40,7 @@ struct _yΩIO_printctx_s {
 	/// The count of characters written.
 	size_t writtencnt;
 	/// Description of print formatting.
-	struct yio_printfmt_s pf;
+	struct yπio_printfmt_s pf;
 };
 
 static inline _yIO_wur _yIO_nn(1, 2, 3)
@@ -49,19 +48,19 @@ yπio_printctx_t _yΩIO_printctx_init(
 		_yΩIO_printcb_t *out, void *outarg,
 		const yπio_printdata_t *data,
 		va_list *va) {
-	yπio_printctx_t _yIO_printctx = {
+	yπio_printctx_t _yΩIO_printctx = {
 		.data = data,
 		.c.va = va,
 		.out = out,
 		.outarg = outarg,
 		.ifunc = data,
 	};
-	_yIO_printctx.fmt = va_arg(*va, const char *);
-m4_ifdef(`m4_DEBUG~, `m4_dnl;
+	_yΩIO_printctx.fmt = va_arg(*va, const Ychar *);
+	m4_ifdef(`m4_DEBUG~,`
 	// Debug build also has size_t argument passed
-	_yIO_printctx.c.argsizespnt = va_arg(*va, const size_t*);
-~)m4_dnl;
-	return _yIO_printctx;
+	_yΩIO_printctx.c.argsizespnt = va_arg(*va, const size_t*);
+	~)
+	return _yΩIO_printctx;
 }
 
 /* scanctx ----------------------------------------------------------- */
@@ -71,15 +70,15 @@ m4_ifdef(`m4_DEBUG~, `m4_dnl;
  */
 struct _yΩIO_scanctx_s {
 	/// Common.
-	struct _yIO_commonctx_s c;
+	struct _yΩIO_commonctx_s c;
 	/// Iterator in callback functions.
-	const _yIO_scanfunc_t *ifunc;
+	const _yΩIO_scanfunc_t *ifunc;
 	/// The pointer to the data.
-	const yio_scandata_t *data;
+	const yπio_scandata_t *data;
 	/// Current iterator in the format string.
-	const char *fmt;
+	const Ychar *fmt;
 	/// The inputting function.
-	_yIO_scancb_t *in;
+	_yΩIO_scancb_t *in;
 	/// User argument for inputting function.
 	void *inarg;
 	/// Iterator into an array of dereferenced arguments sizes.
@@ -87,19 +86,19 @@ struct _yΩIO_scanctx_s {
 	/// The count of characters written or read.
 	size_t scannedcnt;
 	/// The formatting options
-	struct yio_scanfmt_s sf;
+	struct yπio_scanfmt_s sf;
 	/// The last character read.
-	int ch;
+	Yint ch;
 	/// unin
 	bool unin;
 };
 
 static inline _yIO_wur _yIO_nn(1, 3, 4)
-yio_scanctx_t _yIO_scanctx_init(
-		_yIO_scancb_t *in, void *inarg,
-		const yio_scandata_t *data,
+yπio_scanctx_t _yΩIO_scanctx_init(
+		_yΩIO_scancb_t *in, void *inarg,
+		const yπio_scandata_t *data,
 		va_list *va) {
-	yπio_scanctx_t _yIO_scanctx = {
+	yπio_scanctx_t _yΩIO_scanctx = {
 		.data = data,
 		.c.va = va,
 		.ifunc = data->funcs,
@@ -107,13 +106,12 @@ yio_scanctx_t _yIO_scanctx_init(
 		.argpntsizespnt = data->argpntsizes,
 		.inarg = inarg,
 	};
-	_yIO_scanctx.fmt = va_arg(*va, const char *);
-m4_ifdef(`m4_DEBUG~, `m4_dnl;
+	_yΩIO_scanctx.fmt = va_arg(*va, const Ychar *);
+	m4_ifdef(`m4_DEBUG~,`
 	// Debug build also has size_t argument passed
-	_yIO_scanctx.c.argsizespnt = va_arg(*va, const size_t *);
-~)m4_dnl;
-	return _yIO_scanctx;
+	_yΩIO_scanctx.c.argsizespnt = va_arg(*va, const size_t *);
+	~)
+	return _yΩIO_scanctx;
 }
 
-~)m4_dnl;
 

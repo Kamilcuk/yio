@@ -9,6 +9,7 @@ include(CMakeDependentOption)
 include(m4)
 include(list_filter)
 include(var_to_0_or_1)
+include(yio/template/yio_template.cmake)
 
 function(log)
 	get_filename_component(_log_list_filename ${CMAKE_CURRENT_LIST_FILE} NAME)
@@ -47,10 +48,10 @@ include(cpack.cmake)
 # generate config.m4
 configure_file(
 	${SRCDIR}/m4/yio_config.m4.in
-	${GENDIR}/m4/yio_config.m4
+	${CMAKE_CURRENT_BINARY_DIR}/m4gen/yio_config.m4
 	@ONLY
 )
-list(APPEND gensrcs ${GENDIR}/m4/yio_config.m4)
+list(APPEND gensrcs ${CMAKE_CURRENT_BINARY_DIR}/m4gen/yio_config.m4)
 
 # generate yio_config.h
 configure_file(
@@ -91,20 +92,14 @@ if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
 else()
 	m4_add_options(-D m4_NDEBUG=1 -D m4_RELEASE=1)
 endif()
-m4_add_options(
+m4_add_files(
 	# Always load library.
-	lib.m4
+	${CMAKE_CURRENT_SOURCE_DIR}/../m4/lib.m4 
 	# Load our configuration.
-	${GENDIR}/m4/yio_config.m4
+	${CMAKE_CURRENT_BINARY_DIR}/m4gen/yio_config.m4
 )
 # Note: SRCDIR is included, so I can do `m4_include(yio/blabla)`.
 m4_add_include_directories(${SRCDIR})
-# Dependencies are generated for all m4 files in m4.cmake.
-# We add here what we generate ourselves.
-m4_add_file_dependencies(
-	${CMAKE_CURRENT_SOURCE_DIR}/../m4/lib.m4 
-	${GENDIR}/m4/yio_config.m4
-)
 
 yio_debug_variables(
 	_M4_OPTIONS_INIT
@@ -112,13 +107,26 @@ yio_debug_variables(
 )
 
 file(GLOB_RECURSE m4srcs *.c *.h)
+list(FILTER m4srcs EXCLUDE REGEX "src/yio/template/")
+list(FILTER m4srcs EXCLUDE REGEX "src/yio/yio/")
+list(FILTER m4srcs EXCLUDE REGEX "src/yio/ywio/")
+list(FILTER m4srcs EXCLUDE REGEX "src/yio/yuio/")
 foreach(source IN LISTS m4srcs)
 	file(RELATIVE_PATH sourcenice ${SRCDIR} ${source})
 	set(output ${GENDIR}/${sourcenice})
 	# dbg("m4_add_command ${output} ${source}")
-	m4_add_command(${output} ${source})
+	m4_add_command(${output} ${source}
+		-D m4_SOURCE=${source}
+	)
 	list(APPEND gensrcs ${output})
 endforeach()
+
+include(yio/yio/template.cmake)  # ywio_gensrcs
+list(APPEND gensrcs ${yio_gensrcs})
+include(yio/ywio/template.cmake)  # ywio_gensrcs
+list(APPEND gensrcs ${ywio_gensrcs})
+include(yio/yuio/template.cmake)  # yuio_gensrcs
+list(APPEND gensrcs ${yuio_gensrcs})
 
 ##############################################################################################
 # Maintainance of GENDIR
@@ -227,7 +235,11 @@ function(yio_add_library name)
 	# Sources are relative to GENDIR.
 	set(srcs)
 	foreach(i IN LISTS argn)
-		list(APPEND srcs "${GENDIR}/${i}")
+		if(NOT "${i}" MATCHES "^${GENDIR}")
+			set(i "${GENDIR}/${i}")
+		endif()
+		get_filename_component(i "${i}" ABSOLUTE)
+		list(APPEND srcs "${i}")
 	endforeach()
 	
 	# Add the library.
@@ -248,28 +260,6 @@ function(yio_add_library name)
 		c_static_assert
 		c_variadic_macros
 	)
-	
-	# Add compiler options.
-	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
-			CMAKE_C_COMPILER_ID STREQUAL "Clang")
-		target_compile_options(${name} PRIVATE
-			$<$<CONFIG:Debug>:-ggdb3>
-			-Wall
-			-Wextra
-			-Wwrite-strings
-			-Wno-unused-function
-			-Wno-unused-parameter
-		)
-	endif()
-	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-		target_compile_options(${name} PRIVATE
-			-Wno-varargs
-		)
-		target_compile_options(${name} PUBLIC
-			-Wno-array-bounds
-			-Wno-sizeof-array-decay
-		)
-	endif()
 	
 	add_dependencies(${name} yio_gen)
 	target_link_libraries(${name} PUBLIC m)
@@ -307,8 +297,6 @@ yio_add_library(yio_decimallib
 
 file_glob_relative_to_srcdir(GLOB auto_generic_srcs yio/*.h yio/*.c)
 file_glob_relative_to_srcdir(GLOB auto_yio_private_srcs yio/private/*.h yio/private/*.c)
-file_glob_relative_to_srcdir(GLOB_RECURSE auto_yio_srcs yio/yio/*.h yio/yio/*.c)
-file_glob_relative_to_srcdir(GLOB_RECURSE auto_ywio_srcs yio/ywio/*.h yio/ywio/*.c)
 yio_add_library(yio
 	${auto_yio_private_srcs}
 	${auto_generic_srcs}
@@ -316,18 +304,18 @@ yio_add_library(yio
 	yio/yio_config_gen.h
 	yio/yio_error_messages.h
 	yio.h
-	${auto_yio_srcs}
+	${yio_gensrcs}
 	ywio.h
-	${auto_ywio_srcs}
+	${ywio_gensrcs}
 )
 
 # UNISTRING_LIB found in parent CMakeLists.txt
 if(UNISTRING_LIB)
-	file_glob_relative_to_srcdir(GLOB_RECURSE auto_yuio_srcs yio/yuio/*.h yio/yuio/*.c)
 	yio_add_library(yuio
 		yuio.h
-		${auto_yuio_srcs}
+		${yuio_gensrcs}
 	)
+	set_target_properties(yuio PROPERTIES LINKER_LANGUAGE C)
 	target_link_libraries(yuio PUBLIC yio ${UNISTRING_LIB})
 endif()
 

@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #pragma once
 
 /**
@@ -126,8 +125,8 @@ m4_ifelse(`$1~, `1~, `~, `m4_dnl; \
 /**
  * Initial overload of argument over number of arguments.
  */
-#define _yIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
-		_yIO_print_arguments_##N
+#define _yΩIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+		_yΩIO_print_arguments_##N
 
 
 /* _yIO_scan_arguments_N ----------------------------------------------------------------------------------------------------- */
@@ -135,7 +134,6 @@ m4_ifelse(`$1~, `1~, `~, `m4_dnl; \
 /**
  * Initial overload of argument over number of arguments.
  */
-#define _yIO_scan_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
-		_yIO_scan_arguments_##N
+#define _yΩIO_scan_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+		_yΩIO_scan_arguments_##N
 
-~)m4_dnl; m4_config_template_yio

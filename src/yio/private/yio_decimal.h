@@ -7,7 +7,6 @@
  * @brief
  */
 #pragma once
-m4_config() m4_dnl;
 #include "private.h"
 
 #ifdef __CDT_PARSER__

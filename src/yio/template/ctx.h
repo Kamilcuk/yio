@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_config_yio_template(`m4_dnl);
 #pragma once
 #include "../yio_common.h"
 #include <stdlib.h>
@@ -31,7 +30,8 @@ typedef struct _yΩIO_printctx_s yπio_printctx_t;
  * @param count Count of characters to print
  * @return 0 on success, anything else on error
  */
-typedef int _yΩIO_printcb_t(void *arg, const Ychar *data, size_t count);
+typedef int _yΩIO_printcb_t(void *arg, const Ychar *data, size_t count)
+		_yIO_wur _yIO_nn(2) _yIO_access(__read_only__, 2, 3);
 
 /**
  * The type of callback functions.
@@ -77,7 +77,7 @@ int yπio_printctx_next(yπio_printctx_t *t);
  * @param t
  * @return A valid pointer.
  */
-_yIO_wur _yIO_nn() _yΩIO_const
+_yIO_wur _yIO_nn() _yIO_const
 struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t);
 
 /**
@@ -90,26 +90,28 @@ _yIO_wur _yIO_nn(1, 2)
 int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...);
 
 _yIO_wur _yIO_nn()
-int _yIO_printformat_generic(yπio_printctx_t *t, size_t str_len, const char str[], bool is_number, bool is_positive);
+int _yΩIO_printformat_generic(yπio_printctx_t *t,
+		const Ychar str[], size_t str_len, bool is_number, bool is_positive);
+
+_yIO_wur _yIO_nn()
+int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
+		const char str[], size_t str_len, bool is_number, bool is_positive);
+
+#if !_yIO_TYPE_YIO
+_yIO_wur _yIO_nn() static inline
+int yπio_printctx_put(yπio_printctx_t *t, const char str[], size_t str_len) {
+	return _yΩIO_printformat_generic_char(t, str, str_len, false, false);
+}
+#endif
 
 _yIO_wur _yIO_nn() static inline
-int yπio_printctx_putsn(yπio_printctx_t *t, size_t str_len, const Ychar str[]) {
-	return _yIO_printformat_generic(t, str_len, str, false, false);
+int yπio_printctx_putπ(yπio_printctx_t *t, const Ychar str[], size_t str_len) {
+	return _yΩIO_printformat_generic(t, str, str_len, false, false);
 }
 
 _yIO_wur _yIO_nn() static inline
-int yπio_printctx_puts(yπio_printctx_t *t, const Ychar str[]) {
-	return yπio_printctx_putsn(t, strlen(str), str);
-}
-
-_yIO_wur _yIO_nn() static inline
-int yπio_printctx_putsn_number(yπio_printctx_t *t, size_t str_len, const Ychar str[], bool is_positive) {
-	return _yIO_printformat_generic(t, str_len, str, true, is_positive);
-}
-
-_yIO_wur _yIO_nn() static inline
-int yπio_printctx_puts_number(yπio_printctx_t *t, const Ychar str[], bool is_positive) {
-	return yπio_printctx_putsn_number(t, strlen(str), str, is_positive);
+int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
+	return _yΩIO_printformat_generic_char(t, str, str_len, true, is_positive);
 }
 
 /**
@@ -212,10 +214,11 @@ typedef int (*_yΩIO_scanfunc_t)(yπio_scanctx_t *t);
 /**
  * Read one byte from the input.
  * @param arg Custom user context.
- * @param data A valid character or EOF.
+ * @param data A valid character or YEOF.
  * @return 0 on success, anything else on error
  */
-typedef int _yΩIO_scancb_t(void *arg, Yint *data);
+typedef int _yΩIO_scancb_t(void *arg, Yint *data)
+	_yIO_wur _yIO_nn(2) _yIO_access(__write_only__, 2);
 
 /**
  * A list of arguments created by macro substitution.
@@ -237,8 +240,8 @@ typedef const struct _yΩIO_scandata_s {
  * @param c
  * @return 0 on success, otherwise error.
  */
-_yIO_wur _yIO_nn()
-int yπio_scanctx_in(yπio_scanctx_t *t, int *c);
+_yIO_wur _yIO_nn() _yIO_access(__read_only__, 2)
+int yπio_scanctx_in(yπio_scanctx_t *t, Yint *c);
 
 /**
  * Does the same as ungetc.
@@ -332,4 +335,3 @@ va_list *_yΩIO_scanctx_inc_va_list(yπio_scanctx_t *t, size_t sizeof_realtype);
  * @}
  */
 
-~)m4_dnl;

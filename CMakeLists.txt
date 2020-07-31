@@ -63,6 +63,32 @@ if(YIO_DEV)
 			${CMAKE_BINARY_DIR}/tags
 			${CMAKE_CURRENT_SOURCE_DIR}/tags
 	)
+
+	# Add compiler options.
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
+			CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(
+			-O
+			$<$<CONFIG:Debug>:-ggdb3>
+			-Wall
+			-Wextra
+			-Wwrite-strings
+			-Wno-unused-function
+			-Wno-unused-parameter
+			-Werror
+			-Wattribute-warning
+		)
+	endif()
+	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(
+			-Wno-varargs
+			-Wno-array-bounds
+			-Wno-sizeof-array-decay
+		)
+	endif()
+	add_compile_definitions(
+		_FORTIFY_SOURCE=2
+	)
 endif()
 
 find_library(UNISTRING_LIB unistring)
@@ -119,7 +145,7 @@ endforeach()
 
 add_subdirectory(src)
 
-if((YIO_BUILD_TESTING OR YIO_DEV) AND BUILD_TESTING)
+if(YIO_DEV OR (YIO_BUILD_TESTING AND BUILD_TESTING))
 	include(CTest)
     add_subdirectory(test)
 endif()

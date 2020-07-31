@@ -36,6 +36,7 @@ enum _yIO_errors_e {
 	YIO_ERROR_TOO_MANY_FMT,        /// GEN "Too many format strings for arguments"
 	YIO_ERROR_SCAN_NOTHING,        /// GEN "No matching characters scanned"
 	YIO_ERROR_WCTOMB_ERR,          /// GEN "wctomb returned -1"
+	YIO_ERROR_U32_CONV_TO_ENCODING, /// GEN "u32_conv_to_encoding returned NULL"
 	_yIO_ERROR_STOP,               /// End of custom errors
 };
 

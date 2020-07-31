@@ -7,19 +7,18 @@
  * @brief
  */
 #pragma once
-m4_config_yio() m4_dnl;
 
-int _yIO_print_char(yio_printctx_t *t);
-int _yIO_print_schar(yio_printctx_t *t);
-int _yIO_print_uchar(yio_printctx_t *t);
-int _yIO_print_charpnt(yio_printctx_t *t);
-int _yIO_print_constcharpnt(yio_printctx_t *t);
+int _yΩIO_print_char(yπio_printctx_t *t);
+int _yΩIO_print_schar(yπio_printctx_t *t);
+int _yΩIO_print_uchar(yπio_printctx_t *t);
+int _yΩIO_print_charpnt(yπio_printctx_t *t);
+int _yΩIO_print_constcharpnt(yπio_printctx_t *t);
 
-#define _yIO_PRINT_FUNC_GENERIC_CHARS() \
-		char: _yIO_print_char, \
-		char*: _yIO_print_charpnt, \
-		const char*: _yIO_print_constcharpnt,
+#define _yΩIO_PRINT_FUNC_GENERIC_CHARS() \
+		char: _yΩIO_print_char, \
+		char*: _yΩIO_print_charpnt, \
+		const char*: _yΩIO_print_constcharpnt,
 
-#define _yIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
-		signed char: _yIO_print_schar, \
-		unsigned char: _yIO_print_uchar,
+#define _yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
+		signed char: _yΩIO_print_schar, \
+		unsigned char: _yΩIO_print_uchar,

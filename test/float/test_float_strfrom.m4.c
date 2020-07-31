@@ -54,7 +54,7 @@ int _yIO_test_print_float_stupid_in$1(int precision,
 	char *buf;
 
 	int err = astrfrom(&buf, precision, type, val);
-	if (err) {
+	if (err <= 0) {
 		_yIO_TEST(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
 				__func__, precision, type, valstr0, astrfrom_str, err);
 		return err;
