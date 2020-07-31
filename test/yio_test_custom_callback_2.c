@@ -6,11 +6,11 @@
  */
 #include <yio.h>
 
-void _dbgln(const char file[], int line, const char func[], yio_printdata_t *data, ...) {
+void _dbgln(const char file[], int line, const char func[], yio_printdata_t *data, const char *fmt, ...) {
 	printf("%s:%d:%s: ", file, line, func);
 	va_list va;
-	va_start(va, data);
-	char * const ret = yvformatf(data, &va);
+	va_start(va, fmt);
+	char * const ret = yvformatf(data, fmt, &va);
 	va_end(va);
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);

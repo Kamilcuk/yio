@@ -11,12 +11,12 @@
 #include <stdio.h>
 
 static inline
-int _yIO_print_wcharpnt_in(yπio_printctx_t *t, const wchar_t *ws) {
+int _yΩIO_print_wcharpnt_in(yπio_printctx_t *t, const wchar_t *ws) {
 	int ret = yπio_printctx_init(t);
 	if (ret) return ret;
 	const struct yπio_printfmt_s *pf = yπio_printctx_get_fmt(t);
 	const size_t ws_len = pf->precision >= 0 ? _yIO_wcsnlen(ws, pf->precision) : wcslen(ws);
-#if _yIO_TYPE_YIO
+m4_template_chooser(`m4_dnl);
 	char *mb = NULL;
 
 	mbstate_t ps;
@@ -42,19 +42,17 @@ int _yIO_print_wcharpnt_in(yπio_printctx_t *t, const wchar_t *ws) {
 	EXIT:
 	free(mb);
 	return ret;
-#elif _yIO_TYPE_YUIO
-	return yπio_printctx_putπs(t, ws);
-#elif _yΩIO_TYPE == _yUIO_TYPE
+~, `m4_dnl;
+	return yπio_printctx_putπ(t, ws, ws_len);
+~, `m4_dnl;
 	size_t length = 0;
-	const uint32_t *result = u32_conv_from_encoding("WCHAR_T", iconveh_question_mark,
-			(const char *)ws, wcslen(ws) * sizeof(wchar_t), NULL, NULL, &length);
+	uint32_t *result = u32_conv_from_encoding("WCHAR_T", iconveh_question_mark,
+			(const char *)ws, ws_len * sizeof(wchar_t), NULL, NULL, &length);
 	if (result == NULL) return YIO_ERROR_ENOMEM;
-	ret = yπpio_printctx_putπ(t, result, length);
+	ret = yπio_printctx_putπ(t, result, length);
 	free(result);
 	return ret;
-#else
-#error
-#endif
+~)m4_dnl;
 }
 
 int _yΩIO_print_wchar(yπio_printctx_t *t) {

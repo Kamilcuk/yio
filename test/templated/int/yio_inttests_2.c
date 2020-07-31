@@ -5,8 +5,7 @@
  *      Author: Kamil
  */
 #include <yio/yio_private.h>
-#include <yio.h>
-#include <ywio.h>
+#include <yπio.h>
 #include <string.h>
 #include <assert.h>
 
@@ -15,7 +14,9 @@
 #elif _yIO_TYPE_YWIO
 #define shouldbe_snprintf swprintf
 #else
-#define shouldbe_snprintf u32_vsnprintf
+#include <unistdio.h>
+#include <unistr.h>
+#define shouldbe_snprintf u32_u32_snprintf
 #endif
 
 #define _yio_inttest2(SUFFIX, TYPE) \

@@ -86,7 +86,7 @@ m4_define_function(`m4_yio_macros_gen_args~,
  */
 #define m4_yio_macros_rest_of_args(_i) ~
 m4_define_function(`m4_yio_macros_fmt_and_args~, `m4_dnl; \
-(const char *)(fmt)m4_dnl; \
+fmt`~m4_dnl; \
 m4_ifdef(`m4_DEBUG~, `m4_dnl; \
 , \
 m4_ifelse(`$1~, `1~, `m4_dnl; \

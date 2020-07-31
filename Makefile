@@ -93,10 +93,12 @@ test_before_commit:
 	$(MAKE) pages_repos
 
 USAGE +=~ test_R_% - Run tests matching regular expression
+test_R_: test
 test_R_%: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS) -R "$*"
 
-USAGE +=~ test_R_% - Run tests with labels matching regex
+USAGE +=~ test_L_% - Run tests with labels matching regex
+test_L_: test
 test_L_%: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS) -L "$*"
 

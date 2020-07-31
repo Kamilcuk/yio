@@ -4,8 +4,12 @@
  *  Created on: 19 pa� 2019
  *      Author: Kamil
  */
-#include <yio.h>
+#include <yπio.h>
 #include <string.h>
+#if _yIO_TYPE_YUIO
+#include <unistdio.h>
+#include <unistr.h>
+#endif
 
 struct _yIO_inttests_s {
 	const Ychar *fmt;
@@ -153,13 +157,6 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 
 };
 
-#if _yIO_TYPE_YWIO
-#include <ywio.h>
-#define PW "l"
-#else
-#define PW ""
-#endif
-
 #define _yIO_inttest_DECL(suffix, type) \
 \
 static inline \
@@ -172,7 +169,7 @@ int _yIO_inttest_ ## suffix(void) { \
 						\
 		memset(buf, 0, sizeof(buf)); \
 		if (1) { \
-			fprintf(stderr, "Testing yprintf(\"%"PW"s\", %d) -> %d\"%"PW"s\"\n", \
+			Yfprintf(stderr, "Testing yprintf(\"%"YPRI"s\", %d) -> %d\"%"YPRI"s\"\n", \
 					_yIO_inttests[i].fmt, _yIO_inttests[i].arg, \
 					(int)Ystrlen(_yIO_inttests[i].output), _yIO_inttests[i].output); \
 		} \
@@ -180,13 +177,13 @@ int _yIO_inttest_ ## suffix(void) { \
 		const int ret = yπsprintf(buf, sizeof(buf), _yIO_inttests[i].fmt, (type)_yIO_inttests[i].arg); \
  \
 		if (ret < 0) { \
-			fprintf(stderr, "%s:%d: %d: printf(\"%"PW"s\", %d) -> %d\n", \
+			Yfprintf(stderr, "%s:%d: %d: printf(\"%"YPRI"s\", %d) -> %d\n", \
 					__FILE__, __LINE__, (int)i, \
 					_yIO_inttests[i].fmt, _yIO_inttests[i].arg, ret); \
 			err = i + 1; \
 		} \
 		if (Ystrcmp(buf, _yIO_inttests[i].output) != 0) { \
-			fprintf(stderr, "%s:%d: %d: printf(\"%"PW"s\", %d) -> %d\"%"PW"s\" should be %d\"%"PW"s\"\n", \
+			Yfprintf(stderr, "%s:%d: %d: printf(\"%"YPRI"s\", %d) -> %d\"%"YPRI"s\" should be %d\"%"YPRI"s\"\n", \
 					__FILE__, __LINE__, (int)i, \
 					_yIO_inttests[i].fmt, _yIO_inttests[i].arg, \
 					(int)Ystrlen(buf), buf, \

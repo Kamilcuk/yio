@@ -10,3 +10,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio
 )
+if(UNISTRING_LIB)
+	target_link_libraries(${PROJECT_NAME} PUBLIC
+		yuio
+	)
+endif()

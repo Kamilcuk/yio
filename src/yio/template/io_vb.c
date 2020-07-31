@@ -10,11 +10,12 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#include <unistdio.h>
 /* yvbprintf and yvbscanf helpers ------------------------------------------------------ */
 
 static inline _yIO_wur _yIO_nn() _yIO_rnn
 const Ychar *_yΩIO_strpbrk_braces(const Ychar *str) {
-	while (*str) {
+	while (*str != Yc('\0')) {
 		if (*str == Yc('{') || *str == Yc('}')) {
 			break;
 		}
@@ -106,11 +107,11 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 	return 0;
 }
 
-int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, va_list *va) {
+int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
-	yπio_printctx_t _ctx = _yΩIO_printctx_init(out, arg, data, va);
+	yπio_printctx_t _ctx = _yΩIO_printctx_init(out, arg, data, fmt, va);
 	yπio_printctx_t * const t = &_ctx;
 	const int err = yπvbprintf_in(t);
 	if (err) {
@@ -171,9 +172,8 @@ int _yΩIO_yvbscanf_in(yπio_scanctx_t *t) {
 }
 
 struct yπio_scanret_s yπvbscanf(_yΩIO_scancb_t *in, void *arg,
-		yπio_scandata_t *data,
-		va_list *va) {
-	yπio_scanctx_t _ctx = _yΩIO_scanctx_init(in, arg, data, va);
+		yπio_scandata_t *data, const Ychar *fmt, va_list *va) {
+	yπio_scanctx_t _ctx = _yΩIO_scanctx_init(in, arg, data, fmt, va);
 	yπio_scanctx_t * const t = &_ctx;
 	const int err = _yΩIO_yvbscanf_in(t);
 	const struct yπio_scanret_s scanret = {

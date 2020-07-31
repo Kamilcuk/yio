@@ -290,7 +290,6 @@ if(UNISTRING_LIB)
 		yuio.h
 		${yuio_gensrcs}
 	)
-	set_target_properties(yuio PROPERTIES LINKER_LANGUAGE C)
 	target_link_libraries(yuio PUBLIC yio ${UNISTRING_LIB})
 endif()
 

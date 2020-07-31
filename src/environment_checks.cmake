@@ -27,6 +27,7 @@ endif()
 
 set(CMAKE_REQUIRED_DEFINITIONS 
 	-D_GNU_SOURCE=1
+	-D_XOPEN_SOURCE=1
 	-D_POSIX_C_SOURCE=1
 	-D_BSD_SOURCE=1
 	-D_SVID_SOURCE=1
@@ -107,6 +108,14 @@ yio_config_gen_check_symbol_exists(localtime_r "time.h" _yIO_HAS_localtime_r LAN
 
 yio_config_gen_check_symbol_exists(strnlen "string.h" _yIO_HAS_strnlen LANGUAGE C)
 
+yio_config_gen_check_include_file("wchar.h"  _yIO_HAS_WCHAR_H)
+yio_config_gen_check_symbol_exists(wcswidth "wchar.h" _yIO_HAS_wcswidth LANGUAGE C)
+
+yio_config_gen_check_include_file("uchar.h"  _yIO_HAS_UCHAR_H)
+
+set(_yIO_HAS_UNISTRING HAS_UNISTRING)
+yio_config_gen_add(_yIO_HAS_UNISTRING)
+
 #########################################################################
 # handle and detect floats
 
@@ -179,14 +188,15 @@ endforeach()
 # Generate the file only if anything changed
 
 string(APPEND yio_config_gen_content "\n")
-set(f ${GENDIR}/yio/yio_config_gen.h)
-if(EXISTS ${f})
-	file(READ ${f} fcontent)
+set(f "${GENDIR}/yio/yio_config_gen.h")
+if(EXISTS "${f}")
+	file(READ "${f}" fcontent)
 else()
 	set(fcontent "")
 endif()
-if(NOT fcontent STREQUAL ${yio_config_gen_content})
-	file(WRITE ${f} ${yio_config_gen_content})
-endif() 
+if(NOT "${fcontent}" STREQUAL "${yio_config_gen_content}")
+	file(WRITE "${f}" "${yio_config_gen_content}")
+endif()
+set(fcontent)
 
 #########################################################################

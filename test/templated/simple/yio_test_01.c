@@ -1,9 +1,9 @@
-#include <yio.h>
+#include <yπio.h>
 int main() {
 	int arg = 1;
-	yprintf("{}\n", arg);
+	yπprintf(Yc("{}\n"), arg);
 	long larg = 2;
-	yprintf("{}\n", larg);
+	yπprintf(Yc("{}\n"), larg);
 }
 // PASS_REGULAR_EXPRESSION 1
 // PASS_REGULAR_EXPRESSION 2

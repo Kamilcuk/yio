@@ -17,23 +17,28 @@ endforeach()
 
 ###############################################################
 
-if(EXISTS ${OUTPUT}.tmp)
-	file(REMOVE ${OUTPUT}.tmp)
+if(CMAKE_HOST_UNIX)
+	execute_process(
+		COMMAND chmod ugo+w "${OUTPUT}"
+		RESULT_VARIABLE _
+		OUTPUT_VARIABLE _
+		ERROR_VARIABLE _
+	)
 endif()
 execute_process(
-	COMMAND ${M4_COMMAND} --debug=i ${M4_ARGS}
+	COMMAND "${M4_COMMAND}" --debug=i ${M4_ARGS}
 	RESULT_VARIABLE result
-	OUTPUT_FILE ${OUTPUT}.tmp
+	OUTPUT_FILE ${OUTPUT}
 	ERROR_VARIABLE error_raw
 )
-get_filename_component(outputdir "${OUTPUT}" DIRECTORY)
-file(
-	COPY ${OUTPUT}.tmp
-	DESTINATION ${outputdir}
-	FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-)
-file(RENAME ${OUTPUT}.tmp ${OUTPUT})
-file(REMOVE ${OUTPUT}.tmp)
+if(CMAKE_HOST_UNIX)
+	execute_process(
+		COMMAND chmod ugo-w "${OUTPUT}"
+		RESULT_VARIABLE _
+		OUTPUT_VARIABLE _
+		ERROR_VARIABLE _
+	)
+endif()
 
 ###############################################################
 

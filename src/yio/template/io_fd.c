@@ -58,14 +58,14 @@ int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 #endif
 }
 
-int yπvdprintf(int fd, yπio_printdata_t *data, va_list *va) {
-	return yπvbprintf(_yΩIO_yπvdprintf_cb, &fd, data, va);
+int yπvdprintf(int fd, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+	return yπvbprintf(_yΩIO_yπvdprintf_cb, &fd, data, fmt, va);
 }
 
-int _yΩIO_ydprintf(int fd, yπio_printdata_t *data, ...) {
+int _yΩIO_ydprintf(int fd, yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
-	va_start(va, data);
-	const int ret = yπvdprintf(fd, data, &va);
+	va_start(va, fmt);
+	const int ret = yπvdprintf(fd, data, fmt, &va);
 	va_end(va);
 	return ret;
 }
@@ -106,14 +106,14 @@ int _yΩIO_ydscanf_cb(void *arg, Yint *data) {
 	return ret;
 }
 
-struct yπio_scanret_s yπvdscanf(int fd, yπio_scandata_t *data, va_list *va) {
-	return yπvbscanf(&_yΩIO_ydscanf_cb, &fd, data, va);
+struct yπio_scanret_s yπvdscanf(int fd, yπio_scandata_t *data, const Ychar *fmt, va_list *va) {
+	return yπvbscanf(&_yΩIO_ydscanf_cb, &fd, data, fmt, va);
 }
 
-struct yπio_scanret_s _yΩIO_ydscanf(int fd, yπio_scandata_t *data, ...) {
+struct yπio_scanret_s _yΩIO_ydscanf(int fd, yπio_scandata_t *data, const Ychar *fmt, ...) {
 	va_list va;
-	va_start(va, data);
-	const struct yπio_scanret_s ret = yπvdscanf(fd, data, &va);
+	va_start(va, fmt);
+	const struct yπio_scanret_s ret = yπvdscanf(fd, data, fmt, &va);
 	va_end(va);
 	return ret;
 }

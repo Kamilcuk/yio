@@ -10,9 +10,12 @@ macro(yio_template_in i relative)
 	
 	if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/${i_rel} AND EXISTS ${TEMPLATE_DIR}/${i_rel})
 		message(FATAL_ERROR 
-			"duplicate template files"
+			"yio_template.cmake: ERROR: Duplicate template files found"
+			" in both the template/ and y*io directory. Only one can exists."
+			" Files: "
 			"${CMAKE_CURRENT_LIST_DIR}/${i_rel}"
-			"${TEMPLATE_DIR}/${i_rel}"
+			" and "
+			"${TEMPLATE_DIR}/${i_rel}\n"
 		)
 	endif()
 	

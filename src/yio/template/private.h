@@ -16,11 +16,14 @@
 #include "../yio_private.h"
 #include <string.h>
 #include <limits.h>
-#if _yIO_TYPE_YWIO
+m4_template_chooser(`m4_dnl);
+~,`m4_dnl;
 #include <wctype.h>
-#elif _yIO_TYPE_YUIO
+~,`m4_dnl;
 #include <unictype.h>
 #include <uniconv.h>
 #include <unistr.h>
 #include <uniwidth.h>
-#endif
+#include <unistdio.h>
+#include "../private/yio_strconv.h"
+~)m4_dnl;

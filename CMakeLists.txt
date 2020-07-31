@@ -67,9 +67,11 @@ if(YIO_DEV)
 	# Add compiler options.
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
 			CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		string(APPEND CMAKE_C_FLAGS " -fsanitize=undefined")
+		string(APPEND CMAKE_C_FLAGS " -fsanitize=address")
 		add_compile_options(
 			-O
-			$<$<CONFIG:Debug>:-ggdb3>
+			-ggdb3
 			-Wall
 			-Wextra
 			-Wwrite-strings
@@ -89,7 +91,14 @@ if(YIO_DEV)
 	add_compile_definitions(
 		_FORTIFY_SOURCE=2
 	)
-endif()
+
+
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		add_compile_options(-fdiagnostics-color=always)
+	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fcolor-diagnostics)
+	endif()
+endif(YIO_DEV)
 
 ######################################################################
 
@@ -125,6 +134,9 @@ m4_add_files(
 
 ######################################################################
 
+get_directory_property(dir_prop_COMPILE_OPTIONS COMPILE_OPTIONS)
+get_directory_property(dir_prop_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
+get_directory_property(dir_prop_LINK_OPTIONS LINK_OPTIONS)
 yio_debug_variables(
 	BUILD_TESTING
 	YIO_BUILD_TESTING
@@ -169,6 +181,9 @@ yio_debug_variables(
 	CPPLINT_COMMAND
 	_M4_OPTIONS_INIT
 	_M4_FILES_INIT
+	dir_prop_COMPILE_OPTIONS
+	dir_prop_COMPILE_DEFINITIONS
+	dir_prop_LINK_OPTIONS
 )
 
 foreach(i IN ITEMS CMAKE_TOOLCHAIN_FILE CMAKE_CROSSCOMPILING_EMULATOR)

@@ -88,7 +88,7 @@ struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t);
  * @return
  */
 _yIO_wur _yIO_nn(1, 2)
-int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...);
+int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const Ychar *fmt, ...);
 
 _yIO_wur _yIO_nn()
 int _yΩIO_printformat_generic(yπio_printctx_t *t,
@@ -294,7 +294,7 @@ size_t yπio_scanctx_arg_size_next(yπio_scanctx_t *t);
  * @return
  */
 _yIO_wur _yIO_nn(1, 2)
-int _yΩIO_scanctx_scan(yπio_scanctx_t *t, yπio_scandata_t *data, ...);
+int _yΩIO_scanctx_scan(yπio_scanctx_t *t, yπio_scandata_t *data, const Ychar *fmt, ...);
 
 /**
  * @def yπio_scanctx_scan(scanctx, ...)

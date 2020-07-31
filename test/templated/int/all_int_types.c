@@ -10,6 +10,7 @@
 #define _GNU_SOURCE
 #include <yio_test.h>
 #include <yio/intprops.h>
+#include <yπio.h>
 #include <time.h>
 #include <signal.h>
 #include <stdint.h>
@@ -17,16 +18,16 @@
 #define TEST_in(type, value) \
     do { \
         type _var = value; \
-        char *_ptr = yformat("("#type")"#value" -> ", _var, "\n"); \
-        yprint(_ptr); \
-        _yIO_TEST(strcmp(_ptr, #value) == 0, "%s failed", _ptr); \
+        Ychar *_ptr = yπformat("("#type")"#value" -> ", _var, "\n"); \
+        yπprint(_ptr); \
+        _yIO_TEST(Ystrcmp(_ptr, #value) == 0, "%"YPRI" failed", _ptr); \
         free(_ptr); \
     } while(0)
 #undef TEST_in
 #define TEST_in(type, value) \
     do { \
         type _var = value; \
-        yprint("(", #type ")(", #value, ") = ", _var, "\n"); \
+        yπprint("(", #type ")(", #value, ") = ", _var, "\n"); \
     } while(0)
 
 

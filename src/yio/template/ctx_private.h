@@ -43,19 +43,17 @@ struct _yΩIO_printctx_s {
 	struct yπio_printfmt_s pf;
 };
 
-static inline _yIO_wur _yIO_nn(1, 2, 3)
-yπio_printctx_t _yΩIO_printctx_init(
-		_yΩIO_printcb_t *out, void *outarg,
-		const yπio_printdata_t *data,
-		va_list *va) {
+static inline _yIO_wur _yIO_nn(1, 3, 5)
+yπio_printctx_t _yΩIO_printctx_init(_yΩIO_printcb_t *out, void *outarg,
+		const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	yπio_printctx_t _yΩIO_printctx = {
 		.data = data,
 		.c.va = va,
 		.out = out,
 		.outarg = outarg,
 		.ifunc = data,
+		.fmt = fmt,
 	};
-	_yΩIO_printctx.fmt = va_arg(*va, const Ychar *);
 	m4_ifdef(`m4_DEBUG~,`
 	// Debug build also has size_t argument passed
 	_yΩIO_printctx.c.argsizespnt = va_arg(*va, const size_t*);
@@ -93,11 +91,9 @@ struct _yΩIO_scanctx_s {
 	bool unin;
 };
 
-static inline _yIO_wur _yIO_nn(1, 3, 4)
-yπio_scanctx_t _yΩIO_scanctx_init(
-		_yΩIO_scancb_t *in, void *inarg,
-		const yπio_scandata_t *data,
-		va_list *va) {
+static inline _yIO_wur _yIO_nn(1, 3, 5)
+yπio_scanctx_t _yΩIO_scanctx_init(_yΩIO_scancb_t *in, void *inarg,
+		const yπio_scandata_t *data, const Ychar *fmt, va_list *va) {
 	yπio_scanctx_t _yΩIO_scanctx = {
 		.data = data,
 		.c.va = va,
@@ -105,8 +101,8 @@ yπio_scanctx_t _yΩIO_scanctx_init(
 		.in = in,
 		.argpntsizespnt = data->argpntsizes,
 		.inarg = inarg,
+		.fmt = fmt,
 	};
-	_yΩIO_scanctx.fmt = va_arg(*va, const Ychar *);
 	m4_ifdef(`m4_DEBUG~,`
 	// Debug build also has size_t argument passed
 	_yΩIO_scanctx.c.argsizespnt = va_arg(*va, const size_t *);

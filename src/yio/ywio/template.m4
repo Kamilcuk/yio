@@ -15,8 +15,8 @@ m4_define_function(`Yc~, `L$@~)
 m4_define_function(`Yisprint~, `iswprint((unsigned char)$@)~)
 m4_define_function(`Yisupper~, `iswupper((unsigned char)$@)~)
 m4_define_function(`Yisdigit~, `iswdigit((unsigned char)$@)~)
+
 m4_define_function(`Ystrlen~, `wcslen($@)~)
-m4_define_function(`Yfgetc~, `fgetwc($@)~)
 m4_define_function(`Ystrchr~, `wcschr($@)~)
 m4_define_function(`Ystrcmp~, `wcscmp($@)~)
 

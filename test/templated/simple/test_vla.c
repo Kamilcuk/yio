@@ -7,7 +7,7 @@
  * @brief
  */
 #include <yio_test.h>
-
+#include <yπio.h>
 int main() {
 	int i = 5;
 	int a[i];
@@ -16,12 +16,12 @@ int main() {
 	a[2] = 3;
 	a[3] = 2;
 	a[4] = 1;
-	yprintf("{}\n", a[0]);
-	yprintf("{} {}\n", a[1], a[2]);
-	yprintf("{} {} {} {} {}\n", a[3], a[4], a[0], a[1], a[2]);
-	yprint(a[0], "\n");
-	yprint(a[1], " ", a[2], "\n");
-	yprint(a[3], " ", a[4], " ", a[0], " ", a[1], " ", a[2], "\n");
+	yπprintf(Yc("{}\n"), a[0]);
+	yπprintf(Yc("{} {}\n"), a[1], a[2]);
+	yπprintf(Yc("{} {} {} {} {}\n"), a[3], a[4], a[0], a[1], a[2]);
+	yπprint(a[0], Yc("\n"));
+	yπprint(a[1], Yc(" "), a[2], Yc("\n"));
+	yπprint(a[3], Yc(" "), a[4], Yc(" "), a[0], Yc(" "), a[1], Yc(" "), a[2], Yc("\n"));
 }
 // PASS_REGULAR_EXPRESSION 5
 // PASS_REGULAR_EXPRESSION 4 3

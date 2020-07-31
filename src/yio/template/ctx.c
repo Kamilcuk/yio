@@ -5,6 +5,7 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
+#define _XOPEN_SOURCE  1 // wcswidth
 #include "private.h"
 #include <stdio.h>
 #include <stdint.h>
@@ -50,10 +51,10 @@ va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype
 	return _yΩIO_commonctx_inc_va_list(&t->c, sizeof_realtype);
 }
 
-int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...) {
+int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
-	va_start(va, data);
-	const int ret = yπvbprintf(t->out, t->outarg, data, &va);
+	va_start(va, fmt);
+	const int ret = yπvbprintf(t->out, t->outarg, data, fmt, &va);
 	va_end(va);
 	if (ret < 0) {
 		return ret;
@@ -67,7 +68,7 @@ int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, ...) {
 
 typedef struct _yΩIO_printformat_t {
 	yπio_printctx_t *t;
-#if _yIO_TYPE_YUIO
+#if !_yIO_TYPE_YIO
 	size_t bytes_len;
 #endif
 	size_t str_len;
@@ -101,10 +102,20 @@ void _yΩIO_printformat_init(_yΩIO_printformat_t *pf, yπio_printctx_t *t,
 			.is_positive = is_positive,
 	};
 	(void)str;
-#if _yIO_TYPE_YUIO
+#if _yIO_TYPE_YWIO || _yIO_TYPE_YUIO
 	ret.bytes_len = str_len;
 	if (!is_number) {
-		ret.str_len = u32_width(str, sizeof(str), locale_charset());
+#if _yIO_TYPE_YWIO
+#ifdef _yIO_HAS_wcswidth
+		ret.str_len = wcswidth(str, str_len);
+#else
+		ret.str_len = str_len;
+#endif
+#elif  _yIO_TYPE_YUIO
+		ret.str_len = u32_width(str, str_len, locale_charset());
+#else
+#error
+#endif
 	}
 #endif
 	*pf = ret;
@@ -266,10 +277,11 @@ int _yΩIO_printformat_print(_yΩIO_printformat_t *pf, const Ychar str[]) {
 		const int err = _yΩIO_print_format_generic_number_grouping(t, grouping, str, str_len);
 		if (err) return err;
 	} else {
-		const int precision = f->precision;
-		const size_t to_print =
-				is_number == true || precision < 0 || (size_t)precision >= str_len ?
-						str_len : (size_t)precision;
+#if _yIO_TYPE_YIO
+		const size_t to_print = pf->str_len;
+#elif _yIO_TYPE_YWIO || _yIO_TYPE_YUIO
+		const size_t to_print = pf->bytes_len;
+#endif
 		const int err = yπio_printctx_raw_write(t, str, to_print);
 		if (err) return err;
 	}
@@ -301,7 +313,7 @@ int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 	memset(&ps, 0, sizeof(ps));
 	const char *src = str;
 	size_t r = mbsrtowcs(buf, &src, str_len, &ps);
-	if (r == (size_t)-1 || src != NULL) {
+	if (r == (size_t)-1) {
 		free(buf);
 		return YIO_ERROR_WCTOMB_ERR;
 	}
@@ -371,11 +383,11 @@ va_list *_yΩIO_scanctx_inc_va_list(yπio_scanctx_t *t, size_t sizeof_realtype) 
 	return _yΩIO_commonctx_inc_va_list(&t->c, sizeof_realtype);
 }
 
-int _yΩIO_scanctx_scan(yπio_scanctx_t *t, yπio_scandata_t *data, ...) {
+int _yΩIO_scanctx_scan(yπio_scanctx_t *t, yπio_scandata_t *data, const Ychar *fmt, ...) {
 	assert(t != NULL);
 	va_list va;
-	va_start(va, data);
-	struct yπio_scanret_s ret = yπvbscanf(t->in, t->inarg, data, &va);
+	va_start(va, fmt);
+	struct yπio_scanret_s ret = yπvbscanf(t->in, t->inarg, data, fmt, &va);
 	va_end(va);
 	assert(t->scannedcnt < (size_t)INT_MAX - ret.count);
 	t->scannedcnt += ret.count;

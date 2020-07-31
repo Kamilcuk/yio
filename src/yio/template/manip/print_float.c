@@ -27,18 +27,18 @@ int _yΩIO_print_float_$2_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 
 int _yΩIO_print_float_$2(yπio_printctx_t *t) {
 	const _yIO_FLOAT$1 var = yπio_printctx_va_arg_num(t, _yIO_FLOAT$1);
-	const int err = yio_printctx_init(t);
+	const int err = yπio_printctx_init(t);
 	if (err) return err;
-	return _yIO_print_float_$2_in(t, var);
+	return _yΩIO_print_float_$2_in(t, var);
 }
 
 m4_ifelse(`$1~, `f~, `m4_dnl;
 
 int _yΩIO_print_float_$2pnt(yπio_printctx_t *t) {
-	const _yIO_FLOAT$1 var = * yio_printctx_va_arg(t, _yIO_FLOAT$1 *);
-	const int err = yio_printctx_init(t);
+	const _yIO_FLOAT$1 var = * yπio_printctx_va_arg(t, _yIO_FLOAT$1 *);
+	const int err = yπio_printctx_init(t);
 	if (err) return err;
-	return _yIO_print_float_$2_in(t, var);
+	return _yΩIO_print_float_$2_in(t, var);
 }
 
 ~) m4_dnl;

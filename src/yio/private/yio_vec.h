@@ -80,7 +80,7 @@ size_t _yIO_vec_size(const _yIO_vec *t) {
 }
 
 static inline
-int _yIO_vec_yreformatf_in(_yIO_vec *t, yio_printdata_t *data, ...) {
+int _yIO_vec_yreformatf_in(_yIO_vec *t, yio_printdata_t *data, const char *fmt, ...) {
 	int err = 0;
 	// zero terminate the buffer
 	err = _yIO_vec_putc(t, '\0');
@@ -88,8 +88,8 @@ int _yIO_vec_yreformatf_in(_yIO_vec *t, yio_printdata_t *data, ...) {
 
 	// call yvreformatf
 	va_list va;
-	va_start(va, data);
-	char *buf = yvreformatf(t->beg, data, &va);
+	va_start(va, fmt);
+	char *buf = yvreformatf(t->beg, data, fmt, &va);
 	va_end(va);
 
 	if (buf == NULL) {
