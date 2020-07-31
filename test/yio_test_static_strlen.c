@@ -7,6 +7,7 @@
 #include <yio.h>
 #include <string.h>
 
+#ifndef __GNUC__
 #pragma GCC optimize("O")
 int main() {
 	const char msg[] = "hello world";
@@ -16,3 +17,8 @@ int main() {
 	}
 	return EXIT_FAILURE;
 }
+#else
+int main() {
+	return EXIT_SUCCESS;
+}
+#endif
