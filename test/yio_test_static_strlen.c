@@ -6,8 +6,9 @@
  */
 #include <yio.h>
 #include <string.h>
+#include <stddef.h>
 
-#ifndef __GNUC__
+#if __GNUC__
 #pragma GCC optimize("O")
 int main() {
 	const char msg[] = "hello world";
