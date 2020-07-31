@@ -11,9 +11,15 @@ include(test_extract_properties_from_file)
 set(ENV{LC_ALL} "en_US.utf-8")
 
 ####################################################################
+# yio_add_test
 
 set(YIO_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
+# @def yio_add_test(name file [propertiesfile])
+# add_executable from file
+# With the name name
+# then also add the name name
+# Then read properties of the test from propertiesfile
 function(yio_add_test name file)
 	# message(STATUS "Adding test ${name} ${file}")
 	add_executable(${name} ${file})
@@ -75,56 +81,47 @@ subdirlist(dirs ${CMAKE_CURRENT_SOURCE_DIR})
 list(FILTER dirs EXCLUDE REGEX "cmake_example")
 
 # Create a list of sources
-set(srcs "")
-foreach(d IN ITEMS "." ${dirs})
-
+set(sources "")
+foreach(dir IN ITEMS "." ${dirs})
 	# If the directory is not current directory and it contains CMakeLists.txt file
-	if(NOT "${d}" STREQUAL "." AND
-			 EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${d}/CMakeLists.txt)
+	if(NOT "${dir}" STREQUAL "." AND
+			 EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/${dir}/CMakeLists.txt)
 		# Add it as a subdirectory.
-		add_subdirectory(${d})
+		add_subdirectory(${dir})
 	else()
-		# Files in current directory are processed here too.
-		file(GLOB tmp ${d}/*.c)
-		foreach(source IN LISTS	tmp)
-			# Create path relative to current source dir that is relative to binary dir.
-			file(RELATIVE_PATH sourcenice ${CMAKE_CURRENT_SOURCE_DIR} ${source})
-			set(output ${CMAKE_CURRENT_BINARY_DIR}/${sourcenice})
-
-			if(${source} MATCHES "\\.m4\\.c$")
-				# Files that are .m4.c are preprocessed by m4 preprocessor.
-				# Note: this is _before_ detecting PASS_REGULAR_EXPRESSION* in files.
-				# So it has to be done on configuration stage
-				if(NOT EXISTS ${output} OR ${source} IS_NEWER_THAN ${output})
-					m4_execute_process(${output} ${source})
-				endif()
-			else()
-				# *All* files are copied to CMAKE_CURRENT_BINARY_DIR.
-				get_filename_component(output_dir ${output} DIRECTORY)
-				file(COPY ${source} DESTINATION ${output_dir})
-			endif()
-
-			list(APPEND srcs ${output})
+		# Files in current directory are test sources
+		file(GLOB tmp ${dir}/*.c)
+		foreach(i IN LISTS tmp)
+			get_filename_component(i "${i}" ABSOLUTE)
+			list(APPEND sources "${i}")
 		endforeach()
 	endif()
 endforeach()
 
-list(REMOVE_DUPLICATES srcs)
-list(FILTER srcs EXCLUDE REGEX "ywio")
-# list(FILTER srcs EXCLUDE REGEX "scan")
-# list(FILTER srcs INCLUDE REGEX "examples")
-# list(FILTER srcs INCLUDE REGEX "simple/")
-# list(FILTER srcs INCLUDE REGEX "scan.*08")
-
 ######################################################################################
 # Create tests
-foreach(file IN LISTS srcs)
-	file(RELATIVE_PATH name ${CMAKE_CURRENT_BINARY_DIR} ${file})
+
+list(REMOVE_DUPLICATES sources)
+list(FILTER sources EXCLUDE REGEX "ywio")
+# list(FILTER sources EXCLUDE REGEX "scan")
+# list(FILTER sources INCLUDE REGEX "examples")
+# list(FILTER sources INCLUDE REGEX "simple/")
+# list(FILTER sources INCLUDE REGEX "scan.*08")
+
+foreach(source IN LISTS sources)
+	file(RELATIVE_PATH sourcenice "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
+	
+	m4_add_command(
+		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${sourcenice}
+		SOURCE ${source}
+	)
+	
+	set(name "${sourcenice}")
 	string(REPLACE "/" "_" name "${name}")
 	string(REPLACE "\\" "_" name "${name}")
 	string(REGEX REPLACE "\\..*$" "" name "${name}")
-	
-	yio_add_test("${name}" "${file}")
+
+	yio_add_test("${name}" "${CMAKE_CURRENT_BINARY_DIR}/${sourcenice}" "${source}")
 endforeach()
 
 ######################################################################################

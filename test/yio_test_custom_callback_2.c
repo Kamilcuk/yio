@@ -26,5 +26,5 @@ int main() {
 	dbgln("debugging test");
 	dbgln("debugging ", "test");
 }
-// PASS_REGULAR_EXPRESSION .*yio_test_custom_callback_2.c:26:main: debugging test
-// PASS_REGULAR_EXPRESSION .*yio_test_custom_callback_2.c:27:main: debugging test
+// PASS_REGULAR_EXPRESSION .*yio_test_custom_callback_2.c:[0-9]*:main: debugging test
+// PASS_REGULAR_EXPRESSION .*yio_test_custom_callback_2.c:[0-9]*:main: debugging test
