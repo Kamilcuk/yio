@@ -20,63 +20,6 @@
 
 #if defined __DOXYGEN__ || defined __CDT_PARSER__
 /**
- * Set by cmake if the compiler supports __int128 type
- * Like gcc: https://gcc.gnu.org/onlinedocs/gcc/_005f_005fint128.html
- */
-#define _yIO_HAS_INT128
-#endif
-#cmakedefine _yIO_HAS_INT128
-
-#if defined __DOXYGEN__ || defined __CDT_PARSER__
-/**
- * Set by cmake if the compiler is posix.
- */
-#define _yIO_HAS_UNISTD_H
-#endif
-#cmakedefine _yIO_HAS_UNISTD_H
-
-#if defined __DOXYGEN__ || defined __CDT_PARSER__
-/**
- * Do we have float.h include file? 
- */
-#define _yIO_HAS_FLOAT_H
-#endif
-#cmakedefine _yIO_HAS_FLOAT_H
-
-#if defined __DOXYGEN__ || defined __CDT_PARSER__
-/**
- * Do we have asprintf?
- */
-#define _yIO_HAS_asprintf
-#endif
-#cmakedefine _yIO_HAS_asprintf
-
-#if defined __DOXYGEN__ || defined __CDT_PARSER__
-/**
- * Do we have strict timespec?
- */
-#define _yIO_HAS_timespec
-#endif
-#cmakedefine _yIO_HAS_timespec
-
-#if defined __DOXYGEN__ || defined __CDT_PARSER__
-/**
- * Do we have strict timeval?
- */
-#define _yIO_HAS_timeval
-#endif
-#cmakedefine _yIO_HAS_timeval
-
-#if defined __DOXYGEN__ || defined __CDT_PARSER__
-/**
- * Do we have localtime_r and other *_r versions from time.h?
- */
-#define _yIO_HAS_localtime_r
-#endif
-#cmakedefine _yIO_HAS_localtime_r
-
-#if defined __DOXYGEN__ || defined __CDT_PARSER__
-/**
  * Prefer custom stupid method of printing floats.
  * There are three methods that this library can print floats with:
  * 1. There are strfrom* function. They are the preferred way
