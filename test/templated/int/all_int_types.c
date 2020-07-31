@@ -147,7 +147,7 @@ void test_posix_types(void) {
     TESTINT(timer_t);
 #endif
     TESTINT(uid_t);
-    TESTINT(useconds_t);
+    // TESTINT(useconds_t);
 }
 #else
 void test_posix_types(void) {}

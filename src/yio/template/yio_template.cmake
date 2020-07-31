@@ -22,21 +22,22 @@ macro(yio_template_in i relative)
 		DEPENDS
 			${TEMPLATE_DIR}/yio_template_replace.cmake
 			${i}
+			${CMAKE_CURRENT_LIST_FILE}
 		COMMAND ${CMAKE_COMMAND}
 			-D INPUT=${i}
 			-D OUTPUT=${CMAKE_CURRENT_BINARY_DIR}/template/${out}
-			-D PI=${PI}
-			-D OMEGA=${OMEGA}
+			-D REPLACEMENT=${REPLACEMENT}
 			-P ${TEMPLATE_DIR}/yio_template_replace.cmake
 	)
 	
 	file(RELATIVE_PATH i_rel_srcdir ${SRCDIR} ${i})
 	m4_add_command(
-		${GENDIR}/${out}
-		${CMAKE_CURRENT_BINARY_DIR}/template/${out}
-		-D m4_SOURCE=${i}
-		-D m4_TEMPLATE_SOURCE=${i_rel_srcdir}
-		-D m4_CONFIG=yio/${name}/template.m4
+		OUTPUT ${GENDIR}/${out}
+		SOURCE ${CMAKE_CURRENT_BINARY_DIR}/template/${out}
+		OPTIONS
+			-D m4_SOURCE=${i}
+			-D m4_TEMPLATE_SOURCE=${i_rel_srcdir}
+			-D m4_CONFIG=yio/${name}/template.m4
 	)
 	list(APPEND srcs ${GENDIR}/${out})
 endmacro()
@@ -48,10 +49,8 @@ function(yio_template)
 	if(NOT "${name}" MATCHES "^y.*io$")
 		message(FATAL_ERROR "NOT REGEX ${name} ${rgx}")
 	endif()
-	string(REGEX REPLACE "^y(.*)io$" "\\1" letter "${name}")
-	string(TOUPPER "${letter}" OMEGA)  # "" or "w" or "u"
-	string(TOLOWER "${letter}" PI)     # "" or "W" or "U"
-	if(NOT (letter STREQUAL "" OR letter STREQUAL "u" OR letter STREQUAL "w") )
+	string(REGEX REPLACE "^y(.*)io$" "\\1" REPLACEMENT "${name}")
+	if(NOT (REPLACEMENT STREQUAL "" OR REPLACEMENT STREQUAL "u" OR REPLACEMENT STREQUAL "w") )
 		message(FATAL_ERROR "NOT LETTER")
 	endif()
 	

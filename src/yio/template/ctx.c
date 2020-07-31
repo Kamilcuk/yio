@@ -122,7 +122,7 @@ int _yΩIO_printformat_prefix__print_sign_hash(yπio_printctx_t *t,
 	if (has_hash) {
 		assert(Yisprint(f->type));
 		const Ychar buf[2] = { Yc('0'), f->type, };
-		const int err = yπio_printctx_raw_write(t, buf, sizeof(buf));
+		const int err = yπio_printctx_raw_write(t, buf, 2);
 		if (err) return err;
 	}
 	return 0;
@@ -189,8 +189,8 @@ int _yΩIO_printformat_suffix(_yΩIO_printformat_t *pf) {
 }
 
 static inline
-const Ychar *_yΩIO_str_comma_or_end(const Ychar str[]) {
-	for (; str[0] != Yc('\0') && str[0] != Yc('.'); ++str) {
+const Ychar *_yΩIO_str_comma_or_end(const Ychar str[], size_t len) {
+	for (; len-- && str[0] != Yc('.'); ++str) {
 		continue;
 	}
 	return str;
@@ -199,12 +199,11 @@ const Ychar *_yΩIO_str_comma_or_end(const Ychar str[]) {
 static inline
 int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, Ychar grouping,
 		const Ychar str[], size_t str_len) {
-
 	assert(Yisprint((unsigned char)grouping));
 	int err = 0;
 	// Find end of string (integer) or comma (floating point)
 	const Ychar * const str0 = str;
-	const Ychar *comma_or_end = _yΩIO_str_comma_or_end(str);
+	const Ychar *comma_or_end = _yΩIO_str_comma_or_end(str, str_len);
 	// Calculate size of first block.
 	const size_t blocksize = 3;
 	const size_t numberscnt = comma_or_end - str;

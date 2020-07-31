@@ -28,7 +28,7 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	}
 	return ret;
 }
-#include <locale.h>
+
 static inline _yIO_access(__read_only__, 2, 3)
 int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 #if _yIO_TYPE_YIO
@@ -38,8 +38,8 @@ int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	memset(&ps, 0, sizeof(ps));
 	while (size--) {
 		char s[MB_LEN_MAX];
-		const int wr = wcrtomb(s, *ptr++, &ps);
-		if (wr < 0) return YIO_ERROR_WCTOMB_ERR;
+		const size_t wr = wcrtomb(s, *ptr++, &ps);
+		if (wr == (size_t)-1) return YIO_ERROR_WCTOMB_ERR;
 		const int r = _yΩIO_yπvdprintf_cb_in(arg, s, wr);
 		if (r < 0) return r;
 	}

@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stddef.h>
 
 /* printctx ---------------------------------------------------------------------------- */
 
@@ -109,9 +110,16 @@ int yπio_printctx_putπ(yπio_printctx_t *t, const Ychar str[], size_t str_len)
 	return _yΩIO_printformat_generic(t, str, str_len, false, false);
 }
 
+#if !_yIO_TYPE_YIO
 _yIO_wur _yIO_nn() static inline
 int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
 	return _yΩIO_printformat_generic_char(t, str, str_len, true, is_positive);
+}
+#endif
+
+_yIO_wur _yIO_nn() static inline
+int yπio_printctx_putπ_number(yπio_printctx_t *t, const Ychar str[], size_t str_len, bool is_positive) {
+	return _yΩIO_printformat_generic(t, str, str_len, true, is_positive);
 }
 
 /**

@@ -1,7 +1,6 @@
 
 foreach(i IN ITEMS
-		OMEGA
-		PI
+		REPLACEMENT
 		INPUT
 		OUTPUT
 )
@@ -9,6 +8,10 @@ foreach(i IN ITEMS
 		message(FATAL_ERROR "${i} not defined")
 	endif()
 endforeach()
+
+string(TOLOWER "${REPLACEMENT}" PI)
+string(TOUPPER "${REPLACEMENT}" OMEGA)
+
 file(READ "${INPUT}" tmp)
 string(REPLACE "π" "${PI}" tmp "${tmp}")
 string(REPLACE "Ω" "${OMEGA}" tmp "${tmp}")

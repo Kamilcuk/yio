@@ -87,15 +87,17 @@ Ychar *_yΩIO_yreformatf(Ychar *str, yπio_printdata_t *data, ...) {
 
 static inline _yIO_access(__read_only__, 2, 3) _yIO_wur _yIO_nn()
 size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
-#if _yΩIO_TYPE == _yIO_TYPE
+#if _yIO_TYPE_YIO
 	return fwrite(str, 1, size, file);
-#elif _yΩIO_TYPE == _yWIO_TYPE
+#elif _yIO_TYPE_YWIO
 	for (size_t n = 0; n < size; n++) {
 		if (fputwc(str[n], file) == YEOF) {
 			return n;
 		}
 	}
 	return size;
+#elif _yIO_TYPE_YUIO
+	return -1;
 #else
 #error
 #endif
@@ -121,7 +123,7 @@ int _yΩIO_yvsprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	}
 	const bool not_enough_space = c->size < size + 1;
 	size = not_enough_space ? c->size - 1 : size;
-	memcpy(c->dest, ptr, size);
+	memcpy(c->dest, ptr, size * sizeof(*c->dest));
 	c->dest += size;
 	return not_enough_space ? YIO_ERROR_ENOBUFS : 0;
 }
@@ -146,7 +148,7 @@ int _yΩIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	}
 	p->str = pnt;
 
-	memcpy(p->str + p->size, ptr, size);
+	memcpy(p->str + p->size, ptr, size * sizeof(*p->str));
 	assert(p->size < SIZE_MAX - size);
 	p->size += size;
 

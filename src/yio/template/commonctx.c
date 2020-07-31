@@ -13,10 +13,10 @@
 
 int _yΩIO_digit_to_number(Ychar d) {
 #if _yIO_TYPE_YIO
-	return d - Yc('0');
+	return d - '0';
 #elif _yIO_TYPE_YWIO || _yIO_TYPE_YUIO
 	const Ychar table[] = Yc("0123456789");
-	return table - Ystrchr(table, d);
+	return Ystrchr(table, d) - table;
 #else
 #error
 #endif
@@ -51,15 +51,7 @@ int _yΩIO_commonctx_stdintparam(int (*get_va_arg_int)(void *arg), void *arg,
 		num = get_va_arg_int(arg);
 	}
 	if (Yisdigit(ptr[0])) {
-		num = 0;
-		do {
-			assert(num < INT_MAX / 10);
-			num *= 10;
-			const int c = _yΩIO_digit_to_number(ptr[0]);
-			assert(num < INT_MAX - c);
-			num += c;
-			++ptr;
-		} while (Yisdigit(ptr[0]));
+		num = _yΩIO_commonctx_strtoi_noerr(&ptr);
 	}
 	EXIT:
 	*endptr = ptr;

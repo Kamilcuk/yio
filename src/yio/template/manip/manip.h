@@ -13,10 +13,10 @@
 #include "unhandled.h"
 #include "print_bool.h"
 #include "print_chars.h"
+#include "print_int.h"
 
 #if _yIO_TYPE_YIO
 #include "print_float.h"
-#include "print_int.h"
 #include "print_modifiers.h"
 #include "print_wchars.h"
 #include "print_count.h"
@@ -52,29 +52,31 @@
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
 				_yΩIO_PRINT_FUNC_GENERIC_COUNT() \
-		default: _yΩIO_print_unhadled_type \
+		default: _yΩIO_print_unhandled_type \
 		)))
 #elif _yIO_TYPE_YWIO
 #define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
 		default: _Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_INTS() \
 				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS() \
 		default: _Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
-		default: _yΩIO_print_unhadled_type \
+		default: _yΩIO_print_unhandled_type \
 		)))
 #elif _yIO_TYPE_YUIO
 #define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
 		default: _Generic((arg), \
+				_yΩIO_PRINT_FUNC_GENERIC_INTS() \
 				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS() \
 		default: _Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
-		default: _yΩIO_print_unhadled_type \
+		default: _yΩIO_print_unhandled_type \
 		)))
 #else
 #error

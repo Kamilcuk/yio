@@ -73,7 +73,8 @@ typedef int Yint;
 #define _yIO_const            __attribute__((__const__))
 #define _yIO_rnn              __attribute__((__returns_nonnull__))
 #define _yIO_format(...)      __attribute__((__format__(__VA_ARGS__)))
-#define _yIO_deprecated(...)  __attribute__((__deprecated(__VA_ARGS__)))
+#define _yIO_deprecated(...)  __attribute__((__deprecated__(__VA_ARGS__)))
+#define _yIO_warning(...)     __attribute__((__warning__(__VA_ARGS__)))
 #define _yIO_error(...)       __attribute__((__error__(__VA_ARGS__)))
 #if __GNUC__ >= 10
 #define _yIO_access(...)      __attribute__((__access__(__VA_ARGS__)))
@@ -107,6 +108,10 @@ typedef int Yint;
 #ifndef _yIO_deprecated
 /// Function is deprecated
 #define _yIO_deprecated(...)
+#endif
+#ifndef _yIO_warning
+/// Function is deprecated
+#define _yIO_warning(...)
 #endif
 #ifndef _yIO_error
 /// Function errors upon calling
