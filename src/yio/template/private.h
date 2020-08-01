@@ -14,6 +14,7 @@
 #include "commonctx_private.h"
 #include "fmt_private.h"
 #include "../yio_private.h"
+#include "../private/yio_strconv.h"
 #include <string.h>
 #include <limits.h>
 m4_template_chooser(`m4_dnl);
@@ -25,5 +26,4 @@ m4_template_chooser(`m4_dnl);
 #include <unistr.h>
 #include <uniwidth.h>
 #include <unistdio.h>
-#include "../private/yio_strconv.h"
 ~)m4_dnl;

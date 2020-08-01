@@ -154,6 +154,25 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ Yc("H{:\x02^ #10x}"), 5, Yc("H\x02\x02\x02 0x5\x02\x02\x02"), },
 		{ Yc("H{:\x02< #10x}"), 5, Yc("H 0x5\x02\x02\x02\x02\x02\x02"), },
 		{ Yc("H{:\x02= #10x}"), 5, Yc("H 0x\x02\x02\x02\x02\x02\x02""5"), },
+		{ Yc("H{:@> #10x}"), 5, Yc("H@@@@@@ 0x5"), },
+		{ Yc("H{:@^ #10x}"), 5, Yc("H@@@ 0x5@@@"), },
+		{ Yc("H{:@< #10x}"), 5, Yc("H 0x5@@@@@@"), },
+		{ Yc("H{:@= #10x}"), 5, Yc("H 0x@@@@@@5"), },
+
+		{ Yc("H{:\x02> #10x}"), 5, Yc("H\x02\x02\x02\x02\x02\x02 0x5"), },
+		{ Yc("H{:\x02^ #10x}"), 5, Yc("H\x02\x02\x02 0x5\x02\x02\x02"), },
+		{ Yc("H{:\x02< #10x}"), 5, Yc("H 0x5\x02\x02\x02\x02\x02\x02"), },
+		{ Yc("H{:\x02= #10x}"), 5, Yc("H 0x\x02\x02\x02\x02\x02\x02""5"), },
+
+		{ Yc("I{:@> #10x}"), 254, Yc("I@@@@@ 0xfe"), },
+		{ Yc("I{:@^ #10x}"), 254, Yc("I@@@ 0xfe@@"), },
+		{ Yc("I{:@< #10x}"), 254, Yc("I 0xfe@@@@@"), },
+		{ Yc("I{:@= #10x}"), 254, Yc("I 0x@@@@@fe"), },
+
+		{ Yc("I{:@> #10X}"), 254, Yc("I@@@@@ 0XFE"), },
+		{ Yc("I{:@^ #10X}"), 254, Yc("I@@@ 0XFE@@"), },
+		{ Yc("I{:@< #10X}"), 254, Yc("I 0XFE@@@@@"), },
+		{ Yc("I{:@= #10X}"), 254, Yc("I 0X@@@@@FE"), },
 
 };
 
@@ -169,7 +188,7 @@ int _yIO_inttest_ ## suffix(void) { \
 						\
 		memset(buf, 0, sizeof(buf)); \
 		if (1) { \
-			Yfprintf(stderr, "Testing yprintf(\"%"YPRI"s\", %d) -> %d\"%"YPRI"s\"\n", \
+			Yfprintf(stderr, "Testing yprintf(\"%"YPRI"\", %d) -> %d\"%"YPRI"\"\n", \
 					_yIO_inttests[i].fmt, _yIO_inttests[i].arg, \
 					(int)Ystrlen(_yIO_inttests[i].output), _yIO_inttests[i].output); \
 		} \
@@ -177,13 +196,13 @@ int _yIO_inttest_ ## suffix(void) { \
 		const int ret = yπsprintf(buf, sizeof(buf), _yIO_inttests[i].fmt, (type)_yIO_inttests[i].arg); \
  \
 		if (ret < 0) { \
-			Yfprintf(stderr, "%s:%d: %d: printf(\"%"YPRI"s\", %d) -> %d\n", \
+			Yfprintf(stderr, "%s:%d: %d: printf(\"%"YPRI"\", %d) -> %d\n", \
 					__FILE__, __LINE__, (int)i, \
 					_yIO_inttests[i].fmt, _yIO_inttests[i].arg, ret); \
 			err = i + 1; \
 		} \
 		if (Ystrcmp(buf, _yIO_inttests[i].output) != 0) { \
-			Yfprintf(stderr, "%s:%d: %d: printf(\"%"YPRI"s\", %d) -> %d\"%"YPRI"s\" should be %d\"%"YPRI"s\"\n", \
+			Yfprintf(stderr, "%s:%d: %d: printf(\"%"YPRI"\", %d) -> %d\"%"YPRI"\" should be %d\"%"YPRI"\"\n", \
 					__FILE__, __LINE__, (int)i, \
 					_yIO_inttests[i].fmt, _yIO_inttests[i].arg, \
 					(int)Ystrlen(buf), buf, \

@@ -67,11 +67,15 @@ if(YIO_DEV)
 	# Add compiler options.
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
 			CMAKE_C_COMPILER_ID STREQUAL "Clang")
-		string(APPEND CMAKE_C_FLAGS " -fsanitize=undefined")
-		string(APPEND CMAKE_C_FLAGS " -fsanitize=address")
-		add_compile_options(
+		set(tmp
 			-O
-			-ggdb3
+			-g3
+			-fsanitize=undefined
+			-fsanitize=address
+		)
+		add_link_options(${tmp})
+		add_compile_options(
+			${tmp}
 			-Wall
 			-Wextra
 			-Wwrite-strings

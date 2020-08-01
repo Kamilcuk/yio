@@ -13,12 +13,12 @@
 #include <sys/time.h>
 #endif
 
-int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, char **endptr) {
+int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, Ychar **endptr) {
 	int ret = 0;
-	while (fmt[0] != '\0') {
-		if (fmt[0] == '{' || fmt[0] == '}') {
+	while (fmt[0] != Yc('\0')) {
+		if (fmt[0] == '{' || fmt[0] == Yc('}')) {
 			if (fmt[1] != fmt[0]) {
-				if (fmt[0] == '{') {
+				if (fmt[0] == Yc('{')) {
 					ret = -1;
 					goto EXIT;
 				}
@@ -35,13 +35,16 @@ int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, cha
 			fmt++;
 		}
 	}
-	if (fmt[0] != '}') {
+	if (fmt[0] != Yc('}')) {
 		ret = -2;
 		goto EXIT;
 	}
 	// empty string results in %c
 	if (ret == 0) {
-		if (dest) strcpy(dest, "%c ");
+		if (dest) {
+			const Ychar s[] = Yc("%c ");
+			memcpy(dest, s, sizeof(s));
+		}
 		ret = 3;
 		goto EXIT;
 	}
@@ -61,24 +64,43 @@ int _yIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, cha
 }
 
 static inline
-int _yIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
+int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	int ret = 0;
 
-	const char *format_string = t->fmt;
-	char *tmp;
-	int len = _yIO_print_time_in_extract_format_add_space(NULL, format_string, &tmp);
+	const Ychar *format_string = t->fmt;
+	Ychar *tmp;
+	int len = _yΩIO_print_time_in_extract_format_add_space(NULL, format_string, &tmp);
 	t->fmt = tmp + 1;
 	if (len < 0) {
 		ret = YIO_ERROR_PYFMT_INVALID;
 		goto FORMAT_EXTRACT_ERROR;
 	}
-	char *format = malloc(len + 1);
-	if (format == NULL) {
+	Ychar *format_in = malloc(sizeof(*format_in) * (len + 1));
+	if (format_in == NULL) {
 		ret = YIO_ERROR_ENOMEM;
 		goto FORMAT_MALLOC_ERROR;
 	}
-	const int len2 = _yIO_print_time_in_extract_format_add_space(format, format_string, NULL);
+	const int len2 = _yΩIO_print_time_in_extract_format_add_space(format_in, format_string, NULL);
 	(void)len2; assert(len2 == len);
+
+	char *format;
+m4_template_chooser(`m4_dnl);
+	format = format_in;
+~,`m4_dnl;
+	ret = _yIO_conv_wcs_to_mbs(format_in, len + 1, &format, NULL);
+	free(format_in);
+	if (ret) {
+		ret = YIO_ERROR_ENOMEM;
+		goto FORMAT_MALLOC_ERROR;
+	}
+~,`m4_dnl;
+	ret = _yIO_conv_c32s_to_mbs(format_in, len + 1, &format, NULL);
+	free(format_in);
+	if (ret) {
+		ret = YIO_ERROR_ENOMEM;
+		goto FORMAT_MALLOC_ERROR;
+	}
+~)m4_dnl;
 
 	// 80 is somewhat a psuedo standard here
 	char _buf_mem[80];
@@ -151,44 +173,44 @@ int $2_constpnt(yπio_printctx_t *t) {
 /* time_t localtime ------------------------------------------------------ */
 
 static inline
-int _yIO_print_time_localtime_in(yπio_printctx_t *t, const time_t *sec) {
+int _yΩIO_print_time_localtime_in(yπio_printctx_t *t, const time_t *sec) {
 	const struct tm tm = _yIO_localtime(sec);
-	return _yIO_print_time_strftime(t, &tm);
+	return _yΩIO_print_time_strftime(t, &tm);
 }
 
-m4_print_time_gen3(time_t, _yIO_print_time_localtime)
+m4_print_time_gen3(time_t, _yΩIO_print_time_localtime)
 
 /* time_t gmtime ------------------------------------------------------ */
 
 static inline
-int _yIO_print_time_gmtime_in(yπio_printctx_t *t, const time_t *sec) {
+int _yΩIO_print_time_gmtime_in(yπio_printctx_t *t, const time_t *sec) {
 	const struct tm tm = _yIO_gmtime(sec);
-	return _yIO_print_time_strftime(t, &tm);
+	return _yΩIO_print_time_strftime(t, &tm);
 }
 
-m4_print_time_gen3(time_t, _yIO_print_time_gmtime)
+m4_print_time_gen3(time_t, _yΩIO_print_time_gmtime)
 
 /* tm ----------------------------------------------------------------------------------------- */
 
 static inline
-int _yIO_print_tm_in(yπio_printctx_t *t, const struct tm *tm) {
-	return _yIO_print_time_strftime(t, tm);
+int _yΩIO_print_tm_in(yπio_printctx_t *t, const struct tm *tm) {
+	return _yΩIO_print_time_strftime(t, tm);
 }
 
-m4_print_time_gen3(struct tm, _yIO_print_tm)
+m4_print_time_gen3(struct tm, _yΩIO_print_tm)
 
 /* timespec ----------------------------------------------------------------------------------------- */
 
 #ifdef _yIO_HAS_timespec
 
 static inline
-int _yIO_print_timespec_in(yπio_printctx_t *t, const struct timespec *ts) {
+int _yΩIO_print_timespec_in(yπio_printctx_t *t, const struct timespec *ts) {
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, "{}.{:09}", ts->tv_sec, ts->tv_nsec);
+	return yπio_printctx_printf(t, Yc("{}.{:09}"), ts->tv_sec, ts->tv_nsec);
 }
 
-m4_print_time_gen3(struct timespec, _yIO_print_timespec)
+m4_print_time_gen3(struct timespec, _yΩIO_print_timespec)
 
 #endif // _yIO_HAS_timespec
 
@@ -197,13 +219,13 @@ m4_print_time_gen3(struct timespec, _yIO_print_timespec)
 #ifdef _yIO_HAS_timeval
 
 static inline
-int _yIO_print_timeval_in(yπio_printctx_t *t, const struct timeval *ts) {
+int _yΩIO_print_timeval_in(yπio_printctx_t *t, const struct timeval *ts) {
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, "{}.{:06}", ts->tv_sec, ts->tv_usec);
+	return yπio_printctx_printf(t, Yc("{}.{:06}"), ts->tv_sec, ts->tv_usec);
 }
 
-m4_print_time_gen3(struct timeval, _yIO_print_timeval)
+m4_print_time_gen3(struct timeval, _yΩIO_print_timeval)
 
 #endif // _yIO_HAS_timeval
 

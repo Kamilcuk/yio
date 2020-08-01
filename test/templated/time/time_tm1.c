@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include <yio.h>
+#include <yπio.h>
 int main() {
 	struct tm t = {
 		.tm_year = 112,
@@ -16,14 +16,14 @@ int main() {
 		.tm_min  = 10,
 		.tm_sec  = 20,
 	};
-	yprintf("{:%Y-%m-%d %H:%M:%S}\n", t);
+	yπprintf(Yc("{:%Y-%m-%d %H:%M:%S}\n"), t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	yprintf("{:%D}\n", t);
+	yπprintf(Yc("{:%D}\n"), t);
 // PASS_REGULAR_EXPRESSION 10/09/12
-	yprintf("{:%F %T}\n", t);
+	yπprintf(Yc("{:%F %T}\n"), t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	yprintf("{:A%%B{{C}}D}\n", t);
+	yπprintf(Yc("{:A%%B{{C}}D}\n"), t);
 // PASS_REGULAR_EXPRESSION A%B{C}D
-	yprintf("{:%y %w %u}\n", t);
+	yπprintf(Yc("{:%y %w %u}\n"), t);
 // PASS_REGULAR_EXPRESSION 12 0 7
 }

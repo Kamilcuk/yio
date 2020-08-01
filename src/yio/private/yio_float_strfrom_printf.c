@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+// M4_NOSYNCLINES
 #define _GNU_SOURCE
 #include "yio_float_strfrom_printf.h"
 #include "private.h"

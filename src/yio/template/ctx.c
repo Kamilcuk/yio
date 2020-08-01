@@ -304,33 +304,23 @@ int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
 
 int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive) {
-#if _yIO_TYPE_YIO
+m4_template_chooser(`m4_dnl);
 	return _yΩIO_printformat_generic(t, str, str_len, is_number, is_positive);
-#elif _yIO_TYPE_YWIO
-	wchar_t *buf = malloc(sizeof(wchar_t) * (str_len + 1));
-	if (buf == NULL) return YIO_ERROR_ENOMEM;
-	mbstate_t ps;
-	memset(&ps, 0, sizeof(ps));
-	const char *src = str;
-	size_t r = mbsrtowcs(buf, &src, str_len, &ps);
-	if (r == (size_t)-1) {
-		free(buf);
-		return YIO_ERROR_WCTOMB_ERR;
-	}
-	const int ret = _yΩIO_printformat_generic(t, buf, r, is_number, is_positive);
+~,`m4_dnl;
+	wchar_t *wc; size_t wc_len;
+	int ret = _yIO_conv_mbs_to_wcs(str, str_len, &wc, &wc_len);
+	if (ret) return ret;
+	ret = _yΩIO_printformat_generic(t, wc, wc_len, is_number, is_positive);
+	free(wc);
+	return ret;
+~,`m4_dnl;
+	char32_t *buf; size_t length;
+	int ret = _yIO_conv_mbs_to_c32s(str, str_len, &buf, &length);
+	if (ret) return ret;
+	ret = _yΩIO_printformat_generic(t, buf, length, is_number, is_positive);
 	free(buf);
 	return ret;
-#elif _yIO_TYPE_YUIO
-	size_t length = 0;
-	ucs4_t *buf = u32_conv_from_encoding(locale_charset(), iconveh_question_mark,
-			str, str_len, NULL, NULL, &length);
-	if (buf == NULL) return YIO_ERROR_ENOMEM;
-	const int ret = _yΩIO_printformat_generic(t, buf, length, is_number, is_positive);
-	free(buf);
-	return ret;
-#else
-#error
-#endif
+~)m4_dnl;
 }
 
 /* scanctx ---------------------------------------------------- */

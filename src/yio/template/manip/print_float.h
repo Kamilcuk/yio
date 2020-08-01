@@ -16,6 +16,9 @@ m4_applyforeachdefine(`(
 		(l, long double)
 )~,`m4_dnl;
 
+#ifndef YIO_PRINT_FLOATS_WITH_UNSET
+#define YIO_PRINT_FLOATS_WITH_UNSET  0
+#endif
 #ifndef YIO_PRINT_FLOATS_WITH_STRFROM
 #define YIO_PRINT_FLOATS_WITH_STRFROM  1
 #endif

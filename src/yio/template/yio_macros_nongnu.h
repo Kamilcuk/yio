@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+// M4_NOSYNCLINES
 #pragma once
 
 m4_divert(-1)

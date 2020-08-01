@@ -111,8 +111,9 @@ int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
-	yπio_printctx_t _ctx = _yΩIO_printctx_init(out, arg, data, fmt, va);
+	yπio_printctx_t _ctx;
 	yπio_printctx_t * const t = &_ctx;
+	_yΩIO_printctx_init(t, out, arg, data, fmt, va);
 	const int err = yπvbprintf_in(t);
 	if (err) {
 		return -abs(err);
@@ -173,8 +174,9 @@ int _yΩIO_yvbscanf_in(yπio_scanctx_t *t) {
 
 struct yπio_scanret_s yπvbscanf(_yΩIO_scancb_t *in, void *arg,
 		yπio_scandata_t *data, const Ychar *fmt, va_list *va) {
-	yπio_scanctx_t _ctx = _yΩIO_scanctx_init(in, arg, data, fmt, va);
+	yπio_scanctx_t _ctx;
 	yπio_scanctx_t * const t = &_ctx;
+	_yΩIO_scanctx_init(t, in, arg, data, fmt, va);
 	const int err = _yΩIO_yvbscanf_in(t);
 	const struct yπio_scanret_s scanret = {
 			.error = err,

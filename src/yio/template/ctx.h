@@ -147,7 +147,7 @@ va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype
  * @return int 0 on success, anything else on error
  */
 #define yπio_printctx_printf(printctx, ...)  \
-		_yΩIO_printctx_print(printctx, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+		_yΩIO_printctx_print(printctx, YΩIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
  * Get next argument from variadic arguments stack. The argument has type @c type.

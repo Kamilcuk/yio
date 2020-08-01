@@ -17,11 +17,11 @@
 #include "print_float.h"
 #include "print_wchars.h"
 #include "print_uchars.h"
+#include "print_time.h"
 
 m4_ifdef(`_yIO_TYPE_YIO~, `m4_dnl;
 #include "print_modifiers.h"
 #include "print_count.h"
-#include "print_time.h"
 #include "print_cfmt.h"
 #include "scan_int.h"
 #include "scan_string.h"
@@ -67,6 +67,7 @@ m4_template_chooser(`m4_dnl);
 				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
 				_yΩIO_PRINT_FUNC_GENERIC_INTS() \
 				_yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
+				_yΩIO_PRINT_GENERIC_TIME() \
 		default: _Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
@@ -83,6 +84,7 @@ m4_template_chooser(`m4_dnl);
 				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
 				_yΩIO_PRINT_FUNC_GENERIC_INTS() \
 				_yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
+				_yΩIO_PRINT_GENERIC_TIME() \
 		default: _Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \

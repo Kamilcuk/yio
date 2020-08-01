@@ -17,29 +17,10 @@ int _yΩIO_print_wcharpnt_in(yπio_printctx_t *t, const wchar_t *ws) {
 	const struct yπio_printfmt_s *pf = yπio_printctx_get_fmt(t);
 	const size_t ws_len = pf->precision >= 0 ? _yIO_wcsnlen(ws, pf->precision) : wcslen(ws);
 m4_template_chooser(`m4_dnl);
-	char *mb = NULL;
-
-	mbstate_t ps;
-	memset(&ps, 0, sizeof(ps));
-	const wchar_t *src = ws;
-	size_t len = wcsrtombs(NULL, &src, ws_len, &ps);
-	if (len == (size_t)-1) {
-		ret = YIO_ERROR_WCTOMB_ERR;
-		goto EXIT;
-	}
-
-	mb = malloc(sizeof(*mb) * len);
-	if (mb == NULL) { ret = YIO_ERROR_ENOMEM; goto EXIT; }
-
-	src = ws;
-	len = wcsrtombs(mb, &src, ws_len, &ps);
-	if (len == (size_t)-1) {
-		ret = YIO_ERROR_WCTOMB_ERR;
-		goto EXIT;
-	}
-
-	ret = yπio_printctx_put(t, mb, len);
-	EXIT:
+	char *mb; size_t mb_len;
+	ret = _yIO_conv_wcs_to_mbs(ws, ws_len, &mb, &mb_len);
+	if (ret) return ret;
+	ret = yπio_printctx_put(t, mb, mb_len);
 	free(mb);
 	return ret;
 ~, `m4_dnl;

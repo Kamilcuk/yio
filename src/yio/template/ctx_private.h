@@ -30,11 +30,11 @@ struct _yΩIO_printctx_s {
 	/// Iterator in callback functions.
 	const _yΩIO_printfunc_t *ifunc;
 	/// The pointer to the data.
-	const yπio_printdata_t * const data;
+	const yπio_printdata_t *data;
 	/// The outputting function.
-	_yΩIO_printcb_t * const out;
+	_yΩIO_printcb_t *out;
 	/// User argument for outputting functions.
-	void * const outarg;
+	void *outarg;
 	/// Current iterator in the format string.
 	const Ychar *fmt;
 	/// The count of characters written.
@@ -43,8 +43,9 @@ struct _yΩIO_printctx_s {
 	struct yπio_printfmt_s pf;
 };
 
-static inline _yIO_wur _yIO_nn(1, 3, 5)
-yπio_printctx_t _yΩIO_printctx_init(_yΩIO_printcb_t *out, void *outarg,
+static inline _yIO_nn(1, 2, 4, 6)
+void _yΩIO_printctx_init(yπio_printctx_t *t,
+		_yΩIO_printcb_t *out, void *outarg,
 		const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	yπio_printctx_t _yΩIO_printctx = {
 		.data = data,
@@ -58,7 +59,7 @@ yπio_printctx_t _yΩIO_printctx_init(_yΩIO_printcb_t *out, void *outarg,
 	// Debug build also has size_t argument passed
 	_yΩIO_printctx.c.argsizespnt = va_arg(*va, const size_t*);
 	~)
-	return _yΩIO_printctx;
+	*t = _yΩIO_printctx;
 }
 
 /* scanctx ----------------------------------------------------------- */
@@ -91,8 +92,9 @@ struct _yΩIO_scanctx_s {
 	bool unin;
 };
 
-static inline _yIO_wur _yIO_nn(1, 3, 5)
-yπio_scanctx_t _yΩIO_scanctx_init(_yΩIO_scancb_t *in, void *inarg,
+static inline _yIO_nn(1, 2, 4, 6)
+void _yΩIO_scanctx_init(yπio_scanctx_t *t,
+		_yΩIO_scancb_t *in, void *inarg,
 		const yπio_scandata_t *data, const Ychar *fmt, va_list *va) {
 	yπio_scanctx_t _yΩIO_scanctx = {
 		.data = data,
@@ -107,7 +109,7 @@ yπio_scanctx_t _yΩIO_scanctx_init(_yΩIO_scancb_t *in, void *inarg,
 	// Debug build also has size_t argument passed
 	_yΩIO_scanctx.c.argsizespnt = va_arg(*va, const size_t *);
 	~)
-	return _yΩIO_scanctx;
+	*t = _yΩIO_scanctx;
 }
 
 

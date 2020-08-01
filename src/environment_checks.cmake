@@ -22,10 +22,10 @@ cmake_push_check_state(RESET)
 # In case of compiling with lto (or just for safety with gcc)
 # add -fno-lto, otherwise size checking does not work perfectly
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_FLAGS MATCHES "-flto")
-	set(CMAKE_REQUIRED_FLAGS "-fno-lto")
+	list(APPEND CMAKE_REQUIRED_FLAGS "-fno-lto")
 endif()
 
-set(CMAKE_REQUIRED_DEFINITIONS 
+list(APPEND CMAKE_REQUIRED_DEFINITIONS
 	-D_GNU_SOURCE=1
 	-D_XOPEN_SOURCE=1
 	-D_POSIX_C_SOURCE=1
@@ -39,7 +39,7 @@ set(CMAKE_REQUIRED_DEFINITIONS
 	-D__STDC_WANT_IEC_60559_FUNCS_EXT__=1
 	-D__STDC_WANT_IEC_60559_TYPES_EXT__=1
 )
-set(CMAKE_REQUIRED_LIBRARIES
+list(APPEND CMAKE_REQUIRED_LIBRARIES
 	m
 )
 
@@ -90,7 +90,7 @@ endmacro()
 
 yio_config_gen_check_include_file("unistd.h" _yIO_HAS_UNISTD_H)
 if(_yIO_HAS_UNISTD_H)
-	list(APPEND CMAKE_REQUIRED_INCLUDES
+	list(APPEND CMAKE_EXTRA_INCLUDE_FILES
 		"unistd.h"
 		"sys/time.h"
 	)
@@ -113,7 +113,9 @@ yio_config_gen_check_symbol_exists(wcswidth "wchar.h" _yIO_HAS_wcswidth LANGUAGE
 
 yio_config_gen_check_include_file("uchar.h"  _yIO_HAS_UCHAR_H)
 
-set(_yIO_HAS_UNISTRING HAS_UNISTRING)
+if(UNISTRING_LIB)
+	set(_yIO_HAS_UNISTRING 1)
+endif()
 yio_config_gen_add(_yIO_HAS_UNISTRING)
 
 #########################################################################
@@ -126,7 +128,7 @@ set(floats
 	"float"         "FLT"         "f"      "f"
 	"double"        "DBL"         ""       "d" # GOSH!
 	"long double"   "LDBL"        "l"      "l"
-	
+
 	"_Float16"      "FLT16"       "f16"    "f16"
 	"_Float32"      "FLT32"       "f32"    "f32"
 	"_Float64"      "FLT64"       "f64"    "f64"
@@ -134,7 +136,7 @@ set(floats
 	"_Float32x"     "FLT32X"      "f32x"   "f32x"
 	"_Float64x"     "FLT64X"      "f64x"   "f64x"
 #	"_Float128x"    "FLT128X"     "f128x"  "f128x"
-	
+
 	"_Decimal32"    "DEC32"       "d32"    "d32"
 	"_Decimal64"    "DEC64"       "d64"    "d64"
 	"_Decimal128"   "DEC128"      "d128"   "d128"
@@ -146,7 +148,7 @@ set(floats
 set(be_verbose FALSE)
 
 foreach(i IN LISTS floats)
-	foreach_count_items(i foreachstatevar 
+	foreach_count_items(i foreachstatevar
 		type msuffix suffix suffix2
 	)
 	if(i)
@@ -154,7 +156,7 @@ foreach(i IN LISTS floats)
 	endif()
 	if(NOT DEFINED _yIO_HAS_FLOAT${suffix} OR be_verbose)
 		log("Detecting: '${type}' '${msuffix}' '${suffix}' '${suffix2}'")
-		
+
 		check_type_exists_bool(${type} _yIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
 		if(_yIO_HAS_FLOAT${suffix})
 			check_symbol_exists_bool(exp10${suffix} "math.h" _yIO_HAS_exp10${suffix})
@@ -162,11 +164,11 @@ foreach(i IN LISTS floats)
 			check_symbol_exists_bool(strto${suffix2} "stdlib.h" _yIO_HAS_strto${suffix2})
 		endif()
 	endif()
-	
+
 	foreach(j IN ITEMS FLOAT${suffix} exp10${suffix} strfrom${suffix2} strto${suffix2})
 		yio_config_gen_add(_yIO_HAS_${j})
 	endforeach()
-	
+
 endforeach()
 
 set(_yIO_HAS_strfrom ${_yIO_HAS_strfromd})

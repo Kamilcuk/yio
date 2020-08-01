@@ -8,7 +8,6 @@
  */
 #define _GNU_SOURCE
 #include "yio_float_strfrom_stupid.h"
-#include "yio_buf.h"
 #include "yio_vec.h"
 #include "yio_float.h"
 #include "private.h"
