@@ -102,6 +102,7 @@ endforeach()
 # Create tests
 
 list(REMOVE_DUPLICATES sources)
+list(SORT sources)
 list(FILTER sources EXCLUDE REGEX "ywio")
 # list(FILTER sources EXCLUDE REGEX "scan")
 # list(FILTER sources INCLUDE REGEX "examples")

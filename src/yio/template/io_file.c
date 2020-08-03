@@ -12,7 +12,7 @@
 
 static inline _yIO_access(__read_only__, 2, 3) _yIO_wur _yIO_nn()
 size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
-m4_template_chooser(`m4_dnl);
+m4_template_chooser2(`m4_dnl);
 	return fwrite(str, 1, size, file);
 ~,`m4_dnl;
 	for (size_t n = 0; n < size; n++) {
@@ -23,26 +23,24 @@ m4_template_chooser(`m4_dnl);
 	return size;
 ~,`m4_dnl;
 	const bool isnormal = fwide(file, 0) <= 0;
-	size_t r = 0;
 	if (isnormal) {
-		char *mb; size_t mb_len;
-		int ret = _yIO_conv_c32s_to_mbs(str, size, &mb, &mb_len);
+		const char *mb; size_t mb_len;
+		int ret = _yIO_strconv_πstr_to_str(str, size, &mb, &mb_len);
 		if (ret) return ret;
 		size_t r = fwrite(mb, 1, mb_len, file);
-		free(mb);
+		_yIO_strconv_free_πstr_to_str(str, mb);
 		if (r != mb_len) return -1;
 	} else {
-		wchar_t *wc; size_t wc_len;
-		int ret = _yIO_conv_c32s_to_wcs(str, size, &wc, &wc_len);
+		const wchar_t *wc; size_t wc_len;
+		int ret = _yIO_strconv_πstr_to_wstr(str, size, &wc, &wc_len);
 		if (ret) return ret;
 		for (size_t i = wc_len; i--; ) {
 			if (fputwc(wc[i], file) == YEOF) {
-				free(wc);
-				return -1;
+				_yIO_strconv_free_πstr_to_wstr(str, wc);
+				return i;
 			}
 		}
-		free(wc);
-		if (r != wc_len) return -1;
+		_yIO_strconv_free_πstr_to_wstr(str, wc);
 	}
 	return size;
 ~)m4_dnl;
@@ -91,8 +89,6 @@ struct yπio_scanret_s _yΩIO_yfscanf(FILE *file, yπio_scandata_t *data, const 
 	va_end(va);
 	return ret;
 }
-
-
 
 struct yπio_scanret_s yπvfscanf(FILE *file, yπio_scandata_t *data, const Ychar *fmt, va_list *va) {
 	return yπvbscanf(_yΩIO_yfscanf_cb, file, data, fmt, va);

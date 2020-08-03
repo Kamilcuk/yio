@@ -7,6 +7,7 @@
  * @brief
  */
 #include "failmallocchecker.h"
+#if !FMC_DISABLE
 #include <stdlib.h>
 #include <malloc.h>
 #include <limits.h>
@@ -20,21 +21,8 @@
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-static inline
-void writestr(const char *str) {
-	int ret = fflush(stdout);
-	assert(ret == 0); (void)ret;
-	ret = fflush(stderr);
-	assert(ret == 0); (void)ret;
-	ssize_t sret = write(STDOUT_FILENO, str, strlen(str));
-	assert(sret > 0); (void)sret;
-}
-
-// #define FMC_USE_GLIBC_MALLOC_HOOK
-#define FMC_USE_WRAP_MALLOC
-
 struct fmc_ctx_s {
-#ifdef FMC_USE_GLIBC_MALLOC_HOOK
+#if FMC_USE_METHOD == FMC_METHOD_GLIBC_MALLOC_HOOK
 	struct {
 		void *(*malloc)(size_t size, const void *caller);
 		void *(*realloc)(void *ptr, size_t size, const void *caller);
@@ -71,7 +59,7 @@ static bool fmc_fail_it(void) {
 	return false;
 }
 
-#ifdef FMC_USE_GLIBC_MALLOC_HOOK
+#if FMC_USE_METHOD == FMC_METHOD_GLIBC_MALLOC_HOOK
 #include <malloc.h>
 static void fmc_unhook(void);
 static void fmc_rehook(void);
@@ -100,6 +88,7 @@ static void *fmc_memalign_hook(size_t alignment, size_t size, const void *caller
 	fmc_rehook();
 	return p;
 }
+
 static void fmc_unhook(void) {
 	struct fmc_ctx_s *t = &fmc_ctx;
 	__malloc_hook = t->orig.malloc;
@@ -118,7 +107,7 @@ static void fmc_hook_init(void) {
 	t->orig.memalign = __memalign_hook;
 	fmc_rehook();
 }
-#elif defined FMC_USE_WRAP_MALLOC
+#elif FMC_USE_METHOD == FMC_METHOD_WRAP_MALLOC
 extern void *__real_malloc(size_t size);
 void *__wrap_malloc(size_t size) {
 	return fmc_fail_it() ? NULL : __real_malloc(size);
@@ -133,7 +122,7 @@ void *__wrap_realloc(void *ptr, size_t size) {
 }
 static void fmc_hook_init(void) {}
 static void fmc_unhook(void) {}
-#else
+#elif FMC_USE_METHOD == FMC_METHOD_CALL___LIBC
 extern void *__libc_malloc(size_t size);
 void *malloc(size_t s) {
 	return fmc_fail_it() ? NULL : __libc_malloc(s);
@@ -148,56 +137,66 @@ void *realloc(void *ptr, size_t size) {
 }
 static void fmc_hook_init(void) {}
 static void fmc_unhook(void) {}
+#else
+#error
 #endif
 
 
 #ifdef __GNUC__
 __attribute__((__format__(__printf__, 1, 2)))
 #endif
-static void fmc_printf(const char *fmt, ...) {
-	int ret = fflush(stdout);
-	assert(ret == 0); (void)ret;
-	FMC_IGNORE() {
+static void _fmc_printf(const char *fmt, ...) {
+	int ret = 0;
+	FMC_IGNORE_BLOCK() {
+		ret = fflush(stdout);
+		assert(ret == 0); (void)ret;
+		ret = fflush(stderr);
+		assert(ret == 0); (void)ret;
 		va_list va;
 		va_start(va, fmt);
-		ret = vprintf(fmt, va);
+		ret = vfprintf(stderr, fmt, va);
 		va_end(va);
+		assert(ret > 0); (void)ret;
 	}
-	assert(ret > 0); (void)ret;
 }
 
-void fmc_ignore(void) {
+void _fmc_ignore(void) {
 	struct fmc_ctx_s *t = &fmc_ctx;
 	t->ignore = true;
 }
 
-void fmc_noignore(void) {
+void _fmc_noignore(void) {
 	struct fmc_ctx_s *t = &fmc_ctx;
 	t->ignore = false;
 }
 
-void fmc_init(const char *file, int line, const char *func) {
+void _fmc_init(const char *file, int line, const char *func) {
 	struct fmc_ctx_s *t = &fmc_ctx;
 	const struct fmc_ctx_s reset = { 0 };
 	*t = reset;
 	fmc_hook_init();
-	fmc_printf("fmc: init: %s:%d:%s\n",
+
+	// poke standard stream so that they allocate memory
+	setvbuf(stdout, NULL, _IOLBF, 256);
+	setvbuf(stderr, NULL, _IOLBF, 256);
+
+	_fmc_printf("fmc: init: %s:%d:%s\n",
 			strrchr(file, '/') ? strrchr(file, '/') + 1 : "", line, func);
 }
 
-int fmc_continue(void) {
+int _fmc_continue(void) {
 	struct fmc_ctx_s *t = &fmc_ctx;
 	bool ret = !(t->counted && t->failing == t->count);
 	if (ret == false) {
 		fmc_unhook();
-		fmc_printf("fmc: end\n");
+		_fmc_printf("fmc: end\n");
 	}
 	return ret;
 }
 
-void fmc_next(void) {
+void _fmc_next(void) {
 	struct fmc_ctx_s *t = &fmc_ctx;
-	fmc_print();
+	_fmc_print();
 	t->pos = 0;
 	if (!t->counted) {
 		t->counted = true;
@@ -206,11 +205,9 @@ void fmc_next(void) {
 	}
 }
 
-void fmc_print(void) {
+void _fmc_print(void) {
 	struct fmc_ctx_s *t = &fmc_ctx;
-	fmc_printf("fmc: counted=%d count=%d failing=%d pos=%d\n", t->counted, t->count, t->failing, t->pos);
+	_fmc_printf("fmc: counted=%d count=%d failing=%d pos=%d\n", t->counted, t->count, t->failing, t->pos);
 }
 
-
-
-
+#endif

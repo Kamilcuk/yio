@@ -7,8 +7,15 @@
  * @brief
  */
 #pragma once
-m4_ifdef(`_yIO_TYPE_YWIO~, `#include <wchar.h>~)
-m4_ifdef(`_yIO_TYPE_YUIO~, `#include <unitypes.h>~)
+m4_template_chooser2(`~, `m4_dnl);
+#include <wchar.h>
+~,`m4_dnl;
+#include <uchar.h>
+#include <stdint.h>
+#ifdef _yIO_HAS_UNISTRING
+#include <unitypes.h>
+#endif
+~)m4_dnl;
 #include "fmt.h"
 #include "ctx.h"
 #include "io.h"

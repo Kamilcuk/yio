@@ -53,7 +53,10 @@ function(yio_template)
 		message(FATAL_ERROR "NOT REGEX ${name} ${rgx}")
 	endif()
 	string(REGEX REPLACE "^y(.*)io$" "\\1" REPLACEMENT "${name}")
-	if(NOT (REPLACEMENT STREQUAL "" OR REPLACEMENT STREQUAL "u" OR REPLACEMENT STREQUAL "w") )
+	if(NOT (REPLACEMENT STREQUAL "" OR
+			REPLACEMENT STREQUAL "w" OR
+			REPLACEMENT STREQUAL "c16" OR 
+			REPLACEMENT STREQUAL "u") )
 		message(FATAL_ERROR "NOT LETTER")
 	endif()
 	

@@ -96,12 +96,23 @@ macro(_m4_get_command_args)
 		set(script_depfile_args)
 	endif()
 
+
+	set(args_source_args "${M4_GET_COMMAND_ARGS_SOURCE}")
+	if(EXISTS "${source}")
+		file(STRINGS "${source}" tmp REGEX "M4_SYNCLINES" LIMIT_COUNT 1)
+		if(NOT "${tmp}" STREQUAL "")
+			list(GET args_source_args -1 tmp2)
+			list(REMOVE_AT args_source_args -1)
+			list(APPEND args_source_args --synclines "${tmp2}")
+		endif()
+	endif()
+
 	set(m4_script_m4_args
 		-D m4_SOURCE=${source}
 		${_M4_OPTIONS_INIT}
 		${M4_GET_COMMAND_ARGS_OPTIONS}
 		${_M4_FILES_INIT}
-		${M4_GET_COMMAND_ARGS_SOURCE}
+		${args_source_args}
 	)
 	string(REPLACE ";" "\\;" m4_script_m4_args "${m4_script_m4_args}")
 

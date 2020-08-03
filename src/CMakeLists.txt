@@ -82,9 +82,7 @@ list(APPEND gensrcs ${GENDIR}/yio/yio_error_messages.h)
 
 file(GLOB_RECURSE m4srcs *.c *.h)
 list(FILTER m4srcs EXCLUDE REGEX "src/yio/template/")
-list(FILTER m4srcs EXCLUDE REGEX "src/yio/yio/")
-list(FILTER m4srcs EXCLUDE REGEX "src/yio/ywio/")
-list(FILTER m4srcs EXCLUDE REGEX "src/yio/yuio/")
+list(FILTER m4srcs EXCLUDE REGEX "src/yio/y*io/")
 foreach(source IN LISTS m4srcs)
 	file(RELATIVE_PATH sourcenice ${SRCDIR} ${source})
 	set(output ${GENDIR}/${sourcenice})
@@ -96,11 +94,13 @@ foreach(source IN LISTS m4srcs)
 	list(APPEND gensrcs ${output})
 endforeach()
 
-include(yio/yio/template.cmake)  # ywio_gensrcs
+include(yio/yio/template.cmake)
 list(APPEND gensrcs ${yio_gensrcs})
-include(yio/ywio/template.cmake)  # ywio_gensrcs
+include(yio/ywio/template.cmake)
 list(APPEND gensrcs ${ywio_gensrcs})
-include(yio/yuio/template.cmake)  # yuio_gensrcs
+include(yio/yc16io/template.cmake)
+list(APPEND gensrcs ${yc16io_gensrcs})
+include(yio/yuio/template.cmake)
 list(APPEND gensrcs ${yuio_gensrcs})
 
 ##############################################################################################
@@ -287,6 +287,8 @@ yio_add_library(yio
 # UNISTRING_LIB found in parent CMakeLists.txt
 if(UNISTRING_LIB)
 	yio_add_library(yuio
+		yc16io.h
+		${yc16io_gensrcs}
 		yuio.h
 		${yuio_gensrcs}
 	)

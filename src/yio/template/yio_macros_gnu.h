@@ -59,8 +59,8 @@ m4_applyforloopdefine(2, m4_MLVLS, `m4_dnl;
 				0 \
 			}; \
 			static const yπio_scandata_t _yΩIO_scandata = { \
-					_yIO_scanfuncs, \
-					_yIO_derefsizes, \
+					_yΩIO_scanfuncs, \
+					_yΩIO_derefsizes, \
 			}; \
 			&_yΩIO_scandata; \
 		}), \

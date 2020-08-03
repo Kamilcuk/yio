@@ -6,5 +6,6 @@
  */
 #include <ywio.h>
 int main() {
-	return yswscanf(L"1", L"{;*}\n", int*);
+	int *a;
+	return ywsscanf(L"1", L"{;*}\n", a);
 }

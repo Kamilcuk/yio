@@ -1,8 +1,19 @@
 
 #pragma once
 #include <yio.h>
+#ifdef _yIO_HAS_WCHAR_H
 #include <ywio.h>
+#endif
+#ifdef _yIO_HAS_UCHAR_H
+#include <yc16io.h>
+#include <yuio.h>
+#endif
 #include <ctype.h>
+#ifdef _yIO_HAS_UNISTRING
+#include <unistr.h>
+#include <unistdio.h>
+#endif
+#include <stdbool.h>
 
 #ifndef _yIO_VERBOSE
 #define _yIO_VERBOSE 0

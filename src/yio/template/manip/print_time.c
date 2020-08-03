@@ -83,24 +83,12 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	const int len2 = _yΩIO_print_time_in_extract_format_add_space(format_in, format_string, NULL);
 	(void)len2; assert(len2 == len);
 
-	char *format;
-m4_template_chooser(`m4_dnl);
-	format = format_in;
-~,`m4_dnl;
-	ret = _yIO_conv_wcs_to_mbs(format_in, len + 1, &format, NULL);
-	free(format_in);
+	const char *format;
+	ret = _yIO_strconv_πstr_to_str(format_in, len + 1, &format, NULL);
 	if (ret) {
 		ret = YIO_ERROR_ENOMEM;
-		goto FORMAT_MALLOC_ERROR;
+		goto FORMAT_STRCONV_ERROR;
 	}
-~,`m4_dnl;
-	ret = _yIO_conv_c32s_to_mbs(format_in, len + 1, &format, NULL);
-	free(format_in);
-	if (ret) {
-		ret = YIO_ERROR_ENOMEM;
-		goto FORMAT_MALLOC_ERROR;
-	}
-~)m4_dnl;
 
 	// 80 is somewhat a psuedo standard here
 	char _buf_mem[80];
@@ -110,7 +98,6 @@ m4_template_chooser(`m4_dnl);
 		// if we fail, allocate dynamically
 		length = _yIO_astrftime_nonzero(&buf, sizeof(_buf_mem), format, tm);
 	}
-	free(format);
 	if (length <= 0) {
 		ret = YIO_ERROR_ENOMEM;
 		goto STRFTIME_ERROR;
@@ -120,11 +107,13 @@ m4_template_chooser(`m4_dnl);
 	// Note that this _can_ result in an empty string here.
 	ret = yπio_printctx_put(t, buf, length - 1);
 
-	STRFTIME_ERROR:
-	// If buf was dynamically allocated, free it.
 	if (buf != _buf_mem) {
 		free(buf);
 	}
+	STRFTIME_ERROR:
+	_yIO_strconv_free_πstr_to_str(format_in, format);
+	FORMAT_STRCONV_ERROR:
+	free(format_in);
 	FORMAT_MALLOC_ERROR:
 	FORMAT_EXTRACT_ERROR:
 	return ret;

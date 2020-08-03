@@ -38,5 +38,5 @@ m4_ifdef(`m4_DEBUG~, `m4_dnl
 #endif
 ~)m4_dnl
 m4_ifdef(`m4_CONFIG~, `m4_include(m4_CONFIG)~)m4_dnl
-// m4_ifdef(`m4_DEBUG~, `#line 1 "m4_SOURCE"~)m4_dnl
+//m4_ifdef(`m4_DEBUG~, `#line 1 "m4_SOURCE"~)m4_dnl
 

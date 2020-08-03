@@ -240,7 +240,7 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 	err = _yIO_vec_putc(v, '\0');
 	if (err) return err;
 	*out = _yIO_vec_data(v);
-	return _yIO_vec_size(v);
+	return _yIO_vec_size(v) - 1;
 }
 
 #undef TYPE

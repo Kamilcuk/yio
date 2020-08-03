@@ -10,7 +10,6 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include <unistdio.h>
 /* yvbprintf and yvbscanf helpers ------------------------------------------------------ */
 
 static inline _yIO_wur _yIO_nn() _yIO_rnn

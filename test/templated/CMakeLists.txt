@@ -16,11 +16,12 @@ COMMAND ${CMAKE_COMMAND} -E create_symlink
 if(_yIO_HAS_WCHAR_H)
 	list(APPEND replacements "w")
 endif()
-if(UNISTRING_LIB)
-	list(APPEND replacements "u")
+if(_yIO_HAS_UCHAR_H)
+	list(APPEND replacements "c16" "u")
 endif()
 		
 file(GLOB_RECURSE srcs *.c *.h)
+list(FILTER srcs EXCLUDE REGEX "gen/")
 foreach(src IN LISTS srcs)
 
 	# Print an erro mesasge if the file doesn't contain neither pi nor omega

@@ -38,13 +38,13 @@ int yπvprintf(yπio_printdata_t *data, const Ychar *fmt, va_list *va);
  * Similar to fprintf() call.
  * @see yvbprintf
  */
-_yIO_nn(1, 2, 4)
+_yIO_nn(1, 2, 4) _yIO_access_read(1) _yIO_access_read(2) _yIO_access_read(3) _yIO_access_read(4)
 int yπvfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Similar to snprintf() call.
  * @see yvbprintf
  */
-_yIO_nn(1, 3, 5)
+_yIO_nn(1, 3, 5) _yIO_access_write(1) _yIO_access_read(3) _yIO_access_read(4) _yIO_access_read(5)
 int yπvsprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Works as-if the call to GNU extension asprintf().
@@ -112,7 +112,7 @@ _yIO_nn(1)
 int _yΩIO_yprintf(yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 2)
 int _yΩIO_yfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, ...);
-_yIO_nn(1, 3)
+_yIO_nn(1, 3) _yIO_access_write(1)
 int _yΩIO_ysprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 2)
 int _yΩIO_yaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, ...);
@@ -221,7 +221,7 @@ struct yπio_scanret_s yπvscanf(yπio_scandata_t *data, const Ychar *fmt, va_li
 _yIO_nn(1, 2, 4) _yIO_wur
 struct yπio_scanret_s yπvfscanf(FILE *file, yπio_scandata_t *data, const Ychar *fmt, va_list *va);
 /// Scans from a string \b str .
-_yIO_nn(1, 2, 4) _yIO_wur
+_yIO_nn(1, 2, 4) _yIO_wur  _yIO_access_read(1)
 struct yπio_scanret_s yπvsscanf(const Ychar *src, yπio_scandata_t *data, const Ychar *fmt, va_list *va);
 /// Scans from a file descriptor.
 _yIO_nn(2, 4) _yIO_wur
@@ -264,7 +264,7 @@ _yIO_nn(1) _yIO_wur
 struct yπio_scanret_s _yΩIO_yscanf(yπio_scandata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 2) _yIO_wur
 struct yπio_scanret_s _yΩIO_yfscanf(FILE *file, yπio_scandata_t *data, const Ychar *fmt, ...);
-_yIO_nn(1, 2) _yIO_wur
+_yIO_nn(1, 2) _yIO_wur _yIO_access_read(1)
 struct yπio_scanret_s _yΩIO_ysscanf(const Ychar *src, yπio_scandata_t *data, const Ychar *fmt, ...);
 _yIO_nn(2) _yIO_wur
 struct yπio_scanret_s _yΩIO_ydscanf(int fd, yπio_scandata_t *data, const Ychar *fmt, ...);

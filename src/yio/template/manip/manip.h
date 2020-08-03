@@ -38,25 +38,6 @@ m4_ifdef(`_yIO_TYPE_YIO~, `m4_dnl;
  * @def _yΩIO_PRINT_FUNC_GENERIC
  * For one argument choose the printing function dynamically using _Generic macro
  */
-m4_template_chooser(`m4_dnl);
-#define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
-		_Generic((arg), \
-				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
-		default: _Generic((arg), \
-				_yΩIO_PRINT_FUNC_GENERIC_CHARS() \
-				_yΩIO_PRINT_FUNC_GENERIC_WCHARS() \
-				_yΩIO_PRINT_FUNC_GENERIC_UCHARS() \
-				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
-				_yΩIO_PRINT_FUNC_GENERIC_INTS() \
-				_yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
-				_yΩIO_PRINT_GENERIC_TIME() \
-		default: _Generic((arg), \
-				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
-				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
-				_yΩIO_PRINT_FUNC_GENERIC_COUNT() \
-		default: _yΩIO_print_unhandled_type \
-		)))
-~,`m4_dnl;
 #define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
@@ -73,25 +54,6 @@ m4_template_chooser(`m4_dnl);
 				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
 		default: _yΩIO_print_unhandled_type \
 		)))
-~,`m4_dnl;
-#define _yΩIO_PRINT_FUNC_GENERIC(arg, ...) \
-		_Generic((arg), \
-				_yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
-		default: _Generic((arg), \
-				_yΩIO_PRINT_FUNC_GENERIC_CHARS() \
-				_yΩIO_PRINT_FUNC_GENERIC_WCHARS() \
-				_yΩIO_PRINT_FUNC_GENERIC_UCHARS() \
-				_yΩIO_PRINT_FUNC_GENERIC_BOOL() \
-				_yΩIO_PRINT_FUNC_GENERIC_INTS() \
-				_yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
-				_yΩIO_PRINT_GENERIC_TIME() \
-		default: _Generic((arg), \
-				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
-				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
-		default: _yΩIO_print_unhandled_type \
-		)))
-~)m4_dnl;
-
 /* ---------------------------------------------------------------------- */
 
 #if _yIO_TYPE_YIO
@@ -175,6 +137,12 @@ m4_template_chooser(`m4_dnl);
 				const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 		default: _yΩIO_scan_unhandled_type \
 		))
+~,`m4_dnl;
+#define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
+		_Generic((arg), \
+				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
+		default: _yΩIO_scan_unhandled_type \
+		)
 ~,`m4_dnl;
 #define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \

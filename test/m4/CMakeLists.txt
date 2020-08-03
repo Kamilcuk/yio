@@ -1,4 +1,7 @@
-project(yio_m4_tests LANGUAGES)
+
+if(CMAKE_CROSSCOMPILING)
+	return()
+endif()
 
 list(APPEND CMAKE_MODULE_PATH  ${CMAKE_CURRENT_SOURCE_DIR}/../cmake)
 include(test_extract_properties_from_file)
@@ -15,7 +18,7 @@ foreach(file IN LISTS srcs)
 	
 	add_test(NAME ${name}
 		COMMAND
-			${_M4_EXECUTABLE}
+			${M4_COMMAND}
 			${_M4_OPTIONS_INIT}
 			-D "m4_SOURCE=${file}"
 			${_M4_FILES_INIT}

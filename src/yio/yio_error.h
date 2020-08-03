@@ -35,11 +35,16 @@ enum _yIO_errors_e {
 	YIO_ERROR_SCAN_UNDERFLOW,      /// GEN "Scanning underflowed"
 	YIO_ERROR_TOO_MANY_FMT,        /// GEN "Too many format strings for arguments"
 	YIO_ERROR_SCAN_NOTHING,        /// GEN "No matching characters scanned"
-	YIO_ERROR_WCTOMB_ERR,          /// GEN "wctomb returned -1"
-	YIO_ERROR_MBTOWC_ERR,          /// GEN "mbtowc returned -1"
+	YIO_ERROR_WCTOMB,              /// GEN "wctomb returned -1"
+	YIO_ERROR_MBTOWC,              /// GEN "mbtowc returned -1"
 	YIO_ERROR_U32_CONV_TO_ENCODING, /// GEN "u32_conv_to_encoding returned NULL"
-	YIO_ERROR_c32rtomb,            /// GEN "c32rtomb returned -1"
-	YIO_ERROR_c16rtomb,            /// GEN "c32rtomb returned -1"
+	YIO_ERROR_U16_CONV_TO_ENCODING, /// GEN "u16_conv_to_encoding returned NULL"
+	YIO_ERROR_U32_CONV_FROM_ENCODING, /// GEN "u32_conv_from_encoding returned NULL"
+	YIO_ERROR_U16_CONV_FROM_ENCODING, /// GEN "u16_conv_from_encoding returned NULL"
+	YIO_ERROR_C32TOMB,            /// GEN "c32rtomb returned -1"
+	YIO_ERROR_C16TOMB,            /// GEN "c16rtomb returned -1"
+	YIO_ERROR_MBTOC32,             /// GEN "c32rtomb returned -1"
+	YIO_ERROR_MBTOC16,             /// GEN "c16rtomb returned -1"
 	_yIO_ERROR_STOP,               /// End of custom errors
 };
 

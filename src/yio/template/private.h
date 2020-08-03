@@ -14,10 +14,10 @@
 #include "commonctx_private.h"
 #include "fmt_private.h"
 #include "../yio_private.h"
-#include "../private/yio_strconv.h"
+#include "../private/yio_strlib.h"
 #include <string.h>
 #include <limits.h>
-m4_template_chooser(`m4_dnl);
+m4_template_chooser2(`m4_dnl);
 ~,`m4_dnl;
 #include <wctype.h>
 ~,`m4_dnl;

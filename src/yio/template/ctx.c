@@ -77,6 +77,25 @@ typedef struct _yΩIO_printformat_t {
 	bool is_positive;
 } _yΩIO_printformat_t;
 
+static inline
+size_t _yΩIO_width(const Ychar *str, size_t str_len) {
+#if _yIO_TYPE_YIO
+		return str_len;
+#elif _yIO_TYPE_YWIO
+#ifdef _yIO_HAS_wcswidth
+		return wcswidth(str, str_len);
+#else
+		return str_len;
+#endif
+#elif  _yIO_TYPE_YC16IO
+		return u16_width(str, str_len, locale_charset());
+#elif  _yIO_TYPE_YUIO
+		return u32_width(str, str_len, locale_charset());
+#else
+#error
+#endif
+}
+
 /**
  * Construct print formatting options.
  * @param t Yio printing context.
@@ -102,20 +121,10 @@ void _yΩIO_printformat_init(_yΩIO_printformat_t *pf, yπio_printctx_t *t,
 			.is_positive = is_positive,
 	};
 	(void)str;
-#if _yIO_TYPE_YWIO || _yIO_TYPE_YUIO
+#if !_yIO_TYPE_YIO
 	ret.bytes_len = str_len;
 	if (!is_number) {
-#if _yIO_TYPE_YWIO
-#ifdef _yIO_HAS_wcswidth
-		ret.str_len = wcswidth(str, str_len);
-#else
-		ret.str_len = str_len;
-#endif
-#elif  _yIO_TYPE_YUIO
-		ret.str_len = u32_width(str, str_len, locale_charset());
-#else
-#error
-#endif
+		ret.str_len = _yΩIO_width(str, str_len);
 	}
 #endif
 	*pf = ret;
@@ -271,15 +280,15 @@ int _yΩIO_printformat_print(_yΩIO_printformat_t *pf, const Ychar str[]) {
 	struct yπio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	const Ychar grouping = f->grouping;
-	const size_t str_len = pf->str_len;
 
 	if (is_number == true && grouping != YΩIO_GROUPING_NONE) {
+		const size_t str_len = pf->str_len;
 		const int err = _yΩIO_print_format_generic_number_grouping(t, grouping, str, str_len);
 		if (err) return err;
 	} else {
 #if _yIO_TYPE_YIO
 		const size_t to_print = pf->str_len;
-#elif _yIO_TYPE_YWIO || _yIO_TYPE_YUIO
+#else
 		const size_t to_print = pf->bytes_len;
 #endif
 		const int err = yπio_printctx_raw_write(t, str, to_print);
@@ -304,23 +313,13 @@ int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
 
 int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive) {
-m4_template_chooser(`m4_dnl);
-	return _yΩIO_printformat_generic(t, str, str_len, is_number, is_positive);
-~,`m4_dnl;
-	wchar_t *wc; size_t wc_len;
-	int ret = _yIO_conv_mbs_to_wcs(str, str_len, &wc, &wc_len);
+	const Ychar *dest;
+	size_t dest_len;
+	int ret = _yIO_strconv_str_to_πstr(str, str_len, &dest, &dest_len);
 	if (ret) return ret;
-	ret = _yΩIO_printformat_generic(t, wc, wc_len, is_number, is_positive);
-	free(wc);
+	ret = _yΩIO_printformat_generic(t, dest, dest_len, is_number, is_positive);
+	_yIO_strconv_free_str_to_πstr(str, dest);
 	return ret;
-~,`m4_dnl;
-	char32_t *buf; size_t length;
-	int ret = _yIO_conv_mbs_to_c32s(str, str_len, &buf, &length);
-	if (ret) return ret;
-	ret = _yΩIO_printformat_generic(t, buf, length, is_number, is_positive);
-	free(buf);
-	return ret;
-~)m4_dnl;
 }
 
 /* scanctx ---------------------------------------------------- */

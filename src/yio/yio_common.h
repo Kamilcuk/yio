@@ -75,9 +75,13 @@ typedef int Yint;
 #define _yIO_format(...)      __attribute__((__format__(__VA_ARGS__)))
 #define _yIO_deprecated(...)  __attribute__((__deprecated__(__VA_ARGS__)))
 #define _yIO_warning(...)     __attribute__((__warning__(__VA_ARGS__)))
+#if !__clang__
 #define _yIO_error(...)       __attribute__((__error__(__VA_ARGS__)))
+#endif
 #if __GNUC__ >= 10
-#define _yIO_access(...)      __attribute__((__access__(__VA_ARGS__)))
+#define _yIO_access(...)             __attribute__((__access__(__VA_ARGS__)))
+#define _yIO_access_read(...)        __attribute__((__access__(__read_only__, ##__VA_ARGS__)))
+#define _yIO_access_write(...)       __attribute__((__access__(__write_only__, ##__VA_ARGS__)))
 #endif
 #endif // __GNUC__
 
@@ -118,8 +122,13 @@ typedef int Yint;
 #define _yIO_error(...)
 #endif
 #ifndef _yIO_access
-/// Attribute access
 #define _yIO_access(...)
+#endif
+#ifndef _yIO_access_read
+#define _yIO_access_read(...)
+#endif
+#ifndef _yIO_access_write
+#define _yIO_access_write(...)
 #endif
 
 /**

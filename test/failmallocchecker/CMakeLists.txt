@@ -7,16 +7,15 @@ looping over a function. It is meant to be used to test every possible
 allocation failure.
 ]]
 
-if(CMAKE_CROSSCOMPILING)
-	return()
-endif()
-if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_CROSSCOMPILING OR NOT UNIX)
 	return()
 endif()
 
 add_library(failmallocchecker OBJECT lib/failmallocchecker.c)
 target_include_directories(failmallocchecker PUBLIC lib)
-target_link_options(failmallocchecker PUBLIC -Wl,--wrap=malloc -Wl,--wrap=calloc -Wl,--wrap=realloc)
+target_compile_definitions(failmallocchecker PRIVATE
+	FMC_USE_METHOD=FMC_METHOD_GLIBC_MALLOC_HOOK
+)
 add_library(fmc INTERFACE)
 add_dependencies(fmc INTERFACE failmallocchecker)
 

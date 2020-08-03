@@ -68,11 +68,15 @@ if(YIO_DEV)
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
 			CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		set(tmp
+			-ggdb3
 			-O
-			-g3
-			-fsanitize=undefined
-			-fsanitize=address
 		)
+		if(0 AND NOT CMAKE_CROSSCOMPILING)
+			list(APPEND tmp
+				-fsanitize=undefined
+				-fsanitize=address
+			)
+		endif()
 		add_link_options(${tmp})
 		add_compile_options(
 			${tmp}
@@ -82,20 +86,22 @@ if(YIO_DEV)
 			-Wno-unused-function
 			-Wno-unused-parameter
 			-Werror
-			-Wattribute-warning
 		)
 	endif()
-	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		add_compile_options(
+			-Wattribute-warning
+		)
+		add_compile_definitions(
+			_FORTIFY_SOURCE=2
+		)
+	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		add_compile_options(
 			-Wno-varargs
 			-Wno-array-bounds
 			-Wno-sizeof-array-decay
 		)
 	endif()
-	add_compile_definitions(
-		_FORTIFY_SOURCE=2
-	)
-
 
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 		add_compile_options(-fdiagnostics-color=always)

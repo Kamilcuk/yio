@@ -4,12 +4,8 @@
  *  Created on: 19 pa� 2019
  *      Author: Kamil
  */
-#include <yπio.h>
+#include <yio_test.h>
 #include <string.h>
-#if _yIO_TYPE_YUIO
-#include <unistdio.h>
-#include <unistr.h>
-#endif
 
 struct _yIO_inttests_s {
 	const Ychar *fmt;

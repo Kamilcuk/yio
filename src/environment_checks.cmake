@@ -64,7 +64,7 @@ string(APPEND yio_config_gen_content [=[
 # Use this function to output
 macro(yio_config_gen_add symbol)
 	if(DEFINED ${symbol} AND ${symbol})
-		string(APPEND yio_config_gen_content "#define ${symbol}  ERROR\n")
+		string(APPEND yio_config_gen_content "#define ${symbol}  \"ERROR\"[0]\n")
 	else()
 		string(APPEND yio_config_gen_content "/* #undef  ${symbol} */\n")
 	endif()

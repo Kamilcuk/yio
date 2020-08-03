@@ -14,11 +14,9 @@
 int _yΩIO_digit_to_number(Ychar d) {
 #if _yIO_TYPE_YIO
 	return d - '0';
-#elif _yIO_TYPE_YWIO || _yIO_TYPE_YUIO
+#else
 	const Ychar table[] = Yc("0123456789");
 	return Ystrchr(table, d) - table;
-#else
-#error
 #endif
 }
 

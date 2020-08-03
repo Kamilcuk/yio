@@ -4,6 +4,7 @@
  *  Created on: 19 pa� 2019
  *      Author: Kamil
  */
+#include <yio_test.h>
 #include <yio/yio_private.h>
 #include <yπio.h>
 #include <string.h>
@@ -13,10 +14,12 @@
 #define shouldbe_snprintf snprintf
 #elif _yIO_TYPE_YWIO
 #define shouldbe_snprintf swprintf
-#else
-#include <unistdio.h>
-#include <unistr.h>
+#elif _yIO_TYPE_YC16IO
+#define shouldbe_snprintf u16_u16_snprintf
+#elif _yIO_TYPE_YUIO
 #define shouldbe_snprintf u32_u32_snprintf
+#else
+#error
 #endif
 
 #define _yio_inttest2(SUFFIX, TYPE) \

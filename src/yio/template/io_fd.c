@@ -29,29 +29,36 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	return ret;
 }
 
+#if defined __NEWLIB__ && defined _FORTIFY_SOURCE && _yIO_TYPE_YWIO
+		// there is a bug in newlib
+		// in include/ssp/wchar.h when checking size for wcrtomb
+#define SUPER_MB_LEN_MAX  (MB_LEN_MAX > sizeof(wchar_t) ? MB_LEN_MAX :  sizeof(wchar_t))
+#else
+#define SUPER_MB_LEN_MAX  (MB_LEN_MAX)
+#endif
+
 static inline _yIO_access(__read_only__, 2, 3)
 int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 #if _yIO_TYPE_YIO
 	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
-#elif _yIO_TYPE_YWIO
+#elif _yIO_TYPE_YWIO || _yIO_TYPE_YC16IO || _yIO_TYPE_YUIO
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	while (size--) {
-		char s[MB_LEN_MAX];
-		const size_t wr = wcrtomb(s, *ptr++, &ps);
-		if (wr == (size_t)-1) return YIO_ERROR_WCTOMB_ERR;
+		char s[SUPER_MB_LEN_MAX];
+		const size_t wr =
+#if _yIO_TYPE_YWIO
+				wcrtomb
+#elif _yIO_TYPE_YC16IO
+				c16rtomb
+#elif _yIO_TYPE_YUIO
+				c32rtomb
+#endif
+				(s, *ptr++, &ps);
+		if (wr == (size_t)-1) return YIO_ERROR_WCTOMB;
 		const int r = _yΩIO_yπvdprintf_cb_in(arg, s, wr);
 		if (r < 0) return r;
 	}
-	return 0;
-#elif _yIO_TYPE_YUIO
-	size_t length = 0;
-	const char * const string = u32_conv_to_encoding(locale_charset(),
-			iconveh_question_mark, ptr, size, NULL, NULL, &length);
-	if (string == NULL) return YIO_ERROR_U32_CONV_TO_ENCODING;
-	const int r = _yΩIO_yπvdprintf_cb_in(arg, string, length);
-	if (r < 0) return r;
-	free((void*)string);
 	return 0;
 #else
 #error
