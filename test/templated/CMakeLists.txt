@@ -19,7 +19,7 @@ endif()
 if(_yIO_HAS_UCHAR_H)
 	list(APPEND replacements "c16" "u")
 endif()
-		
+
 file(GLOB_RECURSE srcs *.c *.h)
 list(FILTER srcs EXCLUDE REGEX "gen/")
 foreach(src IN LISTS srcs)
@@ -37,8 +37,9 @@ foreach(src IN LISTS srcs)
 		file(RELATIVE_PATH src_rel_source ${CMAKE_CURRENT_SOURCE_DIR} ${src})
 		set(path ${CMAKE_CURRENT_BINARY_DIR}/gen/y${replacement}io/${src_rel_source})
 		add_custom_command(
+			COMMENT "yio_template: Generating ${out} from ${i}"
 			OUTPUT ${path}.m4
-			DEPENDS 
+			DEPENDS
 				${src}
 				${CMAKE_CURRENT_SOURCE_DIR}/../../src/yio/template/yio_template_replace.cmake
 				${CMAKE_CURRENT_LIST_FILE}
@@ -59,15 +60,15 @@ foreach(src IN LISTS srcs)
 			OPTIONS
 				-D m4_SOURCE=${src}
 		)
-			
+
 		file(RELATIVE_PATH name ${CMAKE_CURRENT_BINARY_DIR}/gen ${path})
 		string(REPLACE "/" "_" name "${name}")
 		string(REPLACE "\\" "_" name "${name}")
 		string(REGEX REPLACE "\\..*$" "" name "${name}")
-	
+
 		yio_add_test(${name} ${path} ${src})
 		set_property(TEST ${name} APPEND PROPERTY LABELS y${replacement}io)
-			
+
 	endforeach()
 endforeach()
-				
+

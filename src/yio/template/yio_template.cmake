@@ -20,6 +20,7 @@ macro(yio_template_in i relative)
 	endif()
 	
 	add_custom_command(
+		COMMENT "yio_template: Generating ${out} from ${i}"
 		OUTPUT
 			${CMAKE_CURRENT_BINARY_DIR}/template/${out}
 		DEPENDS

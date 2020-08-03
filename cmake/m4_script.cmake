@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.1)
 
 # Escape string for makefile
 macro(escape str)
-	string(REGEX REPLACE "([ \t\n#])" "\\\\1" "${str}" "${${str}}") 
+	string(REGEX REPLACE "([ \t\n#])" "\\\\1" "${str}" "${${str}}")
 endmacro()
 
 foreach(i IN ITEMS
@@ -24,11 +24,14 @@ if(CMAKE_HOST_UNIX)
 		OUTPUT_VARIABLE _
 		ERROR_VARIABLE _
 	)
+	unset(_)
 endif()
+get_filename_component(outputdir "${OUTPUT}" DIRECTORY)
+file(MAKE_DIRECTORY "${outputdir}")
 execute_process(
 	COMMAND "${M4_COMMAND}" --debug=i ${M4_ARGS}
-	RESULT_VARIABLE result
-	OUTPUT_FILE ${OUTPUT}
+	RESULT_VARIABLE m4result
+	OUTPUT_FILE "${OUTPUT}"
 	ERROR_VARIABLE error_raw
 )
 if(CMAKE_HOST_UNIX)
@@ -38,6 +41,7 @@ if(CMAKE_HOST_UNIX)
 		OUTPUT_VARIABLE _
 		ERROR_VARIABLE _
 	)
+	unset(_)
 endif()
 
 ###############################################################
@@ -59,6 +63,7 @@ foreach(line IN LISTS error_raw)
 			if(line STREQUAL "stdin")
 				continue()
 			endif()
+			get_filename_component(line "${line}" ABSOLUTE)
 			escape(line)
 			string(APPEND deps " ${line}")
 		endif()
@@ -74,10 +79,12 @@ string(REGEX REPLACE "^\n" "" error "${error}")
 
 ###############################################################
 
-if(NOT result EQUAL 0)
+if(NOT m4result EQUAL 0)
+	string(REGEX REPLACE ";" " " M4_ARGS "${M4_ARGS}")
+	message("+ ${M4_COMMAND} ${M4_ARGS}")
 	message("${error}")
-	message(FATAL_ERROR)
-endif()	
+	message(FATAL_ERROR "m4 returned: ${m4result}")
+endif()
 
 ###############################################################
 
@@ -90,4 +97,4 @@ if(DEFINED DEPFILE)
 	file(WRITE ${DEPFILE} "${DEPNAME}:${deps}\n")
 endif()
 
-	
+

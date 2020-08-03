@@ -96,8 +96,7 @@ macro(_m4_get_command_args)
 		set(script_depfile_args)
 	endif()
 
-
-	set(args_source_args "${M4_GET_COMMAND_ARGS_SOURCE}")
+	set(args_source_args ${M4_GET_COMMAND_ARGS_SOURCE})
 	if(EXISTS "${source}")
 		file(STRINGS "${source}" tmp REGEX "M4_SYNCLINES" LIMIT_COUNT 1)
 		if(NOT "${tmp}" STREQUAL "")
@@ -136,6 +135,7 @@ macro(_m4_get_command_args)
 			${CMAKE_COMMAND}
 			${script_depfile_args}
 			"${m4_script_opts}"
+		WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
 		VERBATIM
 	)
 
