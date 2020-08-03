@@ -17,11 +17,12 @@ ifeq ($(shell hostname),leonidas)
 export KAMIL_CUKROWSKI_SECRET_GPG_KEY=$(shell gpg --export-secret-subkeys CC36098A43EBF7B5 | base64 -w0)
 endif
 
-all: ctx
-all: alpine_x86_64
-all: archlinux_x86_64
-all: ubuntu_x86_64
-all: debian_x86_64
+all: | \
+	ctx \
+	alpine_x86_64 \
+	archlinux_x86_64 \
+	ubuntu_x86_64 \
+	debian_x86_64
 
 # Cleanup target
 clean:	

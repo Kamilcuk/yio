@@ -85,11 +85,13 @@ test: build
 	cd $(B) && $(CTEST) $(CTESTFLAGS)
 
 test_before_commit:
+	$(MAKE) clean
 	$(MAKE) test
 	$(MAKE) test_project_add_subdirectory
 	$(MAKE) test_project_install_add_subdirectory
 	$(MAKE) cdash_gcc
 	$(MAKE) cdash_arm
+	$(MAKE) -C pkg clean
 	$(MAKE) pages_repos
 
 USAGE +=~ test_R_% - Run tests matching regular expression
