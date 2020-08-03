@@ -177,9 +177,13 @@ function(yio_install_after_targets)
 	list(SORT install_headers)
 	list(REMOVE_DUPLICATES install_headers)
 	foreach(h IN LISTS install_headers)
-			get_filename_component(dir "${h}" DIRECTORY)
+			file(RELATIVE_PATH hdir "${GENDIR}" "${h}")
+			if("${hdir}" MATCHES "^\\.\\.")
+				message(FATAL_ERROR "Source for ${h} include file does not come from GENDIR")
+			endif()
+			get_filename_component(dir "${hdir}" DIRECTORY)
 			install(
-				FILES "${GENDIR}/${h}"
+				FILES "${h}"
 				DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/${dir}/"
 			)
 	endforeach()
@@ -240,7 +244,7 @@ function(yio_add_library name)
 	target_link_libraries(${name} PUBLIC m)
 
 	# Extract list of headers.
-	set(headers "${argn}")
+	set(headers "${srcs}")
 	list(FILTER headers INCLUDE REGEX "\\.h$")
 
 	yio_install_library(${name} ${headers})
@@ -283,6 +287,10 @@ yio_add_library(yio
 	ywio.h
 	${ywio_gensrcs}
 )
+if(UNISTRING_LIB)
+	# converting from UTF32 and UTF16 to WCHAR and CHAR needs conversion library
+	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
+endif()
 
 # UNISTRING_LIB found in parent CMakeLists.txt
 if(UNISTRING_LIB)
