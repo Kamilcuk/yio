@@ -8,6 +8,9 @@
  */
 #pragma once
 #include <time.h>
+#if defined _yIO_HAS_timespec || defined _yIO_HAS_timeval
+#include <sys/time.h>
+#endif
 
 /**
  * Copies the formatting string that will be passed to strftime
