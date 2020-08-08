@@ -85,40 +85,10 @@ macro(yio_config_gen_check_symbol_exists)
 	yio_config_gen_add(${ARGV2})
 endmacro()
 
-function(yio_config_gen_try_compile_src var src)
-	set(file ${CMAKE_CURRENT_BINARY_DIR}/try_compile_${var}.c)
-
-	# If the src changed, re-run the test
-	if(DEFINED HAVE_${var} AND EXISTS ${file})
-		file(READ ${file} tmp)
-		if(NOT tmp STREQUAL src)
-			unset(HAVE_${var} CACHE)
-		endif()
-		unset(tmp)
-	endif()
-
-	if(NOT DEFINED HAVE_${var})
-		file(WRITE ${file} "${src}")
-		message(STATUS "Detecting ${var}")
-		try_compile(HAVE_${var} ${CMAKE_CURRENT_BINARY_DIR}
-			SOURCES ${CMAKE_CURRENT_BINARY_DIR}/try_compile_${var}.c
-			${ARGN}
-		)
-		if(HAVE_${var})
-			message(STATUS "Detecting ${var} - success")
-		else()
-			message(STATUS "Detecting ${var} - failed")
-		endif()
-	endif()
-
-	if(HAVE_${var})
-		set(${var} 1 CACHE INTERNAL "yio_config_gen_try_compile_src: ${var} failed")
-	else()
-		set(${var} 0 CACHE INTERNAL "yio_config_gen_try_compile_src: ${var} success")
-	endif()
+macro(yio_config_gen_check_c_source_compiles src var)
+	check_c_source_compiles("${src}" "${var}" ${ARGN})
 	yio_config_gen_add(${var})
-	set(yio_config_gen_content ${yio_config_gen_content} PARENT_SCOPE)
-endfunction()
+endmacro()
 
 #########################################################################
 # some generic checks
@@ -207,11 +177,11 @@ endforeach()
 set(_yIO_HAS_strfrom ${_yIO_HAS_strfromd})
 yio_config_gen_add(_yIO_HAS_strfrom)
 
-yio_config_gen_try_compile_src(_yIO_HAS_IMAGINARY [=[
+yio_config_gen_check_c_source_compiles([=[
 float _Imaginary fi = 1;
 double _Imaginary di = 2;
 long double _Imaginary li = 3;
-]=])
+]=] _yIO_HAS_IMAGINARY)
 
 #########################################################################
 # handle and detect stdfix

@@ -36,8 +36,10 @@ macro(yio_template_in i relative)
 	
 	file(RELATIVE_PATH i_rel_srcdir ${SRCDIR} ${i})
 	m4_add_command(
-		OUTPUT ${GENDIR}/${out}
-		SOURCE ${CMAKE_CURRENT_BINARY_DIR}/template/${out}
+		OUTPUT
+			${GENDIR}/${out}
+		SOURCE
+			${CMAKE_CURRENT_BINARY_DIR}/template/${out}
 		OPTIONS
 			-D m4_SOURCE=${i}
 			-D m4_TEMPLATE_SOURCE=${i_rel_srcdir}
