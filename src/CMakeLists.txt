@@ -201,6 +201,9 @@ endfunction()
 ################################################################################################
 # Compile options
 
+add_custom_target(yio_targets)
+add_dependencies(yio_targets yio_gen)
+
 # @def yio_add_library(name sources)
 # Adds the library with the name <name>
 # that has the sources <sources>.
@@ -240,6 +243,7 @@ function(yio_add_library name)
 		c_variadic_macros
 	)
 	
+	add_dependencies(yio_targets ${name})
 	add_dependencies(${name} yio_gen)
 	target_link_libraries(${name} PUBLIC m)
 

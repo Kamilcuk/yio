@@ -13,3 +13,4 @@
 #include "../../private/yio_float_strfrom_strfrom.h"
 #include "../../private/yio_float_strfrom_printf.h"
 #include "../../private/yio_strlib.h"
+#include "../../private/yio_cache_auto.h"

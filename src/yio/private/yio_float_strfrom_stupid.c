@@ -232,7 +232,7 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 				is_lower_spec ? 'p' : 'P';
 		err = _yIO_vec_putc(v, letter);
 		if (err) return err;
-		err = _yIO_vec_yreformatf(v, "{:+0{}}", hex ? 0 : 3, val_is_zero ? 0 : (exponent - 1));
+		err = _yIO_vec_yprintf(v, "{:+0{}}", hex ? 0 : 3, val_is_zero ? 0 : (exponent - 1));
 		if (err) return err;
 	}
 

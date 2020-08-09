@@ -21,6 +21,9 @@ if(_yIO_HAS_UCHAR_H)
 endif()
 
 file(GLOB_RECURSE srcs *.c *.h)
+if(NOT _yIO_HAS_STDFIX_TYPES)
+	list(FILTER srcs EXCLUDE REGEX "stdfix/")
+endif()
 list(FILTER srcs EXCLUDE REGEX "gen/")
 foreach(src IN LISTS srcs)
 

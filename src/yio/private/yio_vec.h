@@ -33,6 +33,12 @@ void _yIO_vec_init(_yIO_vec *t) {
 }
 
 static inline
+void _yIO_vec_fini(_yIO_vec *t) {
+	free(t->beg);
+	t->beg = NULL;
+}
+
+static inline
 char *_yIO_vec_data(_yIO_vec *t) {
 	return t->beg;
 }
@@ -46,7 +52,7 @@ int _yIO_vec_allocate_more(_yIO_vec *t) {
 	if (p == NULL) {
 		// NOTE! in case of allocation error
 		// all resources are freed
-		free(t->beg);
+		_yIO_vec_fini(t);
 		return YIO_ERROR_ENOMEM;
 	}
 	t->beg = p;
@@ -79,32 +85,31 @@ size_t _yIO_vec_size(const _yIO_vec *t) {
 	return t->pos - t->beg;
 }
 
-static inline
-int _yIO_vec_yreformatf_in(_yIO_vec *t, yio_printdata_t *data, const char *fmt, ...) {
+static
+int _yIO_vec_yprintf_cb(void *ptr, const char *data, size_t count) {
+	_yIO_vec *o = ptr;
 	int err = 0;
-	// zero terminate the buffer
-	err = _yIO_vec_putc(t, '\0');
-	if (err) return err;
-
-	// call yvreformatf
-	va_list va;
-	va_start(va, fmt);
-	char *buf = yvreformatf(t->beg, data, fmt, &va);
-	va_end(va);
-
-	if (buf == NULL) {
-		// NOTE! All is freed.
-		return YIO_ERROR_ENOMEM;
+	while (count--) {
+		err = _yIO_vec_putc(o, *data++);
+		if (err) return err;
 	}
-	// we reassign bookeeping
-	// this will mess things up
-	t->beg = buf;
-	t->pos = t->beg + strlen(t->beg);
-	t->end = t->pos + 1;
 	return 0;
 }
 
-#define _yIO_vec_yreformatf(t, ...)  _yIO_vec_yreformatf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+static inline
+int _yIO_vec_yprintf(_yIO_vec *t, yio_printdata_t *data, const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	const int err = yvbprintf(_yIO_vec_yprintf_cb, t, data, fmt, &va);
+	va_end(va);
+	if (err < 0) {
+		_yIO_vec_fini(t);
+		return err;
+	}
+	return 0;
+}
+
+#define _yIO_vec_yprintf(t, ...)  _yIO_vec_yprintf(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
  * Removes trailing zeros. There _has to_ be a dot in the string.

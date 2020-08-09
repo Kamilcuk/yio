@@ -21,6 +21,7 @@ set(YIO_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # then also add the name name
 # Then read properties of the test from propertiesfile
 function(yio_add_test name file)
+
 	# message(STATUS "Adding test ${name} ${file}")
 	add_executable(${name} ${file})
 	target_link_libraries(${name} PRIVATE _yio_testlib m)
@@ -33,7 +34,7 @@ function(yio_add_test name file)
 
 	if(NOT realfile STREQUAL "")
 		file(STRINGS ${realfile} input REGEX "^// INPUT ")
-		
+
 		if(NOT input)
 			add_test(NAME ${name} COMMAND ${name})
 			set_tests_properties(${name} PROPERTIES LABELS normal)
@@ -48,14 +49,23 @@ function(yio_add_test name file)
 			set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
 		endif()
 		set_property(TEST ${name} APPEND PROPERTY TIMEOUT 5)
-		
+
 		test_extract_properties_from_file(${name} ${realfile})
 	else()
 		add_test(NAME ${name} COMMAND ${name})
 		set_tests_properties(${name} PROPERTIES LABELS normal)
 	endif()
 
-	if($ENV{YIO_TEST_BUILDING})
+	# unicode tests need unicode support
+	if(NOT _yIO_HAS_UCHAR_H AND (file MATCHES "yui" OR file MATCHES "yc16io"))
+		set_property(TEST ${name} PROPERTY DISABLED TRUE)
+	endif()
+	# stdfix are run only if we have stdfix
+	if(NOT _yIO_HAS_STDFIX_TYPES AND file MATCHES "stdfix")
+		set_property(TEST ${name} PROPERTY DISABLED TRUE)
+	endif()
+
+	if("$ENV{YIO_TEST_BUILDING}" OR "$ENV{YIO_STEST}")
 		set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL TRUE)
 
 		add_test(NAME build_${name}
@@ -64,6 +74,8 @@ function(yio_add_test name file)
 		set_property(TEST build_${name} PROPERTY FIXTURES_SETUP build_${name})
 		set_property(TEST build_${name} APPEND PROPERTY LABELS nomemcheck)
 		set_property(TEST build_${name} APPEND PROPERTY LABELS compile)
+		get_property(tmp TEST ${name} PROPERTY DISABLED)
+		set_property(TEST build_${name} PROPERTY DISABLED ${tmp})
 
 		set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED build_${name})
 	endif()
@@ -103,7 +115,10 @@ endforeach()
 
 list(REMOVE_DUPLICATES sources)
 list(SORT sources)
-list(FILTER sources EXCLUDE REGEX "ywio")
+list(FILTER sources EXCLUDE REGEX "ywio") # these are not working yet
+if(NOT _yIO_HAS_STDFIX_TYPES)
+	list(FILTER sources EXCLUDE REGEX "stdfix")
+endif()
 # list(FILTER sources EXCLUDE REGEX "scan")
 # list(FILTER sources INCLUDE REGEX "examples")
 # list(FILTER sources INCLUDE REGEX "simple/")
@@ -111,12 +126,12 @@ list(FILTER sources EXCLUDE REGEX "ywio")
 
 foreach(source IN LISTS sources)
 	file(RELATIVE_PATH sourcenice "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
-	
+
 	m4_add_command(
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${sourcenice}
 		SOURCE ${source}
 	)
-	
+
 	set(name "${sourcenice}")
 	string(REPLACE "/" "_" name "${name}")
 	string(REPLACE "\\" "_" name "${name}")
