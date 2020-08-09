@@ -27,7 +27,11 @@ if(CMAKE_HOST_UNIX)
 	unset(_)
 endif()
 get_filename_component(outputdir "${OUTPUT}" DIRECTORY)
-file(MAKE_DIRECTORY "${outputdir}")
+if(NOT EXISTS "${outputdir}")
+	file(MAKE_DIRECTORY "${outputdir}")
+elseif(NOT IS_DIRECTORY "${outputdir}")
+	message(FATAL_ERROR "Output directory ${outputdir} exists and is not a directory.")
+endif()
 execute_process(
 	COMMAND "${M4_COMMAND}" --debug=i ${M4_ARGS}
 	RESULT_VARIABLE m4result
