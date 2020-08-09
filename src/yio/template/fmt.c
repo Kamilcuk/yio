@@ -115,7 +115,7 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 		pf->precision = -1;
 	}
 
-	pf->type = _yΩIO_strnulchrbool(Yc("bcdeEfFgGnosxX%"), fmt[0]) ? fmt++[0] : 0;
+	pf->type = _yΩIO_strnulchrbool(Yc("bcdeEfFaAgGnosxX%"), fmt[0]) ? fmt++[0] : 0;
 
 	if (fmt[0] != '}') {
 		ret = YIO_ERROR_PYFMT_INVALID;
