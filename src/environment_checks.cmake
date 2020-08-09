@@ -181,7 +181,16 @@ yio_config_gen_check_c_source_compiles([=[
 float _Imaginary fi = 1;
 double _Imaginary di = 2;
 long double _Imaginary li = 3;
+int main() {}
 ]=] _yIO_HAS_IMAGINARY)
+
+yio_config_gen_check_c_source_compiles([=[
+#include <complex.h>
+#if defined __STDC_NO_COMPLEX__ || ! defined __STDC_IEC_559_COMPLEX__
+#error
+#endif
+int main() {}
+]=] _yIO_HAS_COMPLEX)
 
 #########################################################################
 # handle and detect stdfix

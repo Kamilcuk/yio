@@ -19,6 +19,7 @@
 #include "print_uchars.h"
 #include "print_time.h"
 #include "print_stdfix.h"
+#include "print_complex.h"
 
 m4_ifdef(`_yIO_TYPE_YIO~, `m4_dnl;
 #include "print_modifiers.h"
@@ -51,6 +52,7 @@ m4_ifdef(`_yIO_TYPE_YIO~, `m4_dnl;
 				_yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
 				_yΩIO_PRINT_GENERIC_TIME() \
 				_yΩIO_PRINT_STDFIX() \
+				_yΩIO_PRINT_COMPLEX() \
 		default: _Generic((arg), \
 				_yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \
 				_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \

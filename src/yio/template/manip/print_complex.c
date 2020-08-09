@@ -16,7 +16,7 @@ m4_include(`yio/template/manip/print_complex.h~)
 m4_divert(0)
 
 m4_applyforeachdefine((m4_complex_types()), `m4_dnl;
-int _yIO_print_complex_$1(yπio_printctx_t *t) {
+int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
@@ -26,7 +26,7 @@ int _yIO_print_complex_$1(yπio_printctx_t *t) {
 
 #ifdef _yIO_HAS_IMAGINARY
 m4_applyforeachdefine((m4_imaginary_types()), `m4_dnl;
-int _yIO_print_complex_$1(yπio_printctx_t *t) {
+int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
