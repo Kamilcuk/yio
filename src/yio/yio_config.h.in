@@ -84,6 +84,10 @@
  * @}
  */
 
+#if ! defined __STDC_NO_COMPLEX__ && defined __STDC_IEC_559_COMPLEX__
+#define _yIO_HAS_COMPLEX
+#endif
+
 // check
 #ifndef _yIO_HAS_UNISTD_H
 #ifdef YIO_USE_OUTPUT_FD

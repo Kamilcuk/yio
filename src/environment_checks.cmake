@@ -85,6 +85,41 @@ macro(yio_config_gen_check_symbol_exists)
 	yio_config_gen_add(${ARGV2})
 endmacro()
 
+function(yio_config_gen_try_compile_src var src)
+	set(file ${CMAKE_CURRENT_BINARY_DIR}/try_compile_${var}.c)
+
+	# If the src changed, re-run the test
+	if(DEFINED HAVE_${var} AND EXISTS ${file})
+		file(READ ${file} tmp)
+		if(NOT tmp STREQUAL src)
+			unset(HAVE_${var} CACHE)
+		endif()
+		unset(tmp)
+	endif()
+
+	if(NOT DEFINED HAVE_${var})
+		file(WRITE ${file} "${src}")
+		message(STATUS "Detecting ${var}")
+		try_compile(HAVE_${var} ${CMAKE_CURRENT_BINARY_DIR}
+			SOURCES ${CMAKE_CURRENT_BINARY_DIR}/try_compile_${var}.c
+			${ARGN}
+		)
+		if(HAVE_${var})
+			message(STATUS "Detecting ${var} - success")
+		else()
+			message(STATUS "Detecting ${var} - failed")
+		endif()
+	endif()
+
+	if(HAVE_${var})
+		set(${var} 1 CACHE INTERNAL "yio_config_gen_try_compile_src: ${var} failed")
+	else()
+		set(${var} 0 CACHE INTERNAL "yio_config_gen_try_compile_src: ${var} success")
+	endif()
+	yio_config_gen_add(${var})
+	set(yio_config_gen_content ${yio_config_gen_content} PARENT_SCOPE)
+endfunction()
+
 #########################################################################
 # some generic checks
 
@@ -97,10 +132,9 @@ if(_yIO_HAS_UNISTD_H)
 endif()
 
 yio_config_gen_check_include_file("float.h"  _yIO_HAS_FLOAT_H)
-yio_config_gen_check_include_file("stdfix.h"  _yIO_HAS_STDFIX)
 
 yio_config_gen_check_type_exists(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
-check_symbol_exists_bool(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)
+yio_config_gen_check_symbol_exists(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)
 
 yio_config_gen_check_type_exists("struct timespec" _yIO_HAS_timespec LANGUAGE C)
 yio_config_gen_check_type_exists("struct timeval" _yIO_HAS_timeval LANGUAGE C)
@@ -122,7 +156,6 @@ yio_config_gen_add(_yIO_HAS_UNISTRING)
 # handle and detect floats
 
 # the list of floats
-#TODO: typedef _Complex float __attribute__((mode(TC))) _Complex128;
 set(floats
 	# type          MACRO_SUFFIX  suffix   suffix_for_str{from,to}
 	"float"         "FLT"         "f"      "f"
@@ -174,16 +207,17 @@ endforeach()
 set(_yIO_HAS_strfrom ${_yIO_HAS_strfromd})
 yio_config_gen_add(_yIO_HAS_strfrom)
 
+yio_config_gen_try_compile_src(_yIO_HAS_IMAGINARY [=[
+float _Imaginary fi = 1;
+double _Imaginary di = 2;
+long double _Imaginary li = 3;
+]=])
+
 #########################################################################
 # handle and detect stdfix
 
-foreach(type IN ITEMS _Fract _Accum)
-	if(NOT DEFINED _yIO_HAS_${type} OR be_verbose)
-		log("Detecting: ${type}")
-	endif()
-	check_type_exists_bool(${type} _yIO_HAS_${type} BUILTIN_TYPES_ONLY)
-	yio_config_gen_add(_yIO_HAS_${type})
-endforeach()
+yio_config_gen_check_include_file("stdfix.h"  _yIO_HAS_STDFIX_H)
+yio_config_gen_check_type_exists(_Fract _yIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
 
 #########################################################################
 # Output variable yio_config_gen_content to yio_config_gen.h
