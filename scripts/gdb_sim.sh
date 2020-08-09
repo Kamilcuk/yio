@@ -210,7 +210,7 @@ exec 0<&-
 	}
 	' <&10 |
 	# Output everything except the uuid line on terminal
-	stdbuf -oL tee >(grep --line-buffered -v "^$uuid" >&3) |
+	stdbuf -oL tee >(grep -a --line-buffered -v "^$uuid" >&3) |
 	# Grab the uuid line
 	sed '/^'"$uuid"'/!d; s///'
 ) ;} 3>&1
