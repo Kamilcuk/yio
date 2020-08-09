@@ -6,7 +6,6 @@
 :star: `Yio Input Output` library is aiming to be python-like type-safe `printf` and `scanf` replacement for C language.
 
 
-
 [[_TOC_]]
 
 # dev
