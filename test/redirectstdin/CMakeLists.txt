@@ -20,7 +20,7 @@ if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
         NAME redirectstdin_compile
         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target redirectstdin
     )
-    set_property(TEST redirectstdin_compile APPEND PROPERTY LABELS redirectstdin)
+    set_property(TEST redirectstdin_compile APPEND PROPERTY LABELS redirectstdinexe)
 	set_property(TEST redirectstdin_compile APPEND PROPERTY LABELS nomemcheck)
 	set_property(TEST redirectstdin_compile APPEND PROPERTY LABELS compile)
 	set_property(TEST redirectstdin_compile APPEND PROPERTY FIXTURES_SETUP redirectstdin)
@@ -30,7 +30,7 @@ if(NOT "${CMAKE_PROJECT_NAME}" STREQUAL "${PROJECT_NAME}")
         COMMAND ${CMAKE_CURRENT_BINARY_DIR}/src/redirectstdin-build/redirectstdin
     )
 	set_property(TEST redirectstdin_works APPEND PROPERTY LABELS nomemcheck)
-	set_property(TEST redirectstdin_works APPEND PROPERTY LABELS redirectstdin)
+	set_property(TEST redirectstdin_works APPEND PROPERTY LABELS redirectstdinexe)
 	set_property(TEST redirectstdin_works APPEND PROPERTY FIXTURES_SETUP redirectstdin)
 	set_property(TEST redirectstdin_works APPEND PROPERTY DEPENDS redirectstdin_compile)
 

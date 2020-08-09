@@ -7,7 +7,7 @@
 #include <ywio.h>
 int main() {
 	wchar_t str[20];
-	int err = ysscanf(L"Hello Kamil", L"Hello {}", &str).error;
+	int err = ywsscanf(L"Hello Kamil", L"Hello {}", &str).error;
 	if (err) return err;
 	ywprint(str);
 }

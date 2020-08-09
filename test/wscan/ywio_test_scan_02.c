@@ -7,7 +7,7 @@
 #include <ywio.h>
 int main() {
 	int v;
-	int err = yswscanf("1", "{}", &v).error;
+	int err = ywsscanf("1", "{}", &v).error;
 	if (err) return err;
 	yprint(v);
 }
