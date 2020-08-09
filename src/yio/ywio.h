@@ -2,8 +2,9 @@
  * @file
  * @date 2020-06-15
  * @author Kamil Cukrowski
- * @copyright
+ * @copyright 
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include "yio/yuio.h"
+#include "yio_public.h"
+#include "ywio/public.h"

@@ -6,6 +6,4 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
-#include "yio/yio_public.h"
-#include "yio/yc16io/public.h"
+#include "yio/yc16io.h"
