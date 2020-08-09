@@ -96,6 +96,7 @@ macro(_m4_get_command_args)
 		set(script_depfile_args)
 	endif()
 
+	# extract attributes from source file
 	set(args_source_args ${M4_GET_COMMAND_ARGS_SOURCE})
 	if(EXISTS "${source}")
 		file(STRINGS "${source}" tmp REGEX "M4_SYNCLINES" LIMIT_COUNT 1)
