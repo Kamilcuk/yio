@@ -5,13 +5,15 @@ execute_process(
 	RESULT_VARIABLE _result
 	OUTPUT_VARIABLE _output
 	ERROR_VARIABLE _error
-	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 if(NOT _result EQUAL 0)
+	execute_process(COMMAND git status WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..)
 	message(FATAL_ERROR "Getting version failed: ${_error}")
 endif()
 if(NOT _output MATCHES "v([0-9]+).([0-9]+).([0-9]+)[\\.-]?([0-9]*)?.*")
+	execute_process(COMMAND git status WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..)
 	message(FATAL_ERROR "Version has wrong format: ${_output}")
 endif()
 
