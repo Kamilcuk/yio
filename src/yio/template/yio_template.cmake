@@ -45,7 +45,7 @@ macro(yio_template_in i relative)
 			-D m4_TEMPLATE_SOURCE=${i_rel_srcdir}
 			-D m4_CONFIG=yio/${name}/template.m4
 	)
-	list(APPEND srcs ${GENDIR}/${out})
+	list(APPEND srcs ${out})
 endmacro()
 
 function(yio_template)
