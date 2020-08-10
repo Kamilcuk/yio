@@ -24,7 +24,8 @@ build() {
 	cmake \
 		-B "build" \
 		-S "yio" \
-		-D CMAKE_BUILD_TYPE="Release"
+		-D CMAKE_BUILD_TYPE="Release" \
+		-D CMAKE_C_FLAGS_RELEASE="-O3 -DNDEBUG -g -ffunction-sections -fdata-sections"
 	cmake --build build
 }
 

@@ -21,7 +21,9 @@ $(BUILDDIR)/package-yio:
 	cmake \
 		-S ../.. \
 		-B $(BUILDDIR)/yio \
-		-D CMAKE_BUILD_TYPE=Release
+		-D CMAKE_BUILD_TYPE=Release \
+		-D CMAKE_C_FLAGS_RELEASE="-O3 -DNDEBUG -g -ffunction-sections -fdata-sections"
+	cmake --build $(BUILDDIR)/yio
 	cd $(BUILDDIR)/yio && cpack -G DEB
 	touch $@
 
