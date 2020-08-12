@@ -7,9 +7,48 @@
  */
 #pragma once
 
+#include "yio_common.h"
+#include <stdio.h>
+
+/**
+ * The unsigned long integer constnat that symbolizes the version number.
+ * The number is composed from 4 numbers each taking two places in hexadecimal
+ * representation. First most significant two digits of hexadecimal
+ * representation symbolize the the major of version, the next two digits
+ * are minor, the next are patch and the next symbolize the count of git commits
+ * since the last version.
+ *
+ *     0xAABBCCDD
+ *       AA       - major
+ *         BB     - minor
+ *           CC   - patch
+ *             DD - git commit count
+ */
 #define YIO_VERSION         @YIO_VERSION@UL
+
+/**
+ * The version string as returned by git describe.
+ */
 #define YIO_VERSION_STRING  "@YIO_VERSION_STRING@"
 
+
+/**
+ * Returns YIO_VERSION number.
+ */
+_yIO_const
 unsigned long yio_get_version(void);
+
+/**
+ * Returns a pointer to statically allocated YIO_VERSION_STRING
+ */
+_yIO_rnn _yIO_const
 const char *yio_get_version_string(void);
+
+/**
+ * Prints a banner with version to the stream.
+ * @param f Stream to print the banner to
+ * @return 0 on success, -1 on error
+ */
+_yIO_nn()
+int yio_print_version_banner(FILE *f);
 
