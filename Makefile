@@ -8,7 +8,6 @@ SHELL = bash
 .SUFFIXES:
 MAKEFLAGS += --no-builtin-rules
 MAKEFLAGS += --no-builtin-variables
-MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-print-directory
 export CDASH_KARTA_DYZIO_PL_PASSWORD
 
@@ -40,8 +39,16 @@ BUILD_TESTING ?= ON
 
 CMAKE = $(NICE) cmake
 CMAKEFLAGS_INIT += -S.
-CMAKEFLAGS_INIT += $(shell hash ninja >/dev/null 2>&1 && echo -GNinja)
+ifeq ($(shell hash ninja 2>&1),)
+MAKEFLAGS += --warn-undefined-variables
+CMAKEFLAGS_INIT += -GNinja
+else
+NPROC = $(shell grep -c processor /proc/cpuinfo)
+export CMAKE_BUILD_PARALLEL_LEVEL=$(NPROC)
+endif
+ifneq ($(shell cmake --help | grep log-level),)
 CMAKEFLAGS_INIT += --log-level=TRACE
+endif
 CMAKEFLAGS_INIT += -DYIO_DEV=1
 CMAKEFLAGS += $(CMAKEFLAGS_INIT)
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
