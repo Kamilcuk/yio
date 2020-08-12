@@ -89,9 +89,13 @@ if(YIO_DEV)
 		)
 	endif()
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		add_compile_options(
-			-Wattribute-warning
-		)
+		include(CheckCCompilerFlag)
+		check_c_compiler_flag(-Wattribute-warning _yIO_ATTRIBUTE_WARNING)
+		if(_yIO_ATTRIBUTE_WARNING)
+			add_compile_options(
+				-Wattribute-warning
+			)
+		endif()
 		add_compile_definitions(
 			_FORTIFY_SOURCE=2
 		)
