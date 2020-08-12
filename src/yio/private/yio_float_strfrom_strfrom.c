@@ -9,6 +9,7 @@
 #define _GNU_SOURCE  1
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 #include "yio_float_strfrom_strfrom.h"
+#include "yio_res.h"
 #include "private.h"
 #include <assert.h>
 #include <stddef.h>
@@ -45,42 +46,48 @@ void float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int precisi
 	assert(fmtpnt <= fmt + FMT_SIZE);
 }
 
-m4_applyforeachdefine(`((f, f), (, d), (l, l))~, `m4_dnl;
+m4_applyforeachdefine(`((f, f), (, d), (l, l))~, m4_syncline(1)`m4_dnl;
 
 #if defined _yIO_HAS_FLOAT$1 && defined _yIO_HAS_strfrom$1
 
 // In case it's not defined in standard headers, so that we get a link time error.
 extern int strfrom$2(char *str, size_t n, const char *format, _yIO_FLOAT$1 fp);
 
-int _yIO_float_astrfrom_strfrom$1(char **out, int precision, char spec, _yIO_FLOAT$1 val) {
+int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
+		int precision, char spec, _yIO_FLOAT$1 val) {
+	assert(lengthp != NULL);
+	assert(resultp != NULL);
+
 	// create format string
 	char fmt[FMT_SIZE];
 	float_astrfrom_strfrom_create_format_string(fmt, precision, spec);
 
+	_yIO_res _res;
+	_yIO_res *v = &_res;
+	_yIO_res_init(v, resultp, lengthp);
+
 	// get length
 	int err = 0;
-	const int len = strfrom$2(NULL, 0, fmt, val);
+	assert(_yIO_res_size(v) < INT_MAX);
+	const int len = strfrom$2(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 	if (len <= 0) {
 		// this is not possible
-		err = -ENOSYS;
-		goto ERROR;
+		return -ENOSYS;
+	}
+	if ((size_t)len < _yIO_res_size(v)) {
+		_yIO_set_used(v, len);
+	} else {
+		err = _yIO_res_resize2(v, len + 1, len);
+		if (err) return err;
+
+		const int len2 = strfrom$2(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
+		(void)len2;
+		assert((size_t)len2 == _yIO_res_used(v));
+		assert(len2 == len);
 	}
 
-	char * const buf = malloc(len + 1);
-	if (buf == NULL) {
-		err = YIO_ERROR_ENOMEM;
-		goto ERROR;
-	}
-
-	const int len2 = strfrom$2(buf, len + 1, fmt, val);
-	(void)len2;
-	assert(len2 == len);
-
-	*out = buf;
-	return len;
-	ERROR:
-	*out = NULL;
-	return err;
+	_yIO_res_end(v, resultp, lengthp);
+	return 0;
 }
 
 #endif

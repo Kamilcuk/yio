@@ -6,9 +6,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-// M4_NOSYNCLINES
+m4_syncline(1)m4_dnl;
 #define _GNU_SOURCE
 #include "yio_float_strfrom_printf.h"
+#include "yio_res.h"
 #include "private.h"
 #include <assert.h>
 #include <stddef.h>
@@ -41,7 +42,7 @@ void create_format_string_generic(char *fmt, size_t fmtsize,
 	assert(fmtpnt <= fmt + fmtsize);
 }
 
-m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
+m4_applyforeachdefine(`((f), (), (l))~, m4_syncline(1)`m4_dnl;
 
 #ifdef _yIO_HAS_FLOAT$1
 
@@ -61,40 +62,33 @@ void create_format_string$1(char fmt[FMT_SIZE$1], int precision, char spec) {
 			precision, spec, _yIO_FLOAT_PRI$1, sizeof(_yIO_FLOAT_PRI$1) - 1);
 }
 
-static inline
-int _yIO_float_astrfrom_asprintf$1(char **out, const char *fmt, _yIO_FLOAT$1 val) {
-	const int err = asprintf(out, fmt, val);
-	if (err <= 0) {
-		return -ENOMEM;
-	}
-	return err;
-}
-
-static inline
-int _yIO_float_astrfrom_snprintf$1(char **out, const char *fmt, _yIO_FLOAT$1 val) {
-	const int len = snprintf(NULL, 0, fmt, val);
-	assert(len > 0);
-	char *buf = malloc(len + 1);
-	if (buf == NULL) {
-		*out = NULL;
-		return -ENOMEM;
-	}
-
-	const int len2 = snprintf(buf, len + 1, fmt, val);
-	(void)len2;
-	assert(len2 == len);
-	*out = buf;
-	return len2;
-}
-
-int _yIO_float_astrfrom_printf$1(char **out, int precision, char spec, _yIO_FLOAT$1 val) {
+int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
+		int precision, char spec, _yIO_FLOAT$1 val) {
 	char fmt[FMT_SIZE$1];
 	create_format_string$1(fmt, precision, spec);
-#ifdef _yIO_HAS_asprintf
-	return _yIO_float_astrfrom_asprintf$1(out, fmt, val);
-#else
-	return _yIO_float_astrfrom_snprintf$1(out, fmt, val);
-#endif
+
+	_yIO_res _res;
+	_yIO_res *v = &_res;
+	_yIO_res_init(v, resultp, lengthp);
+
+	assert(_yIO_res_size(v) < INT_MAX);
+	const int len = snprintf(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
+	assert(len >= 0);
+	if ((size_t)len < _yIO_res_size(v)) {
+		_yIO_set_used(v, len);
+	} else {
+		int err = _yIO_res_resize2(v, len + 1, len);
+		if (err) return err;
+
+		const int len2 = snprintf(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
+		(void)len2;
+		assert(len2 >= 0);
+		assert(len2 == len);
+		assert((size_t)len2 == _yIO_res_used(v));
+	}
+
+	_yIO_res_end(v, resultp, lengthp);
+	return 0;
 }
 
 #endif

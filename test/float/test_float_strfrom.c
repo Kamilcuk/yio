@@ -45,20 +45,30 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 #define STRING(a) #a
 #define XSTRING(a) STRING(a)
 
-m4_applyforeachdefine(`((f,f,F), (,d,), (l,l,L))~, `m4_dnl;
+m4_applyforeachdefine(`((f,f,F), (,d,), (l,l,L))~, m4_syncline(1)`m4_dnl;
 
 int _yIO_test_print_float_stupid_in$1(int precision,
         char type, _yIO_FLOAT$1 val, const char *valstr0,
-		int (*astrfrom)(char **out, int precision, char type, _yIO_FLOAT$1 val),
+		int (*astrfrom)(char **resultp, size_t *lengthp, int precision, char type, _yIO_FLOAT$1 val),
 		const char *astrfrom_str) {
-	char *buf;
 
-	int err = astrfrom(&buf, precision, type, val);
-	if (err <= 0) {
+	char *result = NULL;
+	size_t length = 0;
+	int err = astrfrom(&result, &length, precision, type, val);
+	if (err) {
 		_yIO_TEST(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
 				__func__, precision, type, valstr0, astrfrom_str, err);
 		return err;
 	}
+
+	// zero terminate result
+	void *p = realloc(result, length + 1);
+	if (p == NULL) {
+		_yIO_TEST(p != NULL);
+		return ENOMEM;
+	}
+	result = p;
+	result[length] = '\0';
 
 	char *valstr = NULL;
 	if (precision < 0) {
@@ -73,9 +83,9 @@ int _yIO_test_print_float_stupid_in$1(int precision,
 		free(fmt);
 	}
 
-	const bool differ = strcmp(buf, valstr) != 0;
+	const bool differ = strcmp(result, valstr) != 0;
 	if (differ) {
-		const bool only_last_char_differs = get_only_last_char_differs(buf, valstr);
+		const bool only_last_char_differs = get_only_last_char_differs(result, valstr);
 		printf("  test_print_float<%s(%s)>(%d,%c,%s%s%s%.30"_yIO_FLOAT_PRI$1"g,%s): %s != %s %s%s\n",
 				// <
 				XSTRING(_yIO_FLOAT$1),
@@ -88,7 +98,7 @@ int _yIO_test_print_float_stupid_in$1(int precision,
 				val,
 				astrfrom_str,
 				// ):
-				buf,
+				result,
 				// =
 				valstr,
 				// ' '
@@ -111,7 +121,7 @@ int _yIO_test_print_float_stupid_in$1(int precision,
 		}
 	}
 	free(valstr);
-	free(buf);
+	free(result);
 
 	return err;
 }
@@ -199,7 +209,7 @@ void _yIO_run_tests_print_float_stupid$1(void) {
 	};
 
 	struct astrfrom_and_str_s {
-		int (*astrfrom)(char **out, int precision, char type, _yIO_FLOAT$1 val);
+		int (*astrfrom)(char **resultp, size_t *lengthp, int precision, char type, _yIO_FLOAT$1 val);
 		const char *astrfrom_str;
 	};
 	struct astrfrom_and_str_s astrfrom_and_str_arr[] = {
@@ -248,25 +258,15 @@ void _yIO_run_tests_print_float_stupid$1(void) {
 
 ~) m4_dnl;
 
-static inline
-int tests_run_within_valgrind(void) {
-#if __linux__
-	// long double on x86_64 are not supported on valgrind
-	const char *p = getenv("LD_PRELOAD");
-	if (p == NULL) return 0;
-	return strstr (p, "/valgrind/") != NULL ||
-			strstr (p, "/vgpreload") != NULL;
-#else
-	return false;
-#endif
-}
-
 int main() {
+#ifdef __GLIBC__
 	_yIO_run_tests_print_float_stupidf();
 	_yIO_run_tests_print_float_stupid();
-	if (!tests_run_within_valgrind())  {
+	// long double not supported in valgrind
+	if (!_yIO_test_is_in_valgrind())  {
 		_yIO_run_tests_print_float_stupidl();
 	}
+#endif
 	return 0;
 }
 

@@ -2,25 +2,25 @@ include_guard()
 
 set(TEMPLATE_DIR ${CMAKE_CURRENT_LIST_DIR})
 
-macro(yio_template_in i relative)
-	get_filename_component(i "${i}" ABSOLUTE)
-	get_filename_component(i_name "${i}" NAME)
-	file(RELATIVE_PATH i_rel ${relative} ${i})
-	set(out yio/${name}/${i_rel})
+macro(yio_template_in infile relative)
+	get_filename_component(infile_abs "${infile}" ABSOLUTE)
+	get_filename_component(infile_name "${infile}" NAME)
+	file(RELATIVE_PATH infile_rel ${relative} ${infile})
+	set(out "yio/${name}/${infile_rel}")
 	
-	if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/${i_rel} AND EXISTS ${TEMPLATE_DIR}/${i_rel})
+	if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/${infile_rel} AND EXISTS ${TEMPLATE_DIR}/${infile_rel})
 		message(FATAL_ERROR 
 			"yio_template.cmake: ERROR: Duplicate template files found"
 			" in both the template/ and y*io directory. Only one can exists."
 			" Files: "
-			"${CMAKE_CURRENT_LIST_DIR}/${i_rel}"
+			"${CMAKE_CURRENT_LIST_DIR}/${infile_rel}"
 			" and "
-			"${TEMPLATE_DIR}/${i_rel}\n"
+			"${TEMPLATE_DIR}/${infile_rel}\n"
 		)
 	endif()
 	
 	add_custom_command(
-		COMMENT "yio_template: Generating ${out} from ${i}"
+		COMMENT "yio_template: Generating ${out} from ${infile}"
 		OUTPUT
 			${CMAKE_CURRENT_BINARY_DIR}/template/${out}
 		DEPENDS
@@ -31,18 +31,19 @@ macro(yio_template_in i relative)
 			-D INPUT=${i}
 			-D OUTPUT=${CMAKE_CURRENT_BINARY_DIR}/template/${out}
 			-D REPLACEMENT=${REPLACEMENT}
+			-D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 			-P ${TEMPLATE_DIR}/yio_template_replace.cmake
 	)
 	
-	file(RELATIVE_PATH i_rel_srcdir ${SRCDIR} ${i})
+	file(RELATIVE_PATH infile_rel_srcdir ${SRCDIR} ${infile})
 	m4_add_command(
 		OUTPUT
 			${GENDIR}/${out}
 		SOURCE
 			${CMAKE_CURRENT_BINARY_DIR}/template/${out}
 		OPTIONS
-			-D m4_SOURCE=${i}
-			-D m4_TEMPLATE_SOURCE=${i_rel_srcdir}
+			-D m4_SOURCE=${infile_abs}
+			-D m4_TEMPLATE_SOURCE=${infile_abs}
 			-D m4_CONFIG=yio/${name}/template.m4
 	)
 	list(APPEND srcs ${out})

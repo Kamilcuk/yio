@@ -26,11 +26,13 @@
  * The API here is written in a "self-cleaning" fashion - if any of the functions
  * return with error, then there is no need for cleanup, it is called automatically.
  */
+m4_syncline(1)m4_dnl;
 #pragma once
 #include "../yio_common.h"
 #include "../yio.h"
-#include <stddef.h>
+#include <assert.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <string.h>
 
 typedef struct _yIO_res {
@@ -82,6 +84,17 @@ int _yIO_res_puts(_yIO_res *t, const char *str) {
 	return _yIO_res_putsn(t, str, strlen(str));
 }
 
+/**
+ * Allocate that much memory.
+ * Note: @c newsize has to be greater then current size.
+ * Shrinking the size is not supported.
+ * @param t
+ * @param newsize
+ * @return
+ */
+_yIO_wur _yIO_nn()
+int _yIO_res_reserve(_yIO_res *t, size_t newsize);
+
 /// Print into the container
 _yIO_wur _yIO_nn() _yIO_access_rw(1) _yIO_access_r(2) _yIO_access_r(3)
 int _yIO_res_yprintf(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...);
@@ -105,20 +118,57 @@ void _yIO_res_free_result(char *buffer, char *resultp) {
 	}
 }
 
+/// @see _yIO_begin
+static inline _yIO_wur _yIO_nn()
+char *_yIO_res_data(const _yIO_res *t) {
+	return t->beg;
+}
+
 /// Return a poitner to beginning of memory
 static inline _yIO_wur _yIO_nn()
-char *_yIO_begin(const _yIO_res *t) {
+char *_yIO_res_begin(const _yIO_res *t) {
 	return t->beg;
+}
+
+/// Return the size of the container
+static inline _yIO_wur _yIO_nn()
+size_t _yIO_res_size(const _yIO_res *t) {
+	return t->end - t->beg;
 }
 
 /// Return the used memory
 static inline _yIO_wur _yIO_nn()
-size_t _yIO_used(const _yIO_res *t) {
+size_t _yIO_res_used(const _yIO_res *t) {
 	return t->pos - t->beg;
 }
 
 /// Return the left free memory size
 static inline _yIO_wur _yIO_nn()
-size_t _yIO_free_size(const _yIO_res *t) {
+size_t _yIO_res_free_size(const _yIO_res *t) {
 	return t->end - t->pos;
 }
+
+/// Set the count of used bytes in container.
+static inline _yIO_nn()
+void _yIO_set_used(_yIO_res *t, size_t newused) {
+	assert(newused < _yIO_res_size(t));
+	t->pos = t->beg + newused;
+}
+
+/**
+ * Reserves at least @c newsize count of bytes and sets
+ * the used count of bytes to newused.
+ * @param t
+ * @param newsize
+ * @param newused
+ * @return same as @c _yIO_res_reserve
+ */
+static inline _yIO_wur _yIO_nn()
+int _yIO_res_resize2(_yIO_res *t, size_t newsize, size_t newused) {
+	assert(newused <= newsize);
+	const int err = _yIO_res_reserve(t, newsize);
+	if (err) return err;
+	_yIO_set_used(t, newused);
+	return 0;
+}
+

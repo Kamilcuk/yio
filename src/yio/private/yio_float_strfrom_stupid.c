@@ -8,7 +8,7 @@
  */
 #define _GNU_SOURCE
 #include "yio_float_strfrom_stupid.h"
-#include "yio_vec.h"
+#include "yio_res.h"
 #include "yio_float.h"
 #include "private.h"
 
@@ -33,8 +33,12 @@
 	} \
 } while (0)
 
+static const char _yIO_NAN[3] = {'N','A','N'};
+static const char _yIO_nan[3] = {'n','a','n'};
+static const char _yIO_INF[3] = {'I','N','F'};
+static const char _yIO_inf[3] = {'i','n','f'};
 
-m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
+m4_applyforeachdefine(`((f), (), (l))~, m4_syncline(1)`m4_dnl;
 #ifdef _yIO_HAS_FLOAT$1
 
 #define TYPE     _yIO_FLOAT$1
@@ -52,7 +56,7 @@ m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
 #define FREXP10  _yIO_frexp10$1
 
 static inline
-int get_next_digit$1(_yIO_vec *v, TYPE *val,
+int get_next_digit$1(_yIO_res *v, TYPE *val,
 		bool hex, const char *to_digit_str, bool is_last) {
 	const TYPE base = hex ? (TYPE)16 : (TYPE)10;
 	const int baseint = hex ? 16 : 10;
@@ -64,7 +68,7 @@ int get_next_digit$1(_yIO_vec *v, TYPE *val,
 			digit, hex, is_last, *val
 	);
 	const char c = to_digit_str[digit];
-	const int err = _yIO_vec_putc(v, c);
+	const int err = _yIO_res_putc(v, c);
 	if (err) return err;
 	if (!is_last) {
 		*val -= digit;
@@ -72,30 +76,29 @@ int get_next_digit$1(_yIO_vec *v, TYPE *val,
 	return 0;
 }
 
-int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val) {
+int _yIO_float_astrfrom_stupid$1(char **resultp, size_t *lengthp, int precision, char spec0, TYPE val) {
 	int err = 0;
-	*out = NULL;
 
 	char spec = spec0;
-	_yIO_vec _v_mem;
-	_yIO_vec * const v = &_v_mem;
-	_yIO_vec_init(v);
+	_yIO_res _r_mem;
+	_yIO_res * const v = &_r_mem;
+	_yIO_res_init(v, resultp, lengthp);
 
 	// take minus out of the way
 	const bool negative = signbit(val);
 	if (negative) {
-		err = _yIO_vec_putc(v, '-');
+		err = _yIO_res_putc(v, '-');
 		if (err) return err;
 		val = FABS(val);
 	}
 
 	// take INF and NAN out of the way
 	const bool upper = isupper((unsigned char)spec);
-	const char *nan_or_inf_str =
-			isnan(val) ? upper ? "NAN" : "nan" :
-					isinf(val) ? upper ? "INF" : "inf" : NULL;
+	const char (*nan_or_inf_str)[3] =
+			isnan(val) ? upper ? &_yIO_NAN : &_yIO_nan :
+					isinf(val) ? upper ? &_yIO_INF : &_yIO_inf : NULL;
 	if (nan_or_inf_str) {
-		err = _yIO_vec_puts(v, nan_or_inf_str);
+		err = _yIO_res_putsn(v, *nan_or_inf_str, 3);
 		if (err) return err;
 		goto SUCCESS;
 	}
@@ -164,7 +167,7 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 
 	if (speclower == 'f') {
 		if (exponent <= 0) {
-			err = _yIO_vec_putc(v, '0');
+			err = _yIO_res_putc(v, '0');
 			if (err) return err;
 		} else {
 			assert(exponent > 0);
@@ -175,29 +178,29 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 		}
 	} else if (speclower == 'e') {
 		if (val_is_zero) {
-			err = _yIO_vec_putc(v, '0');
+			err = _yIO_res_putc(v, '0');
 			if (err) return err;
 		} else {
 			err = get_next_digit$1(v, &val, hex, to_digit_str, precision == 0);
 			if (err) return err;
 		}
 	} else if (speclower == 'a') {
-		err = _yIO_vec_putc(v, '0');
+		err = _yIO_res_putc(v, '0');
 		if (err) return err;
-		err = _yIO_vec_putc(v, is_lower_spec ? 'x': 'X');
+		err = _yIO_res_putc(v, is_lower_spec ? 'x': 'X');
 		if (err) return err;
 		if (val_is_zero) {
-			err = _yIO_vec_putc(v, '0');
+			err = _yIO_res_putc(v, '0');
 			if (err) return err;
 		} else {
 			// print first number
 			if (val < 2) {
-				err = _yIO_vec_putc(v, '1');
+				err = _yIO_res_putc(v, '1');
 				if (err) return err;
 				val -= 1;
 			} else {
 				// it rounded to whole number up
-				err = _yIO_vec_putc(v, '2');
+				err = _yIO_res_putc(v, '2');
 				if (err) return err;
 				// print only zeros below
 				val = 0;
@@ -207,13 +210,13 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 
 	bool g_fractional_part_removed = false;
 	if (precision) {
-		err = _yIO_vec_putc(v, '.');
+		err = _yIO_res_putc(v, '.');
 		if (err) return err;
 		int zeros = (speclower == 'f' && exponent < 0) ? -exponent : 0;
 		while (precision--) {
 			if (zeros) {
 				--zeros;
-				err = _yIO_vec_putc(v, '0');
+				err = _yIO_res_putc(v, '0');
 				if (err) return err;
 			} else {
 				err = get_next_digit$1(v, &val, hex, to_digit_str, precision == 0);
@@ -221,7 +224,7 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 			}
 		}
 		if (spec0lower == 'g') {
-			g_fractional_part_removed = _yIO_vec_remove_trailing_zeros(v);
+			g_fractional_part_removed = _yIO_res_remove_trailing_zeros(v);
 		}
 	}
 
@@ -230,17 +233,15 @@ int _yIO_float_astrfrom_stupid$1(char **out, int precision, char spec0, TYPE val
 	if (print_scientif_suffix) {
 		const char letter = !hex ? spec :
 				is_lower_spec ? 'p' : 'P';
-		err = _yIO_vec_putc(v, letter);
+		err = _yIO_res_putc(v, letter);
 		if (err) return err;
-		err = _yIO_vec_yprintf(v, "{:+0{}}", hex ? 0 : 3, val_is_zero ? 0 : (exponent - 1));
+		err = _yIO_res_yprintf(v, "{:+0{}}", val_is_zero ? 0 : (exponent - 1), hex ? 0 : 3);
 		if (err) return err;
 	}
 
 	SUCCESS:
-	err = _yIO_vec_putc(v, '\0');
-	if (err) return err;
-	*out = _yIO_vec_data(v);
-	return _yIO_vec_size(v) - 1;
+	_yIO_res_end(v, resultp, lengthp);
+	return 0;
 }
 
 #undef TYPE

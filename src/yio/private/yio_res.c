@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+m4_syncline(1)m4_dnl;
 #include "yio_res.h"
 #include "../yio_error.h"
 #include <stddef.h>
@@ -19,7 +20,8 @@
 
 _yIO_res *_yIO_res_init(_yIO_res *t, char **resultp, size_t *lengthp) {
 	assert(resultp != NULL);
-	const bool is_dynamic = *resultp == NULL || lengthp == NULL || *lengthp == 0;
+	assert(lengthp != NULL);
+	const bool is_dynamic = *resultp == NULL || *lengthp == 0;
 	const _yIO_res ret = {
 			.beg = is_dynamic ? NULL : *resultp,
 			.pos = ret.beg,
@@ -38,10 +40,8 @@ size_t _yIO_res_end(_yIO_res *t, char **resultp, size_t *lengthp) {
 	} else {
 		assert(*resultp == t->beg);
 	}
-	const size_t used = _yIO_used(t);
-	if (lengthp) {
-		*lengthp = used;
-	}
+	const size_t used = _yIO_res_used(t);
+	*lengthp = used;
 	assert(*resultp + used == t->pos);
 #ifndef NDEBUG
 	t->beg = t->pos = t->end = NULL;
@@ -59,14 +59,10 @@ void _yIO_res_end_err(_yIO_res *t) {
 #endif
 }
 
-static inline
-int _yIO_res_allocate_more(_yIO_res *t) {
-	const size_t pos = t->pos - t->beg;
-	const size_t size = t->end - t->beg;
-	const size_t _yIO_res_init_chunk = 32;
-	assert(size < SIZE_MAX / 52);
-	// golden ratio
-	const size_t newsize = size ? size * 52 / 32 : _yIO_res_init_chunk;
+int _yIO_res_reserve(_yIO_res *t, size_t newsize) {
+	const size_t pos = _yIO_res_used(t);
+	const size_t size = _yIO_res_size(t);
+	assert(newsize > size);
 	void * const p = realloc(t->is_dynamic ? t->beg : NULL, newsize * sizeof(*t->beg));
 	if (p == NULL) {
 		// NOTE! in case of allocation error
@@ -84,6 +80,16 @@ int _yIO_res_allocate_more(_yIO_res *t) {
 	return 0;
 }
 
+static inline
+int _yIO_res_allocate_more(_yIO_res *t) {
+	const size_t size = _yIO_res_size(t);
+	const size_t _yIO_res_init_chunk = 32;
+	assert(size < SIZE_MAX / 52);
+	// golden ratio
+	const size_t newsize = size ? size * 52 / 32 : _yIO_res_init_chunk;
+	return _yIO_res_reserve(t, newsize);
+}
+
 int _yIO_res_putc(_yIO_res *t, char c) {
 	assert(t->beg <= t->pos && t->pos <= t->end);
 	if (t->pos == t->end) {
@@ -95,7 +101,7 @@ int _yIO_res_putc(_yIO_res *t, char c) {
 }
 
 int _yIO_res_putsn(_yIO_res *t, const char *ptr, size_t size) {
-	while (_yIO_free_size(t) < size) {
+	while (_yIO_res_free_size(t) < size) {
 		const int err = _yIO_res_allocate_more(t);
 		if (err) return err;
 	}
@@ -144,7 +150,6 @@ bool _yIO_res_remove_trailing_zeros(_yIO_res *t) {
 	} else {
 		fractional_part_removed = true;
 	}
-	*p = '\0';
 	t->pos = p;
 	assert(t->pos >= t->beg);
 	assert(t->end >= t->pos);

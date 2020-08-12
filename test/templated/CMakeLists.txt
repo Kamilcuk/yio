@@ -65,6 +65,7 @@ foreach(src IN LISTS srcs)
 				${path}.m4
 			OPTIONS
 				-D m4_SOURCE=${src}
+				-D m4_TEMPLATE_SOURCE=${src}
 		)
 
 		file(RELATIVE_PATH name ${CMAKE_CURRENT_BINARY_DIR}/gen ${path})
