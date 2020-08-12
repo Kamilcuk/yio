@@ -37,12 +37,13 @@ void _yIO__testing(bool verbose, const char *expr, const char *file, int line) {
 	return;
 }
 
-void _yIO__test_failed(const char *expr, const char *file, int line, const char *fmt, ...) {
+void _yIO__test_failed(int flags, const char *expr, const char *file, int line, const char *fmt, ...) {
+	const bool fail = !(flags & _yIO_TEST_FLAG_NOFAIL);
 
 	fflush(stdout);
 
 	const char *relative_file = _yIO__test_get_relative_filepath(file);
-	fprintf(stderr, "%s:%d: ERROR: %s", relative_file, line, expr);
+	fprintf(stderr, "%s:%d: %s: %s", relative_file, line, fail ? "ERROR" : "WARNING", expr);
 	if (strlen(fmt) != 0 && !(strlen(fmt) == 1 && fmt[0] == ' ')) {
 		fprintf(stderr, ": ");
 		va_list va;
@@ -57,9 +58,29 @@ void _yIO__test_failed(const char *expr, const char *file, int line, const char 
 	}
 	fflush(stderr);
 
-	static bool failurer_registered = false;
-	if (failurer_registered == false) {
-		failurer_registered = true;
-		atexit(_yIO__test_failed_atexit);
+	if (fail) {
+		static bool failurer_registered = false;
+		if (failurer_registered == false) {
+			failurer_registered = true;
+			atexit(_yIO__test_failed_atexit);
+		}
 	}
 }
+
+bool _yIO_test_is_in_valgrind(void) {
+#if __linux__
+	const char *p = getenv("LD_PRELOAD");
+	if (p == NULL) return 0;
+	return strstr(p, "/valgrind/") != NULL || strstr(p, "/vgpreload") != NULL;
+#else
+	return false;
+#endif
+}
+
+#if __linux__ && __GLIBC__ && __GNUC__
+__attribute__((__constructor__))
+static void disable_buffering(void) {
+	setvbuf(stdout, 0, _IOLBF, 0);
+	setvbuf(stderr, 0, _IOLBF, 0);
+}
+#endif
