@@ -39,33 +39,26 @@ foreach(src IN LISTS srcs)
 	endif()
 	set(content)
 
+
 	foreach(replacement IN ITEMS "" ${replacements})
 		file(RELATIVE_PATH src_rel_source ${CMAKE_CURRENT_SOURCE_DIR} ${src})
 		set(path ${CMAKE_CURRENT_BINARY_DIR}/gen/y${replacement}io/${src_rel_source})
-		add_custom_command(
-			COMMENT "yio_template: Generating ${out} from ${i}"
-			OUTPUT ${path}.m4
-			DEPENDS
-				${src}
-				${CMAKE_CURRENT_SOURCE_DIR}/../../src/yio/template/yio_template_replace.cmake
-				${CMAKE_CURRENT_LIST_FILE}
-			COMMAND ${CMAKE_COMMAND}
-				-D OUTPUT=${path}.m4
-				-D INPUT=${src}
-				-D REPLACEMENT=${replacement}
-				-P ${CMAKE_CURRENT_SOURCE_DIR}/../../src/yio/template/yio_template_replace.cmake
-		)
-		if(NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/../../src/yio/y${replacement}io/template.m4)
-			message(FATAL_ERROR "")
+
+		# test_print_float_on_strto* have a depency, setup here
+		get_filename_component(src_name "${src}" NAME)
+		set(adddepends)
+		if("${src_name}" MATCHES "test_print_float_on_strto*"
+				AND NOT "${src_name}" STREQUAL "test_print_float_on_strto.c")
+			get_filename_component(path_dir "${path}" DIRECTORY)
+			list(APPEND adddepends DEPENDS "${path_dir}/test_print_float_on_strto.c")
 		endif()
-		m4_add_command(
+
+		yio_add_template_command(
+			INPUT ${src}
+			INTERMEDIATE ${path}.m4
 			OUTPUT ${path}
-			SOURCE
-				${CMAKE_CURRENT_SOURCE_DIR}/../../src/yio/y${replacement}io/template.m4
-				${path}.m4
-			OPTIONS
-				-D m4_SOURCE=${src}
-				-D m4_TEMPLATE_SOURCE=${src}
+			REPLACEMENT "_${replacement}"
+			${adddepends}
 		)
 
 		file(RELATIVE_PATH name ${CMAKE_CURRENT_BINARY_DIR}/gen ${path})
