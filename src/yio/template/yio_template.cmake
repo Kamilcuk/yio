@@ -1,6 +1,6 @@
 include_guard()
 
-set(YIO_TEMPLATE_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE STRING "")
+set(YIO_TEMPLATE_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE INTERNAL "")
 
 function(yio_add_template_command)
 	cmake_parse_arguments(ARG

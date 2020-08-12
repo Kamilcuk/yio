@@ -1,5 +1,7 @@
 # CMakeLists.txt
 cmake_minimum_required(VERSION 3.11)
+cmake_policy(SET CMP0054 NEW) #-- fixes IF() with quoted args
+cmake_policy(SET CMP0057 NEW) #-- enables IF(.. IN_LIST ..)
 
 string(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(yio_debug_variables)
@@ -13,6 +15,7 @@ project(yio
 )
 
 include(force_build_dir_without_cmakelists)
+include(set_from_env)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
@@ -35,7 +38,8 @@ if(YIO_DEV)
 	    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
 	endif()
 
-	if($ENV{YIO_USE_CPPLINT})
+	set_from_env(YIO_USE_CPPLINT)
+	if(YIO_USE_CPPLINT)
 		find_program(CPPLINT_COMMAND "cpplint")
 		if(NOT CPPLINT_COMMAND)
 			message(FATAL_ERROR "cpplint not found")
@@ -71,7 +75,7 @@ if(YIO_DEV)
 			-ggdb3
 			-O
 		)
-		if(0 AND NOT CMAKE_CROSSCOMPILING)
+		if(0 AND NOT DEFINED CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING)
 			list(APPEND tmp
 				-fsanitize=undefined
 				-fsanitize=address
@@ -116,7 +120,10 @@ endif(YIO_DEV)
 
 ######################################################################
 
-find_library(UNISTRING_LIB unistring)
+find_library(UNISTRING_LIB 
+	NAMES unistring
+	DOC "Path to unistring library"
+)
 
 ######################################################################
 
@@ -224,8 +231,10 @@ yio_debug_variables(
 endif()
 
 foreach(i IN ITEMS CMAKE_TOOLCHAIN_FILE CMAKE_CROSSCOMPILING_EMULATOR)
-	if(DEFINED "${i}" AND NOT EXISTS "${${i}}")
-		message(FATAL_ERROR "${i} is defined but file does not exists")
+	if(DEFINED "${i}")
+		if (NOT EXISTS "${${i}}")
+			message(FATAL_ERROR "${i} is defined but file does not exists")
+		endif()
 	endif()
 endforeach()
 

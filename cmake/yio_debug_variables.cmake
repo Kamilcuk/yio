@@ -1,3 +1,5 @@
+include_guard()
+include(set_from_env)
 
 ## @def yio_debug_variables(PREFIX)
 ## Outputs all variables passed to it with values.
@@ -6,8 +8,8 @@ function(yio_debug_variables)
 		return()
 	endif()
 
-	if($ENV{YIO_DEBUG_VARIABLES_ALWAYS})
-	else()
+	set_from_env(YIO_DEBUG_VARIABLES_ALWAYS)
+	if(NOT YIO_DEBUG_VARIABLES_ALWAYS)
 		string(MD5 varname "${ARGV}")
 		string(PREPEND varname "YIO_DEBUG_VARIABLES_")
 		if(${varname})

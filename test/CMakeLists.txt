@@ -41,10 +41,14 @@ function(yio_add_test name file)
 		else()
 			string(REGEX REPLACE "^[ \t]*// INPUT " "" input "${input}")
 			string(REGEX REPLACE ";[ \t]*// INPUT " "\n" input "${input}")
+
+			set(tmp)
+			if(DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
+				set(tmp "${CMAKE_CROSSCOMPILING_EMULATOR}")
+			endif()
 			add_test(NAME ${name}
-				COMMAND ${CMAKE_CURRENT_BINARY_DIR}/redirectstdin/src/redirectstdin-build/redirectstdin
-						${input} ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:${name}>
-			)
+				COMMAND "${CMAKE_CURRENT_BINARY_DIR}/redirectstdin/src/redirectstdin-build/redirectstdin"
+					"${input}" ${tmp} "$<TARGET_FILE:${name}>")
 			set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED redirectstdin)
 			set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
 		endif()
@@ -65,7 +69,8 @@ function(yio_add_test name file)
 		set_property(TEST ${name} PROPERTY DISABLED TRUE)
 	endif()
 
-	if("$ENV{YIO_TEST_BUILDING}" OR "$ENV{YIO_STEST}")
+	set_from_env(YIO_STEST)
+	if(YIO_STEST)
 		set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL TRUE)
 
 		add_test(NAME build_${name}
