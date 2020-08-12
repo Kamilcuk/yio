@@ -122,38 +122,4 @@ int main() {
 			_yIO_TEST(err != 0);
 		}
 	}
-
-	FMC_FOR(ok) {
-		char *buf = NULL;
-		_yIO_res_init(o, &buf, NULL);
-		const char s1[] = "a string to add to the container";
-		err = _yIO_res_putsn(o, s1, strlen(s1) + 1);
-		if (ok) {
-			_yIO_TEST(err == 0);
-			const size_t lenr = _yIO_res_end(o, &buf, NULL);
-			_yIO_TEST(lenr == strlen(s1) + 1);
-			_yIO_TEST(buf != NULL);
-			_yIO_TEST(strcmp(buf, s1) == 0);
-			_yIO_res_free_result(NULL, buf);
-		} else {
-			_yIO_TEST(err != 0);
-		}
-	}
-
-	FMC_FOR(ok) {
-		char *buf = _buf;
-		_yIO_res_init(o, &buf, NULL);
-		const char s1[] = "a string to add to the container";
-		err = _yIO_res_putsn(o, s1, strlen(s1) + 1);
-		if (ok) {
-			_yIO_TEST(err == 0);
-			const size_t lenr = _yIO_res_end(o, &buf, NULL);
-			_yIO_TEST(lenr == strlen(s1) + 1);
-			_yIO_TEST(buf != NULL);
-			_yIO_TEST(strcmp(buf, s1) == 0);
-			_yIO_res_free_result(NULL, buf);
-		} else {
-			_yIO_TEST(err != 0);
-		}
-	}
 }
