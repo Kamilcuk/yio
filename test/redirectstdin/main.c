@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <error.h>
 #include <string.h>
 #include <errno.h>
 #include <signal.h>
@@ -12,16 +11,31 @@
 
 /* -------------------------------------------------------------------------------- */
 
-#define _erron(status, exitstatus, func, linenum, fmt, ...)  do { \
-	if (status) { \
-		error_at_line(exitstatus, errno, func, linenum, fmt, ##__VA_ARGS__); \
-	} \
-} while (0)
+extern const char *__progname;
 
-#define errmsg(...)               _erron(1, EXIT_FAILURE, __func__, __LINE__, __VA_ARGS__)
-#define erron(expr)               _erron((expr), EXIT_FAILURE, __func__, __LINE__, "Expression %s failed", #expr)
-#define erronmsg(expr, fmt, ...)  _erron((expr), EXIT_FAILURE, __func__, __LINE__, "Expression %s failed: " fmt, #expr, ##__VA_ARGS__)
-#define erron_noexit(expr)        _erron((expr), 0, __func__, __LINE__, "Expression %s failed", #expr)
+static inline
+void _erron(int status, int is_fatal, const char *func, int linenum, const char *fmt, ...) {
+	if (!status) return;
+	fflush(stdout);
+	va_list va;
+	va_start(va, fmt);
+	fprintf(stderr, "%s:%s:%d: ", __progname, func, linenum);
+	vfprintf(stderr, fmt, va);
+	if (errno) {
+		fprintf(stderr, ": %s", strerror(errno));
+	}
+	fprintf(stderr, "\n");
+	fflush(stderr);
+	if (is_fatal) {
+		exit(EXIT_FAILURE);
+	}
+	va_end(va);
+}
+
+#define errmsg(...)               _erron(1, 1, __func__, __LINE__, __VA_ARGS__)
+#define erron(expr)               _erron(!!(expr), 1, __func__, __LINE__, "Expression %s failed", #expr)
+#define erronmsg(expr, fmt, ...)  _erron(!!(expr), 1, __func__, __LINE__, "Expression %s failed: " fmt, #expr, ##__VA_ARGS__)
+#define erron_noexit(expr)        _erron(!!(expr), 0, __func__, __LINE__, "Expression %s failed", #expr)
 
 /* -------------------------------------------------------------------------------- */
 
@@ -90,9 +104,10 @@ int main(int argc, char *argv[]) {
 	erron(prctl(PR_SET_PDEATHSIG, SIGHUP) == -1);
 	erron(atexit(atexitkillchild) == -1);
 
-	if (argc < 2) {
+	if (argc <= 1) {
 		usage();
 	}
+	erronmsg(argc < 3, "Not enough arguments %d", argc);
 	int fd[2] = {0};
 	erron(pipe(fd) == -1);
 	pid_t forkret = 0;

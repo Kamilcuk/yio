@@ -143,10 +143,8 @@ void test_posix_types(void) {
     TESTINT(ssize_t);
     TESTINT(suseconds_t);
     TESTINT(time_t);
-#ifndef __GLIBC__
-    // glibc is defines timer_t as void*, breaks posix
-    TESTINT(timer_t);
-#endif
+    // Implementators define it to void*
+    // TESTINT(timer_t);
     TESTINT(uid_t);
     // TESTINT(useconds_t);
 }

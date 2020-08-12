@@ -8,14 +8,16 @@
  */
 #include "failmallocchecker.h"
 #if !FMC_DISABLE
-#include <stdlib.h>
-#include <malloc.h>
-#include <limits.h>
 #include <assert.h>
-#include <stdbool.h>
-#include <unistd.h>
+#include <limits.h>
+#include <malloc.h>
 #include <stdarg.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

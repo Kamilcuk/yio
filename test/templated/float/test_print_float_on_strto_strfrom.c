@@ -14,6 +14,6 @@ m4_syncline(1)m4_dnl;
 #else
 #include <yπio.h>
 int main() {
-	return yπprint();
+	return yπprint("");
 }
 #endif
