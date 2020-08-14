@@ -200,6 +200,12 @@ ctags_gen:
 	find gen/ test/ -type f -print0 | \
 	xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
 
+test_alpine:
+	@mkdir -p _build/alpine/emptycontext
+	docker build -t yio_alpine_builder -f alpine_builder.Dockerfile _build/alpine/emptycontext
+	docker run -ti --rm -v $(CURDIR):/mnt -w /mnt -u ${USER}:${GROUP} \
+		yio_alpine_builder make test B=_build/alpine
+
 # Gitlab ####################################
 
 define gitlab_cdash_decl_them
