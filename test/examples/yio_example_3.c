@@ -2,7 +2,7 @@
 #include <yio.h>
 #include <float.h>
 
-int normal() {
+static int normal() {
 	char ch = 'A';
 	char str[20] = "fresh2refresh.com";
 	float flt = 10.234;
@@ -18,7 +18,7 @@ int normal() {
 	return 0;
 }
 
-int streamed() {
+static int streamed() {
 	char ch = 'A';
 	char str[20] = "fresh2refresh.com";
 	float flt = 10.234;
@@ -36,7 +36,7 @@ int streamed() {
 	return 0;
 }
 
-int formatted() {
+static int formatted() {
 	char ch = 'A';
 	char str[20] = "fresh2refresh.com";
 	float flt = 10.234;

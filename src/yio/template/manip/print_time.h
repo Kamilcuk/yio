@@ -8,7 +8,13 @@
  */
 #pragma once
 #include <time.h>
-#if defined _yIO_HAS_timespec || defined _yIO_HAS_timeval
+#ifndef _yIO_HAS_timespec
+#error
+#endif
+#ifndef _yIO_HAS_timeval
+#error
+#endif
+#if _yIO_HAS_timespec || _yIO_HAS_timeval
 #include <sys/time.h>
 #endif
 
@@ -54,7 +60,7 @@ m4_print_time_gen1(_yΩIO_print_time_localtime)
 		m4_print_time_gen2(struct tm, _yΩIO_print_time_localtime) \
 		),(time_t_variable))
 
-#ifdef _yIO_HAS_timespec
+#if _yIO_HAS_timespec
 m4_print_time_gen1(_yΩIO_print_timespec)
 #define _yΩIO_PRINT_GENERIC_TIMESPEC() \
 		m4_print_time_gen2(struct timespec, _yΩIO_print_timespec)
@@ -62,7 +68,7 @@ m4_print_time_gen1(_yΩIO_print_timespec)
 #define _yΩIO_PRINT_GENERIC_TIMESPEC()
 #endif // _yIO_HAS_timespec
 
-#ifdef _yIO_HAS_timeval
+#if _yIO_HAS_timeval
 m4_print_time_gen1(_yΩIO_print_timeval)
 #define _yΩIO_PRINT_GENERIC_TIMEVAL() \
 		m4_print_time_gen2(struct timeval, _yΩIO_print_timeval)

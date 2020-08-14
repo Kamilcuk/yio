@@ -3,7 +3,7 @@
 #include <yio.h>
 #include <string.h>
 
-int normal() {
+static int normal() {
     int number;
 
     printf("Enter an integer:\n");
@@ -17,7 +17,7 @@ int normal() {
     return 0;
 }
 
-int streamed() {
+static int streamed() {
     int number;
 
     yprint("Enter an integer:\n");
@@ -31,7 +31,7 @@ int streamed() {
     return 0;
 }
 
-int formatted() {
+static int formatted() {
     int number;
 
     yprintf("Enter an integer:\n");

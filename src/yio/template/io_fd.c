@@ -6,7 +6,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "private.h"
-#ifdef _yIO_HAS_UNISTD_H
+#ifndef _yIO_HAS_UNISTD_H
+#error
+#endif
+#if _yIO_HAS_UNISTD_H
 #include <unistd.h>
 #include <errno.h>
 

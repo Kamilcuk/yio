@@ -8,9 +8,13 @@
  */
 #include "private.h"
 #include "yio_strlib.h"
-#ifdef _yIO_HAS_UNISTRING
+#if _yIO_HAS_UNISTRING
 #include <uniconv.h>
 #include <unistr.h>
+#endif
+
+#ifndef _yIO_HAS_UNISTRING
+#error
 #endif
 
 #ifdef __CDT_PARSER__
@@ -27,7 +31,7 @@
 /* ------------------------------------------------------------------------- */
 
 size_t _yIO_strnlen(const char *str, size_t maxlen) {
-#ifdef _yIO_HAS_strnlen
+#if _yIO_HAS_strnlen
 	return strnlen(str, maxlen);
 #else
 	const char *str0 = str;
@@ -39,7 +43,7 @@ size_t _yIO_strnlen(const char *str, size_t maxlen) {
 }
 
 size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen) {
-#ifdef _yIO_HAS_strnlen
+#if _yIO_HAS_strnlen
 	return wcsnlen(str, maxlen);
 #else
 	const wchar_t *str0 = str;
@@ -50,10 +54,10 @@ size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen) {
 #endif
 }
 
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 
 size_t _yIO_c16strnlen(const char16_t *str, size_t maxlen) {
-#ifdef _yIO_HAS_UNISTRING
+#if _yIO_HAS_UNISTRING
 	return u16_strnlen(str, maxlen);
 #else
 	const char16_t *str0 = str;
@@ -65,7 +69,7 @@ size_t _yIO_c16strnlen(const char16_t *str, size_t maxlen) {
 }
 
 size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
-#ifdef _yIO_HAS_UNISTRING
+#if _yIO_HAS_UNISTRING
 	return u32_strnlen(str, maxlen);
 #else
 	const char32_t *str0 = str;
@@ -124,7 +128,7 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 
 /* strconv_str_to_* -------------------------------------------------------------------- */
 
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
 	int ret = 0;
 	mbstate_t ps;
@@ -170,11 +174,11 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 }
 #endif
 
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 
 m4_define(`m4_str_to_ustr~, `m4_dnl;
 int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32, size_t *c32_len) {
-#if __STDC_UTF_32__ && defined _yIO_HAS_UNISTRING
+#if __STDC_UTF_32__ && _yIO_HAS_UNISTRING
 	size_t length = 0;
 	uint32_t *buf = u32_conv_from_encoding(locale_charset(), iconveh_question_mark,
 			mb, mb_len, NULL, NULL, &length);
@@ -200,7 +204,7 @@ m4_str_to_ustr() m4_dnl;
 
 /* strconv_wstr_to_* -------------------------------------------------------------------- */
 
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 
 int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
 	int ret = 0;
@@ -247,7 +251,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 	return ret;
 }
 
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 
 m4_define_function(`m4_wstr_to_ustr~, `m4_dnl;
 
@@ -274,7 +278,7 @@ m4_wstr_to_ustr() m4_dnl;
 
 /* strconv_ustr_to_* -------------------------------------------------------------------- */
 
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 
 m4_define(`m4_uchar_functions~, `m4_dnl;
 
@@ -322,7 +326,7 @@ int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **m
 	return 0;
 }
 
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 
 static inline
 int _yIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wchar_t **wc, size_t *wc_len) {
@@ -388,7 +392,7 @@ m4_uchar_functions()
 m4_dnl;
 
 int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
-#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && defined _yIO_HAS_UNISTRING
+#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && _yIO_HAS_UNISTRING
 	size_t length;
 	uint32_t *result = u16_to_u32(c16, c16_len, NULL, &length);
 	if (result == NULL) return YIO_ERROR_ENOMEM;
@@ -403,7 +407,7 @@ int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char3
 }
 
 int _yIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char16_t **c16, size_t *c16_len) {
-#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && defined _yIO_HAS_UNISTRING
+#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && _yIO_HAS_UNISTRING
 	size_t length;
 	uint16_t *result = u32_to_u16(c32, c32_len, NULL, &length);
 	if (result == NULL) return YIO_ERROR_ENOMEM;

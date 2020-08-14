@@ -9,7 +9,7 @@
 #include "private.h"
 #include "yio/private/yio_time.h"
 #include <time.h>
-#ifdef _yIO_HAS_UNISTD_H
+#if _yIO_HAS_UNISTD_H
 #include <sys/time.h>
 #endif
 
@@ -122,7 +122,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 static inline
 struct tm _yIO_localtime(const time_t *sec) {
 	struct tm tm;
-#ifdef _yIO_HAS_localtime_r
+#if _yIO_HAS_localtime_r
 	localtime_r(sec, &tm);
 #else
 	tm = *localtime(sec);
@@ -133,7 +133,7 @@ struct tm _yIO_localtime(const time_t *sec) {
 static inline
 struct tm _yIO_gmtime(const time_t *sec) {
 	struct tm tm;
-#ifdef _yIO_HAS_localtime_r
+#if _yIO_HAS_localtime_r
 	gmtime_r(sec, &tm);
 #else
 	tm = *gmtime(sec);
@@ -190,7 +190,7 @@ m4_print_time_gen3(struct tm, _yΩIO_print_tm)
 
 /* timespec ----------------------------------------------------------------------------------------- */
 
-#ifdef _yIO_HAS_timespec
+#if _yIO_HAS_timespec
 
 static inline
 int _yΩIO_print_timespec_in(yπio_printctx_t *t, const struct timespec *ts) {
@@ -205,7 +205,7 @@ m4_print_time_gen3(struct timespec, _yΩIO_print_timespec)
 
 /* timeval ----------------------------------------------------------------------------------------- */
 
-#ifdef _yIO_HAS_timeval
+#if _yIO_HAS_timeval
 
 static inline
 int _yΩIO_print_timeval_in(yπio_printctx_t *t, const struct timeval *ts) {

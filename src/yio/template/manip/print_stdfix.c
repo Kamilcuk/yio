@@ -9,7 +9,7 @@
 #include "private.h"
 #include "print_stdfix.h"
 
-#ifdef _yIO_HAS_STDFIX_TYPES
+#if _yIO_HAS_STDFIX_TYPES
 
 #include "../../private/yio_stdfix.h"
 #include "../../private/yio_stdfix_strfrom.h"

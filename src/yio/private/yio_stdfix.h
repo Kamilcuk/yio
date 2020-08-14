@@ -7,9 +7,9 @@
  * @brief
  */
 #pragma once
-#ifdef _yIO_HAS_STDFIX_TYPES
+#if _yIO_HAS_STDFIX_TYPES
 #include "private.h"
-#ifdef _yIO_HAS_STDFIX_H
+#if _yIO_HAS_STDFIX_H
 #include <stdfix.h>
 #endif
 

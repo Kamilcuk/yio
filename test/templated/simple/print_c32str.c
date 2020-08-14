@@ -25,7 +25,7 @@
 
 int main() {
 	int a = 1;
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 	const char32_t nl[] = {U'\n'};
 	char32_t s[] = U"hello";
 	const char32_t s2[] = U"hello";

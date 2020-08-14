@@ -12,7 +12,7 @@ m4_template_chooser2(`~, `m4_dnl);
 ~,`m4_dnl;
 #include <uchar.h>
 #include <stdint.h>
-#ifdef _yIO_HAS_UNISTRING
+#if _yIO_HAS_UNISTRING
 #include <unitypes.h>
 #endif
 ~)m4_dnl;

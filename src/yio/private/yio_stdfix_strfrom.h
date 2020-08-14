@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-#ifdef _yIO_HAS_STDFIX_TYPES
+#if _yIO_HAS_STDFIX_TYPES
 m4_divert(-1)
 // `m4_stdfix_types~
 m4_include(`yio/private/yio_stdfix.h~)

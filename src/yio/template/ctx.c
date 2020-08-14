@@ -5,13 +5,13 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
+m4_syncline()m4_dnl;
 #define _XOPEN_SOURCE  1 // wcswidth
 #include "private.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <ctype.h>
 #include <limits.h>
-
 
 /* printctx ---------------------------------------------------- */
 
@@ -45,6 +45,10 @@ int yπio_printctx_next(yπio_printctx_t *t) {
 
 struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t) {
 	return &t->pf;
+}
+
+const Ychar *yπio_printctx_get_fmtstrpnt(yπio_printctx_t *t) {
+	return t->fmt;
 }
 
 va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype) {
@@ -82,7 +86,7 @@ size_t _yΩIO_width(const Ychar *str, size_t str_len) {
 #if _yIO_TYPE_YIO
 		return str_len;
 #elif _yIO_TYPE_YWIO
-#ifdef _yIO_HAS_wcswidth
+#if _yIO_HAS_wcswidth
 		return wcswidth(str, str_len);
 #else
 		return str_len;

@@ -7,7 +7,7 @@
  * @brief
  */
 #pragma once
-#ifdef _yIO_HAS_COMPLEX
+#if _yIO_HAS_COMPLEX
 
 m4_define(`m4_complex_types~, `m4_dnl;
 		(cf, float _Complex, f),
@@ -29,7 +29,7 @@ int _yΩIO_print_complex_$1(yπio_printctx_t *t);
 		`$2: _yΩIO_print_complex_$1,~, ` \
 		~)m4_dnl;
 
-#ifdef _yIO_HAS_IMAGINARY
+#if _yIO_HAS_IMAGINARY
 
 m4_applyforeachdefine((m4_imaginary_types), `m4_dnl;
 #line m4___line__

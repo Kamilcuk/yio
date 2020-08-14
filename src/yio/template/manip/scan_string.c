@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "private.h"
+#include "scan_string.h"
 
 int _yΩIO_scan_string(yπio_scanctx_t *t) {
 	char * str = yπio_scanctx_va_arg(t, char *);

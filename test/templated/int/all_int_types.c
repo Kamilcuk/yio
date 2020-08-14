@@ -109,7 +109,7 @@ void test_std_types(void) {
 	TESTINT(ptrdiff_t);
 }
 
-#ifdef _yIO_HAS___int128
+#if _yIO_HAS___int128
 #define INT128_MAX (__int128)(((unsigned __int128) 1 << ((sizeof(__int128) * __CHAR_BIT__) - 1)) - 1)
 #define INT128_MIN (-INT128_MAX - 1)
 #define UINT128_MAX ((2 * (unsigned __int128) INT128_MAX) + 1)
@@ -122,7 +122,7 @@ void test_int128(void) {
 void test_int128(void) {}
 #endif
 
-#ifdef _yIO_HAS_UNISTD_H
+#if _yIO_HAS_UNISTD_H
 #include <sys/types.h>
 void test_posix_types(void) {
     TESTINT(blkcnt_t);

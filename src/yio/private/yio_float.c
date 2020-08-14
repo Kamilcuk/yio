@@ -13,30 +13,19 @@
 #include <errno.h>
 #include <stdlib.h>
 
-m4_applyforeachdefine(`((f), (), (l))~, `m4_dnl;
+m4_applyforeachdefine(`((f, f), (d, ), (l, l))~, m4_syncline(1)`m4_dnl;
 
 /* suffix $1 ---------------------------------------------------- */
 
-#ifdef _yIO_HAS_FLOAT$1
-
-// newlib doesn't have exp10l
-#ifdef _yIO_HAS_exp10$1
-#define EXP10$1    exp10$1
-#else
-#define EXP10$1(x) pow$1(10.0, x)
-#endif
-
-_yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1 val, int *exp) {
-	return frexp$1(val, exp);
-}
+#if _yIO_HAS_FLOAT$1
 
 _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp) {
 	if (val == _yIO_FLOAT_C$1(0.0)) {
 		*exp = _yIO_FLOAT_C$1(0.0);
 	} else {
-		const int tmp = 1 + floor$1(log10$1(val));
+		const int tmp = 1 + _yIO_floor$1(_yIO_log10$1(val));
 		*exp = tmp;
-		val = (val) * EXP10$1(-tmp);
+		val = (val) * _yIO_exp10$1(-tmp);
 		if (val < _yIO_FLOAT_C$1(0.1)) {
 			val = _yIO_FLOAT_C$1(0.1);
 		} else if (val > _yIO_FLOAT_C$1(1.0)) {

@@ -15,7 +15,7 @@
 #include <assert.h>
 #include <ctype.h>
 
-#ifdef _yIO_HAS_STDFIX_TYPES
+#if _yIO_HAS_STDFIX_TYPES
 
 m4_divert(-1)
 // `m4_stdfix_types~

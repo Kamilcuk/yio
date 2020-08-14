@@ -17,7 +17,10 @@ int _yΩIO_print_ulong(yπio_printctx_t *t);
 int _yΩIO_print_llong(yπio_printctx_t *t);
 int _yΩIO_print_ullong(yπio_printctx_t *t);
 
-#ifdef _yIO_HAS_INT128
+#ifndef _yIO_HAS_INT128
+#error
+#endif
+#if _yIO_HAS_INT128
 int _yΩIO_print___int128(yπio_printctx_t *t);
 int _yΩIO_print_u__int128(yπio_printctx_t *t);
 #define _yΩIO_PRINT_FUNC_GENERIC_INTS_INT128() \

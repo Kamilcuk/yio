@@ -13,7 +13,7 @@
 
 m4_applyforeachdefine(`((32, df), (64, dd), (128, dl))~, `m4_dnl;
 
-#ifdef _yIO_HAS_DEC$1
+#if _yIO_HAS_DEC$1
 
 #ifndef __STDC_DEC_FP__
 // Forward declaration so we get link time errors.

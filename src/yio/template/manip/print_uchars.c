@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "private.h"
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 
 static inline
 int _yΩIO_print_constornot_char16pnt(yπio_printctx_t *t, const char16_t *str) {

@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 #include <uchar.h>
 int _yΩIO_print_char16pnt(yπio_printctx_t *t);
 int _yΩIO_print_constchar16pnt(yπio_printctx_t *t);

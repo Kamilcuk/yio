@@ -9,10 +9,10 @@
 #pragma once
 #include "private.h"
 #include <assert.h>
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 #include <wchar.h>
 #endif
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 #include <uchar.h>
 #endif
 
@@ -44,10 +44,10 @@
 /* Types ------------------------------------------------------------------------------------ */
 
 typedef char     _yIO_char_t;
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 typedef wchar_t  _yIO_wchar_t;
 #endif
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 typedef char16_t _yIO_c16char_t;
 typedef char32_t _yIO_uchar_t;
 #endif
@@ -56,11 +56,11 @@ typedef char32_t _yIO_uchar_t;
 
 _yIO_wur _yIO_nn()
 size_t _yIO_strnlen(const char *str, size_t maxlen);
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 _yIO_wur _yIO_nn()
 size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen);
 #endif
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 _yIO_wur _yIO_nn()
 size_t _yIO_c16strnlen(const char16_t *str, size_t maxlen);
 _yIO_wur _yIO_nn()
@@ -115,24 +115,24 @@ void _yIO_strconv_free_##N1##str_to_##N1##str(\
 		_yIO_STRCONV_DECLARE_TO_ITSELF_IN(_yIO_STRCONV_ESC N)
 
 _yIO_STRCONV_DECLARE_TO_ITSELF(())
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 _yIO_STRCONV_DECLARE((), (w))
 #endif
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 _yIO_STRCONV_DECLARE((), (c16))
 _yIO_STRCONV_DECLARE((), (u))
 #endif
 
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 _yIO_STRCONV_DECLARE((w), ())
 _yIO_STRCONV_DECLARE_TO_ITSELF((w))
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 _yIO_STRCONV_DECLARE((w), (c16))
 _yIO_STRCONV_DECLARE((w), (u))
 #endif
 #endif
 
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 _yIO_STRCONV_DECLARE((c16), ())
 _yIO_STRCONV_DECLARE((c16), (w))
 _yIO_STRCONV_DECLARE_TO_ITSELF((c16))

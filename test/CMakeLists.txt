@@ -10,6 +10,12 @@ include(test_extract_properties_from_file)
 
 set(ENV{LC_ALL} "en_US.utf-8")
 
+if(YIO_DEV)
+	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		add_compile_options(-Wno-missing-prototypes)
+	endif()
+endif()
+
 ####################################################################
 # yio_add_test
 

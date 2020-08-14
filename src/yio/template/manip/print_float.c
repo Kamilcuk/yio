@@ -38,7 +38,6 @@ int _yΩIO_print_float_$2(yπio_printctx_t *t) {
 }
 
 m4_ifelse(`$1~, `f~, m4_syncline(1)`m4_dnl;
-#line m4___line__ "m4___file__"
 
 int _yΩIO_print_float_$2pnt(yπio_printctx_t *t) {
 	const _yIO_FLOAT$1 var = * yπio_printctx_va_arg(t, _yIO_FLOAT$1 *);
@@ -51,22 +50,14 @@ int _yΩIO_print_float_$2pnt(yπio_printctx_t *t) {
 
 ~) m4_dnl;
 
-m4_applyforeachdefine((
-		(f, strfromf),
-		(, strfrom),
-		(l, strfroml)
-), m4_syncline(1)`m4_dnl;
-#ifdef _yIO_HAS_$2
-m4_generate_print_floats($1, $2)
+m4_applyforeachdefine(((f),(d),(l)), m4_syncline(1)`m4_dnl;
+#if _yIO_HAS_strfrom$1
+m4_generate_print_floats($1, strfrom$1)
 #endif
 ~) m4_dnl;
 
 m4_applyforeachdefine((
-		m4_applyforeachdefine((
-				(f),
-				(),
-				(l)
-			),
+		m4_applyforeachdefine(((f),(d),(l)),
 			`($1, stupid$1),($1, printf$1)~,
 			`,~)), `m4_dnl;
 m4_generate_print_floats($1, $2)

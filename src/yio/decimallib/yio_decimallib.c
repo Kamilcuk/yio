@@ -26,8 +26,8 @@ m4_applyforeachdefine(
 
 /* suffix $1 ---------------------------------------------------- */
 
-#ifdef _yIO_HAS_DEC$1
-#ifdef _yIO_HAS_IEC_60559_DFP
+#if _yIO_HAS_DEC$1
+#if _yIO_HAS_IEC_60559_DFP
 
 _Decimal$1 frexp10d$1(_Decimal$1 val, int *exp) {
 	return frexpd$1(val, exp);

@@ -21,7 +21,7 @@ int _yIO_scan___int128(yio_scanctx_t *t);
 int _yIO_scan_u__int128(yio_scanctx_t *t);
 
 
-#ifdef _yIO_HAS_INT128
+#if _yIO_HAS_INT128
 #define _yIO_SCAN_FUNC_GENERIc_INTS_128() \
 		__int128 *: _yIO_scan___int128, \
 		unsigned __int128 *: _yIO_scan_u__int128,

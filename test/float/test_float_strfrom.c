@@ -45,7 +45,7 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 #define STRING(a) #a
 #define XSTRING(a) STRING(a)
 
-m4_applyforeachdefine(`((f,f,F), (,d,), (l,l,L))~, m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(`((f,f,F), (d,d,), (l,l,L))~, m4_syncline(1)`m4_dnl;
 
 int _yIO_test_print_float_stupid_in$1(int precision,
         char type, _yIO_FLOAT$1 val, const char *valstr0,
@@ -261,7 +261,7 @@ void _yIO_run_tests_print_float_stupid$1(void) {
 int main() {
 #ifdef __GLIBC__
 	_yIO_run_tests_print_float_stupidf();
-	_yIO_run_tests_print_float_stupid();
+	_yIO_run_tests_print_float_stupidd();
 	// long double not supported in valgrind
 	if (!_yIO_test_is_in_valgrind())  {
 		_yIO_run_tests_print_float_stupidl();

@@ -16,7 +16,7 @@
 
 m4_applyforeachdefine(`((32), (64), (128))~,`m4_dnl;
 
-#ifdef _yIO_HAS_DEC$1
+#if _yIO_HAS_DEC$1
 
 _Decimal$1 floord$1(_Decimal$1 x);
 _Decimal$1 fabsd$1(_Decimal$1 x);

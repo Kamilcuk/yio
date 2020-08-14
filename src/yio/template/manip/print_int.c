@@ -51,9 +51,15 @@ m4_applyforeachdefine((
 	(ullong, unsigned long long),
 	(__int128, __int128, _yIO_HAS_INT128),
 	(u__int128, unsigned __int128, _yIO_HAS_INT128)
-), `m4_dnl;
-m4_ifelse(`$3~,`~,`~,`#ifdef $3
-~) m4_dnl;
+), m4_syncline(1)`m4_dnl;
+
+m4_ifelse(`$3~,`~,`~, m4_syncline(1)`m4_dnl;
+#ifndef $3
+#error
+#endif
+#if $3
+~) m4_syncline(1) m4_dnl;
+
 int _yΩIO_print_$1(yπio_printctx_t *t) {
 	$2 arg = yπio_printctx_va_arg_num(t, $2);
 	int err = yπio_printctx_init(t);
@@ -87,7 +93,10 @@ m4_ifelse(m4_regexp(`$2~,`unsigned~),`-1~,
 	const size_t length = res_end - num;
 	return yπio_printctx_putπ_number(t, num, length, !negative);
 }
-m4_ifelse(`$3~,`~,`~,`#endif // $3
+
+m4_ifelse(`$3~,`~,`~, m4_syncline(1)`m4_dnl;
+#endif // $3
+~) m4_syncline(1) m4_dnl;
+
 ~) m4_dnl;
-~)m4_dnl;
 

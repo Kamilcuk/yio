@@ -100,6 +100,9 @@ if(YIO_DEV)
 				-Wattribute-warning
 			)
 		endif()
+		add_compile_options(
+			-Wmissing-prototypes
+		)
 		add_compile_definitions(
 			_FORTIFY_SOURCE=2
 		)

@@ -16,7 +16,7 @@
 
 int main() {
 	int a = 1;
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 	const wchar_t nl[] = {L'\n'};
 	wchar_t s[] = L"hello";
 	const wchar_t s2[] = L"hello";

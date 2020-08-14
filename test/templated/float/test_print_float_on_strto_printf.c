@@ -7,6 +7,7 @@
  * @brief
  */
 m4_syncline(1)m4_dnl;
-#define YIO_PRINT_FLOATS_WITH YIO_PRINT_FLOATS_WITH_PRINTF
+#define YIO_PRINT_FLOATS_WITH  YIO_PRINT_FLOATS_WITH_PRINTF
 #include <yπio.h>
+
 #include "test_print_float_on_strto.c"

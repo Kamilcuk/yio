@@ -10,8 +10,14 @@
 #include "yio_float.h"
 #include <stddef.h>
 
-m4_applyforeachdefine(`((f), (), (l))~, m4_syncline(1)`m4_dnl;
-#if defined _yIO_HAS_FLOAT$1 && defined _yIO_HAS_strfrom$1
+m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
+#ifndef _yIO_HAS_FLOAT$1
+#error
+#endif
+#ifndef _yIO_HAS_strfrom$1
+#error
+#endif
+#if _yIO_HAS_FLOAT$1 && _yIO_HAS_strfrom$1
 /**
  * Convert the floating number val according to specified precision
  * and specification using @c strfrom$1 function.

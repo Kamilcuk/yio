@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-int normal() {
+static int normal() {
 	int number1, number2, sum;
 
 	printf("Enter two integers:\n");
@@ -19,7 +19,7 @@ int normal() {
 	return 0;
 }
 
-int streamed() {
+static int streamed() {
 	int number1, number2, sum;
 
 	yprint("Enter two integers:\n");
@@ -34,7 +34,7 @@ int streamed() {
 	return 0;
 }
 
-int formatted() {
+static int formatted() {
 	int number1, number2, sum;
 
 	yprintf("Enter two integers:\n");

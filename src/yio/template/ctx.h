@@ -81,6 +81,9 @@ int yπio_printctx_next(yπio_printctx_t *t);
 _yIO_wur _yIO_nn() _yIO_const
 struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t);
 
+_yIO_wur _yIO_nn()
+const Ychar *yπio_printctx_get_fmtstrpnt(yπio_printctx_t *t);
+
 /**
  * Internal callback called from @see yπio_printctx_print
  * @param t

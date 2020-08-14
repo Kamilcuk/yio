@@ -19,7 +19,7 @@
 		} \
 	}while(0)
 
-int lib() {
+static int lib() {
 	void * volatile a = malloc(1);
 	void * volatile b = calloc(1, 2);
 	void * volatile c = realloc(a, 3);
@@ -40,7 +40,7 @@ int lib() {
 			((c == NULL) ? 0x04 : 0x00) ;
 }
 
-void test_me() {
+static void test_me() {
 	int vars[4];
 	int i = 0;
 	FMC_FOR(ok) {

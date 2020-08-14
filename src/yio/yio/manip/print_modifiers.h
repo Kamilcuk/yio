@@ -64,6 +64,9 @@ int _yΩIO_print_pfmt(yπio_printctx_t *t);
 #define yπppfmt(...)  \
 		yiocb(_yΩIO_print_pfmt, _yΩIO_yppfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
 
+
+int _yΩIO_print_width_size_t(yπio_printctx_t *t);
+
 /**
  * @}
  */

@@ -8,7 +8,7 @@
  */
 #include <yπio.h>
 int main() {
-#ifdef _yIO_HAS_timespec
+#if _yIO_HAS_timespec
 	struct timespec t = {
 		.tv_sec = 1234567,
 		.tv_nsec = 1,

@@ -19,7 +19,7 @@
 
 int main() {
 	int a = 1;
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 	const char16_t nl[] = {u'\n'};
 	char16_t s[] = u"hello";
 	const char16_t s2[] = u"hello";

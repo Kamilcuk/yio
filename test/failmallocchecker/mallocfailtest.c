@@ -10,7 +10,7 @@
 #include <yio.h>
 #include <yio_test.h>
 
-void test1_in(int ok) {
+static void test1_in(int ok) {
 	int ret;
 	ret = yprintf("{} {} {} {}", 1.234f, 2.345, 1.234f, 2.345);
 	int ret2 = yprintf("\n");

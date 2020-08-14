@@ -111,14 +111,17 @@ static void fmc_hook_init(void) {
 }
 #elif FMC_USE_METHOD == FMC_METHOD_WRAP_MALLOC
 extern void *__real_malloc(size_t size);
+void *__wrap_malloc(size_t size);
 void *__wrap_malloc(size_t size) {
 	return fmc_fail_it() ? NULL : __real_malloc(size);
 }
 extern void *__real_calloc(size_t nmemb, size_t size);
+void *__wrap_calloc(size_t nmemb, size_t size);
 void *__wrap_calloc(size_t nmemb, size_t size) {
 	return fmc_fail_it() ? NULL : __real_calloc(nmemb, size);
 }
 extern void *__real_realloc(void *ptr, size_t size);
+void *__wrap_realloc(void *ptr, size_t size);
 void *__wrap_realloc(void *ptr, size_t size) {
 	return fmc_fail_it() ? NULL : __real_realloc(ptr, size);
 }

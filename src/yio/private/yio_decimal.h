@@ -16,7 +16,7 @@ typedef _Decimal32 _Decimal$1;
 
 m4_applyforeachdefine(`((32, df), (64, dd), (128, dl))~, `m4_dnl;
 
-#ifdef _yIO_HAS_DEC$1
+#if _yIO_HAS_DEC$1
 
 /**
  * @def _yIO_FLOATd$1

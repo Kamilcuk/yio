@@ -37,21 +37,23 @@ static const char _yIO_NAN[3] = {'N','A','N'};
 static const char _yIO_nan[3] = {'n','a','n'};
 static const char _yIO_INF[3] = {'I','N','F'};
 static const char _yIO_inf[3] = {'i','n','f'};
+static const char _yIO_HEX[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+static const char _yIO_hex[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
-m4_applyforeachdefine(`((f), (), (l))~, m4_syncline(1)`m4_dnl;
-#ifdef _yIO_HAS_FLOAT$1
+m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
+
+#ifndef _yIO_HAS_FLOAT$1
+#error _yIO_HAS_FLOAT$1
+#endif
+
+#if _yIO_HAS_FLOAT$1
 
 #define TYPE     _yIO_FLOAT$1
 #define PRI      _yIO_FLOAT_PRI$1
-#define FLOOR    floor$1
-#define EXP2     exp2$1
-// newlib doesn't have exp10l, but has expl
-#ifdef _yIO_HAS_exp10$1
-#define EXP10    exp10$1
-#else
-#define EXP10(x) pow$1(10.0, x)
-#endif
-#define FABS     fabs$1
+#define FLOOR    _yIO_floor$1
+#define EXP2     _yIO_exp2$1
+#define EXP10    _yIO_exp10$1
+#define FABS     _yIO_fabs$1
 #define FREXP2   _yIO_frexp2$1
 #define FREXP10  _yIO_frexp10$1
 
@@ -114,9 +116,7 @@ int _yIO_float_astrfrom_stupid$1(char **resultp, size_t *lengthp, int precision,
 	bool hex = speclower == 'a';
 	bool scientific = speclower == 'a' || speclower == 'e';
 	const bool is_lower_spec = speclower == spec;
-	const char *to_digit_str = is_lower_spec ?
-					"0123456789abcdef" :
-					"0123456789ABCDEF";
+	const char * const to_digit_str = is_lower_spec ? _yIO_hex : _yIO_HEX;
 
 	if (precision < 0) {
 		precision = 6;

@@ -8,7 +8,7 @@
  */
 #include <yπio.h>
 int main() {
-#ifdef _yIO_HAS_timeval
+#if _yIO_HAS_timeval
 	struct timeval t = {
 		.tv_sec = 1234567,
 		.tv_usec = 1,

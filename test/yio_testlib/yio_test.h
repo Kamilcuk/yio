@@ -1,15 +1,15 @@
 
 #pragma once
 #include <yio.h>
-#ifdef _yIO_HAS_WCHAR_H
+#if _yIO_HAS_WCHAR_H
 #include <ywio.h>
 #endif
-#ifdef _yIO_HAS_UCHAR_H
+#if _yIO_HAS_UCHAR_H
 #include <yc16io.h>
 #include <yuio.h>
 #endif
 #include <ctype.h>
-#ifdef _yIO_HAS_UNISTRING
+#if _yIO_HAS_UNISTRING
 #include <unistr.h>
 #include <unistdio.h>
 #endif

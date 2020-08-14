@@ -8,14 +8,14 @@
  */
 #include "private.h"
 #include "print_complex.h"
-#ifdef _yIO_HAS_COMPLEX
+#if _yIO_HAS_COMPLEX
 #include <complex.h>
 
 m4_divert(-1)
 m4_include(`yio/template/manip/print_complex.h~)
 m4_divert(0)
 
-m4_applyforeachdefine((m4_complex_types()), `m4_dnl;
+m4_applyforeachdefine((m4_complex_types()), m4_syncline(1)`m4_dnl;
 int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2);
 	int err = yπio_printctx_init(t);
@@ -24,8 +24,8 @@ int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 }
 ~)m4_dnl;
 
-#ifdef _yIO_HAS_IMAGINARY
-m4_applyforeachdefine((m4_imaginary_types()), `m4_dnl;
+#if _yIO_HAS_IMAGINARY
+m4_applyforeachdefine((m4_imaginary_types()), m4_syncline(1)`m4_dnl;
 int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2);
 	int err = yπio_printctx_init(t);
