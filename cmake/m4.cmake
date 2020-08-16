@@ -66,8 +66,11 @@ macro(_m4_get_command_args)
 	)
 
 	foreach(i IN ITEMS OUTPUT SOURCE)
-		if(NOT DEFINED M4_GET_COMMAND_ARGS_${i} OR M4_GET_COMMAND_ARGS_${i} STREQUAL "")
-			message(FATAL_ERROR "m4_add_command: M4_GET_COMMAND_ARGS_${i} parameter is mandatory")
+		if(NOT DEFINED M4_GET_COMMAND_ARGS_${i})
+			message(FATAL_ERROR "m4_add_command: ${i} parameter is mandatory")
+		endif()
+		if(M4_GET_COMMAND_ARGS_${i} STREQUAL "")
+			message(FATAL_ERROR "m4_add_command: ${i} must not be empty")
 		endif()
 	endforeach()
 
