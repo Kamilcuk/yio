@@ -23,7 +23,14 @@ find_program(CMAKE_CXX_COMPILER  arm-none-eabi-g++)
 
 include(${CMAKE_CURRENT_LIST_DIR}/crosscompiling.cmake)
 
-get_filename_component(CMAKE_CROSSCOMPILING_EMULATOR
-	${CMAKE_CURRENT_LIST_DIR}/../../scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh ABSOLUTE)
+find_program(QEMU_ARM qemu-arm)
+if(QEMU_ARM)
+	set(CMAKE_CROSSCOMPILING_EMULATOR ${QEMU_ARM})
+else()
+	get_filename_component(CMAKE_CROSSCOMPILING_EMULATOR
+		${CMAKE_CURRENT_LIST_DIR}/../../scripts/cmake_crosscompiling_emulator_arm_none_gdb.sh
+		ABSOLUTE
+	)
+endif()
 
 
