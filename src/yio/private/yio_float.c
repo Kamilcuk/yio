@@ -23,7 +23,7 @@ _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp) {
 	if (val == _yIO_FLOAT_C$1(0.0)) {
 		*exp = _yIO_FLOAT_C$1(0.0);
 	} else {
-		const int tmp = 1 + _yIO_floor$1(_yIO_log10$1(val));
+		const int tmp = _yIO_FLOAT_C$1(1.0) + _yIO_floor$1(_yIO_log10$1(val));
 		*exp = tmp;
 		val = (val) * _yIO_exp10$1(-tmp);
 		if (val < _yIO_FLOAT_C$1(0.1)) {

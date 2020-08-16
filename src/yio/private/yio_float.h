@@ -9,6 +9,14 @@
 #pragma once
 #include "../yio_config.h"
 
+#ifdef YIO_CDT_PARSER
+#define _yIO_HAS_FLOAT$1  1
+#define _yIO_FLOAT$1      float
+#define _yIO_FLOAT_PRI$1  ""
+#define $3_MANT_DIG  20
+#define _yIO_FLOAT_HUGE_VALf$1  HUGE_VALf
+#endif
+
 #define _yIO_FLOATf  float
 #define _yIO_FLOATd  double
 #define _yIO_FLOATl  long double
@@ -21,11 +29,19 @@
 #define _yIO_FLOAT_Cd(x)  x
 #define _yIO_FLOAT_Cl(x)  x ## l
 
-m4_dnl suffix math_suffix strto_suffix HUGE_VAL_suffix
+#define _yIO_FLOAT_HUGE_VALf  HUGE_VALF
+#define _yIO_FLOAT_HUGE_VALd  HUGE_VAL
+#define _yIO_FLOAT_HUGE_VALl  HUGE_VALL
+
+#define _yIO_strtof  strtof
+#define _yIO_strtod  strtod
+#define _yIO_strtol  strtold
+
+m4_dnl suffix math_suffix MACRO_prefix
 m4_applyforeachdefine(`(
-		(f, f,  f, F),
-		(d,  ,  d,  ),
-		(l, l, ld, L)
+		(f, f, FLT),
+		(d,  , DBL),
+		(l, l, LDBL)
 )~, m4_syncline(1)`m4_dnl;
 #if _yIO_HAS_FLOAT$1
 
@@ -35,6 +51,9 @@ m4_applyforeachdefine(`(
 #define _yIO_log10$1   log10$2
 #define _yIO_fabs$1    fabs$2
 #define _yIO_pow$1     pow$2
+#define _yIO_nextafter$1     nextafter$2
+#define _yIO_nexttoward$1    nexttoward$2
+
 
 #if _yIO_HAS_exp10$1
 #define _yIO_exp10$1  exp10$2
@@ -46,9 +65,10 @@ _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp);
 
 #define _yIO_strfrom$1 strfrom$1
 
-#define _yIO_strto$1 strto$3
-
-#define _yIO_HUGE_VAL$1  HUGE_VAL$4
+#define _yIO_FLOAT_MANT_DIG$1  $3_MANT_DIG
+#define _yIO_FLOAT_MAX$1       $3_MAX
+#define _yIO_FLOAT_EPSILON$1   $3_EPSILON
+#define _yIO_FLOAT_MIN$1       $3_MIN
 
 #endif // _yIO_HAS_FLOAT$1
 ~) m4_dnl m4_applyforeachdefine;

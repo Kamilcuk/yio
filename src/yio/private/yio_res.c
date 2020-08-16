@@ -134,7 +134,7 @@ int _yIO_res_yprintf(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...) {
 	return 0;
 }
 
-bool _yIO_res_remove_trailing_zeros(_yIO_res *t) {
+bool _yIO_res_remove_trailing_zeros_and_comma(_yIO_res *t) {
 	bool fractional_part_removed = false;
 	// remove trailing zeros
 	char * const dest = t->pos;
@@ -144,7 +144,7 @@ bool _yIO_res_remove_trailing_zeros(_yIO_res *t) {
 	while (*p == '0' && p != t->beg) {
 		--p;
 	}
-	assert(isdigit((unsigned char)*p) || *p == '.');
+	assert(isdigit((unsigned char)*p) || *p == '.' || strchr("abcdefABCDEF", *p));
 	if (*p != '.') {
 		++p;
 	} else {

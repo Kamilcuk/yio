@@ -107,8 +107,7 @@ int _yIO_res_yprintf(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...);
  * @param b
  * @return Did we remove the dot too?
  */
-_yIO_wur
-bool _yIO_res_remove_trailing_zeros(_yIO_res *t);
+bool _yIO_res_remove_trailing_zeros_and_comma(_yIO_res *t);
 
 /// Free the result returned by _yIO_res
 static inline _yIO_nn(2)
