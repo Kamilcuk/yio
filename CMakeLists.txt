@@ -73,7 +73,8 @@ if(YIO_DEV)
 			CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		set(tmp
 			-ggdb3
-			-O
+			$<$<CONFIG:DEBUG>:-Og>
+			$<$<NOT:$<CONFIG:DEBUG>>:-O>
 		)
 		if(0 AND NOT DEFINED CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING)
 			list(APPEND tmp
@@ -89,7 +90,6 @@ if(YIO_DEV)
 			-Wwrite-strings
 			-Wno-unused-function
 			-Wno-unused-parameter
-			-Werror
 		)
 	endif()
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")

@@ -200,6 +200,8 @@ ctags_gen:
 	find gen/ test/ -type f -print0 | \
 	xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
 
+test_alpine: USER  = $(shell id -u)
+test_alpine: GROUP = $(shell id -g)
 test_alpine:
 	@mkdir -p _build/alpine/emptycontext
 	docker build -t yio_alpine_builder -f alpine_builder.Dockerfile _build/alpine/emptycontext
@@ -434,5 +436,5 @@ usage:
 
 # All targets added to USAGE are phony
 .PHONY: $(TGTSUSAGES: -%=)
-.PHONY: all
+.PHONY: eclipse all
 

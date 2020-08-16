@@ -12,7 +12,10 @@ set(ENV{LC_ALL} "en_US.utf-8")
 
 if(YIO_DEV)
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		add_compile_options(-Wno-missing-prototypes)
+		add_compile_options(
+			-Wno-missing-prototypes
+			-Wno-error
+		)
 	endif()
 endif()
 
@@ -102,6 +105,9 @@ subdirlist(dirs ${CMAKE_CURRENT_SOURCE_DIR})
 
 # omit cmake_example, it's for cmake project installation testing
 list(FILTER dirs EXCLUDE REGEX "cmake_example")
+
+add_subdirectory(yio_testlib)
+list(FILTER dirs EXCLUDE REGEX "yio_testlib")
 
 # Create a list of sources
 set(sources "")

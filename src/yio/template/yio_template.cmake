@@ -36,14 +36,15 @@ function(yio_add_template_command)
 	endif()
 
 	file(RELATIVE_PATH outfile_rel_bindir "${CMAKE_CURRENT_BINARY_DIR}" "${outfile}")
-	file(RELATIVE_PATH infile_rel_bindir "${CMAKE_CURRENT_BINARY_DIR}" "${infile}")
+	file(RELATIVE_PATH infile_rel_srcdir "${CMAKE_CURRENT_SOURCE_DIR}" "${infile}")
 
 	file(RELATIVE_PATH intermediate_rel_bindir "${CMAKE_CURRENT_BINARY_DIR}" "${intermediate}")
 
 	# message(DEBUG "infile=${infile} intermediate=${intermediate} outfile=${outfile}")
 
+	string(TOUPPER "${REPLACEMENT}" REPLACEMENT_UPPER)
 	add_custom_command(
-		COMMENT "yio_template: Templating with Ω=${REPLACEMENT} ${infile_rel_bindir} from ${intermediate_rel_bindir}"
+		COMMENT "yio_template: Templating with Ω=${REPLACEMENT_UPPER} ${infile_rel_srcdir} from ${intermediate_rel_bindir}"
 		OUTPUT
 			${intermediate}
 		DEPENDS
