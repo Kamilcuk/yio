@@ -30,15 +30,23 @@ void _yIO__test_failed_atexit(void) {
 	_Exit(EXIT_FAILURE);
 }
 
-void _yIO__testing(bool verbose, const char *expr, const char *file, int line) {
-	if (!verbose) return;
+int _yIO__testing(bool verbose, const char *expr, const char *file, int line) {
+	fflush(stdout);
+	fflush(stderr);
+	if (!verbose) return 0;
 	const char *relative_file = _yIO__test_get_relative_filepath(file);
 	printf("%s:%d: Testing %s\n", relative_file, line, expr);
-	return;
+	fflush(stdout);
+	return 0;
 }
 
-void _yIO__test_failed(int flags, const char *expr, const char *file, int line, const char *fmt, ...) {
+bool _yIO__test_failed(int unused, bool result,
+		int flags, const char *expr, const char *file, int line, const char *fmt, ...) {
+	(void)unused;
+	if (result) return false;
+
 	const bool fail = !(flags & _yIO_TEST_FLAG_NOFAIL);
+	const bool assert = flags & _yIO_TEST_FLAG_ASSERT;
 
 	fflush(stdout);
 
@@ -58,6 +66,10 @@ void _yIO__test_failed(int flags, const char *expr, const char *file, int line, 
 	}
 	fflush(stderr);
 
+	if (assert) {
+		abort();
+	}
+
 	if (fail) {
 		static bool failurer_registered = false;
 		if (failurer_registered == false) {
@@ -65,9 +77,12 @@ void _yIO__test_failed(int flags, const char *expr, const char *file, int line, 
 			atexit(_yIO__test_failed_atexit);
 		}
 	}
+
+	return true;
 }
 
 bool _yIO_test_is_in_valgrind(void) {
+	// long double not supported in valgrind
 #if __linux__
 	const char *p = getenv("LD_PRELOAD");
 	if (p == NULL) return 0;

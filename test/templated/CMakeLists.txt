@@ -44,13 +44,17 @@ foreach(src IN LISTS srcs)
 		file(RELATIVE_PATH src_rel_source ${CMAKE_CURRENT_SOURCE_DIR} ${src})
 		set(path ${CMAKE_CURRENT_BINARY_DIR}/gen/y${replacement}io/${src_rel_source})
 
-		# test_print_float_on_strto* have a depency, setup here
+		# some files need special handling
 		get_filename_component(src_name "${src}" NAME)
 		set(adddepends)
-		if("${src_name}" MATCHES "test_print_float_on_strto*"
-				AND NOT "${src_name}" STREQUAL "test_print_float_on_strto.c")
-			get_filename_component(path_dir "${path}" DIRECTORY)
-			list(APPEND adddepends DEPENDS "${path_dir}/test_print_float_on_strto.c")
+		if("${src_name}" MATCHES "test_print_float_on_strto*")
+			# The files depend on inclusion from yio_test of floatlist
+			set_source_files_properties(${src} PROPERTIES OBJECT_DEPENDS "${yio_test_gen}")
+			if(NOT "${src_name}" STREQUAL "test_print_float_on_strto.c")
+				# test_print_float_on_strto* have a dependency on test_print_float_on_strto.c
+				get_filename_component(path_dir "${path}" DIRECTORY)
+				list(APPEND adddepends DEPENDS "${path_dir}/test_print_float_on_strto.c")
+			endif()
 		endif()
 
 		yio_add_template_command(

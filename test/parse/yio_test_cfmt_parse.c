@@ -20,7 +20,7 @@ void test_cfmt(const struct yio_printfmt_s shouldbe, const char *str) {
 	_yIO_TEST(endptr == str + strlen(str), "%s", str);
 	_yIO_TEST(err == 0, "%s", str);
 	_yIO_TEST(endptr == str + strlen(str), "%s", str);
-	_yIO_test_compare_printformat(pf, shouldbe);
+	(void)_yIO_test_compare_printformat(pf, shouldbe);
 }
 
 int main() {
