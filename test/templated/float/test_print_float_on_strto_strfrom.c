@@ -18,7 +18,9 @@ m4_applyforeachdefine(((f),(d),(l)), m4_syncline(1)`m4_dnl;
 #ifndef _yΩIO_PRINT_FLOAT$1_PRINTING_FUNC
 #error _yΩIO_PRINT_FLOAT$1_PRINTING_FUNC
 #endif
+#if defined __GNUC__ && ! defined __clang__
 static_assert(_yΩIO_PRINT_FLOAT$1_PRINTING_FUNC == _yΩIO_print_float_strfrom$1, "_yΩIO_PRINT_FLOAT$1_PRINTING_FUNC == _yΩIO_print_float_strfrom$1");
+#endif
 ~)
 #else
 #include <yπio.h>
