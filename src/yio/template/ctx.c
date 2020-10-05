@@ -260,7 +260,7 @@ int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, Ychar group
 			if (str == comma_or_end) {
 				break;
 			}
-			// print the grounping between
+			// print the grouping between
 			err = yπio_printctx_raw_write(t, &grouping, 1);
 			if (err) return err;
 		}

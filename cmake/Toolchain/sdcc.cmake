@@ -19,3 +19,6 @@ find_program(CMAKE_ASM_COMPILER  sdcc)
 find_program(CMAKE_C_COMPILER    sdcc)
 
 include(${CMAKE_CURRENT_LIST_DIR}/crosscompiling.cmake)
+
+set(_yIO_HAS_WCHAR_H 0 CACHE BOOL "")
+

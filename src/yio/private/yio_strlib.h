@@ -9,6 +9,7 @@
 #pragma once
 #include "private.h"
 #include <assert.h>
+#include <stdlib.h>
 #if _yIO_HAS_WCHAR_H
 #include <wchar.h>
 #endif

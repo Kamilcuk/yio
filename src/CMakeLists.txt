@@ -307,6 +307,13 @@ yio_add_library(yio_decimallib
 
 file_glob_relative_to_srcdir(GLOB auto_generic_srcs yio/*.h yio/*.c)
 file_glob_relative_to_srcdir(GLOB auto_yio_private_srcs yio/private/*.h yio/private/*.c)
+set(yio_wcharsrcs)
+if(_yIO_HAS_WCHAR_H)
+	set(yio_wcharsrcs
+		ywio.h
+		${ywio_gensrcs}
+	)
+endif()
 yio_add_library(yio
 	${auto_yio_private_srcs}
 	${auto_generic_srcs}
@@ -315,8 +322,7 @@ yio_add_library(yio
 	yio/yio_error_messages.h
 	yio.h
 	${yio_gensrcs}
-	ywio.h
-	${ywio_gensrcs}
+	${yio_wcharsrcs}
 )
 if(UNISTRING_LIB)
 	# converting from UTF32 and UTF16 to WCHAR and CHAR needs conversion library

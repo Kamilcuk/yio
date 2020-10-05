@@ -45,14 +45,13 @@
 
 static const char _yIO_NAN[3] = {'N','A','N'};
 static const char _yIO_nan[3] = {'n','a','n'};
-static const char (*_yIO_nans[3])[] = { &_yIO_NAN, &_yIO_nan, };
+const char (* const _yIO_nans[2])[3] = { &_yIO_NAN, &_yIO_nan, };
 static const char _yIO_INF[3] = {'I','N','F'};
 static const char _yIO_inf[3] = {'i','n','f'};
-static const char (*_yIO_infs[3])[] = { &_yIO_INF, &_yIO_inf, };
+const char (* const _yIO_infs[2])[3] = { &_yIO_INF, &_yIO_inf, };
 static const char _yIO_digit_to_HEX[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
-
+const char (* const _yIO_digit_to_hexs[2])[16] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
 m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
 
@@ -71,6 +70,20 @@ m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
 #define FREXP2   _yIO_frexp2$1
 #define FREXP10  _yIO_frexp10$1
 #define FC(x)    _yIO_FLOAT_C$1(x)
+
+static const int _yIO_a_max_precision$1 =
+#if FLT_RADIX == 2
+// if the precision is missing and FLT_RADIX is a power of 2,
+// then the precision is sufficient for an exact representation of the value
+		_yIO_FLOAT_MANT_DIG$1 / 4 + !!(_yIO_FLOAT_MANT_DIG$1 % 4);
+#else
+// if the precision is missing and FLT_RADIX is not a power of 2,
+// then the precision is sufficient to distinguish values of type double,
+// except that trailing zeros may be omitted
+// Will this code ever execute?
+#error FLT_RADIX != 2
+		round(log2(exp(FLT_RADIX, _yIO_FLOAT_MANT_DIG$1)) + 0.5);
+#endif
 
 static inline
 int get_next_digit$1(_yIO_res *v, TYPE *val,
@@ -100,18 +113,7 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 
 int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 		const int precision0, const char spec0, TYPE val) {
-	static const int a_max_precision =
-#if FLT_RADIX == 2
-// if the precision is missing and FLT_RADIX is a power of 2,
-// then the precision is sufficient for an exact representation of the value
-			_yIO_FLOAT_MANT_DIG$1 / 4 + !!(_yIO_FLOAT_MANT_DIG$1 % 4);
-#else
-// if the precision is missing and FLT_RADIX is not a power of 2,
-// then the precision is sufficient to distinguish values of type double,
-// except that trailing zeros may be omitted
-// Will this code ever execute?
-			round(log2(exp(FLT_RADIX, _yIO_FLOAT_MANT_DIG$1)) + 0.5);
-#endif
+	const int a_max_precision = _yIO_a_max_precision$1;
 
 	int err = 0;
 
@@ -132,7 +134,7 @@ int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 
 	// take INF and NAN out of the way
 	const int val_class = fpclassify(val);
-	const char (*nan_or_inf_str)[3] =
+	const char (* const nan_or_inf_str)[3] =
 			val_class == FP_NAN ? _yIO_nans[is_lower_spec] :
 					val_class == FP_INFINITE ? _yIO_infs[is_lower_spec] :
 							NULL;
@@ -197,18 +199,16 @@ int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 		}
 	}
 
+	const bool dec = speclower != 'a';
+	const char * const to_digit_str = *_yIO_digit_to_hexs[is_lower_spec];
 	assert(precision >= 0);
 
 	// Extract exponent and round the number
 	if (val_is_zero) {
 		exponent = 0;
-	} else if (speclower == 'f') {
-		val += FC(0.5) * EXP10(-precision);
-		if (isinf(val)) goto ERROR_ENOSYS;
-		val = FREXP10(val, &exponent);
 	} else if (speclower == 'a') {
 		// rounding makes no sense, when precision is maximum available
-		if (precision0 >= 0) {
+		if (precision >= a_max_precision) {
 			int exponent_tmp;
 			FREXP2(val, &exponent_tmp);
 			if (precision > INT_MAX / 4) goto ERROR_ENOSYS;
@@ -219,42 +219,7 @@ int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 		val = FREXP2(val, &exponent);
 		// I start printing with initial leading 1 bit always set.
 		exponent -= 3;
-	} else if (speclower == 'e') {
-		// rounded above
-		exponent = exponent10;
-		val = val10;
-	} else {
-		assert(0);
-	}
 
-	// at this point, val should be after frexp
-	assert(0 <= val);
-	assert(val < 1);
-
-	const bool dec = speclower != 'a';
-	const char * const to_digit_str = *_yIO_digit_to_hexs[is_lower_spec];
-
-	// Convert number before the dot
-	if (speclower == 'f') {
-		if (exponent <= 0) {
-			err = _yIO_res_putc(v, '0');
-			if (err) return err;
-		} else {
-			assert(exponent > 0);
-			for (int i = exponent; i; --i) {
-				err = get_next_digit$1(v, &val, dec, to_digit_str, i == 1 && precision == 0);
-				if (err) return err;
-			}
-		}
-	} else if (speclower == 'e') {
-		if (val_is_zero) {
-			err = _yIO_res_putc(v, '0');
-			if (err) return err;
-		} else {
-			err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
-			if (err) return err;
-		}
-	} else if (speclower == 'a') {
 		err = _yIO_res_putc(v, '0');
 		if (err) return err;
 		err = _yIO_res_putc(v, is_lower_spec ? 'x': 'X');
@@ -267,6 +232,35 @@ int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 			err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
 			if (err) return err;
 		}
+	} else if (speclower == 'f') {
+		val += FC(0.5) * EXP10(-precision);
+		if (isinf(val)) goto ERROR_ENOSYS;
+		val = FREXP10(val, &exponent);
+
+		if (exponent <= 0) {
+			err = _yIO_res_putc(v, '0');
+			if (err) return err;
+		} else {
+			assert(exponent > 0);
+			for (int i = exponent; i; --i) {
+				err = get_next_digit$1(v, &val, dec, to_digit_str, i == 1 && precision == 0);
+				if (err) return err;
+			}
+		}
+	} else if (speclower == 'e') {
+		// rounded above
+		exponent = exponent10;
+		val = val10;
+
+		if (val_is_zero) {
+			err = _yIO_res_putc(v, '0');
+			if (err) return err;
+		} else {
+			err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
+			if (err) return err;
+		}
+	} else {
+		assert(0);
 	}
 
 	if (precision) {

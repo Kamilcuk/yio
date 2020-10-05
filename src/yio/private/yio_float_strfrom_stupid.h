@@ -10,6 +10,10 @@
 #include "yio_float.h"
 #include <stddef.h>
 
+extern const char (* const _yIO_infs[2])[3];
+extern const char (* const _yIO_nans[2])[3];
+extern const char (* const _yIO_digit_to_hexs[2])[16];
+
 m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
 #ifndef _yIO_HAS_FLOAT$1
 #error
