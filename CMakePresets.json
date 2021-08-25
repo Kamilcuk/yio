@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 11,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/_build/${presetName}",
+      "cacheVariables": {
+        "YIO_DEV": "1",
+        "BUILD_TESTING": "1"
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "default",
+      "binaryDir": "${sourceDir}/_build/Debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "arm",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/Toolchain/arm-none-eabi-gcc.cmake"
+      }
+    },
+    {
+      "name": "arm2",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": " -mthumb -march=armv7e-m -mfloat-abi=soft -g -Os -ffunction-sections -fdata-sections -flto"
+      }
+    },
+    {
+      "name": "sdcc_pic16",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/Toolchain/sdcc.cmake"
+      }
+    }
+  ]
+}
