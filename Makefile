@@ -363,42 +363,10 @@ clean:
 USAGE +=~ distclean - Removes _build and public also
 distclean: clean
 	rm -fr ./public
-	$(MAKE) -C pkg/archlinux clean
-	$(MAKE) -C pkg/apt clean
 
 USAGE +=~ install - install project
 install: export CMAKE_BUILD_TYPE=Release
 install: .build_install
-
-USAGE +=~ install_pkg - Automatically detect package manager and install package
-ifneq (,$(wildcard /etc/arch-release))
-install_pkg: install_archlinux
-else ifneq (,$(wildcard /etc/debian_version))
-install_pkg: install_deb
-else
-install_pkg:
-	$(error Unhandled operating system)
-endif
-
-USAGE +=~ install_archlinux - Install the package on archlinux
-install_archlinux:
-	$(MAKE) -C pkg/archlinux yio
-	$(SUDO) pacman -U pkg/archlinux/_build/build-yio/yio*.pkg.tar.*[^g]
-
-USAGE +=~ install_archlinux_arm_none-eabi - Install the arm-none-eabi-yio package on archlinux
-install_archlinux_arm_none_eabi:
-	$(MAKE) -C pkg/archlinux yio-arm-none-eabi
-	$(SUDO) pacman -S pkg/archlinux/_build/build-arm-none-eabi-yio/yio*.pkg.tar.*[^g]
-
-USAGE +=~ install_deb - Install a deb package
-install_deb: export CMAKE_BUILD_TYPE=Release
-install_deb: build_yio
-	cd _build/Release && cpack -G DEB
-	$(SUDO) dpkg -i _build/Release/*.deb
-
-USAGE +=~ uninstall - uninstall files
-uninstall: export CMAKE_BUILD_TYPE=Release
-uninstall: .build_yio_uninstall
 
 # Usage #######################################################
 
