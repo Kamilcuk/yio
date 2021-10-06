@@ -50,7 +50,7 @@ typedef struct _yIO_res {
  * @param lengthp NULL or a pointer to size, see file comment above.
  * @return Returns @c t.
  */
-_yIO_rnn _yIO_nn(1, 2) _yIO_access_r(1) _yIO_access_r(2) _yIO_access_r(3)
+_yIO_rnn _yIO_nn(1, 2) _yIO_access_w(1) _yIO_access_r(2) _yIO_access_r(3)
 _yIO_res *_yIO_res_init(_yIO_res *t, char **resultp, size_t *lengthp);
 
 #define _yIO_RES_INIT_ON_STACK(resultp, lengthp, size) \
