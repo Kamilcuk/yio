@@ -35,7 +35,7 @@ if(YIO_DEV)
 	# Use ccache if available
 	find_program(CCACHE_COMMAND "ccache")
 	if(CCACHE_COMMAND)
-	    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
+	  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
 	endif()
 
 	set_from_env(YIO_USE_CPPLINT)
@@ -123,7 +123,7 @@ endif(YIO_DEV)
 
 ######################################################################
 
-find_library(UNISTRING_LIB 
+find_library(UNISTRING_LIB
 	NAMES unistring
 	DOC "Path to unistring library"
 )
@@ -233,10 +233,10 @@ yio_debug_variables(
 )
 endif()
 
-foreach(i IN ITEMS CMAKE_TOOLCHAIN_FILE CMAKE_CROSSCOMPILING_EMULATOR)
-	if(DEFINED "${i}")
-		if (NOT EXISTS "${${i}}")
-			message(FATAL_ERROR "${i} is defined but file does not exists")
+foreach(ii IN ITEMS CMAKE_TOOLCHAIN_FILE CMAKE_CROSSCOMPILING_EMULATOR)
+	if(DEFINED "${ii}")
+		if (NOT EXISTS "${${ii}}")
+			message(FATAL_ERROR "${ii} is defined but file does not exists")
 		endif()
 	endif()
 endforeach()
@@ -245,7 +245,7 @@ add_subdirectory(src)
 
 if(YIO_DEV OR (YIO_BUILD_TESTING AND BUILD_TESTING))
 	include(CTest)
-    add_subdirectory(test)
+  add_subdirectory(test)
 endif()
 
 

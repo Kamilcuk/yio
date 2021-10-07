@@ -10,7 +10,7 @@ execute_process(
 )
 if(NOT _result EQUAL 0)
 	execute_process(COMMAND git status WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..)
-	message(FATAL_ERROR "Getting version failed: ${_error}")
+  message(FATAL_ERROR "Getting version failed: ${_result} ${_output} ${_error}")
 endif()
 if(NOT _output MATCHES "v([0-9]+).([0-9]+).([0-9]+)[\\.-]?([0-9]*)?.*")
 	execute_process(COMMAND git status WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..)
@@ -33,7 +33,9 @@ if(CMAKE_MATCH_4 GREATER 255)
 endif()
 
 set(YIO_PROJECT_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}.${CMAKE_MATCH_4}")
-math(EXPR YIO_VERSION "(${CMAKE_MATCH_1} << 24) | (${CMAKE_MATCH_2} << 16) | ${CMAKE_MATCH_3} << 8 | ${CMAKE_MATCH_4}" OUTPUT_FORMAT HEXADECIMAL)
+math(EXPR YIO_VERSION
+  "(${CMAKE_MATCH_1} << 24) | (${CMAKE_MATCH_2} << 16) | ${CMAKE_MATCH_3} << 8 | ${CMAKE_MATCH_4}"
+  OUTPUT_FORMAT HEXADECIMAL)
 set(YIO_VERSION_STRING "${_output}")
 
 # change "0xabc" to "0x00000abc"

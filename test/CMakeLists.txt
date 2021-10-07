@@ -61,7 +61,7 @@ function(yio_add_test name file)
 			set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED redirectstdin)
 			set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
 		endif()
-		set_property(TEST ${name} APPEND PROPERTY TIMEOUT 5)
+		set_property(TEST ${name} APPEND PROPERTY TIMEOUT 10)
 
 		test_extract_properties_from_file(${name} ${realfile})
 	else()

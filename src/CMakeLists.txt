@@ -6,6 +6,7 @@ if(NOT "${PROJECT_NAME}" STREQUAL "yio")
 endif()
 
 include(CMakeDependentOption)
+include(CheckIncludeFile)
 include(m4)
 include(list_filter)
 include(var_to_0_or_1)

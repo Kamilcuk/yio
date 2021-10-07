@@ -1,86 +1,71 @@
 # .gitlab-ci.yml
+---
 
-stages:
-  - build
-  - pages
-  - deploy
-
+image: "$CI_REGISTRY_IMAGE"
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  CMAKE_BUILD_TYPE: Release
 
-.ubuntu_install_deps: &ubuntu_install_deps
-  - DEBIAN_FRONTEND=noninteractive apt-get update -y
-  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      make cmake m4 libc-dev clang gcc git valgrind ninja-build gcovr 
-      ca-certificates curl libunistring-dev ninja-build rsync
+###############################################################################
 
-test:
+build_builder:
   stage: build
-  image: ubuntu
-  script: 
-  - *ubuntu_install_deps
-  - make gitlab_gcc_cdash
-  - make gitlab_metrics
-  - make gitlab_clang_cdash
+  image: docker
+  services:
+    - docker:dind
+  variables:
+    # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker pull $CI_REGISTRY_IMAGE || true
+    - docker build --cache-from $CI_REGISTRY_IMAGE -t "$CI_REGISTRY_IMAGE" - < ./archlinux_builder.Dockerfile
+    - docker push "$CI_REGISTRY_IMAGE"
+  rules:
+    - when: never
+  #rules:
+    #- if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
+      #when: on_success
+
+###############################################################################
+
+test_gcc:
+  variables:
+    CC: gcc
+  script:
+  - make valgrind
   - make test_project
+
+test_project_add_subdirectory:
+  script:
   - make test_project_add_subdirectory
-  artifacts:
-    reports:
-      metrics: metrics.txt
+
+test_gcc_sanitize:
+  variables:
+    CC: gcc
+  script:
+  - make MODE=sanitize test
+
+test_clang:
+  variables:
+    CC: clang
+  script: 
+  - make B=_build/clangRelease test
 
 test_arm:
-  stage: build
-  image: registry.gitlab.com/kamcuk/armbuilder/armbuilder
   script:
-  - make gitlab_arm_cdash
-
-pages_repos:
-  stage: build
-  image: docker:stable
-  services:
-  - docker:stable-dind
-  variables:
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: /certs
-  script:
-  - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  - apk add --no-cache make git bash coreutils tar xz tar zstd rsync
-  - make pages_repos
-  artifacts:
-    paths:
-    - public/
-    expire_in: 1 week
+  - make SYSTEM=arm test
 
 pages_build:
-  stage: pages
-  image: ubuntu
   script:
-  - *ubuntu_install_deps
-  - DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
-      graphviz doxygen jq
   - make gitlab_pages
   artifacts:
     paths:
     - public/
     expire_in: 1 week
 
-.deploy_chors_ce:
-  stage: deploy
-  image: alpine
-  script:
-  - apk add openssh
-  - eval $(ssh-agent -s)
-  - printenv "CHORS_GITLAB_SSH_PRIVATE_KEY" | base64 -d | ssh-add -
-  - ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -o BatchMode=yes 
-      -p60022 gitlab@karta.dyzio.pl yio
-
-deploy_chors_ce:
-  extends: .deploy_chors_ce
-  only:
-    - tags
-deploy_chors_ce_manual:
-  extends: .deploy_chors_ce
-  when: manual
+###############################################################################
 
 pages:
   stage: deploy
