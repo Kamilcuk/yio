@@ -32,6 +32,9 @@ set(gensrcs)
 
 # CPack
 include(cpack.cmake)
+# Pre checks
+# unistd is used in configuration and environmental checks
+yio_config_gen_check_include_file("unistd.h" _yIO_HAS_UNISTD_H)
 # User configuration
 include(configuration.cmake)
 # Environment checks

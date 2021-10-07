@@ -97,7 +97,6 @@ endif()
 #########################################################################
 # some generic checks
 
-yio_config_gen_check_include_file("unistd.h" _yIO_HAS_UNISTD_H)
 if(_yIO_HAS_UNISTD_H)
 	list(APPEND CMAKE_EXTRA_INCLUDE_FILES
 		"unistd.h"

@@ -66,7 +66,7 @@ macro(yio_config_gen_add symbol)
 	else()
 		yio_config_gen_add_value("${symbol}" "0")
 	endif()
-endmacro()	
+endmacro()
 
 macro(yio_config_gen_check_include_file)
 	check_include_file(${ARGV})
