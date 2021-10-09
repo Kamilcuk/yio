@@ -8,12 +8,11 @@
  */
 #pragma once
 #include <stdbool.h>
-m4_template_chooser2(«m4_dnl);
-»,«m4_dnl;
+m4_template_chooser2(,
 #include <wchar.h>
-»,«m4_dnl;
+,
 #include <uchar.h>
-»)m4_dnl;
+)
 
 static const Ychar YΩIO_NUL = Yc('\0');
 
