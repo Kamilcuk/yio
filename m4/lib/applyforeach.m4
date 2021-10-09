@@ -33,4 +33,5 @@ m4_TEST(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeach(«m4_func�
 // PASS_REGULAR_EXPRESSION >1=a 2=b 3=c< % >1=d 2=e 3=f< % >1=g 2=h 3=i<
 m4_TEST(«m4_define(«m4_func», «@$1<»)m4_applyforeach(«m4_func», «((bar), (foo))», «:»)»)
 // PASS_REGULAR_EXPRESSION @bar<:@foo<
-
+m4_TEST(«m4_define(«m4_func», «@$1<»)m4_applyforeach(«m4_func», «((bar), (foo),)», «:»)»)
+// PASS_REGULAR_EXPRESSION @bar<:@foo<
