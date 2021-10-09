@@ -47,7 +47,7 @@ macro(yio_config_gen_add_value symbol value)
 	if("${yio_config_gen_tmp}" GREATER "${yio_config_gen_padding_size}")
 		message(FATAL_ERROR "${symbol} is longer then padding size, adjust it")
 	endif()
-	foreach(yio_config_gen_i RANGE "${yio_config_gen_tmp}" "${yio_config_gen_padding_size}")
+	foreach(yio_config_gen_i RANGE "${yio_config_gen_tmp}" "${yio_config_gen_padding_size}" 1)
 		string(APPEND yio_config_gen_symbol " ")
 	endforeach()
 

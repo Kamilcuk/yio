@@ -21,19 +21,9 @@ endfunction()
 ###########################################################################################
 # Stub
 
-if (YIO_DEV)
+if(YIO_DEV)
   file(GLOB_RECURSE tmp *.c *.h)
-  add_library(_CDT_PARSER EXCLUDE_FROM_ALL ${tmp})
-  target_compile_definitions(_CDT_PARSER PRIVATE
-    YIO_CDT_PARSER=1
-    __CDT_PARSER__=1
-    YIO_REALLY_CDT_PARSER=1
-  )
-  target_include_directories(_CDT_PARSER PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/gen
-  )
-  target_link_libraries(_CDT_PARSER PRIVATE library_that_does_not_exists)
+  yio_cdt_parser(src_cdt_parser ${tmp})
 endif()
 
 ###########################################################################################

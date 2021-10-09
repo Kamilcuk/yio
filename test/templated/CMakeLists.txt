@@ -13,6 +13,14 @@ COMMAND ${CMAKE_COMMAND} -E create_symlink
 	${CMAKE_CURRENT_SOURCE_DIR}/gen
 )
 
+if(YIO_DEV)
+  # Target for clangd
+  file(GLOB_RECURSE srcs *.c *.h)
+  list(FILTER srcs EXCLUDE REGEX "^gen/.*")
+  yio_cdt_parser(TEMPLATED_CDT_PARSER ${srcs})
+  target_link_libraries(TEMPLATED_CDT_PARSER PUBLIC _yio_testlib)
+endif()
+
 if(_yIO_HAS_WCHAR_H)
 	list(APPEND replacements "w")
 endif()

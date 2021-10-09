@@ -37,6 +37,13 @@ BUILD_TESTING ?= ON
 HELP_VAR +=~ CTESTFLAGS
 CTESTFLAGS ?=
 
+HELP_VAR +=~ LINT - set to 1 if want to run CPPLINT
+LINT ?=
+ifeq ($(LINT),1)
+export YIO_CPPLINT=1
+export YIO_CLANG_TIDY=1
+endif
+
 ###############################################################################
 
 ifeq ($(SYSTEM),)
@@ -53,7 +60,7 @@ endif
 
 ifeq ($(MODE),)
 else ifeq ($(MODE),coverage)
-CMAKE_C_FLAGS += -g --coverage -fprofile-abs-path
+CMAKE_C_FLAGS += -ggdb3 --coverage -fprofile-abs-path
 else ifeq ($(MODE),sanitize)
 CMAKE_C_FLAGS += -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection
 else
@@ -62,8 +69,18 @@ endif
 
 ###############################################################################
 
-B ?= _build/$(SYSTEM)$(CMAKE_BUILD_TYPE)$(shell MODE=$(MODE) && echo $${MODE^})
+# Build dir name
+_BCCNAME =
+ifdef CC
+ifeq ($(CC),clang)
+_BCCNAME = $(CC)
+endif
+endif
+_BNAME = $(_BCCNAME)$(SYSTEM)$(CMAKE_BUILD_TYPE)$(shell MODE=$(MODE) && echo $${MODE^})
+HELP_VAR +=~ B - Build directory location
+B ?= _build/$(_BNAME)
 
+# Default cmake and other flags
 CMAKE = $(NICE) cmake
 CMAKEFLAGS_INIT += -S.
 ifeq ($(shell hash ninja 2>&1),)
@@ -78,7 +95,7 @@ endif
 CMAKEFLAGS_INIT += -DYIO_DEV=1
 CMAKEFLAGS += $(CMAKEFLAGS_INIT)
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
-CMAKEFLAGS += -DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)"
+CMAKEFLAGS += $(if $(value CMAKE_C_FLAGS),-DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)")
 CMAKEFLAGS += -DBUILD_TESTING=$(BUILD_TESTING)
 CMAKEFLAGS += --warn-uninitialized
 
@@ -99,7 +116,7 @@ configure:
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: configure
-	$(CMAKE) --build $(B) --target $*
+	$(CMAKE) --build $(B) --target $* <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen
@@ -111,28 +128,30 @@ HELP +=~ build - Build the project
 build: .build_all
 
 HELP +=~ test - Run tests using ctest
-test: build
-	ulimit -c 0 ; ( cd $(B) && $(NICE) ctest --output-on-failure -j$(NPROC) $(CTESTFLAGS) )
+test: build testonly
+
+testonly:
+	ulimit -c 0 ; ( cd $(B) && $(NICE) ctest --output-on-failure -j $(NPROC) $(CTESTFLAGS) $(TESTFLAGS) )
 
 HELP +=~ valgrind - Run tests under valgrind
 valgrind: CTESTFLAGS += -LE nomemcheck -D ExperimentalMemCheck
 valgrind: test
 
+HELP +=~ testone_% - Build and test one specific target
+testone_%:
+	$(MAKE) .build_$* testonly CTESTFLAGS="-j 0 -R '^$*\$$\$$' -V"
+
 ###############################################################################
 
 HELP +=~ test_cicd
+test_cicd: export CMAKE_BUILD_TYPE=Release
 test_cicd:
-	$(MAKE) clean
-	$(MAKE) test
-	$(MAKE) test_project_add_subdirectory
-	$(MAKE) test_project_install_add_subdirectory
-	$(MAKE) test SYSTEM=arm
-	$(MAKE) test SYSTEM=arm2
-	$(MAKE) pages_repos
-
-HELP +=~ test_rerun_failed - Run tests with --rerun-failed
-test_rerun_failed: CTESTFLAGS_INIT += --rerun-failed
-test_rerun_failed: test
+	$(MAKE) valgrind
+	$(MAKE) test_project
+	$(MAKE) test MODE=sanitize
+	CC=clang $(MAKE) test
+	$(MAKE) SYSTEM=arm test
+	$(MAKE) gitlab_pages
 
 HELP +=~ debug - Build the project in debug mode
 debug: export CMAKE_BUILD_TYPE=Debug
@@ -150,6 +169,12 @@ release_test:
 	@+$(MAKE) test
 
 # Exotic Targets ##################################################
+
+coverage:
+	$(MAKE) _coverage_in MODE=coverage
+_coverage_in: CTESTFLAGS += -LE nomemcheck
+_coverage_in: test
+	gcovr  --print-summary -filter "src/.*" "$(PWD)" .
 
 ###############################################################################
 # cppcheck

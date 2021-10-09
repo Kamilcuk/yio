@@ -12,11 +12,6 @@
 
 /* Basic config macros ------------------------------------------------------------------------------------------- */
 
-// As of now (2020-03) eclipse doesn't understand _Generic, so disable it.
-#ifdef __CDT_PARSER__
-#define _Generic(a, ...)   _G(a)
-#endif
-
 /* basic macros ------------------------------------------------------------ */
 
 /**

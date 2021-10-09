@@ -140,7 +140,7 @@ int yπio_printctx_putπ_number(yπio_printctx_t *t, const Ychar str[], size_t s
  * @param sizeof_realtype
  * @return
  */
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn() _yIO_access_r(1)
 va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype);
 
 /**
@@ -185,18 +185,12 @@ va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype
  * @param numtype Numericall type, that arithmetics can be done for.
  * @return A value from the printcts va_list of type promoted numtype.
  */
-#ifndef __CDT_PARSER__
 #define yπio_printctx_va_arg_num(printctx, numtype)  _Generic(+(numtype)1,\
 		int: yπio_printctx_va_arg2(printctx, numtype, int), \
 		unsigned: yπio_printctx_va_arg2(printctx, numtype, unsigned), \
 		float: yπio_printctx_va_arg2(printctx, numtype, double), \
-		default: yπio_printctx_va_arg2(printctx, numtype, numtype) \
+		default: yπio_printctx_va_arg2(printctx, numtype, numtype)  /* NOLINT(clang-diagnostic-varargs) */ \
 )
-#else
-// CDT_PARSER doesn't support _Generic
-#define yπio_printctx_va_arg_num(printctx, numtype)  \
-		yπio_printctx_va_arg2(printctx, numtype, numtype)
-#endif
 
 /**
  * @}

@@ -120,7 +120,7 @@ _yIO_nn(1, 2)
 int _yΩIO_yreaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1) _yIO_malloc _yIO_wur
 Ychar *_yΩIO_yformatf(yπio_printdata_t *data, const Ychar *fmt, ...);
-_yIO_nn(1, 2) _yIO_wur
+_yIO_nn(2) _yIO_wur
 Ychar *_yΩIO_yreformatf(Ychar *str, yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(2)
 int _yΩIO_ydprintf(int fd, yπio_printdata_t *data, const Ychar *fmt, ...);

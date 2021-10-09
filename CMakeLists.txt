@@ -38,16 +38,34 @@ if(YIO_DEV)
 	  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
 	endif()
 
-	set_from_env(YIO_USE_CPPLINT)
-	if(YIO_USE_CPPLINT)
-		find_program(CPPLINT_COMMAND "cpplint")
-		if(NOT CPPLINT_COMMAND)
-			message(FATAL_ERROR "cpplint not found")
-		endif()
-		set(CMAKE_C_CPPLINT "${CPPLINT_COMMAND}"
-			"--filter=-whitespace,-legal/copyright,-runtime/int,-build/include_subdir"
-		)
+	set_from_env(YIO_CPPLINT)
+	if(YIO_CPPLINT)
+    set(filter
+      whitespace           # Yes, I use tabs.
+      legal/copyright
+      runtime/int
+      build/include_subdir
+      readability/casting  # This is C not C++.
+      build/include_order  # Too much preprocssor stuff.
+      readability/todo     # I'm programming alone.
+      build/include        # This is hevily templated system, sometimes files don't include.
+      readability/nolint   # I use clang-tidy too, don't complain.
+    )
+    string(REGEX REPLACE ";" ",-" filter "${filter}")
+		set(CMAKE_C_CPPLINT "cpplint" "--filter=-${filter}")
+    unset(filter)
 	endif()
+
+  set_from_env(YIO_CLANG_TIDY)
+  if(YIO_CLANG_TIDY)
+    set(filter
+      clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+      clang-analyzer-valist.Uninitialized  # clang-tidy bug, can't return pointer to va_list from a function.
+    )
+    string(REGEX REPLACE ";" ",-" filter "${filter}")
+    set(CMAKE_C_CLANG_TIDY "clang-tidy" "-checks=-${filter}")
+    unset(filter)
+  endif()
 
 	# Create symlink from gen to GENDIR for development purpouses
 	execute_process(
@@ -76,12 +94,6 @@ if(YIO_DEV)
 			$<$<CONFIG:DEBUG>:-Og>
 			$<$<NOT:$<CONFIG:DEBUG>>:-O>
 		)
-		if(0 AND NOT DEFINED CMAKE_CROSSCOMPILING AND NOT CMAKE_CROSSCOMPILING)
-			list(APPEND tmp
-				-fsanitize=undefined
-				-fsanitize=address
-			)
-		endif()
 		add_link_options(${tmp})
 		add_compile_options(
 			${tmp}
@@ -92,8 +104,8 @@ if(YIO_DEV)
 			-Wno-unused-parameter
 		)
 	endif()
+  include(CheckCCompilerFlag)
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		include(CheckCCompilerFlag)
 		check_c_compiler_flag(-Wattribute-warning _yIO_ATTRIBUTE_WARNING)
 		if(_yIO_ATTRIBUTE_WARNING)
 			add_compile_options(
@@ -107,6 +119,12 @@ if(YIO_DEV)
 			_FORTIFY_SOURCE=2
 		)
 	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+    check_c_compiler_flag(-ffixed-point _yIO_FIXED_POINT)
+    if(_yIO_FIXED_POINT)
+      add_compile_options(
+        -ffixed-point
+      )
+    endif()
 		add_compile_options(
 			-Wno-varargs
 			-Wno-array-bounds
@@ -119,6 +137,20 @@ if(YIO_DEV)
 	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		add_compile_options(-fcolor-diagnostics)
 	endif()
+
+  function(yio_cdt_parser tgt)
+    add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
+    target_compile_definitions(${tgt} PRIVATE
+      __CDT_PARSER__=1
+      YIO_CDT_PARSER=1
+      YIO_REALLY_CDT_PARSER=1
+    )
+    target_include_directories(${tgt} PRIVATE
+      ${SRCDIR}
+      ${GENDIR}
+    )
+    target_link_libraries(${tgt} PRIVATE library_that_does_not_exists)
+  endfunction()
 endif(YIO_DEV)
 
 ######################################################################

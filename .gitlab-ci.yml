@@ -50,8 +50,8 @@ test_gcc_sanitize:
 test_clang:
   variables:
     CC: clang
-  script: 
-  - make B=_build/clangRelease test
+  script:
+  - make test
 
 test_arm:
   script:

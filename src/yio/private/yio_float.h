@@ -9,7 +9,7 @@
 #pragma once
 #include "../yio_config.h"
 
-#ifdef YIO_CDT_PARSER
+#ifdef __CDT_PARSER__
 #define _yIO_HAS_FLOAT$1  1
 #define _yIO_FLOAT$1      float
 #define _yIO_FLOAT_PRI$1  ""
