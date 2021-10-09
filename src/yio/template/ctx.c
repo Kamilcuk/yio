@@ -8,6 +8,9 @@
 m4_syncline()m4_dnl;
 #define _XOPEN_SOURCE  1 // wcswidth
 #include "private.h"
+#if _yIO_HAS_UNISTRING
+#include <uniwidth.h>
+#endif
 #include <stdio.h>
 #include <stdint.h>
 #include <ctype.h>
@@ -70,35 +73,32 @@ int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const Yc
 
 /* printformat --------------------------------------------------- */
 
-typedef struct _yΩIO_printformat_t {
-	yπio_printctx_t *t;
-#if !_yIO_TYPE_YIO
-	size_t bytes_len;
-#endif
-	size_t str_len;
-	size_t alllen;
-	bool is_number;
-	bool is_positive;
-} _yΩIO_printformat_t;
-
 static inline
 size_t _yΩIO_width(const Ychar *str, size_t str_len) {
-#if _yIO_TYPE_YIO
-		return str_len;
-#elif _yIO_TYPE_YWIO
-#if _yIO_HAS_wcswidth
+#if _yIO_TYPE_YIO && _yIO_HAS_UNISTRING
+		return u8_width((const uint8_t*)str, str_len, locale_charset());
+#elif _yIO_TYPE_YWIO && _yIO_HAS_wcswidth
 		return wcswidth(str, str_len);
-#else
-		return str_len;
-#endif
 #elif  _yIO_TYPE_YC16IO
 		return u16_width(str, str_len, locale_charset());
 #elif  _yIO_TYPE_YUIO
 		return u32_width(str, str_len, locale_charset());
 #else
-#error
+		return str_len;
+#define HAS_WIDTH  1
+#endif
+#ifndef HAS_WIDTH
+#define HAS_WIDTH  0
 #endif
 }
+
+typedef struct _yΩIO_printformat_t {
+	yπio_printctx_t *t;
+	size_t str_len;
+	size_t alllen;
+	bool is_number;
+	bool is_positive;
+} _yΩIO_printformat_t;
 
 /**
  * Construct print formatting options.
@@ -120,17 +120,10 @@ void _yΩIO_printformat_init(_yΩIO_printformat_t *pf, yπio_printctx_t *t,
 		const Ychar *str, size_t str_len, bool is_number, bool is_positive) {
 	_yΩIO_printformat_t ret = {
 			.t = t,
-			.str_len = str_len,
+			.str_len = (is_number ? str_len : _yΩIO_width(str, str_len)),
 			.is_number = is_number,
 			.is_positive = is_positive,
 	};
-	(void)str;
-#if !_yIO_TYPE_YIO
-	ret.bytes_len = str_len;
-	if (!is_number) {
-		ret.str_len = _yΩIO_width(str, str_len);
-	}
-#endif
 	*pf = ret;
 }
 
@@ -279,23 +272,17 @@ int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, Ychar group
 }
 
 static inline
-int _yΩIO_printformat_print(_yΩIO_printformat_t *pf, const Ychar str[]) {
+int _yΩIO_printformat_print(_yΩIO_printformat_t *pf, const Ychar str[], size_t str_len) {
 	yπio_printctx_t * const t = pf->t;
 	struct yπio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	const Ychar grouping = f->grouping;
 
 	if (is_number == true && grouping != YΩIO_GROUPING_NONE) {
-		const size_t str_len = pf->str_len;
 		const int err = _yΩIO_print_format_generic_number_grouping(t, grouping, str, str_len);
 		if (err) return err;
 	} else {
-#if _yIO_TYPE_YIO
-		const size_t to_print = pf->str_len;
-#else
-		const size_t to_print = pf->bytes_len;
-#endif
-		const int err = yπio_printctx_raw_write(t, str, to_print);
+		const int err = yπio_printctx_raw_write(t, str, str_len);
 		if (err) return err;
 	}
 
@@ -308,7 +295,7 @@ int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
 	_yΩIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
 	int err = _yΩIO_printformat_prefix(&pf);
 	if (err) return err;
-	err = _yΩIO_printformat_print(&pf, str);
+	err = _yΩIO_printformat_print(&pf, str, str_len);
 	if (err) return err;
 	err = _yΩIO_printformat_suffix(&pf);
 	if (err) return err;

@@ -25,7 +25,7 @@ _yIO_res *_yIO_res_init(_yIO_res *t, char **resultp, size_t *lengthp) {
 	const _yIO_res ret = {
 			.beg = is_dynamic ? NULL : *resultp,
 			.pos = ret.beg,
-			.end = is_dynamic ? NULL : (ret.beg + *lengthp),
+			.end = is_dynamic ? NULL : (*resultp + *lengthp),
 			.is_dynamic = is_dynamic,
 	};
 	*t = ret;

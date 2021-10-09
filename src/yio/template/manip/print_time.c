@@ -13,7 +13,7 @@
 #include <sys/time.h>
 #endif
 
-int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, Ychar **endptr) {
+int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, const Ychar **endptr) {
 	int ret = 0;
 	while (fmt[0] != Yc('\0')) {
 		if (fmt[0] == '{' || fmt[0] == Yc('}')) {
@@ -42,23 +42,23 @@ int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt,
 	// empty string results in %c
 	if (ret == 0) {
 		if (dest) {
-			const Ychar s[] = Yc("%c ");
-			memcpy(dest, s, sizeof(s));
+			*dest++ = Yc('%');
+			*dest++ = Yc('c');
 		}
-		ret = 3;
-		goto EXIT;
+		ret = 2;
 	}
 	if (dest) {
 		// Add additional special space so that strftime
 		// never returns zero.
-		*dest++ = ' ';
-		*dest = '\0';
+		*dest++ = Yc(' ');
+		*dest = Yc('\0');
 	}
 	// Return +1 for additional space.
 	ret += 1;
+	//
 	EXIT:
 	if (endptr) {
-		*endptr = (void*)fmt;
+		*endptr = fmt + 1;
 	}
 	return ret;
 }
@@ -67,10 +67,7 @@ static inline
 int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	int ret = 0;
 
-	const Ychar *format_string = t->fmt;
-	Ychar *tmp;
-	int len = _yΩIO_print_time_in_extract_format_add_space(NULL, format_string, &tmp);
-	t->fmt = tmp + 1;
+	int len = _yΩIO_print_time_in_extract_format_add_space(NULL, t->fmt, NULL);
 	if (len < 0) {
 		ret = YIO_ERROR_PYFMT_INVALID;
 		goto FORMAT_EXTRACT_ERROR;
@@ -80,11 +77,11 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 		ret = YIO_ERROR_ENOMEM;
 		goto FORMAT_MALLOC_ERROR;
 	}
-	const int len2 = _yΩIO_print_time_in_extract_format_add_space(format_in, format_string, NULL);
+	const int len2 = _yΩIO_print_time_in_extract_format_add_space(format_in, t->fmt, &t->fmt);
 	(void)len2; assert(len2 == len);
 
 	const char *format;
-	ret = _yIO_strconv_πstr_to_str(format_in, len + 1, &format, NULL);
+	ret = _yIO_strconv_πstr_to_str(format_in, len, &format, NULL);
 	if (ret) {
 		ret = YIO_ERROR_ENOMEM;
 		goto FORMAT_STRCONV_ERROR;
@@ -96,7 +93,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	int length = strftime(buf, sizeof(_buf_mem), format, tm);
 	if (length == 0) {
 		// if we fail, allocate dynamically
-		length = _yIO_astrftime_nonzero(&buf, sizeof(_buf_mem), format, tm);
+		length = _yIO_astrftime_nonzero(&buf, sizeof(_buf_mem) * 2, format, tm);
 	}
 	if (length <= 0) {
 		ret = YIO_ERROR_ENOMEM;
@@ -125,7 +122,7 @@ struct tm _yIO_localtime(const time_t *sec) {
 #if _yIO_HAS_localtime_r
 	localtime_r(sec, &tm);
 #else
-	tm = *localtime(sec);
+	tm = *localtime(sec); // NOLINT(runtime/threadsafe_fn)
 #endif
 	return tm;
 }
@@ -136,7 +133,7 @@ struct tm _yIO_gmtime(const time_t *sec) {
 #if _yIO_HAS_localtime_r
 	gmtime_r(sec, &tm);
 #else
-	tm = *gmtime(sec);
+	tm = *gmtime(sec); // NOLINT(runtime/threadsafe_fn)
 #endif
 	return tm;
 }

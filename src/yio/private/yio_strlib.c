@@ -91,7 +91,7 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
  * the same representation as character in dst.
  */
 #define _yIO_RETURN_STRCONV_SAME(src_type, dst_type, src, src_len, dst, dst_len)  do { \
-	dst_type * const _out = malloc(sizeof(_out) * src_len); \
+	dst_type * const _out = malloc(sizeof(*_out) * (src_len + 1)); \
 	if (_out == NULL) { \
 		return YIO_ERROR_ENOMEM; \
 	} else { \
@@ -101,6 +101,7 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 			for (size_t i = 0; i < src_len; ++i) { \
 				*_iout++ = *_iin++; \
 			} \
+			*_iout = 0; \
 		} \
 		*dst = _out; \
 		if (dst_len) { \
@@ -133,9 +134,13 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 #if _yIO_HAS_WCHAR_H
 int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
 	int ret = 0;
+
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 
+	// mbsrtowcs(NULL, &src, mb_len, &ps); can't be used!
+	// When first argument is NULL, then mb_len is ignored, and mbsrtowcs
+	// just scans until a terminating character. We have to loop.
 	size_t out_len = 0;
 	const char *src = mb;
 	for (size_t i = 0; i < mb_len; ++i) {
@@ -148,7 +153,7 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 		out_len++;
 	}
 
-	wchar_t *out = malloc(sizeof(wchar_t) * out_len);
+	wchar_t *out = malloc(sizeof(wchar_t) * (out_len + 1));
 	if (out == NULL) {
 		ret = YIO_ERROR_ENOMEM;
 		goto ERR_MALLOC;
@@ -161,7 +166,10 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 		ret = YIO_ERROR_MBTOWC;
 		goto ERR_mbsrtowcs;
 	}
+	/*fprintf(stderr, "%zu %zu `%ls` `%s` %zu\n", len2, out_len, out, mb, mb_len);*/
+	assert(len2 == out_len);
 
+	out[out_len] = L'\0';
 	*wc = out;
 	if (wc_len) {
 		*wc_len = out_len;
@@ -206,6 +214,7 @@ m4_str_to_ustr() m4_dnl;
 
 /* strconv_wstr_to_* -------------------------------------------------------------------- */
 
+m4_syncline()
 #if _yIO_HAS_WCHAR_H
 
 int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
@@ -213,7 +222,6 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
-
 	const wchar_t *src = wc;
 	size_t out_len = 0;
 	for (size_t i = 0; i < wc_len; ++i) {
@@ -226,7 +234,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 		out_len += len;
 	}
 
-	char * const out = malloc(sizeof(*out) * out_len);
+	char * const out = malloc(sizeof(*out) * (out_len + 1));
 	if (out == NULL) {
 		ret = YIO_ERROR_ENOMEM;
 		goto ERR_MALLOC;
@@ -239,7 +247,10 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 		ret = YIO_ERROR_WCTOMB;
 		goto ERR_wcrtomb_2;
 	}
+	/*fprintf(stderr, "%zu %zu\n", len2, len);*/
+	assert(len2 == out_len);
 
+	out[out_len] = L'\0';
 	*mb = out;
 	if (mb_len) {
 		*mb_len = out_len;
@@ -283,6 +294,7 @@ m4_wstr_to_ustr() m4_dnl;
 #if _yIO_HAS_UCHAR_H
 
 m4_define(«m4_uchar_functions», «m4_dnl;
+»m4_syncline()«
 
 int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **mb, size_t *mb_len) {
 	mbstate_t ps;
@@ -301,8 +313,7 @@ int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **m
 	}
 	const size_t out_len = iout_len;
 
-
-	char * const out = malloc(out_len * sizeof(out));
+	char * const out = malloc(sizeof(*out) * (out_len + 1));
 	if (out == NULL) {
 		return YIO_ERROR_ENOMEM;
 	}
@@ -312,7 +323,7 @@ int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **m
 	char *iout = out;
 	size_t i_len = c32_len;
 	for (const char32_t *i = c32; i_len--; ++i) {
-		size_t r = c32rtomb(iout, *i, &ps);
+		const size_t r = c32rtomb(iout, *i, &ps);
 		if (r == (size_t)-1) {
 			free(out);
 			return YIO_ERROR_C32TOMB;
@@ -338,37 +349,11 @@ int _yIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wcha
 	size_t mb_len;
 	ret = _yIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
 	if (ret) {
-		goto ERR_CONV_C32_TO_MB;
+		return ret;
 	}
 
-	wchar_t * const out = malloc(MB_CUR_MAX);
-	if (out == NULL) {
-		ret = YIO_ERROR_ENOMEM;
-		goto ERR_MALLOC;
-	}
-
-	mbstate_t ps;
-	memset(&ps, 0, sizeof(ps));
-
-	const char *pmb = mb;
-	const size_t r = mbsrtowcs(out, &pmb, mb_len, &ps);
-	if (r == (size_t)-1 || r == (size_t)-2) {
-		ret = YIO_ERROR_MBTOWC;
-		goto ERR_MBSRTOWCS;
-	}
+	ret = _yIO_strconv_str_to_wstr(mb, mb_len, wc, wc_len);
 	free((void*)mb);
-
-	*wc = out;
-	if (wc_len) {
-		*wc_len = r;
-	}
-	return ret;
-
-	ERR_MBSRTOWCS:
-	free(out);
-	ERR_MALLOC:
-	free((void*)mb);
-	ERR_CONV_C32_TO_MB:
 	return ret;
 }
 

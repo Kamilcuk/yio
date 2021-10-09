@@ -34,14 +34,6 @@ int _yIO_astrftime_nonzero(char **strp, const size_t initialsize, const char *fm
 		buf = p;
 	}
 
-	// This is pretty safe and I'll do it, I'll trim unused memory
-	void *p = realloc(buf, count);
-	if (p == NULL) {
-		free(buf);
-		return -1;
-	}
-	buf = p;
-
 	*strp = buf;
 	return count;
 }
