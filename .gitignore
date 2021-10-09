@@ -18,3 +18,4 @@ local_makefile.mk
 Testing
 
 .cache
+coverage.json

@@ -82,10 +82,10 @@ B ?= _build/$(_BNAME)
 
 # Default cmake and other flags
 CMAKE = $(NICE) cmake
-CMAKEFLAGS_INIT += -S.
+CMAKEFLAGS += -S.
 ifeq ($(shell hash ninja 2>&1),)
 MAKEFLAGS += --warn-undefined-variables
-CMAKEFLAGS_INIT += -GNinja
+CMAKEFLAGS += -GNinja
 else
 export CMAKE_BUILD_PARALLEL_LEVEL=$(NPROC)
 endif
@@ -102,6 +102,15 @@ CMAKEFLAGS += --warn-uninitialized
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
 
+BUILDFLAGS ?=
+CONFIGFLAGS ?=
+VERBOSE ?= 0
+
+ifeq ($(VERBOSE),1)
+BUILDFLAGS += --verbose
+CTESTFLAGS += -V
+endif
+
 ###############################################################################
 
 all: help
@@ -111,12 +120,12 @@ all: help
 
 HELP +=~ configure - Configure the project
 configure:
-	$(CMAKE) -B$(B) $(CMAKEFLAGS)
+	$(CMAKE) -B$(B) $(CMAKEFLAGS) $(CONFIGFLAGS)
 
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: configure
-	$(CMAKE) --build $(B) --target $* <&-
+	$(CMAKE) --build $(B) --target $* $(BUILDFLAGS) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen
@@ -173,8 +182,14 @@ release_test:
 coverage:
 	$(MAKE) _coverage_in MODE=coverage
 _coverage_in: CTESTFLAGS += -LE nomemcheck
-_coverage_in: test
-	gcovr  --print-summary -filter "src/.*" "$(PWD)" .
+_coverage_in: CMAKEFLAGS_INIT =
+_coverage_in: CMAKEFLAGS += -UYIO_DEV -DYIO_BUILD_TESTING=1
+#_coverage_in: CMAKE_BUILD_TYPE=Release
+_coverage_in: B = _build/coverage
+_coverage_in: test _coverage_gen
+_coverage_gen: MODE=coverage
+_coverage_gen:
+	gcovr --print-summary --txt - --xml ./_build/cobertura-coverage.xml --json ./coverage.json --filter "$(B)/gen" --filter "src" -r . "$(B)"
 
 ###############################################################################
 # cppcheck

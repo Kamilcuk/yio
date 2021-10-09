@@ -18,6 +18,13 @@ enum _yIO_TYPES {
 
 #if YIO_REALLY_CDT_PARSER
 
+// «
+#define m4_syncline(...)
+#define m4_syncline_dnl(...)
+#define m4_template_chooser(...)
+#define m4_template_chooser2(...)
+// »
+
 #define _yIO_TYPE_YIO 1
 
 #define _Generic(...)  /**/
@@ -59,7 +66,7 @@ typedef int Yint;
  * @}
  */
 
-#endif // YIO_REALLY_CDT_PARSER
+#endif
 
 /**
  * @defgroup compilermacros

@@ -15,29 +15,31 @@
 
 int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, const Ychar **endptr) {
 	int ret = 0;
-	while (fmt[0] != Yc('\0')) {
-		if (fmt[0] == '{' || fmt[0] == Yc('}')) {
-			if (fmt[1] != fmt[0]) {
-				if (fmt[0] == Yc('{')) {
-					ret = -1;
-					goto EXIT;
+	if (fmt) {
+		while (fmt[0] != Yc('\0')) {
+			if (fmt[0] == '{' || fmt[0] == Yc('}')) {
+				if (fmt[1] != fmt[0]) {
+					if (fmt[0] == Yc('{')) {
+						ret = -1;
+						goto EXIT;
+					}
+					// fmt[0] == '}'
+					break;
 				}
-				// fmt[0] == '}'
-				break;
-			}
 
-			if (dest) *dest++ = fmt[0];
-			ret++;
-			fmt+=2;
-		} else {
-			if (dest) *dest++ = fmt[0];
-			ret++;
-			fmt++;
+				if (dest) *dest++ = fmt[0];
+				ret++;
+				fmt+=2;
+			} else {
+				if (dest) *dest++ = fmt[0];
+				ret++;
+				fmt++;
+			}
 		}
-	}
-	if (fmt[0] != Yc('}')) {
-		ret = -2;
-		goto EXIT;
+		if (fmt[0] != Yc('}')) {
+			ret = -2;
+			goto EXIT;
+		}
 	}
 	// empty string results in %c
 	if (ret == 0) {
@@ -57,7 +59,7 @@ int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt,
 	ret += 1;
 	//
 	EXIT:
-	if (endptr) {
+	if (endptr && fmt) {
 		*endptr = fmt + 1;
 	}
 	return ret;
@@ -145,10 +147,6 @@ m4_define_function(«m4_print_time_gen3», «m4_dnl;
 int $2(yπio_printctx_t *t) {
 	const $1 ts = yπio_printctx_va_arg(t, $1);
 	return $2_in(t, &ts);
-}
-int $2_pnt(yπio_printctx_t *t) {
-	const $1 *ts = yπio_printctx_va_arg(t, $1 *);
-	return $2_in(t, ts);
 }
 int $2_constpnt(yπio_printctx_t *t) {
 	const $1 *ts = yπio_printctx_va_arg(t, const $1 *);

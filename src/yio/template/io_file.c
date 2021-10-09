@@ -13,8 +13,10 @@
 static inline _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
 size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
 m4_template_chooser2(
+	m4_syncline_dnl();
 	return fwrite(str, 1, size, file);
 ,
+	m4_syncline_dnl();
 	for (size_t n = 0; n < size; n++) {
 		if (fputwc(str[n], file) == YEOF) {
 			return n;
@@ -22,6 +24,7 @@ m4_template_chooser2(
 	}
 	return size;
 ,
+	m4_syncline_dnl();
 	const bool isnormal = fwide(file, 0) <= 0;
 	if (isnormal) {
 		const char *mb; size_t mb_len;
