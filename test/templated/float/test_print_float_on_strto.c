@@ -58,6 +58,8 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	_yIO_TEST_NOFAIL(errno == 0, "%d %s", errno, strerror(errno));
 	_yIO_ASSERT(format_native);
 
+	if (!instr) instr = "(null)";
+
 	Ychar *str_native;
 	errno = 0;
 	int err = yπaprintf(&str_native, format_native, in);
