@@ -79,13 +79,6 @@ if(YIO_DEV)
 			${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
 	)
 
-	# Create symlink to ctags
-	execute_process(
-		COMMAND ${CMAKE_COMMAND} -E create_symlink
-			${CMAKE_BINARY_DIR}/tags
-			${CMAKE_CURRENT_SOURCE_DIR}/tags
-	)
-
 	# Add compiler options.
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
 			CMAKE_C_COMPILER_ID STREQUAL "Clang")
