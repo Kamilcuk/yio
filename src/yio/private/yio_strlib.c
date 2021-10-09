@@ -42,6 +42,7 @@ size_t _yIO_strnlen(const char *str, size_t maxlen) {
 #endif
 }
 
+#if _yIO_HAS_WCHAR_H
 size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen) {
 #if _yIO_HAS_strnlen
 	return wcsnlen(str, maxlen);
@@ -53,6 +54,7 @@ size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen) {
 		return str - str0;
 #endif
 }
+#endif
 
 #if _yIO_HAS_UCHAR_H
 
