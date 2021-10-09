@@ -10,7 +10,7 @@
 #include "yio_float.h"
 #include <stddef.h>
 
-m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
 #ifndef _yIO_HAS_FLOAT$1
 #error
 #endif
@@ -28,4 +28,4 @@ m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
 int _yIO_float_astrfrom_stupid$1(char **resultp, size_t *lengthp,
 		int precision, char spec0, _yIO_FLOAT$1 val);
 #endif // _yIO_HAS_FLOAT$1
-~) m4_dnl;
+») m4_dnl;

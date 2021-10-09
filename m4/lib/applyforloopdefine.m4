@@ -1,5 +1,5 @@
 
-`/**
+«/**
  * @def m4_applyforloopdefine(start_range, end_range, function_body, separator)
  * @ingroup m4
  * @param start_range A number to start counting from, inclusive.
@@ -13,24 +13,24 @@
  * defined function. Optionally non-empty separator can be used
  * to separate elements.
  */
-#define m4_applyforloopdefine(start_range, end_range, function_body, separator) ~
+#define m4_applyforloopdefine(start_range, end_range, function_body, separator) »
 
-m4_define(`m4_applyforloopdefine~, `m4_pushdef(
-	`_$0_function~,
-	`$3~)m4_forloop(
-		`_$0_iterator~,
-		`$1~,
-		`$2~, 
-		`_$0_function(_$0_iterator)~,
-		`$4~)m4_popdef(
-			`_$0_function~)~)
+m4_define(«m4_applyforloopdefine», «m4_pushdef(
+	«_$0_function»,
+	«$3»)m4_forloop(
+		«_$0_iterator»,
+		«$1»,
+		«$2»,
+		«_$0_function(_$0_iterator)»,
+		«$4»)m4_popdef(
+			«_$0_function»)»)
 
-m4_TEST(`m4_applyforloopdefine(1, 3, `arg=$1~, ` S ~)~)
+m4_TEST(«m4_applyforloopdefine(1, 3, «arg=$1», « S »)»)
 // PASS_REGULAR_EXPRESSION arg=1 S arg=2 S arg=3
-m4_TEST(`m4_applyforloopdefine(1, 3, `ARG=$1 ~)~)
+m4_TEST(«m4_applyforloopdefine(1, 3, «ARG=$1 »)»)
 // PASS_REGULAR_EXPRESSION ARG=1 ARG=2 ARG=3
-// Recursive calls have to be defined beforehand 
-m4_TEST(`m4_define(`m4_func~, `cnt=$1~)m4_applyforloopdefine(1, 3, `m4_applyforloop(1, $1, `m4_func~, `,~)~, ` S ~)~)
+// Recursive calls have to be defined beforehand
+m4_TEST(«m4_define(«m4_func», «cnt=$1»)m4_applyforloopdefine(1, 3, «m4_applyforloop(1, $1, «m4_func», «,»)», « S »)»)
 // PASS_REGULAR_EXPRESSION cnt=1 S cnt=1,cnt=2 S cnt=1,cnt=2,cnt=3
 
-			
+

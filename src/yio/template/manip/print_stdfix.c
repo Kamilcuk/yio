@@ -15,11 +15,11 @@
 #include "../../private/yio_stdfix_strfrom.h"
 
 m4_divert(-1)
-// `m4_stdfix_types~
-m4_include(`yio/private/yio_stdfix.h~)
+// «m4_stdfix_types»
+m4_include(«yio/private/yio_stdfix.h»)
 m4_divert(0)m4_dnl;
 
-m4_applyforeachdefine((m4_stdfix_types), `m4_dnl;
+m4_applyforeachdefine((m4_stdfix_types), «m4_dnl;
 
 int _yΩIO_print_$3(yπio_printctx_t *t) {
 	const _yIO_TYPE_$3 v = yπio_printctx_va_arg(t, _yIO_TYPE_$3);
@@ -35,6 +35,6 @@ int _yΩIO_print_$3(yπio_printctx_t *t) {
 	return err;
 }
 
-~)m4_dnl;
+»)m4_dnl;
 
 #endif // _yIO_HAS_STDFIX_TYPES

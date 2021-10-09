@@ -29,12 +29,12 @@
 #error YIO_FLOATS_PREFER_CUSTOM
 #endif
 
-m4_applyforeachdefine(`(
+m4_applyforeachdefine(«(
 		(f, float, f),
 		(fpnt, float *, f),
 		(d, double, d),
 		(l, long double, l)
-)~, m4_syncline(1)`m4_dnl;
+)», m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$3
 #error _yIO_HAS_FLOAT$3
@@ -98,13 +98,13 @@ int _yΩIO_print_float$1(yπio_printctx_t *t) {
 
 #endif // _yIO_HAS_FLOAT$3
 
-~)m4_dnl;
+»)m4_dnl;
 
 #define _yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
-m4_applyforeachdefine(`(
+m4_applyforeachdefine(«(
 		(f),
 		(fpnt),
 		(d),
 		(l)
-)~, `_yΩIO_PRINT_FUNC_GENERIC_FLOAT$1()~, `~)
+)», «_yΩIO_PRINT_FUNC_GENERIC_FLOAT$1()», «»)
 

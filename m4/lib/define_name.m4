@@ -12,14 +12,14 @@
  * Not that's is an issue, but it happens.
  */
 #define m4_define_name(...)
-m4_define(`m4_define_name~, `m4_ifelse(`$#~, `0~, ``$0~~,
-	`_$0(`$1~, `$2~, `$~`#~, `$~`@~)~)~)
-m4_define(`_m4_define_name~, `m4_define(`$1~,
-	``$2~m4_ifelse(`$3~, `0~, `~, `($4)~)~)~)
+m4_define(«m4_define_name», «m4_ifelse(«$#», «0», ««$0»»,
+	«_$0(«$1», «$2», «$»«#», «$»«@»)»)»)
+m4_define(«_m4_define_name», «m4_define(«$1»,
+	««$2»m4_ifelse(«$3», «0», «», «($4)»)»)»)
 
-m4_TEST(`m4_define_name(`nameA~, `valueA~)nameA~)
+m4_TEST(«m4_define_name(«nameA», «valueA»)nameA»)
 // PASS_REGULAR_EXPRESSION valueA
-m4_TEST(`m4_define_name(`nameB~, `valueB~)nameB(1,2,3)~)
+m4_TEST(«m4_define_name(«nameB», «valueB»)nameB(1,2,3)»)
 // PASS_REGULAR_EXPRESSION valueB\(1,2,3\)
-m4_TEST(`m4_define_name(`nameC~, `valueC~)nameC( 1 ,   2   ,  3   )~)
+m4_TEST(«m4_define_name(«nameC», «valueC»)nameC( 1 ,   2   ,  3   )»)
 // PASS_REGULAR_EXPRESSION valueC\(1 ,2   ,3   \)

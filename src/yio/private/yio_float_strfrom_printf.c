@@ -39,7 +39,7 @@ void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
 	assert(fmtpnt <= fmt + fmtsize);
 }
 
-m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$1
 #error
@@ -94,4 +94,4 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 
 #endif
 
-~) m4_dnl;
+») m4_dnl;

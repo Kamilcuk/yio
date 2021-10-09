@@ -20,13 +20,13 @@
 # endif
 #endif
 
-m4_applyforloopdefine(1, m4_MLVLS, `m4_dnl;
+m4_applyforloopdefine(1, m4_MLVLS, «m4_dnl;
 #define _yIO_ydebug_$1(m4_seqdashcomma(1, $1)) \
 			m4_forloopdashX(1, $1,
-			`#X"=", X~,
-			`, " ", \
-			~)
-~)m4_dnl;
+			«#X"=", X»,
+			«, " ", \
+			»)
+»)m4_dnl;
 #define _yIO_ydebug(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
 		_yIO_ydebug_##N
 

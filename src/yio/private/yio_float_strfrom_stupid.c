@@ -54,7 +54,7 @@ static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9'
 static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
 
-m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$1
 #error _yIO_HAS_FLOAT$1
@@ -319,4 +319,4 @@ int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 #undef FC
 
 #endif // _yIO_HAS_FLOAT$1
-~)
+»)

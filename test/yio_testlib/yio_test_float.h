@@ -14,11 +14,11 @@
 #include <math.h>
 #include <assert.h>
 
-m4_applyforeachdefine(`(
+m4_applyforeachdefine(«(
 		(f, ,  FLT, F),
 		(d, ,  DBL,  ),
 		(l, , LDBL, L),
-)~, m4_syncline(1)`m4_dnl;
+)», m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$1
 #error
@@ -195,4 +195,4 @@ _yIO_FLOAT$1 _yIO_diff$1(_yIO_FLOAT$1 in, _yIO_FLOAT$1 out) {
 
 #endif
 
-~)
+»)

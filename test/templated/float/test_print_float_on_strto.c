@@ -38,7 +38,7 @@ static const struct formats_s formats[] = {
 #endif
 
 m4_applyforeachdefine(((f),(d),(l),),
-m4_syncline(1)`m4_dnl;
+m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$1
 #error
@@ -124,7 +124,7 @@ static void test_floats_$1(void) {
 
 #endif
 
-~) m4_syncline(1)m4_dnl;
+») m4_syncline(1)m4_dnl;
 
 int main() {
 	// let newlib initialize

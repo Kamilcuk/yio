@@ -14,8 +14,8 @@
 #endif
 
 m4_divert(-1)
-// `m4_stdfix_types~
-m4_include(`yio/private/yio_stdfix.h~)
+// «m4_stdfix_types»
+m4_include(«yio/private/yio_stdfix.h»)
 m4_divert(0)m4_dnl;
 
 int hex_dot_hex_to_int(char *str) {

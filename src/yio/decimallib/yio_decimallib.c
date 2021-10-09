@@ -16,11 +16,11 @@
 #endif
 
 m4_applyforeachdefine(
-`(
+«(
 		( 32, df,  "H"),
 		( 64, dd,  "D"),
 		(128, dl, "DD")
-)~,`m4_dnl;
+)»,«m4_dnl;
 
 #define _yIO_FLOAT_Cd$1(x)  x ## $2
 
@@ -122,5 +122,5 @@ _Decimal$1 frexpd$1(_Decimal$1 val, int *exp) {
 
 #endif // _yIO_HAS_DEC$1
 
-~) // m4_dnl m4_applyforeachdefine ;
+») // m4_dnl m4_applyforeachdefine ;
 

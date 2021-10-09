@@ -17,13 +17,13 @@
 #include "../private/yio_strlib.h"
 #include <string.h>
 #include <limits.h>
-m4_template_chooser2(`m4_dnl);
-~,`m4_dnl;
+m4_template_chooser2(«m4_dnl);
+»,«m4_dnl;
 #include <wctype.h>
-~,`m4_dnl;
+»,«m4_dnl;
 #include <unictype.h>
 #include <uniconv.h>
 #include <unistr.h>
 #include <uniwidth.h>
 #include <unistdio.h>
-~)m4_dnl;
+»)m4_dnl;

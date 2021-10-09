@@ -14,7 +14,7 @@
 typedef _Decimal32 _Decimal$1;
 #endif
 
-m4_applyforeachdefine(`((32, df), (64, dd), (128, dl))~, `m4_dnl;
+m4_applyforeachdefine(«((32, df), (64, dd), (128, dl))», «m4_dnl;
 
 #if _yIO_HAS_DEC$1
 
@@ -55,4 +55,4 @@ _Decimal$1 _yIO_frexp10d$1(_Decimal$1 val, int *exp);
 
 #endif // _yIO_HAS_DEC$1
 
-~) m4_dnl m4_applyforeachdefine;
+») m4_dnl m4_applyforeachdefine;

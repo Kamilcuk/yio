@@ -33,7 +33,7 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 	return abs(*buf_last_digit - *valstr_last_digit) <= 1;
 }
 
-m4_applyforeachdefine(`((f),(d),(l))~, m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(«((f),(d),(l))», m4_syncline(1)«m4_dnl;
 
 #if _yIO_HAS_FLOAT$1
 
@@ -152,7 +152,7 @@ void _yIO_run_tests_print_float_stupid$1(void) {
 
 #endif
 
-~) m4_dnl;
+») m4_dnl;
 
 int main() {
 #ifdef __GLIBC__

@@ -144,7 +144,7 @@ struct tm _yIO_gmtime(const time_t *sec) {
 /* ----------------------------------------------------------------------------------------- */
 
 // Generate the function for variable, pointer to and const pointer to variable
-m4_define_function(`m4_print_time_gen3~, `m4_dnl;
+m4_define_function(«m4_print_time_gen3», «m4_dnl;
 int $2(yπio_printctx_t *t) {
 	const $1 ts = yπio_printctx_va_arg(t, $1);
 	return $2_in(t, &ts);
@@ -157,7 +157,7 @@ int $2_constpnt(yπio_printctx_t *t) {
 	const $1 *ts = yπio_printctx_va_arg(t, const $1 *);
 	return $2_in(t, ts);
 }
-~) m4_dnl m4_define ;
+») m4_dnl m4_define ;
 
 /* time_t localtime ------------------------------------------------------ */
 

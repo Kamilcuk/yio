@@ -13,7 +13,7 @@
 #include <errno.h>
 #include <stdlib.h>
 
-m4_applyforeachdefine(`((f, f), (d, ), (l, l))~, m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(«((f, f), (d, ), (l, l))», m4_syncline(1)«m4_dnl;
 
 /* suffix $1 ---------------------------------------------------- */
 
@@ -37,5 +37,5 @@ _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp) {
 
 #endif // _yIO_HAS_FLOAT$1
 
-~) m4_dnl m4_applyforeachdefine
+») m4_dnl m4_applyforeachdefine
 

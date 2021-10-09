@@ -21,7 +21,7 @@
 #include "print_stdfix.h"
 #include "print_complex.h"
 
-m4_ifdef(`_yIO_TYPE_YIO~, m4_syncline(1)`m4_dnl;
+m4_ifdef(«_yIO_TYPE_YIO», m4_syncline(1)«m4_dnl;
 #include "print_modifiers.h"
 #include "print_count.h"
 #include "print_cfmt.h"
@@ -29,7 +29,7 @@ m4_ifdef(`_yIO_TYPE_YIO~, m4_syncline(1)`m4_dnl;
 #include "scan_string.h"
 #include "scan_float.h"
 #include "scan_modifiers.h"
-~)m4_syncline(1) m4_dnl;
+»)m4_syncline(1) m4_dnl;
 
 /* ---------------------------------------------------------------- */
 
@@ -125,7 +125,7 @@ int _yIO_scan_const_char_array(yio_scanctx_t *t);
  * @def _yΩIO_SCAN_FUNC_GENERIC
  * Choose the scanning function of argument using _Generic macro
  */
-m4_template_chooser(`m4_dnl);
+m4_template_chooser(«m4_dnl);
 #define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
@@ -141,23 +141,23 @@ m4_template_chooser(`m4_dnl);
 				const char (* const)[sizeof(*arg)]: _yIO_scan_const_char_array, \
 		default: _yΩIO_scan_unhandled_type \
 		))
-~,`m4_dnl;
+»,«m4_dnl;
 #define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
 		default: _yΩIO_scan_unhandled_type \
 		)
-~,`m4_dnl;
+»,«m4_dnl;
 #define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
 		default: _yΩIO_scan_unhandled_type \
 		)
-~,`m4_dnl;
+»,«m4_dnl;
 #define _yΩIO_SCAN_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 				_yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
 		default: _yΩIO_scan_unhandled_type \
 		)
-~)
+»)
 

@@ -10,7 +10,7 @@
 #include <ctype.h>
 
 // m4_generate_print_floats(type, suffix)
-m4_define(`m4_generate_print_floats~, m4_syncline(1)`m4_dnl;
+m4_define(«m4_generate_print_floats», m4_syncline(1)«m4_dnl;
 
 static inline
 int _yΩIO_print_float_$2$3_in(yπio_printctx_t *t, _yIO_FLOAT$3 var);
@@ -40,7 +40,7 @@ int _yΩIO_print_float_$2$1(yπio_printctx_t *t) {
 	return _yΩIO_print_float_$2$3_in(t, var);
 }
 
-m4_ifelse(`$1~, `f~, m4_syncline(1)`m4_dnl;
+m4_ifelse(«$1», «f», m4_syncline(1)«m4_dnl;
 
 int _yΩIO_print_float_$2$1pnt(yπio_printctx_t *t) {
 	const _yIO_FLOAT$1 var = * yπio_printctx_va_arg(t, _yIO_FLOAT$1 *);
@@ -49,23 +49,23 @@ int _yΩIO_print_float_$2$1pnt(yπio_printctx_t *t) {
 	return _yΩIO_print_float_$2$1_in(t, var);
 }
 
-~) m4_dnl;
+») m4_dnl;
 
-~) m4_dnl;
+») m4_dnl;
 
-m4_applyforeachdefine(((f, d),(d, d),(l, l)), m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(((f, d),(d, d),(l, l)), m4_syncline(1)«m4_dnl;
 #ifndef _yIO_HAS_strfrom$1
 #error
 #endif
 #if _yIO_HAS_strfrom$1
 m4_generate_print_floats($1, strfrom, $2)
 #endif
-~) m4_dnl;
+») m4_dnl;
 
 m4_applyforeachdefine((
 		m4_applyforeachdefine(((f, d),(d, d),(l, l)),
-			`($1, stupid, $2),($1, printf, $2)~,
-			`,~)), `m4_dnl;
+			«($1, stupid, $2),($1, printf, $2)»,
+			«,»)), «m4_dnl;
 m4_generate_print_floats($1, $2, $3)
-~) m4_dnl;
+») m4_dnl;
 

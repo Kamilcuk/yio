@@ -5,4 +5,4 @@
  * removing "\n" from m4_esyscmd strings.
  */
 #define m4_chop(string)
-m4_define(`m4_chop~, `m4_substr($1, 0, m4_decr(m4_len($1)))~)
+m4_define(«m4_chop», «m4_substr($1, 0, m4_decr(m4_len($1)))»)

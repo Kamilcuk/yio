@@ -32,17 +32,17 @@
  */
 int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, Ychar **enptr);
 
-m4_define_function(`m4_print_time_gen1~,m4_dnl;
+m4_define_function(«m4_print_time_gen1»,m4_dnl;
 int $1(yπio_printctx_t *t);
 int $1_pnt(yπio_printctx_t *t);
 int $1_constpnt(yπio_printctx_t *t);
 ) m4_dnl ;
 
-m4_define_function(`m4_print_time_gen2~,`m4_dnl;
+m4_define_function(«m4_print_time_gen2»,«m4_dnl;
 		$1: $2, \
 		$1 *: $2_pnt, \
 		const $1 *: $2_constpnt, m4_dnl;
-~) m4_dnl ;
+») m4_dnl ;
 
 m4_print_time_gen1(_yΩIO_print_tm)
 #define _yΩIO_PRINT_GENERIC_TM() \

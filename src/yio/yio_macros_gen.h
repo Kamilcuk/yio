@@ -54,8 +54,8 @@
 #define _yIO_IFBA62A_N(m4_seqdashcomma(1, 70), N, ...) \
 		_yIO_IFBA62A_##N
 #define _yIO_IFBA62A_IN(expr) \
-		_yIO_IFBA62A_N(expr, m4_seqcommaX(64, 74, `62~), m4_seqcommaX(1, 61, `0~))
-// m4_define(`m4_yIO_IFBA62A~, `_yIO_IFBA62A_IN(_yIO_ESC $1)($2, $3)~)
+		_yIO_IFBA62A_N(expr, m4_seqcommaX(64, 74, «62»), m4_seqcommaX(1, 61, «0»))
+// m4_define(«m4_yIO_IFBA62A», «_yIO_IFBA62A_IN(_yIO_ESC $1)($2, $3)»)
 #define _yIO_IFBA62A(expr, then, else) m4_yIO_IFBA62A(expr, then, else)
 
 /* ----------------------------------------------------------------------------------------------- */
@@ -83,7 +83,7 @@
  * @def m4_SIZEOFDECAY
  * Applies sizeof on decayed argument on m4 stage.
  */
-// m4_define(`m4_SIZEOFDECAY~, `sizeof(((void)0),($1))~)
+// m4_define(«m4_SIZEOFDECAY», «sizeof(((void)0),($1))»)
 
 /**
  * @def _yIO_SIZEOFDECAY
@@ -115,7 +115,7 @@
 #define _yIO_PRECOMMAIGNORE1_N(m4_seqdashcomma(0, m4_MLVLS), N, ...) \
 		_yIO_PRECOMMAIGNORE1_##N
 #define _yIO_PRECOMMAIGNORE1(...)  \
-		_yIO_PRECOMMAIGNORE1_N(__VA_ARGS__, m4_forloopdashX(m4_MLVLS, 1, `2~, `,~),0,0)(__VA_ARGS__)
+		_yIO_PRECOMMAIGNORE1_N(__VA_ARGS__, m4_forloopdashX(m4_MLVLS, 1, «2», «,»),0,0)(__VA_ARGS__)
 
 /**
  * @def _yIO_FORWARD_XFROMSECOND
@@ -138,10 +138,10 @@
  */
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_0()
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_1(_1)
-m4_applyforloopdefine(2, m4_MLVLS, `m4_dnl;
+m4_applyforloopdefine(2, m4_MLVLS, «m4_dnl;
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_$1(_1,m4_seqdashcomma(2, $1)) \
-		m4_forloopdashX(2, $1, `m4_SIZEOFDECAY(X),~)
-~)m4_dnl;
+		m4_forloopdashX(2, $1, «m4_SIZEOFDECAY(X),»)
+»)m4_dnl;
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(m4_seqdashcomma(1, m4_MLVLS), N, ...) \
 		_yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_##N
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(...) \
@@ -163,6 +163,6 @@ m4_applyforloopdefine(2, m4_MLVLS, `m4_dnl;
  */
 #define _yIO_STRLEN(s) (\
 		!(s)[0]?0:!(s)[1]?1:\
-		m4_applyforloopdefine(2, 120, `!(s)[$1]?$1:m4_ifelse(m4_eval($1%5),`1~,`\
-		~)~) \
+		m4_applyforloopdefine(2, 120, «!(s)[$1]?$1:m4_ifelse(m4_eval($1%5),«1»,«\
+		»)») \
 		-1)

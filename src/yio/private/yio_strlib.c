@@ -176,7 +176,7 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 
 #if _yIO_HAS_UCHAR_H
 
-m4_define(`m4_str_to_ustr~, `m4_dnl;
+m4_define(«m4_str_to_ustr», «m4_dnl;
 int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32, size_t *c32_len) {
 #if __STDC_UTF_32__ && _yIO_HAS_UNISTRING
 	size_t length = 0;
@@ -194,9 +194,9 @@ int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32
 #error TODO: with mbtoc32
 #endif
 }
-~)m4_dnl;
+»)m4_dnl;
 
-m4_patsubst(m4_patsubst(m4_str_to_ustr(), `32~, `16~), `ustr~, `c16str~) m4_dnl;
+m4_patsubst(m4_patsubst(m4_str_to_ustr(), «32», «16»), «ustr», «c16str») m4_dnl;
 
 m4_str_to_ustr() m4_dnl;
 
@@ -253,7 +253,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 
 #if _yIO_HAS_UCHAR_H
 
-m4_define_function(`m4_wstr_to_ustr~, `m4_dnl;
+m4_define_function(«m4_wstr_to_ustr», «m4_dnl;
 
 int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t **dst, size_t *dst_len) {
 #if __STDC_UTF_32__ && __STDC_ISO_10646__
@@ -268,8 +268,8 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 #endif
 }
 
-~)m4_dnl;
-m4_patsubst(m4_patsubst(m4_wstr_to_ustr(), `32~, `16~), `ustr~, `c16str~) m4_dnl;
+»)m4_dnl;
+m4_patsubst(m4_patsubst(m4_wstr_to_ustr(), «32», «16»), «ustr», «c16str») m4_dnl;
 m4_wstr_to_ustr() m4_dnl;
 
 #endif // _yIO_HAS_UCHAR_H
@@ -280,7 +280,7 @@ m4_wstr_to_ustr() m4_dnl;
 
 #if _yIO_HAS_UCHAR_H
 
-m4_define(`m4_uchar_functions~, `m4_dnl;
+m4_define(«m4_uchar_functions», «m4_dnl;
 
 int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **mb, size_t *mb_len) {
 	mbstate_t ps;
@@ -384,9 +384,9 @@ int _yIO_strconv_ustr_to_wstr(const char32_t *c32, size_t c32_len, const wchar_t
 }
 #endif // _yIO_HAS_WCHAR_H
 
-~)m4_dnl;
+»)m4_dnl;
 m4_dnl Generate char16_t fucntions by replacing 32 to 16
-m4_patsubst(m4_patsubst(m4_uchar_functions(), `32~, `16~), `ustr~, `c16str~)
+m4_patsubst(m4_patsubst(m4_uchar_functions(), «32», «16»), «ustr», «c16str»)
 m4_dnl Then just generate 32
 m4_uchar_functions()
 m4_dnl;

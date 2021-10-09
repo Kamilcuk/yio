@@ -38,11 +38,11 @@
 #define _yIO_strtol  strtold
 
 m4_dnl suffix math_suffix MACRO_prefix
-m4_applyforeachdefine(`(
+m4_applyforeachdefine(«(
 		(f, f, FLT),
 		(d,  , DBL),
 		(l, l, LDBL)
-)~, m4_syncline(1)`m4_dnl;
+)», m4_syncline(1)«m4_dnl;
 #if _yIO_HAS_FLOAT$1
 
 #define _yIO_frexp2$1  frexp$2
@@ -71,5 +71,5 @@ _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp);
 #define _yIO_FLOAT_MIN$1       $3_MIN
 
 #endif // _yIO_HAS_FLOAT$1
-~) m4_dnl m4_applyforeachdefine;
+») m4_dnl m4_applyforeachdefine;
 

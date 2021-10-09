@@ -46,7 +46,7 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int pr
 	assert(fmtpnt <= fmt + FMT_SIZE);
 }
 
-m4_applyforeachdefine(`((f), (d), (l))~, m4_syncline(1)`m4_dnl;
+m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$1
 #error
@@ -99,4 +99,4 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 
 #endif
 
-~) m4_dnl;
+») m4_dnl;

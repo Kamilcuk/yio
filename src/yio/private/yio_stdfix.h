@@ -13,7 +13,7 @@
 #include <stdfix.h>
 #endif
 
-m4_define_function(`m4_take_compilers_or_default~,`m4_dnl;
+m4_define_function(«m4_take_compilers_or_default»,«m4_dnl;
 #ifndef $1
 #ifdef __$1__
 #define $1  __$1__
@@ -22,10 +22,10 @@ m4_define_function(`m4_take_compilers_or_default~,`m4_dnl;
 #endif // __$1__
 #endif // $1
 #define _yIO_$1 $1
-~)
+»)
 
 m4_dnl SUFFIX TYPE MACROFIX MAX MIN IBIT FBIT EPSILON
-m4_define(`m4_stdfix_types~, `m4_dnl;
+m4_define(«m4_stdfix_types», «m4_dnl;
 	(hr,   signed short _Fract,       SFRACT,   0X7FP-7HR,                  (-0.5HR-0.5HR),         0,  7,  0x1P-7HR),
 	(r,    signed _Fract,             FRACT,    0X7FFFP-15R,                (-0.5R-0.5R),           0,  15, 0x1P-15R),
 	(lr,   signed long _Fract,        LFRACT,   0X7FFFFFFFP-31LR,           (-0.5LR-0.5LR),         0,  31, 0x1P-31LR),
@@ -42,9 +42,9 @@ m4_dnl (llk,  signed long long _Accum,   LLACCUM,  0X7FFFFFFFFFFFFFFFP-31LLK,  (
 	(uk,   unsigned _Accum,           UACCUM,   0XFFFFFFFFP-16UK,           0.0UK,                  16, 16, 0x1P-16UK),
 	(ulk,  unsigned long _Accum,      ULACCUM,  0XFFFFFFFFFFFFFFFFP-32ULK,  0.0ULK,                 32, 32, 0x1P-32ULK),
 m4_dnl (ullk, unsigned long long _Accum, ULLACCUM, 0XFFFFFFFFFFFFFFFFP-32ULLK, 0.0ULLK,                32, 32, 0x1P-32ULLK),
-~) m4_dnl;
+») m4_dnl;
 
-m4_applyforeachdefine((m4_stdfix_types), `m4_dnl;
+m4_applyforeachdefine((m4_stdfix_types), «m4_dnl;
 
 #define _yIO_C_$3(x)  x##$1
 #define _yIO_TYPE_$3  $2
@@ -69,6 +69,6 @@ m4_take_compilers_or_default($3_EPSILON, $8)
 #error "I did not expect that one $2!"
 #endif
 
-~)m4_dnl m4_applyforeachdefine ;
+»)m4_dnl m4_applyforeachdefine ;
 
 #endif // _yIO_HAS_STDFIX_TYPES
