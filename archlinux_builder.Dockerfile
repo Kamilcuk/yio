@@ -6,5 +6,6 @@ RUN pacman --noconfirm -Sy \
 		arm-none-eabi-gcc arm-none-eabi-newlib \
 		valgrind rsync \
 		qemu-headless-arch-extra \
-		sdcc
+		sdcc \
+		distcc
 
