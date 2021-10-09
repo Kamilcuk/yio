@@ -39,11 +39,6 @@ int _yΩIO_print_uchar(yπio_printctx_t *t) {
 	return _yΩIO_print_generic_char(t, arg);
 }
 
-int _yΩIO_print_charpnt(yπio_printctx_t *t) {
-	const char * const arg = yπio_printctx_va_arg(t, char *);
-	return _yΩIO_print_constornot_charpnt(t, arg);
-}
-
 int _yΩIO_print_constcharpnt(yπio_printctx_t *t) {
 	const char * const arg = yπio_printctx_va_arg(t, const char *);
 	return _yΩIO_print_constornot_charpnt(t, arg);

@@ -8,6 +8,7 @@
  */
 #pragma once
 
+#include "../yio_config.h"
 
 #if __CDT_PARSER__
 #define _yIO_HAS_DEC$1
@@ -16,7 +17,7 @@
 
 m4_applyforeachdefine(«((32), (64), (128))»,«m4_dnl;
 
-#if _yIO_HAS_DEC$1
+#if _yIO_HAS_FLOATd$1
 
 _Decimal$1 floord$1(_Decimal$1 x);
 _Decimal$1 fabsd$1(_Decimal$1 x);

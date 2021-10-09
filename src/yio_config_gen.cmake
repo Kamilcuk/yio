@@ -51,7 +51,7 @@ macro(yio_config_gen_add_value symbol value)
 		string(APPEND yio_config_gen_symbol " ")
 	endforeach()
 
-	string(APPEND yio_config_gen_content "#ifndef ${yio_config_gen_symbol}\n")
+	string(APPEND yio_config_gen_content "#ifndef ${symbol}\n")
 	string(APPEND yio_config_gen_content "#define ${yio_config_gen_symbol} ${value}\n")
 	string(APPEND yio_config_gen_content "#endif\n")
 endmacro()

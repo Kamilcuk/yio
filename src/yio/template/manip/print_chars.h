@@ -11,12 +11,11 @@
 int _yΩIO_print_char(yπio_printctx_t *t);
 int _yΩIO_print_schar(yπio_printctx_t *t);
 int _yΩIO_print_uchar(yπio_printctx_t *t);
-int _yΩIO_print_charpnt(yπio_printctx_t *t);
 int _yΩIO_print_constcharpnt(yπio_printctx_t *t);
 
 #define _yΩIO_PRINT_FUNC_GENERIC_CHARS() \
 		char: _yΩIO_print_char, \
-		char*: _yΩIO_print_charpnt, \
+		char*: _yΩIO_print_constcharpnt, \
 		const char*: _yΩIO_print_constcharpnt,
 
 #define _yΩIO_PRINT_FUNC_GENERIC_CHARS_SECOND_STAGE() \

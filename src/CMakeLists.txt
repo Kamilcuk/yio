@@ -278,12 +278,6 @@ function(yio_add_library name)
 
 	add_dependencies(${name} yio_gen)
 
-	if(NOT YIO_DEV)
-		# Add dependencies on object files on yio_gen, so that all files
-		# are generated before build
-		set_source_files_properties(${srcs} PROPERTIES OBJECT_DEPENDS ${yio_gen_file})
-	endif()
-
 	add_dependencies(yio_targets ${name})
 
 	# Extract list of headers.
@@ -319,31 +313,31 @@ yio_add_library(yio_decimallib
 
 file_glob_relative_to_srcdir(GLOB auto_generic_srcs yio/*.h yio/*.c)
 file_glob_relative_to_srcdir(GLOB auto_yio_private_srcs yio/private/*.h yio/private/*.c)
-yio_add_library(yio
-	${auto_yio_private_srcs}
-	${auto_generic_srcs}
+set(yio_sources
+	yio/yio_version.h
 	yio/yio_config.h
 	yio/yio_config_gen.h
 	yio/yio_error_messages.h
+
+	${auto_yio_private_srcs}
+	${auto_generic_srcs}
+  yio/decimallib/yio_decimallib.h
 	yio.h
 	${yio_gensrcs}
 	ywio.h
 	${ywio_gensrcs}
 )
 if(UNISTRING_LIB)
-	# converting from UTF32 and UTF16 to WCHAR and CHAR needs conversion library
-	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
+  list(APPEND yio_sources
+    yc16io.h
+    ${yc16io_gensrcs}
+    yuio.h
+    ${yuio_gensrcs}
+  )
 endif()
-
-# UNISTRING_LIB found in parent CMakeLists.txt
+yio_add_library(yio ${yio_sources})
 if(UNISTRING_LIB)
-	yio_add_library(yuio
-		yc16io.h
-		${yc16io_gensrcs}
-		yuio.h
-		${yuio_gensrcs}
-	)
-	target_link_libraries(yuio PUBLIC yio ${UNISTRING_LIB})
+	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
 endif()
 
 ##################################################################################

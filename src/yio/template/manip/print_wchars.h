@@ -9,7 +9,6 @@
 #pragma once
 
 int _yΩIO_print_wchar(yπio_printctx_t *t);
-int _yΩIO_print_wcharpnt(yπio_printctx_t *t);
 int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
 
 /**
@@ -18,15 +17,15 @@ int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
  * @{
  */
 /// Print wchar_t character.
-#define yπpwchar(wchar)         yiocb(_yΩIO_print_wchar, (wchar))
+#define yπpwchar(wchar)         yiocb(_yΩIO_print_wchar, (wchar_t)(wchar))
 /// Print a string of wchar_t characters.
-#define yπpwstring(wstring)     yiocb(_yΩIO_print_wcharpnt, (wstring))
+#define yπpwstring(wstring)     yiocb(_yΩIO_print_constwcharpnt, (const wchar_t*)(wstring))
 /**
  * @}
  */
 
 #define _yΩIO_PRINT_FUNC_GENERIC_WCHARS() \
-		wchar_t *: _yΩIO_print_wcharpnt, \
+		wchar_t *: _yΩIO_print_constwcharpnt, \
 		const wchar_t *: _yΩIO_print_constwcharpnt,
 
 #define _yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \

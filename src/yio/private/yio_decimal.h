@@ -7,35 +7,41 @@
  * @brief
  */
 #pragma once
-#include "private.h"
+// #define __STDC_WANT_IEC_60559_TYPES_EXT__
+#include "../decimallib/yio_decimallib.h"
 
 #ifdef __CDT_PARSER__
-#define _yIO_HAS_DEC$1
+#define _yIO_HAS_FLOAT$1
 typedef _Decimal32 _Decimal$1;
 #endif
 
-m4_applyforeachdefine(«((32, df), (64, dd), (128, dl))», «m4_dnl;
 
-#if _yIO_HAS_DEC$1
+m4_applyforeachdefine(«(
+	(d32,  32, df,  "H", 7),
+	(d64,  64, dd,  "D", 16),
+	(d128, 128, dl, "DD", 34),
+)», m4_syncline()«
+
+#if _yIO_HAS_FLOAT$1
 
 /**
- * @def _yIO_FLOATd$1
+ * @def _yIO_FLOAT$1
  * A typedef to _Decimal$1 type.
  */
-typedef _Decimal$1 _yIO_FLOATd$1;
+typedef _Decimal$2 _yIO_FLOAT$1;
 
 /**
- * @def _yIO_FLOAT_Cd$1(x)
+ * @def _yIO_FLOAT_C$1(x)
  * @param x A floating point value without suffix.
  * Declares a constant of _Decimal$1 type.
  */
-#define _yIO_FLOAT_Cd$1(x)  x ## $2
+#define _yIO_FLOAT_C$1(x)  x ## $3
 
 /**
- * @def _yIO_FLOAT_PRId$1
+ * @def _yIO_FLOAT_PRI$1
  * The printf modifier used to print _Decimal type.
  */
-#define _yIO_FLOAT_PRId$1   $3
+#define _yIO_FLOAT_PRI$1   $4
 
 /**
  * Like frexp(), but always with base 2.
@@ -43,7 +49,7 @@ typedef _Decimal$1 _yIO_FLOATd$1;
  * @param exp
  * @return
  */
-_Decimal$1 _yIO_frexp2d$1(_Decimal$1 val, int *exp);
+_yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1 val, int *exp);
 
 /**
  * Like frexp(), but always with base 10.
@@ -51,8 +57,14 @@ _Decimal$1 _yIO_frexp2d$1(_Decimal$1 val, int *exp);
  * @param exp
  * @return
  */
-_Decimal$1 _yIO_frexp10d$1(_Decimal$1 val, int *exp);
+_yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp);
 
-#endif // _yIO_HAS_DEC$1
+#define _yIO_FLOAT_MANT_DIG$1 $5
+#define _yIO_fabs$1     fabs$1
+#define _yIO_exp2$1     exp2$1
+#define _yIO_exp10$1    exp10$1
 
-») m4_dnl m4_applyforeachdefine;
+
+#endif
+
+»)

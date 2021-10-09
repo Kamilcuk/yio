@@ -14,9 +14,9 @@
 #include <stdlib.h>
 
 m4_applyforeachdefine(«(
-			(f, f),
-			(d, ),
-			(l, l),
+			(f),
+			(d),
+			(l),
 )», m4_syncline(1)«m4_dnl;
 
 /* suffix $1 ---------------------------------------------------- */

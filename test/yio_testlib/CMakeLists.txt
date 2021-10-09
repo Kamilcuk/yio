@@ -5,7 +5,7 @@ m4_add_command(
 	SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/yio_test_float.h
 	OUTPUT "${yio_test_gen}"
 )
-add_library(${PROJECT_NAME} 
+add_library(${PROJECT_NAME}
 	yio_test.c
 	yio_test.h
 	yio_test_private.h
@@ -18,8 +18,3 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio
 )
-if(UNISTRING_LIB)
-	target_link_libraries(${PROJECT_NAME} PUBLIC
-		yuio
-	)
-endif()

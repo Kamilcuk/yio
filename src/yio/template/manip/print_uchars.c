@@ -40,17 +40,8 @@ int _yΩIO_print_constornot_char32pnt(yπio_printctx_t *t, const char32_t *str) 
 
 /* ------------------------------------------------------ */
 
-
-int _yΩIO_print_char16pnt(yπio_printctx_t *t) {
-	return _yΩIO_print_constornot_char16pnt(t, yπio_printctx_va_arg(t, char16_t *));
-}
-
 int _yΩIO_print_constchar16pnt(yπio_printctx_t *t) {
 	return _yΩIO_print_constornot_char16pnt(t, yπio_printctx_va_arg(t, const char16_t *));
-}
-
-int _yΩIO_print_char32pnt(yπio_printctx_t *t) {
-	return _yΩIO_print_constornot_char32pnt(t, yπio_printctx_va_arg(t, char32_t *));
 }
 
 int _yΩIO_print_constchar32pnt(yπio_printctx_t *t) {

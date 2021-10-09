@@ -17,16 +17,16 @@
 
 m4_applyforeachdefine(
 «(
-		( 32, df,  "H"),
-		( 64, dd,  "D"),
-		(128, dl, "DD")
+		( 32, df),
+		( 64, dd),
+		(128, dl),
 )»,«m4_dnl;
 
 #define _yIO_FLOAT_Cd$1(x)  x ## $2
 
 /* suffix $1 ---------------------------------------------------- */
 
-#if _yIO_HAS_DEC$1
+#if _yIO_HAS_FLOATd$1
 #if _yIO_HAS_IEC_60559_DFP
 
 _Decimal$1 frexp10d$1(_Decimal$1 val, int *exp) {
@@ -122,5 +122,5 @@ _Decimal$1 frexpd$1(_Decimal$1 val, int *exp) {
 
 #endif // _yIO_HAS_DEC$1
 
-») // m4_dnl m4_applyforeachdefine ;
+»)
 

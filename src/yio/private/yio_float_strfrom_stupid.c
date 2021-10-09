@@ -13,9 +13,11 @@
 #define _DEFAULT_SOURCE  1
 #define _BSD_SOURCE  1
 #define _SVID_SOURCE  1
+#define __STDC_WANT_IEC_60559_TYPES_EXT__  1
 #include "yio_float_strfrom_stupid.h"
 #include "yio_res.h"
 #include "yio_float.h"
+#include "yio_decimal.h"
 #include "private.h"
 
 #include <assert.h>
@@ -54,7 +56,10 @@ static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9'
 static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
 
-m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
+m4_applyforeachdefine(«(
+			(f), (d), (l),
+			(d32),
+)», m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$1
 #error _yIO_HAS_FLOAT$1

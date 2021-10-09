@@ -10,14 +10,12 @@
 
 #if _yIO_HAS_UCHAR_H
 #include <uchar.h>
-int _yΩIO_print_char16pnt(yπio_printctx_t *t);
 int _yΩIO_print_constchar16pnt(yπio_printctx_t *t);
-int _yΩIO_print_char32pnt(yπio_printctx_t *t);
 int _yΩIO_print_constchar32pnt(yπio_printctx_t *t);
 #define _yΩIO_PRINT_FUNC_GENERIC_UCHARS() \
-		char16_t*: _yΩIO_print_char16pnt, \
+		char16_t*: _yΩIO_print_constchar16pnt, \
 		const char16_t*: _yΩIO_print_constchar16pnt, \
-		char32_t*: _yΩIO_print_char32pnt, \
+		char32_t*: _yΩIO_print_constchar32pnt, \
 		const char32_t*: _yΩIO_print_constchar32pnt,
 #else
 #define _yΩIO_PRINT_FUNC_GENERIC_UCHARS()

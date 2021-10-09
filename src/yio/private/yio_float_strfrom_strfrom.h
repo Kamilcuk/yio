@@ -8,16 +8,23 @@
  */
 #pragma once
 #include "yio_float.h"
+#include "yio_decimal.h"
 #include <stddef.h>
 
-m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
+m4_applyforeachdefine(«(
+			(f), (d), (l),
+			(d32), (d64), (d128),
+)», m4_syncline(1)«m4_dnl;
+
 #ifndef _yIO_HAS_FLOAT$1
 #error
 #endif
 #ifndef _yIO_HAS_strfrom$1
 #error
 #endif
+
 #if _yIO_HAS_FLOAT$1 && _yIO_HAS_strfrom$1
+
 /**
  * Convert the floating number val according to specified precision
  * and specification using @c strfrom$1 function.
@@ -30,5 +37,7 @@ m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
  */
 int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 		int precision, char spec, _yIO_FLOAT$1 val);
+
 #endif
+
 ») m4_dnl;

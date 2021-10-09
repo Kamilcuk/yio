@@ -30,10 +30,6 @@ int _yΩIO_print_wchar(yπio_printctx_t *t) {
 	return _yΩIO_print_wcharpnt_in(t, wc);
 }
 
-int _yΩIO_print_wcharpnt(yπio_printctx_t *t) {
-	return _yΩIO_print_wcharpnt_in(t, yπio_printctx_va_arg(t, wchar_t *));
-}
-
 int _yΩIO_print_constwcharpnt(yπio_printctx_t *t) {
 	// TODO: precision
 	return _yΩIO_print_wcharpnt_in(t, yπio_printctx_va_arg(t, const wchar_t *));

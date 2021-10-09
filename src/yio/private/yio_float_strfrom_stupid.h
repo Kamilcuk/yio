@@ -10,11 +10,15 @@
 #include "yio_float.h"
 #include <stddef.h>
 
-m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
+m4_applyforeachdefine(«(
+			(f), (d), (l),
+)», m4_syncline(1)«
+
 #ifndef _yIO_HAS_FLOAT$1
 #error
 #endif
 #if _yIO_HAS_FLOAT$1
+
 /**
  * Convert the floating number val according to specified precision
  * and specification using method written by myself.
@@ -27,5 +31,9 @@ m4_applyforeachdefine(«((f), (d), (l))», m4_syncline(1)«m4_dnl;
  */
 int _yIO_float_astrfrom_stupid$1(char **resultp, size_t *lengthp,
 		int precision, char spec0, _yIO_FLOAT$1 val);
+
+#define _yIO_float_astrfrom_stupid$1 _yIO_float_astrfrom_stupid$1
+
 #endif // _yIO_HAS_FLOAT$1
-») m4_dnl;
+
+»)

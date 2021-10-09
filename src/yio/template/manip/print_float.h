@@ -8,6 +8,9 @@
  */
 #pragma once
 #include "../../private/yio_float.h"
+#include "../../private/yio_float_strfrom_stupid.h"
+#include "../../private/yio_float_strfrom_strfrom.h"
+#include "../../private/yio_float_strfrom_printf.h"
 
 #ifndef YIO_PRINT_FLOATS_WITH_UNSET
 #define YIO_PRINT_FLOATS_WITH_UNSET  0
