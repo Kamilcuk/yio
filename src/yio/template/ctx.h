@@ -32,7 +32,7 @@ typedef struct _yΩIO_printctx_s yπio_printctx_t;
  * @return 0 on success, anything else on error
  */
 typedef int _yΩIO_printcb_t(void *arg, const Ychar *data, size_t count)
-		_yIO_wur _yIO_nn(2) _yIO_access(__read_only__, 2, 3);
+		_yIO_wur _yIO_nn(2) _yIO_access_r(2, 3);
 
 /**
  * The type of callback functions.
@@ -229,7 +229,7 @@ typedef int (*_yΩIO_scanfunc_t)(yπio_scanctx_t *t);
  * @return 0 on success, anything else on error
  */
 typedef int _yΩIO_scancb_t(void *arg, Yint *data)
-	_yIO_wur _yIO_nn(2) _yIO_access(__write_only__, 2);
+	_yIO_wur _yIO_nn(2) _yIO_access_r(2);
 
 /**
  * A list of arguments created by macro substitution.
@@ -251,7 +251,7 @@ typedef const struct _yΩIO_scandata_s {
  * @param c
  * @return 0 on success, otherwise error.
  */
-_yIO_wur _yIO_nn() _yIO_access(__read_only__, 2)
+_yIO_wur _yIO_nn() _yIO_access_r(2)
 int yπio_scanctx_in(yπio_scanctx_t *t, Yint *c);
 
 /**

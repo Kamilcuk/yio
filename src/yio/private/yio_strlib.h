@@ -72,7 +72,7 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen);
 
 #define _yIO_STRCONV_DECLARE_IN2(N1, N2) \
 \
-_yIO_wur _yIO_access(__read_only__, 1, 2) _yIO_nn(1, 3) \
+_yIO_wur _yIO_access_r(1, 2) _yIO_nn(1, 3) \
 int  _yIO_strconv_##N1##str_to_##N2##str(\
 		const _yIO_##N1##char_t *src, size_t src_len, \
 		const _yIO_##N2##char_t **dst, size_t *dst_len); \
@@ -91,7 +91,7 @@ void _yIO_strconv_free_##N1##str_to_##N2##str(\
 
 #define _yIO_STRCONV_DECLARE_TO_ITSELF_IN2(N1) \
 \
-static inline _yIO_wur _yIO_access(__read_only__, 1, 2) _yIO_nn(1, 3) \
+static inline _yIO_wur _yIO_access_r(1, 2) _yIO_nn(1, 3) \
 int  _yIO_strconv_##N1##str_to_##N1##str(\
 		const _yIO_##N1##char_t *src, size_t src_len, \
 		const _yIO_##N1##char_t **dst, size_t *dst_len) { \

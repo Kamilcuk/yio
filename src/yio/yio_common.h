@@ -79,7 +79,6 @@ typedef int Yint;
 #define _yIO_error(...)       __attribute__((__error__(__VA_ARGS__)))
 #endif
 #if __GNUC__ >= 10
-#define _yIO_access(...)      __attribute__((__access__(__VA_ARGS__)))
 #define _yIO_access_r(...)    __attribute__((__access__(__read_only__, ##__VA_ARGS__)))
 #define _yIO_access_w(...)    __attribute__((__access__(__write_only__, ##__VA_ARGS__)))
 #define _yIO_access_rw(...)   __attribute__((__access__(__read_write__, ##__VA_ARGS__)))
@@ -121,9 +120,6 @@ typedef int Yint;
 #ifndef _yIO_error
 /// Function errors upon calling
 #define _yIO_error(...)
-#endif
-#ifndef _yIO_access
-#define _yIO_access(...)
 #endif
 #ifndef _yIO_access_r
 #define _yIO_access_r(...)

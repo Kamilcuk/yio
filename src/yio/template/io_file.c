@@ -10,7 +10,7 @@
 
 /* ------------------------------------------------------------------------- */
 
-static inline _yIO_access(__read_only__, 2, 3) _yIO_wur _yIO_nn()
+static inline _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
 size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
 m4_template_chooser2(«m4_dnl);
 	return fwrite(str, 1, size, file);
@@ -47,7 +47,7 @@ m4_template_chooser2(«m4_dnl);
 }
 /* ------------------------------------------------------------------------- */
 
-static _yIO_access(__read_only__, 2, 3) _yIO_wur _yIO_nn()
+static _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
 int _yΩIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	FILE *f = arg;
 	const size_t cnt = _yΩIO_fwrite(f, ptr, size);

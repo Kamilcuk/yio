@@ -253,7 +253,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 
 #if _yIO_HAS_UCHAR_H
 
-m4_define_function(«m4_wstr_to_ustr», «m4_dnl;
+m4_define_function(«m4_wstr_to_ustr», «
 
 int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t **dst, size_t *dst_len) {
 #if __STDC_UTF_32__ && __STDC_ISO_10646__

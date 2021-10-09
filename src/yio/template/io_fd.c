@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-static inline _yIO_access(__read_only__, 2, 3)
+static inline _yIO_access_r(2, 3)
 int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	const int fd = *(int*)arg;
 	int ret = 0;
@@ -40,7 +40,7 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 #define SUPER_MB_LEN_MAX  (MB_LEN_MAX)
 #endif
 
-static inline _yIO_access(__read_only__, 2, 3)
+static inline _yIO_access_r(2, 3)
 int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 #if _yIO_TYPE_YIO
 	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
@@ -82,7 +82,7 @@ int _yΩIO_ydprintf(int fd, yπio_printdata_t *data, const Ychar *fmt, ...) {
 
 /* ---------------------------------------------------------------- */
 
-static inline _yIO_access(__write_only__, 2, 3)
+static inline _yIO_access_w(2, 3)
 int _yΩIO_ydscanf_cb_read_repeat(int fd, void *dest0, size_t size) {
 	char *dest = dest0;
 	int ret = 0;
