@@ -2,7 +2,7 @@
  * @file
  * @date 2020-06-11
  * @author Kamil Cukrowski
- * @copyright 
+ * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
