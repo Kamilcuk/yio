@@ -128,7 +128,6 @@ test_cicd:
 	$(MAKE) test_project_install_add_subdirectory
 	$(MAKE) test SYSTEM=arm
 	$(MAKE) test SYSTEM=arm2
-	$(MAKE) test SYSTEM=sdcc
 	$(MAKE) pages_repos
 
 HELP +=~ test_rerun_failed - Run tests with --rerun-failed
