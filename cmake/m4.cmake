@@ -85,9 +85,9 @@ macro(_m4_get_command_args)
 	file(RELATIVE_PATH sourcebinrela "${CMAKE_BINARY_DIR}" "${source}")
 
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
-    if(${CMAKE_VERSION} VERSION_GREATER "3.21.0")
-      cmake_policy(SET CMP0116 OLD)
-    endif()
+		if(POLICY CMP0116)
+			cmake_policy(SET CMP0116 OLD)
+		endif()
 		# When use Nninja we can use DEPFILE
 		set(add_custom_command_depfile_args
 			DEPFILE "${depfile}"

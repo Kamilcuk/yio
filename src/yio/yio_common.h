@@ -78,7 +78,9 @@ typedef int Yint;
 #define _yIO_wur              __attribute__((__warn_unused_result__))
 #define _yIO_malloc           __attribute__((__malloc__))
 #define _yIO_const            __attribute__((__const__))
+#ifndef __INTEL_COMPILER
 #define _yIO_rnn              __attribute__((__returns_nonnull__))
+#endif
 #define _yIO_format(...)      __attribute__((__format__(__VA_ARGS__)))
 #define _yIO_deprecated(...)  __attribute__((__deprecated__(__VA_ARGS__)))
 #define _yIO_warning(...)     __attribute__((__warning__(__VA_ARGS__)))

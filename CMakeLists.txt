@@ -80,10 +80,11 @@ if(YIO_DEV)
 	)
 
 	# Add compiler options.
-	if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
-			CMAKE_C_COMPILER_ID STREQUAL "Clang")
-		set(tmp
-			-ggdb3
+	if(
+			CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
+			CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+			CMAKE_C_COMPILER_ID STREQUAL "Intel"
+	)
 			$<$<CONFIG:DEBUG>:-Og>
 			$<$<NOT:$<CONFIG:DEBUG>>:-O>
 		)

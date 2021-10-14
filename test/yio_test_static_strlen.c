@@ -8,7 +8,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#if __GNUC__ && !__clang__
+#if __GNUC__ && !__clang__ && !__INTEL_COMPILER
 #pragma GCC optimize("O")
 int main() {
 	const char msg[] = "hello world";

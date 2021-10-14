@@ -22,12 +22,11 @@ _yIO_res *_yIO_res_init(_yIO_res *t, char **resultp, size_t *lengthp) {
 	assert(resultp != NULL);
 	assert(lengthp != NULL);
 	const bool is_dynamic = *resultp == NULL || *lengthp == 0;
-	const _yIO_res ret = {
-			.beg = is_dynamic ? NULL : *resultp,
-			.pos = ret.beg,
-			.end = is_dynamic ? NULL : (*resultp + *lengthp),
-			.is_dynamic = is_dynamic,
-	};
+	_yIO_res ret;
+	ret.beg = is_dynamic ? NULL : *resultp;
+	ret.pos = ret.beg;
+	ret.end = is_dynamic ? NULL : (*resultp + *lengthp);
+	ret.is_dynamic = is_dynamic;
 	*t = ret;
 	return t;
 }

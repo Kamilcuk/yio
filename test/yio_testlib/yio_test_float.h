@@ -14,6 +14,10 @@
 #include <math.h>
 #include <assert.h>
 
+#ifdef __INTEL_COMPILER
+#pragma warning disable 1188
+#endif
+
 m4_applyforeachdefine(«(
 		(f, ,  FLT, F),
 		(d, ,  DBL,  ),
