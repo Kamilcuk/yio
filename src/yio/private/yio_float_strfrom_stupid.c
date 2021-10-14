@@ -58,7 +58,6 @@ static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digi
 
 m4_applyforeachdefine(«(
 			(f), (d), (l),
-			(d32),
 )», m4_syncline(1)«m4_dnl;
 
 #ifndef _yIO_HAS_FLOAT$1

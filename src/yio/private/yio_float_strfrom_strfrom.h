@@ -23,7 +23,7 @@ m4_applyforeachdefine(«(
 #error
 #endif
 
-#if _yIO_HAS_FLOAT$1 && _yIO_HAS_strfrom$1
+#if _yIO_HAS_FLOAT$1
 
 /**
  * Convert the floating number val according to specified precision

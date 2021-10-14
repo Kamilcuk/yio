@@ -59,7 +59,7 @@ m4_applyforeachdefine(«(
 #error
 #endif
 
-#if _yIO_HAS_FLOAT$1 && _yIO_HAS_strfrom$1
+#if _yIO_HAS_FLOAT$1
 
 // In case it's not defined in standard headers, so that we get a link time error.
 extern int strfrom$1(char *str, size_t n, const char *format, _yIO_FLOAT$1 fp);
@@ -103,4 +103,4 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 
 #endif
 
-») m4_dnl;
+»)

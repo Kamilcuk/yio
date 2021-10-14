@@ -63,8 +63,6 @@ m4_applyforeachdefine(«(
 
 _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp);
 
-#define _yIO_strfrom$1 strfrom$1
-
 #define _yIO_FLOAT_MANT_DIG$1  $3_MANT_DIG
 #define _yIO_FLOAT_MAX$1       $3_MAX
 #define _yIO_FLOAT_EPSILON$1   $3_EPSILON

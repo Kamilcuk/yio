@@ -7,8 +7,8 @@
  * @brief
  */
 #pragma once
-// #define __STDC_WANT_IEC_60559_TYPES_EXT__
-#include "../decimallib/yio_decimallib.h"
+#include "../yio_config.h"
+#include <stddef.h>
 
 #ifdef __CDT_PARSER__
 #define _yIO_HAS_FLOAT$1
@@ -17,8 +17,8 @@ typedef _Decimal32 _Decimal$1;
 
 
 m4_applyforeachdefine(«(
-	(d32,  32, df,  "H", 7),
-	(d64,  64, dd,  "D", 16),
+	(d32,  32,  df,  "H", 7),
+	(d64,  64,  dd,  "D", 16),
 	(d128, 128, dl, "DD", 34),
 )», m4_syncline()«
 
@@ -35,7 +35,7 @@ typedef _Decimal$2 _yIO_FLOAT$1;
  * @param x A floating point value without suffix.
  * Declares a constant of _Decimal$1 type.
  */
-#define _yIO_FLOAT_C$1(x)  x ## $3
+#define _yIO_FLOAT_C$1(x)  (x ## $3)
 
 /**
  * @def _yIO_FLOAT_PRI$1
@@ -60,10 +60,9 @@ _yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1 val, int *exp);
 _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp);
 
 #define _yIO_FLOAT_MANT_DIG$1 $5
-#define _yIO_fabs$1     fabs$1
-#define _yIO_exp2$1     exp2$1
-#define _yIO_exp10$1    exp10$1
-
+#define _yIO_fabs$1      fabs$1
+#define _yIO_exp2$1(x)   pow$1(2, x)
+#define _yIO_exp10$1(x)  pow$1(10, x)
 
 #endif
 

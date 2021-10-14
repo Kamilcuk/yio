@@ -14,7 +14,9 @@ m4_applyforeachdefine(«(
 			(f), (d), (l),
 			(d32), (d64), (d128),
 )», «m4_dnl;
+
 #if _yIO_HAS_FLOAT$1
+
 /**
  * Convert the floating number val according to specified precision
  * and specification using snprintf function.
@@ -27,6 +29,8 @@ m4_applyforeachdefine(«(
  */
 int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 		int precision, char spec, _yIO_FLOAT$1 val);
+
 #endif
+
 ») m4_dnl;
 

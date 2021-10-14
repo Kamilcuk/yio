@@ -18,3 +18,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio
 )
+find_library(DFP dfp)
+if(DFP)
+	target_link_libraries(${PROJECT_NAME} PUBLIC
+		${DFP}
+	)
+else()
+	target_link_libraries(${PROJECT_NAME} PUBLIC
+		yio_decimallib
+	)
+endif()
