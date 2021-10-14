@@ -9,6 +9,8 @@ variables:
 ###############################################################################
 
 icc_test:
+  tags:
+    - perun
   image:
     name: intel/oneapi-hpckit
     entrypoint: []
