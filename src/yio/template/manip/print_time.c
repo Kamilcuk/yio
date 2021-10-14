@@ -83,11 +83,27 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	(void)len2; assert(len2 == len);
 
 	const char *format;
+#if _yIO_TYPE_YIO
+	format_in[len] = '\0';
+	format = format_in;
+	if (0) {
+		goto FORMAT_STRCONV_ERROR;
+	}
+#else
 	ret = _yIO_strconv_πstr_to_str(format_in, len, &format, NULL);
 	if (ret) {
 		ret = YIO_ERROR_ENOMEM;
 		goto FORMAT_STRCONV_ERROR;
 	}
+
+	char *pnt = realloc((void*)format, sizeof(*format) * (len + 1));
+	if (pnt == NULL) {
+		ret = YIO_ERROR_ENOMEM;
+		goto FORMAT_STRCONV_ERROR;
+	}
+	pnt[len] = '\0';
+	format = pnt;
+#endif
 
 	// 80 is somewhat a psuedo standard here
 	char _buf_mem[80];

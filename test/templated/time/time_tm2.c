@@ -16,12 +16,13 @@ int main() {
 		.tm_min  = 0,
 		.tm_sec  = 0,
 	};
-	yπprintf(Yc("{:%Y-%m-%d %H:%M:%S}\n"), t);
-// PASS_REGULAR_EXPRESSION 1900-01-01 20:00:00
-	yπprintf(Yc("{:%D}\n"), t);
-// PASS_REGULAR_EXPRESSION 01/01/00
-	yπprintf(Yc("{:%F %T}\n"), t);
-// PASS_REGULAR_EXPRESSION 1900-01-01 20:00:00
-	yπprintf(Yc("{:%y %w %u}\n"), t);
-// PASS_REGULAR_EXPRESSION 00 0 7
+	yπprintf(Yc("@{:%Y-%m-%d %H:%M:%S}@\n"), t);
+// PASS_REGULAR_EXPRESSION @1900-01-01 20:00:00@
+	yπprintf(Yc("@{:%D}@\n"), t);
+// PASS_REGULAR_EXPRESSION @01/01/00@
+	const struct tm t2 = t;
+	yπprintf(Yc("@{:%F %T}@\n"), t2);
+// PASS_REGULAR_EXPRESSION @1900-01-01 20:00:00@
+	yπprintf(Yc("@{:%y %w %u}@\n"), t2);
+// PASS_REGULAR_EXPRESSION @00 0 7@
 }

@@ -91,7 +91,7 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
  * the same representation as character in dst.
  */
 #define _yIO_RETURN_STRCONV_SAME(src_type, dst_type, src, src_len, dst, dst_len)  do { \
-	dst_type * const _out = malloc(sizeof(*_out) * (src_len + 1)); \
+	dst_type * const _out = malloc(sizeof(*_out) * src_len); \
 	if (_out == NULL) { \
 		return YIO_ERROR_ENOMEM; \
 	} else { \
@@ -101,7 +101,6 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 			for (size_t i = 0; i < src_len; ++i) { \
 				*_iout++ = *_iin++; \
 			} \
-			*_iout = 0; \
 		} \
 		*dst = _out; \
 		if (dst_len) { \
@@ -153,7 +152,7 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 		out_len++;
 	}
 
-	wchar_t *out = malloc(sizeof(wchar_t) * (out_len + 1));
+	wchar_t *out = malloc(sizeof(wchar_t) * out_len);
 	if (out == NULL) {
 		ret = YIO_ERROR_ENOMEM;
 		goto ERR_MALLOC;
@@ -169,7 +168,6 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 	/*fprintf(stderr, "%zu %zu `%ls` `%s` %zu\n", len2, out_len, out, mb, mb_len);*/
 	assert(len2 == out_len);
 
-	out[out_len] = L'\0';
 	*wc = out;
 	if (wc_len) {
 		*wc_len = out_len;
@@ -201,7 +199,7 @@ int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32
 	}
 	return 0;
 #else
-#error TODO: with mbtoc32
+#error TODO: with mbtoc32 or install libunistring
 #endif
 }
 »)m4_dnl;
@@ -234,7 +232,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 		out_len += len;
 	}
 
-	char * const out = malloc(sizeof(*out) * (out_len + 1));
+	char * const out = malloc(sizeof(*out) * out_len);
 	if (out == NULL) {
 		ret = YIO_ERROR_ENOMEM;
 		goto ERR_MALLOC;
@@ -250,7 +248,6 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 	/*fprintf(stderr, "%zu %zu\n", len2, len);*/
 	assert(len2 == out_len);
 
-	out[out_len] = L'\0';
 	*mb = out;
 	if (mb_len) {
 		*mb_len = out_len;
@@ -313,7 +310,7 @@ int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **m
 	}
 	const size_t out_len = iout_len;
 
-	char * const out = malloc(sizeof(*out) * (out_len + 1));
+	char * const out = malloc(sizeof(*out) * out_len);
 	if (out == NULL) {
 		return YIO_ERROR_ENOMEM;
 	}
