@@ -200,6 +200,7 @@ int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32
 	return 0;
 #else
 #error TODO: with mbtoc32 or install libunistring
+	return -1;
 #endif
 }
 »)m4_dnl;
@@ -386,7 +387,8 @@ int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char3
 	}
 	return 0;
 #else
-#error TODO
+#error TODO install libunistring
+	return -1;
 #endif
 }
 
@@ -401,7 +403,8 @@ int _yIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char1
 	}
 	return 0;
 #else
-#error TODO
+#error TODO install libunistring
+	return -1;
 #endif
 }
 

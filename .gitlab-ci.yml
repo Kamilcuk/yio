@@ -52,6 +52,7 @@ project_add_subdirectory_test:
 alpine_test:
   image: registry.gitlab.com/kamcuk/builder:alpine
   script:
+    - apk add libunistring-dev
     - make test
 
 pages_build:
