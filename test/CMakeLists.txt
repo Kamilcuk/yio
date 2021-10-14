@@ -56,9 +56,7 @@ function(yio_add_test name file)
 				set(tmp "${CMAKE_CROSSCOMPILING_EMULATOR}")
 			endif()
 			add_test(NAME ${name}
-				COMMAND "${CMAKE_CURRENT_BINARY_DIR}/redirectstdin/src/redirectstdin-build/redirectstdin"
-					"${input}" ${tmp} "$<TARGET_FILE:${name}>")
-			set_property(TEST ${name} APPEND PROPERTY FIXTURES_REQUIRED redirectstdin)
+				COMMAND "$<TARGET_FILE:redirectstdin>" "${input}" ${tmp} "$<TARGET_FILE:${name}>")
 			set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
 		endif()
 		set_property(TEST ${name} APPEND PROPERTY TIMEOUT 10)

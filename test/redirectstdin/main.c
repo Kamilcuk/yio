@@ -34,7 +34,7 @@ void _erron(int status, int is_fatal, const char *func, int linenum, const char 
 
 #define errmsg(...)               _erron(1, 1, __func__, __LINE__, __VA_ARGS__)
 #define erron(expr)               _erron(!!(expr), 1, __func__, __LINE__, "Expression %s failed", #expr)
-#define erronmsg(expr, fmt, ...)  _erron(!!(expr), 1, __func__, __LINE__, "Expression %s failed: " fmt, #expr, ##__VA_ARGS__)
+#define erronmsg(expr, fmt, ...)  _erron(!!(expr), 1, __func__, __LINE__, "Expression %s failed: " fmt, #expr, ##__VA_ARGS__) // NOLINT
 #define erron_noexit(expr)        _erron(!!(expr), 0, __func__, __LINE__, "Expression %s failed", #expr)
 
 /* -------------------------------------------------------------------------------- */
@@ -73,8 +73,13 @@ static int parentprocess(int fd[2], const char *str) {
 	errno = 0;
 	while (length) {
 		const ssize_t writeret = write(fd[1], str, length);
-		if (writeret == -1 && errno == EPIPE) {
-			break;
+		if (writeret == -1) {
+			if (errno == EPIPE) {
+				break;
+			}
+			if (errno == EAGAIN) {
+				continue;
+			}
 		}
 		erronmsg(writeret == -1, "write to child failed");
 		str += writeret;
@@ -82,7 +87,8 @@ static int parentprocess(int fd[2], const char *str) {
 	}
 	// add a newline
 	if (errno != EPIPE) {
-		write(fd[1], "\n", 1);
+		const ssize_t writeret = write(fd[1], "\n", 1);
+		erronmsg(writeret == -1, "write to child failed");
 	}
 
 	erron(close(fd[1]) == -1);
