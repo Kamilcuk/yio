@@ -95,7 +95,10 @@ endfunction()
 
 #####################################################################
 
-add_custom_target(build_tests)
+add_custom_target(
+	build_tests
+	COMMENT "Yio tests build"
+)
 
 # Detecting sources #################################################
 # List all directories in current testing directory
@@ -108,7 +111,7 @@ add_subdirectory(yio_testlib)
 list(FILTER dirs EXCLUDE REGEX "yio_testlib")
 
 # Create a list of sources
-set(sources "")
+set(_sources "")
 foreach(dir IN ITEMS "." ${dirs})
 	# If the directory is not current directory and it contains CMakeLists.txt file
 	if(NOT "${dir}" STREQUAL "." AND
@@ -118,9 +121,9 @@ foreach(dir IN ITEMS "." ${dirs})
 	else()
 		# Files in current directory are test sources
 		file(GLOB tmp ${dir}/*.c)
-		foreach(i IN LISTS tmp)
-			get_filename_component(i "${i}" ABSOLUTE)
-			list(APPEND sources "${i}")
+		foreach(ii IN LISTS tmp)
+			get_filename_component(ii "${ii}" ABSOLUTE)
+			list(APPEND _sources "${ii}")
 		endforeach()
 	endif()
 endforeach()
@@ -128,18 +131,18 @@ endforeach()
 ######################################################################################
 # Create tests
 
-list(REMOVE_DUPLICATES sources)
-list(SORT sources)
-list(FILTER sources EXCLUDE REGEX "ywio") # these are not working yet
+list(REMOVE_DUPLICATES _sources)
+list(SORT _sources)
+list(FILTER _sources EXCLUDE REGEX "ywio") # these are not working yet
 if(NOT _yIO_HAS_STDFIX_TYPES)
-	list(FILTER sources EXCLUDE REGEX "stdfix")
+	list(FILTER _sources EXCLUDE REGEX "stdfix")
 endif()
-# list(FILTER sources EXCLUDE REGEX "scan")
-# list(FILTER sources INCLUDE REGEX "examples")
-# list(FILTER sources INCLUDE REGEX "simple/")
-# list(FILTER sources INCLUDE REGEX "scan.*08")
+# list(FILTER _sources EXCLUDE REGEX "scan")
+# list(FILTER _sources INCLUDE REGEX "examples")
+# list(FILTER _sources INCLUDE REGEX "simple/")
+# list(FILTER _sources INCLUDE REGEX "scan.*08")
 
-foreach(source IN LISTS sources)
+foreach(source IN LISTS _sources)
 	file(RELATIVE_PATH sourcenice "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
 
 	m4_add_command(
