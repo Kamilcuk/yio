@@ -1,68 +1,63 @@
 # .gitlab-ci.yml
 ---
 
-image: "$CI_REGISTRY_IMAGE"
+image: registry.gitlab.com/kamcuk/builder
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   CMAKE_BUILD_TYPE: Release
 
 ###############################################################################
 
-build_builder:
-  stage: build
-  image: docker
-  services:
-    - docker:dind
+icc_test:
+  image:
+    name: intel/oneapi-hpckit
+    entrypoint: []
   variables:
-    # Use TLS https://docs.gitlab.com/ee/ci/docker/using_docker_build.html#tls-enabled
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
+    CC: icc
   script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - docker pull $CI_REGISTRY_IMAGE || true
-    - docker build --cache-from $CI_REGISTRY_IMAGE -t "$CI_REGISTRY_IMAGE" - < ./archlinux_builder.Dockerfile
-    - docker push "$CI_REGISTRY_IMAGE"
-  rules:
-    - when: never
-  #rules:
-    #- if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
-      #when: on_success
+    - . /root/.oneapi_env_vars
+    - apt update
+    - apt install -y git m4 libunistring-dev ninja-build
+    - make test
 
-###############################################################################
-
-test_gcc:
+gcc_test:
   variables:
     CC: gcc
   script:
-  - make valgrind
-  - make test_project
+    - make valgrind
+    - make test_project
 
-test_project_add_subdirectory:
-  script:
-  - make test_project_add_subdirectory
-
-test_gcc_sanitize:
+gcc_sanitize_test:
   variables:
     CC: gcc
   script:
-  - make MODE=sanitize test
+    - make MODE=sanitize test
 
-test_clang:
+clang_test:
   variables:
     CC: clang
   script:
-  - make test
+    - make test
 
-test_arm:
+arm_test:
   script:
-  - make SYSTEM=arm test
+    - make SYSTEM=arm test
+
+project_add_subdirectory_test:
+  script:
+    - make test_project_add_subdirectory
+
+alpine_test:
+  image: registry.gitlab.com/kamcuk/builder:alpine
+  script:
+    - make test
 
 pages_build:
   script:
-  - make gitlab_pages
+    - make gitlab_pages
   artifacts:
     paths:
-    - public/
+      - public/
     expire_in: 1 week
 
 ###############################################################################
@@ -71,10 +66,9 @@ pages:
   stage: deploy
   image: busybox
   script:
-  - find public -type f
+    - find public -type f
   artifacts:
     paths:
-    - public/
+      - public/
   only:
     - tags
-

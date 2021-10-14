@@ -56,18 +56,6 @@ endif()
 # Add configuration
 
 foreach(i IN ITEMS
-	YIO_FLOATS_PREFER_CUSTOM
-)
-	if(NOT DEFINED "${i}")
-		message(FATAL_ERROR "YIO Internal error: ${i} is not defined")
-	endif()
-	if(NOT DEFINED "${i}_COMMENT")
-		message(FATAL_ERROR "YIO Internal error: ${i}_COMMENT is not defined")
-	endif()
-	yio_config_gen_add("${i}")
-endforeach()
-
-foreach(i IN ITEMS
 	YIO_PRINT_FLOATS_WITH
 )
 	if(NOT DEFINED "${i}")
@@ -78,7 +66,7 @@ foreach(i IN ITEMS
 	endif()
 	yio_config_gen_add_value("${i}" "${${i}}")
 endforeach()
- 
+
 if(_yIO_HAS_UNISTD_H)
 	foreach(i IN ITEMS
 		YIO_USE_INPUT_FD
@@ -136,20 +124,20 @@ set(floats
 	"double"        "DBL"          ""      "d"      "d"
 	"long double"   "LDBL"        "l"      "l"      "ld"
 
-	"_Float16"      "FLT16"       "f16"    "f16"    "f16"
-	"_Float32"      "FLT32"       "f32"    "f32"    "f32"
-	"_Float64"      "FLT64"       "f64"    "f64"    "f64"
-	"_Float128"     "FLT128"      "f128"   "f128"   "f128"
-	"_Float32x"     "FLT32X"      "f32x"   "f32x"   "f32x"
-	"_Float64x"     "FLT64X"      "f64x"   "f64x"   "f64x"
-#	"_Float128x"    "FLT128X"     "f128x"  "f128x"  "f128x"
+	#"_Float16"      "FLT16"       "f16"    "f16"    "f16"
+	#"_Float32"      "FLT32"       "f32"    "f32"    "f32"
+	#"_Float64"      "FLT64"       "f64"    "f64"    "f64"
+	#"_Float128"     "FLT128"      "f128"   "f128"   "f128"
+	#"_Float32x"     "FLT32X"      "f32x"   "f32x"   "f32x"
+	#"_Float64x"     "FLT64X"      "f64x"   "f64x"   "f64x"
+	#"_Float128x"    "FLT128X"     "f128x"  "f128x"  "f128x"
 
 	"_Decimal32"    "DEC32"       "d32"    "d32"    "d32"
 	"_Decimal64"    "DEC64"       "d64"    "d64"    "d64"
 	"_Decimal128"   "DEC128"      "d128"   "d128"   "d128"
-#	"_Decimal32x"   "DEC32X"      "d32x"   "d32x"   "d32x"
-#	"_Decimal64x"   "DEC64X"      "d64x"   "d64x"   "d64x"
-#	"_Decimal128x"  "DEC128X"     "d128x"  "d128x"  "d128x"
+	#"_Decimal32x"   "DEC32X"      "d32x"   "d32x"   "d32x"
+	#"_Decimal64x"   "DEC64X"      "d64x"   "d64x"   "d64x"
+	#"_Decimal128x"  "DEC128X"     "d128x"  "d128x"  "d128x"
 )
 
 set(be_verbose FALSE)

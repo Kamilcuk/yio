@@ -32,13 +32,6 @@ or alternatively in order equivalent 0, 1, 2 or 3.
 ]=])
 set(YIO_PRINT_FLOATS_WITH 0 CACHE STRING "${YIO_PRINT_FLOATS_WITH_COMMENT}")
 
-set(YIO_FLOATS_PREFER_CUSTOM_COMMENT [=[
-When strfrom is not available, you can set this to prefer printing floats
-with custom algorithm developed within the library rather then with printf.
-The YIO_PRINT_FLOATS_WITH takes precedence over this option.
-]=])
-set(YIO_FLOATS_PREFER_CUSTOM FALSE CACHE BOOL "${YIO_FLOATS_PREFER_CUSTOM_COMMENT}")
-
 if(_yIO_HAS_UNISTD_H)
 
 set(YIO_USE_INPUT_FD_COMMENT [=[

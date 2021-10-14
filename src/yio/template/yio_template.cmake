@@ -75,7 +75,6 @@ endfunction()
 
 macro(yio_template_in infile relative)
 	get_filename_component(infile_abs "${infile}" ABSOLUTE)
-	get_filename_component(infile_name "${infile}" NAME)
 	file(RELATIVE_PATH infile_rel ${relative} ${infile})
 	set(out "yio/${name}/${infile_rel}")
 
@@ -88,6 +87,16 @@ macro(yio_template_in infile relative)
 			" and "
 			"${YIO_TEMPLATE_DIR}/${infile_rel}\n"
 		)
+	endif()
+
+	if (infile_name MATCHES "\.c$")
+		# GNU ar static library archiver does not distinguishes from file paths.
+		# It only sees file names.
+		# Make sure that _source_ files have distnct names - by adding a prefix to them,
+		# so that GNU ar sees different source files.
+		get_filename_component(out_name "${infile}" NAME)
+		get_filename_component(out_dir "${out}" DIRECTORY)
+		set(out "${out_dir}/${REPLACEMENT}_${infile_name}")
 	endif()
 
 	yio_add_template_command(

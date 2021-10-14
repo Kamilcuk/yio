@@ -232,7 +232,10 @@ endfunction()
 ################################################################################################
 # Compile options
 
-add_custom_target(yio_targets)
+add_custom_target(
+	yio_targets
+	COMMENT "Build all yio targets"
+)
 add_dependencies(yio_targets yio_gen)
 
 # @def yio_add_library(name sources)
@@ -247,13 +250,13 @@ function(yio_add_library name)
 
 	# Sources are relative to GENDIR.
 	set(srcs)
-	foreach(i IN LISTS argn)
-		if(IS_ABSOLUTE "${i}")
-			message(FATAL_ERROR "${i} is absolute. Should be relative to GENDIR")
+	foreach(ii IN LISTS argn)
+		if(IS_ABSOLUTE "${ii}")
+			message(FATAL_ERROR "${ii} is absolute. Should be relative to GENDIR")
 		endif()
-		set(i "${GENDIR}/${i}")
-		get_filename_component(i "${i}" ABSOLUTE)
-		list(APPEND srcs "${i}")
+		set(ii "${GENDIR}/${ii}")
+		get_filename_component(ii "${ii}" ABSOLUTE)
+		list(APPEND srcs "${ii}")
 	endforeach()
 
 	# Add the library.
@@ -275,6 +278,13 @@ function(yio_add_library name)
 		c_variadic_macros
 	)
 	target_link_libraries(${name} PUBLIC m)
+	if(NOT BUILD_SHARED_LIBS)
+		check_c_compiler_flag("-ffunction-sections -fdata-sections -Wl,gc-sections" YIO_GC_SECTIONS)
+		if(YIO_GC_SECTIONS)
+			target_compile_options(${name} PUBLIC -fdata-sections -ffunction-sections)
+			target_link_options(${name} PUBLIC -Wl,--gc-sections)
+		endif()
+	endif()
 
 	add_dependencies(${name} yio_gen)
 
@@ -289,13 +299,14 @@ endfunction()
 
 # Just like file(GLOB) but results in files
 # with paths relative to SRCDIR.
-function(file_glob_relative_to_srcdir glob var)
-	file(${glob} tmp ${ARGN})
+function(file_glob_srcs_relative_to_srcdir glob var path)
+	# cmake-lint: disable=C0114
+	file(${glob} tmp ${path}/*.c ${path}/*.h)
 	set(tmp2)
-	foreach(i IN LISTS tmp)
+	foreach(ii IN LISTS tmp)
 		# message("${var} ${i}")
-		file(RELATIVE_PATH j ${SRCDIR} ${i})
-		list(APPEND tmp2 ${j})
+		file(RELATIVE_PATH jj ${SRCDIR} ${ii})
+		list(APPEND tmp2 ${jj})
 	endforeach()
 	set(${var} "${tmp2}" PARENT_SCOPE)
 endfunction()
@@ -303,7 +314,7 @@ endfunction()
 ##################################################################################
 # Add libraries
 
-file_glob_relative_to_srcdir(GLOB auto_decimallib_srcs yio/decimallib/*.h yio/decimallib/*.c)
+file_glob_srcs_relative_to_srcdir(GLOB auto_decimallib_srcs yio/decimallib)
 yio_add_library(yio_decimallib
 	${auto_decimallib_srcs}
 	yio/yio_config.h
@@ -311,9 +322,9 @@ yio_add_library(yio_decimallib
 	yio/yio_config_gen.h
 )
 
-file_glob_relative_to_srcdir(GLOB auto_generic_srcs yio/*.h yio/*.c)
-file_glob_relative_to_srcdir(GLOB auto_yio_private_srcs yio/private/*.h yio/private/*.c)
-set(yio_sources
+file_glob_srcs_relative_to_srcdir(GLOB auto_generic_srcs yio)
+file_glob_srcs_relative_to_srcdir(GLOB auto_yio_private_srcs yio/private)
+set(_yio_sources
 	yio/yio_version.h
 	yio/yio_config.h
 	yio/yio_config_gen.h
@@ -321,21 +332,20 @@ set(yio_sources
 
 	${auto_yio_private_srcs}
 	${auto_generic_srcs}
-  yio/decimallib/yio_decimallib.h
 	yio.h
 	${yio_gensrcs}
 	ywio.h
 	${ywio_gensrcs}
 )
 if(UNISTRING_LIB)
-  list(APPEND yio_sources
-    yc16io.h
-    ${yc16io_gensrcs}
-    yuio.h
-    ${yuio_gensrcs}
-  )
+	list(APPEND _yio_sources
+		yc16io.h
+		${yc16io_gensrcs}
+		yuio.h
+		${yuio_gensrcs}
+	)
 endif()
-yio_add_library(yio ${yio_sources})
+yio_add_library(yio ${_yio_sources})
 if(UNISTRING_LIB)
 	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
 endif()

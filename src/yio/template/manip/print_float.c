@@ -7,7 +7,12 @@
  * @brief
  */
 #include "private.h"
+#include "print_float.h"
 #include <ctype.h>
+
+#if __CDT_PARSER__
+#define _yIO_FLOAT$3  float
+#endif
 
 // m4_generate_print_floats(type, suffix)
 m4_define(«m4_generate_print_floats», m4_syncline(1)«m4_dnl;
@@ -53,19 +58,25 @@ int _yΩIO_print_float_$2$1pnt(yπio_printctx_t *t) {
 
 ») m4_dnl;
 
-m4_applyforeachdefine(((f, d),(d, d),(l, l)), m4_syncline(1)«m4_dnl;
-#ifndef _yIO_HAS_strfrom$1
+m4_applyforeachdefine((
+			(f, d),(d, d),(l, l),
+			(d32, d32), (d64, d64), (d128, d128),
+), m4_syncline(1)«m4_dnl;
+
+#ifndef _yIO_HAS_FLOAT$1
 #error
 #endif
-#if _yIO_HAS_strfrom$1
-m4_generate_print_floats($1, strfrom, $2)
-#endif
-») m4_dnl;
+#if _yIO_HAS_FLOAT$1
 
-m4_applyforeachdefine((
-		m4_applyforeachdefine(((f, d),(d, d),(l, l)),
-			«($1, stupid, $2),($1, printf, $2)»,
-			«,»)), «m4_dnl;
-m4_generate_print_floats($1, $2, $3)
+m4_generate_print_floats($1, strfrom, $2)
+
+#if _yIO_has_float_stupid$1
+m4_generate_print_floats($1, stupid, $2)
+#endif
+
+m4_generate_print_floats($1, printf, $2)
+
+#endif
+
 ») m4_dnl;
 

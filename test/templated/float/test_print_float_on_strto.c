@@ -97,12 +97,18 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 		failed |= _yIO_TEST_NOFAIL(errnostrto == 0, "overflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
 	}
 	if (res == 0) {
-		failed |= _yIO_TEST(errnostrto == 0, "underflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
+#ifdef __INTEL_COMPILER
+		failed |= _yIO_TEST_NOFAIL(
+#else
+		failed |= _yIO_TEST(
+#endif
+			errnostrto == 0, "underflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
 	}
 	failed |= _yIO_TEST(diff <= diffatmost, "π %s,%s %"PRI$1"g<%g", format, instr, diff, diffatmost);
 
 	if (!verbose && failed) printf("%4s %1s%7s,%-15s|%21s>%20"PRI$1"a %8"PRI$1"g<%g\n",
-			"π", "$1", format, instr, str, res, diff, diffatmost);
+			"π", "$1", format, instr,
+			str, res, diff, diffatmost);
 
 	// _yIO_TEST_NOFAIL(fabs$1(in - res) < 0.05, "π %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
 	_yIO_TEST(endp == str + strlen(str));

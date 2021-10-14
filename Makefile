@@ -44,6 +44,9 @@ export YIO_CPPLINT=1
 export YIO_CLANG_TIDY=1
 endif
 
+HELP_VAR +=~ R - Pass option to ctest -R
+R ?=
+
 ###############################################################################
 
 ifeq ($(SYSTEM),)
@@ -60,7 +63,7 @@ endif
 
 ifeq ($(MODE),)
 else ifeq ($(MODE),coverage)
-CMAKE_C_FLAGS += -ggdb3 --coverage -fprofile-abs-path
+CMAKE_C_FLAGS += -g --coverage -fprofile-abs-path
 else ifeq ($(MODE),sanitize)
 CMAKE_C_FLAGS += -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection
 else
@@ -72,7 +75,7 @@ endif
 # Build dir name
 _BCCNAME =
 ifdef CC
-ifeq ($(CC),clang)
+ifeq ($(findstring .$(CC).,.clang.icc.),.$(CC).)
 _BCCNAME = $(CC)
 endif
 endif
@@ -110,6 +113,8 @@ ifeq ($(VERBOSE),1)
 BUILDFLAGS += --verbose
 CTESTFLAGS += -V
 endif
+
+CTESTFLAGS += $(if $(value R),-j 0 -R "$(R)")
 
 ###############################################################################
 
@@ -150,11 +155,14 @@ HELP +=~ testone_% - Build and test one specific target
 testone_%:
 	$(MAKE) .build_$* testonly CTESTFLAGS="-j 0 -R '^$*\$$\$$' -V"
 
+lint:
+	$(MAKE) LINT=1 CONFIGFLAGS='-D_yIO_HAS_FLOATd32=0 -D_yIO_HAS_FLOATd64=0 -D_yIO_HAS_FLOATd128=0' B=.cache/lint build
+
 ###############################################################################
 
-HELP +=~ test_cicd
-test_cicd: export CMAKE_BUILD_TYPE=Release
-test_cicd:
+HELP +=~ cicd - Run all tests before commit to be sure it works
+cicd: export CMAKE_BUILD_TYPE=Release
+cicd:
 	$(MAKE) valgrind
 	$(MAKE) test_project
 	$(MAKE) test MODE=sanitize

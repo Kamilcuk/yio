@@ -30,42 +30,45 @@ get_filename_component(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen ABSOLUTE)
 
 # YIO_DEV is internal variable set if the developer of this library is building it
 if(YIO_DEV)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
 	set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 	# Use ccache if available
 	find_program(CCACHE_COMMAND "ccache")
 	if(CCACHE_COMMAND)
-	  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
+		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
 	endif()
 
 	set_from_env(YIO_CPPLINT)
 	if(YIO_CPPLINT)
-    set(filter
-      whitespace           # Yes, I use tabs.
-      legal/copyright
-      runtime/int
-      build/include_subdir
-      readability/casting  # This is C not C++.
-      build/include_order  # Too much preprocssor stuff.
-      readability/todo     # I'm programming alone.
-      build/include        # This is hevily templated system, sometimes files don't include.
-      readability/nolint   # I use clang-tidy too, don't complain.
-    )
-    string(REGEX REPLACE ";" ",-" filter "${filter}")
-		set(CMAKE_C_CPPLINT "cpplint" "--filter=-${filter}")
-    unset(filter)
+		set(_filter
+			whitespace           # Yes, I use tabs.
+			legal/copyright
+			runtime/int
+			build/include_subdir
+			readability/casting  # This is C not C++.
+			build/include_order  # Too much preprocssor stuff.
+			readability/todo     # I'm programming alone.
+			build/include        # This is hevily templated system, sometimes files don't include.
+			readability/nolint   # I use clang-tidy too, don't complain.
+		)
+		string(REGEX REPLACE ";" ",-" _filter "${_filter}")
+		set(CMAKE_C_CPPLINT "cpplint" "--filter=-${_filter}")
+		unset(_filter)
 	endif()
 
-  set_from_env(YIO_CLANG_TIDY)
-  if(YIO_CLANG_TIDY)
-    set(filter
-      clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
-      clang-analyzer-valist.Uninitialized  # clang-tidy bug, can't return pointer to va_list from a function.
-    )
-    string(REGEX REPLACE ";" ",-" filter "${filter}")
-    set(CMAKE_C_CLANG_TIDY "clang-tidy" "-checks=-${filter}")
-    unset(filter)
-  endif()
+	set_from_env(YIO_CLANG_TIDY)
+	if(YIO_CLANG_TIDY)
+		set(_filter
+			clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
+			clang-analyzer-valist.Uninitialized  # clang-tidy bug, can't return pointer to va_list from a function.
+		)
+		string(REGEX REPLACE ";" ",-" _filter "${_filter}")
+		set(CMAKE_C_CLANG_TIDY "clang-tidy" "-checks=-${_filter}")
+		unset(_filter)
+	endif()
 
 	# Create symlink from gen to GENDIR for development purpouses
 	execute_process(
@@ -85,12 +88,14 @@ if(YIO_DEV)
 			CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
 			CMAKE_C_COMPILER_ID STREQUAL "Intel"
 	)
+		set(_tmp
+			-g
 			$<$<CONFIG:DEBUG>:-Og>
 			$<$<NOT:$<CONFIG:DEBUG>>:-O>
 		)
-		add_link_options(${tmp})
+		add_link_options(${_tmp})
 		add_compile_options(
-			${tmp}
+			${_tmp}
 			-Wall
 			-Wextra
 			-Wwrite-strings
@@ -113,12 +118,12 @@ if(YIO_DEV)
 			_FORTIFY_SOURCE=2
 		)
 	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-    check_c_compiler_flag(-ffixed-point _yIO_FIXED_POINT)
-    if(_yIO_FIXED_POINT)
-      add_compile_options(
-        -ffixed-point
-      )
-    endif()
+		check_c_compiler_flag(-ffixed-point _yIO_FIXED_POINT)
+		if(_yIO_FIXED_POINT)
+			add_compile_options(
+				-ffixed-point
+			)
+		endif()
 		add_compile_options(
 			-Wno-varargs
 			-Wno-array-bounds
@@ -132,19 +137,20 @@ if(YIO_DEV)
 		add_compile_options(-fcolor-diagnostics)
 	endif()
 
-  function(yio_cdt_parser tgt)
-    add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
-    target_compile_definitions(${tgt} PRIVATE
-      __CDT_PARSER__=1
-      YIO_CDT_PARSER=1
-      YIO_REALLY_CDT_PARSER=1
-    )
-    target_include_directories(${tgt} PRIVATE
-      ${SRCDIR}
-      ${GENDIR}
-    )
-    target_link_libraries(${tgt} PRIVATE library_that_does_not_exists)
-  endfunction()
+	function(yio_cdt_parser tgt)
+		add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
+		target_compile_definitions(${tgt} PRIVATE
+			__CDT_PARSER__=1
+			YIO_CDT_PARSER=1
+			YIO_REALLY_CDT_PARSER=1
+		)
+		target_include_directories(${tgt} PRIVATE
+			${SRCDIR}
+			${GENDIR}
+		)
+		target_link_libraries(${tgt} PRIVATE library_that_does_not_exists)
+	endfunction()
+
 endif(YIO_DEV)
 
 ######################################################################
@@ -155,6 +161,9 @@ find_library(UNISTRING_LIB
 )
 
 ######################################################################
+
+#add_compile_options(-ffunction-sections -fdata-sections)
+#add_link_options(-Wl,--gc-sections)
 
 include(m4)
 m4_add_options(

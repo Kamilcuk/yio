@@ -53,34 +53,31 @@ MASK(_yIO_print_float_stupidl)
 int main() {
 #if _yIO_HAS_FLOATf
 	yprintf("{}", 1.0f);
-#if _yIO_HAS_strfromf
-	CHECK("_yIO_print_float_strfromf");
-#elif YIO_FLOATS_PREFER_CUSTOM
+#if __NEWLIB__
 	CHECK("_yIO_print_float_stupidf");
 #else
-	CHECK("_yIO_print_float_printff");
+	CHECK("_yIO_print_float_strfromf");
+	//CHECK("_yIO_print_float_printff");
 #endif
 #endif
 
 #if _yIO_HAS_FLOATd
 	yprintf("{}", 1.0);
-#if _yIO_HAS_strfromd
-	CHECK("_yIO_print_float_strfromd");
-#elif YIO_FLOATS_PREFER_CUSTOM
+#if __NEWLIB__
 	CHECK("_yIO_print_float_stupidd");
 #else
-	CHECK("_yIO_print_float_printfd");
+	CHECK("_yIO_print_float_strfromd");
+	//CHECK("_yIO_print_float_printfd");
 #endif
 #endif
 
 #if _yIO_HAS_FLOATl
 	yprintf("{}", 1.0l);
-#if _yIO_HAS_strfroml
-	CHECK("_yIO_print_float_strfroml");
-#elif YIO_FLOATS_PREFER_CUSTOM
+#if __NEWLIB__
 	CHECK("_yIO_print_float_stupidl");
 #else
-	CHECK("_yIO_print_float_printfl");
+	CHECK("_yIO_print_float_strfroml");
+	//CHECK("_yIO_print_float_printfl");
 #endif
 #endif
 }
