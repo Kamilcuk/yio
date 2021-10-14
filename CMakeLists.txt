@@ -14,6 +14,7 @@ project(yio
 	HOMEPAGE_URL "https://gitlab.com/kamcuk/yio"
 )
 
+include(CheckCCompilerFlag)
 include(force_build_dir_without_cmakelists)
 include(set_from_env)
 
@@ -103,7 +104,6 @@ if(YIO_DEV)
 			-Wno-unused-parameter
 		)
 	endif()
-  include(CheckCCompilerFlag)
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 		check_c_compiler_flag(-Wattribute-warning _yIO_ATTRIBUTE_WARNING)
 		if(_yIO_ATTRIBUTE_WARNING)
