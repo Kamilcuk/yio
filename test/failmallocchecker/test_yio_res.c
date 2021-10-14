@@ -28,7 +28,7 @@ int main() {
 			_yIO_TEST(lenr == len);
 			_yIO_TEST(buf != NULL);
 			_yIO_TEST(len = strlen(s1));
-			_yIO_TEST(memcmp(buf, s1, len) == 0);
+			_yIO_TEST(buf && memcmp(buf, s1, len) == 0);
 			_yIO_res_free_result(NULL, buf);
 		} else {
 			_yIO_TEST(err != 0);

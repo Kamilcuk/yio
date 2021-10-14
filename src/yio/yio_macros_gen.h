@@ -83,7 +83,7 @@
  * @def m4_SIZEOFDECAY
  * Applies sizeof on decayed argument on m4 stage.
  */
-// m4_define(«m4_SIZEOFDECAY», «sizeof(((void)0),($1))»)
+// m4_define(«m4_SIZEOFDECAY», «sizeof(((void)0),($1))/*NOLINT(clang-diagnostic-sizeof-array-decay)*/»)
 
 /**
  * @def _yIO_SIZEOFDECAY

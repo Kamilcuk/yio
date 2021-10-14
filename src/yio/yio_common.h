@@ -19,10 +19,15 @@ enum _yIO_TYPES {
 #if YIO_REALLY_CDT_PARSER
 
 // «
+#define m4_regexp(...)
+#define m4_ifelse(...)
+#define m4_patsubst(...)
+// My functions:
 #define m4_syncline(...)
 #define m4_syncline_dnl(...)
 #define m4_template_chooser(...)
 #define m4_template_chooser2(...)
+#define m4_applyforeachdefine(...)
 // »
 
 #define _yIO_TYPE_YIO 1
@@ -139,7 +144,6 @@ typedef int Yint;
 #ifndef _yIO_access_rw
 #define _yIO_access_rw(...)
 #endif
-
 
 /**
  * @}

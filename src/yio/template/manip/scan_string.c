@@ -54,7 +54,7 @@ int _yΩIO_scan_string_literal_in(yπio_scanctx_t *t, const Ychar *str, const Yc
 
 int _yΩIO_scan_string_literal(yπio_scanctx_t *t) {
 	const char * str = yπio_scanctx_va_arg(t, char *);
-	return _yΩIO_scan_string_literal_in(t, (void*)str, (void*)str + strlen(str));
+	return _yΩIO_scan_string_literal_in(t, (void*)str, (void*)(str + strlen(str)));
 }
 
 int _yΩIO_scan_except(yπio_scanctx_t *t) {
