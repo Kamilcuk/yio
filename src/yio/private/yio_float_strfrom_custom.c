@@ -14,7 +14,7 @@
 #define _BSD_SOURCE  1
 #define _SVID_SOURCE  1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
-#include "yio_float_strfrom_stupid.h"
+#include "yio_float_strfrom_custom.h"
 #include "yio_res.h"
 #include "yio_float.h"
 #include "yio_decimal.h"
@@ -55,19 +55,18 @@ static const char _yIO_digit_to_HEX[] = {'0','1','2','3','4','5','6','7','8','9'
 static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
-
-m4_applyforeachdefine(«(
-			(f), (d), (l),
-)», m4_syncline(1)«m4_dnl;
+m4_applysync(«(
+		(f), (d), (l),
+		(f16), (f32), (f64), (f128),
+		(f32x), (f64x), (f128x),
+)», « ;
 
 #ifndef _yIO_HAS_FLOAT$1
-#error _yIO_HAS_FLOAT$1
+#error  _yIO_HAS_FLOAT$1
 #endif
-
 #if _yIO_HAS_FLOAT$1
 
 #define TYPE     _yIO_FLOAT$1
-#define PRI      _yIO_FLOAT_PRI$1
 #define FLOOR    _yIO_floor$1
 #define EXP2     _yIO_exp2$1
 #define EXP10    _yIO_exp10$1
@@ -75,6 +74,10 @@ m4_applyforeachdefine(«(
 #define FREXP2   _yIO_frexp2$1
 #define FREXP10  _yIO_frexp10$1
 #define FC(x)    _yIO_FLOAT_C$1(x)
+#ifdef __CDT_PARSER__
+#undef FC
+#define FC(x)  x
+#endif
 
 static inline
 int get_next_digit$1(_yIO_res *v, TYPE *val,
@@ -85,8 +88,8 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 
 	const int baseint = dec ? 10 : 16;
 	ASSERTMSG(0 <= digit && digit < baseint,
-			"digit=%d dec=%d is_last=%d val=%"PRI"f\n",
-			digit, dec, is_last, *val
+			"digit=%d dec=%d is_last=%d val=%La\n",
+			digit, dec, is_last, (long double)*val
 	);
 	if (!(0 <= digit && digit <= baseint)) {
 		_yIO_res_end_err(v);
@@ -102,7 +105,7 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 	return 0;
 }
 
-int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
+int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 		const int precision0, const char spec0, TYPE val) {
 	static const int a_max_precision =
 #if FLT_RADIX == 2
@@ -313,7 +316,6 @@ int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 }
 
 #undef TYPE
-#undef PRI
 #undef FLOOR
 #undef EXP2
 #undef EXP10
@@ -322,5 +324,6 @@ int _yIO_float_astrfrom_stupid$1(char ** const resultp, size_t * const lengthp,
 #undef FREXP10
 #undef FC
 
-#endif // _yIO_HAS_FLOAT$1
+#endif
+
 »)

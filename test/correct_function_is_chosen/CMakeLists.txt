@@ -11,9 +11,9 @@ foreach(i IN ITEMS
 	_yIO_print_float_printff
 	_yIO_print_float_printfd
 	_yIO_print_float_printfl
-	_yIO_print_float_stupidf
-	_yIO_print_float_stupidd
-	_yIO_print_float_stupidl
+	_yIO_print_float_customf
+	_yIO_print_float_customd
+	_yIO_print_float_customl
 )
 	target_link_options(correct_function_is_chosen PRIVATE
 		-Wl,--wrap=${i}

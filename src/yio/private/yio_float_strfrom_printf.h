@@ -6,15 +6,17 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include "yio_float.h"
-#include "yio_decimal.h"
+#include "../yio_config.h"
 #include <stddef.h>
 
-m4_applyforeachdefine(«(
+m4_applysync(«(
 			(f), (d), (l),
 			(d32), (d64), (d128),
-)», «m4_dnl;
+)», «
 
+#ifndef _yIO_HAS_FLOAT$1
+#error  _yIO_HAS_FLOAT$1
+#endif
 #if _yIO_HAS_FLOAT$1
 
 /**
@@ -30,7 +32,22 @@ m4_applyforeachdefine(«(
 int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 		int precision, char spec, _yIO_FLOAT$1 val);
 
+#define _yIO_has_float_printf$1  1
+
 #endif
 
-») m4_dnl;
+»)
+
+m4_applysync(«(
+		(f16), (f32), (f64), (f128),
+		(f32x), (f64x), (f128x),
+)»,«
+#ifndef _yIO_HAS_FLOAT$1
+#error  _yIO_HAS_FLOAT$1
+#endif
+#if _yIO_HAS_FLOAT$1
+#define _yIO_has_float_printf$1 0
+#endif
+»)
+
 

@@ -9,7 +9,7 @@
 #include <yio/private/yio_float.h>
 #include <yio/private/yio_float_strfrom_printf.h>
 #include <yio/private/yio_float_strfrom_strfrom.h>
-#include <yio/private/yio_float_strfrom_stupid.h>
+#include <yio/private/yio_float_strfrom_custom.h>
 #include <float.h>
 #include <math.h>
 #include <assert.h>
@@ -154,10 +154,8 @@ struct _yIO_astrfroms$1_s {
 
 static const struct _yIO_astrfroms$1_s  _yIO_astrfroms$1[] = {
 #define T(a)  { a, #a, }
-#ifdef _yIO_HAVE_strfrom$1
 		T(_yIO_float_astrfrom_strfrom$1),
-#endif
-		T(_yIO_float_astrfrom_stupid$1),
+		T(_yIO_float_astrfrom_custom$1),
 		T(_yIO_float_astrfrom_printf$1)
 #undef T
 };

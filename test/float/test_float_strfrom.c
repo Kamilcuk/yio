@@ -33,11 +33,14 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 	return abs(*buf_last_digit - *valstr_last_digit) <= 1;
 }
 
-m4_applyforeachdefine(«((f),(d),(l))», m4_syncline(1)«m4_dnl;
+m4_applysync(«((f),(d),(l))», «
 
+#ifndef _yIO_HAS_FLOAT$1
+#error  _yIO_HAS_FLOAT$1
+#endif
 #if _yIO_HAS_FLOAT$1
 
-int _yIO_test_print_float_stupid_in$1(int precision,
+int _yIO_test_print_float_custom_in$1(int precision,
         char type, _yIO_FLOAT$1 val, const char *valstr0,
 		int (*astrfrom)(char **resultp, size_t *lengthp, int precision, char type, _yIO_FLOAT$1 val),
 		const char *astrfrom_str) {
@@ -103,7 +106,7 @@ int _yIO_test_print_float_stupid_in$1(int precision,
 		// for long double and 'a', we just assume it works
 		// sadly, glibc chooses different exponents
 		if('$1' == 'l' &&
-				strcmp(astrfrom_str, "_yIO_float_astrfrom_stupidl") == 0 &&
+				strcmp(astrfrom_str, "_yIO_float_astrfrom_customl") == 0 &&
 				(type == 'A' || type == 'a')) {
 			workaround = true;
 		}
@@ -119,7 +122,7 @@ int _yIO_test_print_float_stupid_in$1(int precision,
 	return err;
 }
 
-void _yIO_run_tests_print_float_stupid$1(void) {
+void _yIO_run_tests_print_float_custom$1(void) {
 	static const char specs[] = {
 			'F',
 			'E',
@@ -136,7 +139,7 @@ void _yIO_run_tests_print_float_stupid$1(void) {
 		for (size_t ispec = 0; ispec < ARRAY_SIZE(specs); ++ispec) {
 			for (size_t ival = 12; ival < ARRAY_SIZE(_yIO_test_floatlist$1); ++ival) {
 				for (size_t iprec = 0; iprec < ARRAY_SIZE(precisions); ++iprec) {
-					_yIO_test_print_float_stupid_in$1(
+					_yIO_test_print_float_custom_in$1(
 							precisions[iprec],
 							specs[ispec],
 							_yIO_test_floatlist$1[ival].val,
@@ -152,14 +155,14 @@ void _yIO_run_tests_print_float_stupid$1(void) {
 
 #endif
 
-») m4_dnl;
+»);
 
 int main() {
 #ifdef __GLIBC__
-	_yIO_run_tests_print_float_stupidf();
-	_yIO_run_tests_print_float_stupidd();
+	_yIO_run_tests_print_float_customf();
+	_yIO_run_tests_print_float_customd();
 	if (!_yIO_test_is_in_valgrind())  {
-		_yIO_run_tests_print_float_stupidl();
+		_yIO_run_tests_print_float_customl();
 	}
 #endif
 	return 0;

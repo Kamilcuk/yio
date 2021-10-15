@@ -10,6 +10,8 @@
 #define __STDC_WANT_DEC_FP__ 1
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 #include "yio_float_strfrom_strfrom.h"
+#include "yio_float.h"
+#include "yio_decimal.h"
 #include "yio_res.h"
 #include "private.h"
 #include <assert.h>
@@ -47,19 +49,21 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int pr
 	assert(fmtpnt <= fmt + FMT_SIZE);
 }
 
-m4_applyforeachdefine(«(
+m4_applysync(«(
 			(f), (d), (l),
+			(f16), (f32), (f64), (f128),
+			(f32x), (f64x), (f128x),
 			(d32), (d64), (d128),
-)», m4_syncline(1)«m4_dnl;
+)», «)
 
 #ifndef _yIO_HAS_FLOAT$1
-#error
+#error  _yIO_HAS_FLOAT$1
 #endif
+#if _yIO_HAS_FLOAT$1
+
 #ifndef _yIO_HAS_strfrom$1
 #error
 #endif
-
-#if _yIO_HAS_FLOAT$1
 
 // In case it's not defined in standard headers, so that we get a link time error.
 extern int strfrom$1(char *str, size_t n, const char *format, _yIO_FLOAT$1 fp);

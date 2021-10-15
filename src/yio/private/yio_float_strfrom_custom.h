@@ -7,24 +7,19 @@
  * @brief
  */
 #pragma once
-#include "yio_float.h"
-#include "yio_decimal.h"
+#include "../yio_config.h"
 #include <stddef.h>
 
-m4_applyforeachdefine(«(
-			(f), (d), (l),
-			(d32), (d64), (d128),
-)», m4_syncline(1)«
+m4_applysync(«(
+		(f), (d), (l),
+		(f16), (f32), (f64), (f128),
+		(f32x), (f64x), (f128x),
+)», «
 
 #ifndef _yIO_HAS_FLOAT$1
-#error
+#error  _yIO_HAS_FLOAT$1
 #endif
-
-m4_ifelse(m4_regexp($1, «d[0-9][0-9]»), -1, «
 #if _yIO_HAS_FLOAT$1
-»,«
-#if 0
-»)»m4_syncline(1)«
 
 /**
  * Convert the floating number val according to specified precision
@@ -36,12 +31,24 @@ m4_ifelse(m4_regexp($1, «d[0-9][0-9]»), -1, «
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int _yIO_float_astrfrom_stupid$1(char **resultp, size_t *lengthp,
+int _yIO_float_astrfrom_custom$1(char **resultp, size_t *lengthp,
 		int precision, char spec0, _yIO_FLOAT$1 val);
 
-#define _yIO_has_float_stupid$1  1
-#else
-#define _yIO_has_float_stupid$1  0
-#endif // _yIO_HAS_FLOAT$1
+#define _yIO_has_float_custom$1  1
 
+#endif // _yIO_FLOAT$1
+
+»)
+
+m4_applysync(«(
+		(d32), (d64), (d128),
+)», «
+#ifndef _yIO_HAS_FLOAT$1
+#error  _yIO_HAS_FLOAT$1
+#endif
+#if _yIO_HAS_FLOAT$1
+#ifndef _yIO_has_float_custom$1
+#define _yIO_has_float_custom$1  0
+#endif
+#endif
 »)

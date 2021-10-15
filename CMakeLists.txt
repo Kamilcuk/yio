@@ -147,6 +147,7 @@ if(YIO_DEV)
 		target_include_directories(${tgt} PRIVATE
 			${SRCDIR}
 			${GENDIR}
+			${GENDIR}/yio
 		)
 		target_link_libraries(${tgt} PRIVATE library_that_does_not_exists)
 	endfunction()

@@ -15,6 +15,8 @@ NICE += $(shell hash ionice >/dev/null 2>&1 && echo ionice -c 3)
 # Protect against non-existent sudo command
 SUDO += $(shell hash sudo >/dev/null 2>&1 && echo sudo)
 STDBUF = $(shell hash stdbuf >/dev/null 2>&1 && echo stdbuf -oL -eL)
+
+HELP_VAR +=~ NPROC - Number of cores to use
 NPROC = $(shell grep -c processor /proc/cpuinfo)
 
 ###############################################################################
@@ -90,7 +92,8 @@ ifeq ($(shell hash ninja 2>&1),)
 MAKEFLAGS += --warn-undefined-variables
 CMAKEFLAGS += -GNinja
 else
-export CMAKE_BUILD_PARALLEL_LEVEL=$(NPROC)
+CMAKE_BUILD_PARALLEL_LEVEL ?= $(NPROF)
+export CMAKE_BUILD_PARALLEL_LEVEL=$(CMAKE_BUILD_PARALLEL_LEVEL)
 endif
 ifneq ($(shell cmake --help | grep log-level),)
 CMAKEFLAGS_INIT += --log-level=TRACE

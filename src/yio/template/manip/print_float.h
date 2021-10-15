@@ -8,9 +8,10 @@
  */
 #pragma once
 #include "../../private/yio_float.h"
-#include "../../private/yio_float_strfrom_stupid.h"
+#include "../../private/yio_float_strfrom_custom.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
 #include "../../private/yio_float_strfrom_printf.h"
+#include "../ctx.h"
 
 #ifndef YIO_PRINT_FLOATS_WITH_STRFROM
 #define YIO_PRINT_FLOATS_WITH_STRFROM  1
@@ -23,71 +24,74 @@
 #endif
 
 #ifndef YIO_PRINT_FLOATS_WITH
-#error YIO_PRINT_FLOATS_WITH
+#error YIO_PRINT_FLOATS_WITH has to be configured
 #endif
 
-m4_applyforeachdefine(«(
-	(f,    float,       f),
-	(fpnt, float *,     f),
-	(d,    double,      d),
-	(l,    long double, l),
-	(d32,  _Decimal32,  d32),
-	(d64,  _Decimal64,  d64),
-	(d128, _Decimal128, d128),
-)», m4_syncline(1)«m4_dnl;
 
-#ifndef _yIO_HAS_FLOAT$3
-#error _yIO_HAS_FLOAT$3
-#endif
-#ifndef _yIO_HAS_strfrom$3
-#error _yIO_HAS_strfrom$3
-#endif
-#ifndef _yIO_has_float_stupid$3
-#error _yIO_has_float_stupid$3
-#endif
+m4_ifdef(«m4_floatlist», «», 
+«m4_define(«m4_floatlist», «
+	(f), (d), (l),
+	(f16), (f32), (f64), (f128),
+	(f32x), (f64x), (f128x),
+	(d32), (d64), (d128),
+»)
+»)
 
-#if _yIO_HAS_FLOAT$3
+m4_applysync((m4_floatlist), «)
+
+#ifndef _yIO_HAS_FLOAT$1
+#error  _yIO_HAS_FLOAT$1
+#endif
+#if _yIO_HAS_FLOAT$1
+
+#ifndef _yIO_HAS_strfrom$1
+#error  _yIO_HAS_strfrom$1
+#endif
+#ifndef _yIO_has_float_custom$1
+#error  _yIO_has_float_custom$1
+#endif
+#ifndef _yIO_has_float_printf$1
+#error  _yIO_has_float_printf$1
+#endif
 
 int _yΩIO_print_float_strfrom$1(yπio_printctx_t *t);
-#if _yIO_has_float_stupid$3
-int _yΩIO_print_float_stupid$1(yπio_printctx_t *t);
+#if _yIO_has_float_custom$1
+int _yΩIO_print_float_custom$1(yπio_printctx_t *t);
 #endif
+#if _yIO_has_float_printf$1
 int _yΩIO_print_float_printf$1(yπio_printctx_t *t);
+#endif
 
 #ifndef _yΩIO_PRINT_FLOAT$1
-#if YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_CUSTOM && _yIO_has_float_stupid$3
-#define _yΩIO_PRINT_FLOAT$1 _yΩIO_print_float_stupid$1
-#elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_PRINTF
-#define _yΩIO_PRINT_FLOAT$1 _yΩIO_print_float_printf$1
-#else
-#ifdef __NEWLIB__
-// Newlib as of now has no strfrom* function.
-#define _yΩIO_PRINT_FLOAT$1 _yΩIO_print_float_stupid$1
-#else
-#define _yΩIO_PRINT_FLOAT$1 _yΩIO_print_float_strfrom$1
-#endif
-#endif
+#	if YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_STRFROM
+#		define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_strfrom$1
+#	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_CUSTOM && _yIO_has_float_custom$1
+#		define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_custom$1
+#	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_PRINTF && _yIO_has_float_printf$1
+#		define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_printf$1
+#	else
+#		if _yIO_HAS_strfrom$1
+#			define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_strfrom$1
+#		elif _yIO_has_float_custom$1
+#			define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_custom$1
+#		else
+#			define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_strfrom$1
+#		endif
+#	endif
 #endif
 
 #define _yΩIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
-		$2: _yΩIO_PRINT_FLOAT$1,
+		_yIO_FLOAT$1: _yΩIO_PRINT_FLOAT$1,
 
-#else  // _yIO_HAS_FLOAT$3
+#else
 
 #define _yΩIO_PRINT_FUNC_GENERIC_FLOAT$1()
 
-#endif // _yIO_HAS_FLOAT$3
+#endif
 
-»)m4_dnl;
+»)
 
 #define _yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
-m4_applyforeachdefine(«(
-		(f),
-		(fpnt),
-		(d),
-		(l),
-		(d32),
-		(d64),
-		(d128),
-)», «_yΩIO_PRINT_FUNC_GENERIC_FLOAT$1()», «»)
+m4_applyforeachdefine((m4_floatlist),
+		«_yΩIO_PRINT_FUNC_GENERIC_FLOAT$1()»)
 

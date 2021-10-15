@@ -40,9 +40,9 @@ MASK(_yIO_print_float_strfroml)
 MASK(_yIO_print_float_printff)
 MASK(_yIO_print_float_printfd)
 MASK(_yIO_print_float_printfl)
-MASK(_yIO_print_float_stupidf)
-MASK(_yIO_print_float_stupidd)
-MASK(_yIO_print_float_stupidl)
+MASK(_yIO_print_float_customf)
+MASK(_yIO_print_float_customd)
+MASK(_yIO_print_float_customl)
 
 #define CHECK(FUNC) \
 	do{ \
@@ -54,7 +54,7 @@ int main() {
 #if _yIO_HAS_FLOATf
 	yprintf("{}", 1.0f);
 #if __NEWLIB__
-	CHECK("_yIO_print_float_stupidf");
+	CHECK("_yIO_print_float_customf");
 #else
 	CHECK("_yIO_print_float_strfromf");
 	//CHECK("_yIO_print_float_printff");
@@ -64,7 +64,7 @@ int main() {
 #if _yIO_HAS_FLOATd
 	yprintf("{}", 1.0);
 #if __NEWLIB__
-	CHECK("_yIO_print_float_stupidd");
+	CHECK("_yIO_print_float_customd");
 #else
 	CHECK("_yIO_print_float_strfromd");
 	//CHECK("_yIO_print_float_printfd");
@@ -74,7 +74,7 @@ int main() {
 #if _yIO_HAS_FLOATl
 	yprintf("{}", 1.0l);
 #if __NEWLIB__
-	CHECK("_yIO_print_float_stupidl");
+	CHECK("_yIO_print_float_customl");
 #else
 	CHECK("_yIO_print_float_strfroml");
 	//CHECK("_yIO_print_float_printfl");

@@ -8,6 +8,8 @@
  */
 #define _GNU_SOURCE
 #include "yio_float_strfrom_printf.h"
+#include "yio_float.h"
+#include "yio_decimal.h"
 #include "yio_res.h"
 #include "private.h"
 #include <assert.h>
@@ -39,15 +41,15 @@ void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
 	assert(fmtpnt <= fmt + fmtsize);
 }
 
-m4_applyforeachdefine(«(
+m4_applysync(«(
 		(f), (d), (l),
 		(d32), (d64), (d128),
-)», m4_syncline(1)«m4_dnl;
+)», «);
 
-#ifndef _yIO_HAS_FLOAT$1
-#error
+#ifndef _yIO_has_float_printf$1
+#error  _yIO_has_float_printf$1
 #endif
-#if _yIO_HAS_FLOAT$1
+#if _yIO_has_float_printf$1
 
 #define FMT_SIZE$1 ( \
 		\
@@ -96,4 +98,4 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 
 #endif
 
-»)
+»);

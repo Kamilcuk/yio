@@ -16,19 +16,20 @@ enum _yIO_TYPES {
 	_yIO_TYPE_YUIO = 0,
 };
 
-#if YIO_REALLY_CDT_PARSER
+#if __CDT_PARSER__
 
-// «
+//#define « /**/
 #define m4_regexp(...)
 #define m4_ifelse(...)
-#define m4_patsubst(...)
+#define m4_patsubst(a, ...)   a
 // My functions:
 #define m4_syncline(...)
 #define m4_syncline_dnl(...)
-#define m4_template_chooser(...)
-#define m4_template_chooser2(...)
-#define m4_applyforeachdefine(...)
-// »
+#define m4_template_chooser(a, ...)  a
+#define m4_template_chooser2(a, ...) a
+#define m4_applyforeachdefine(a, ...)  __VA_ARGS__
+#define m4_applysync(a, ...)  __VA_ARGS__
+//#define » /**/
 
 #define _yIO_TYPE_YIO 1
 
@@ -70,6 +71,8 @@ typedef int Yint;
 /**
  * @}
  */
+
+#define _yIO_FLOAT$1  double
 
 #endif
 
