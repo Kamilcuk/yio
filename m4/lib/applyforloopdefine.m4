@@ -28,7 +28,7 @@ m4_define(«m4_applyforloopdefine», «m4_pushdef(
 m4_TEST(«m4_applyforloopdefine(1, 3, «arg=$1», « S »)»)
 // PASS_REGULAR_EXPRESSION arg=1 S arg=2 S arg=3
 m4_TEST(«m4_applyforloopdefine(1, 3, «ARG=$1 »)»)
-// PASS_REGULAR_EXPRESSION ARG=1 ARG=2 ARG=3
+// PASS_REGULAR_EXPRESSION ARG=1 ARG=2 ARG=3[ ]*
 // Recursive calls have to be defined beforehand
 m4_TEST(«m4_define(«m4_func», «cnt=$1»)m4_applyforloopdefine(1, 3, «m4_applyforloop(1, $1, «m4_func», «,»)», « S »)»)
 // PASS_REGULAR_EXPRESSION cnt=1 S cnt=1,cnt=2 S cnt=1,cnt=2,cnt=3

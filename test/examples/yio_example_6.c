@@ -4,5 +4,5 @@ int main() {
    yprintf("{:>10} {:<10}\n", "time", "value");
    yprintf("{:>10} {:<10}\n", 123, 456ull);
 }
-// PASS_REGULAR_EXPRESSION       time value
-// PASS_REGULAR_EXPRESSION        123 456
+// PASS_REGULAR_EXPRESSION       time value[ ]*
+// PASS_REGULAR_EXPRESSION        123 456[ ]*

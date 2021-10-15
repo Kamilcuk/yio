@@ -7,5 +7,5 @@ int main() {
     yprint("You are ", a, " years old.\n");
 }
 // INPUT 25
-// PASS_REGULAR_EXPRESSION How old are you?
+// PASS_REGULAR_EXPRESSION How old are you\?
 // PASS_REGULAR_EXPRESSION You are 25 years old\.
