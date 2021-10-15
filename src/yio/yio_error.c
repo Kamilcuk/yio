@@ -24,7 +24,7 @@ const char *yio_strerror(int error) {
 			_yIO_ERROR_STOP - _yIO_ERROR_START - 1, "");
 
 	static_assert(_yIO_ERROR_START < _yIO_ERROR_STOP, "");
-	if (_yIO_ERROR_STOP <= error || error <= _yIO_ERROR_START) {
+	if (!(_yIO_ERROR_START < error && error < _yIO_ERROR_STOP)) {
 		return unknown_error;
 	}
 	error -= (_yIO_ERROR_START + 1);
