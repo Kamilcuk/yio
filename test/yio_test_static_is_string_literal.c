@@ -26,7 +26,7 @@ int main() {
 	_yIO_TEST(_yIO_IS_STRING_LITERAL(u"a"));
 	_yIO_TEST(_yIO_IS_STRING_LITERAL(U"a"));
 	_yIO_TEST(_yIO_IS_STRING_LITERAL(L"a"));
-	const char *msg, a, b;
+	const char *msg = NULL, a = 0, b = 0;
 	(void)msg;
 	(void)a;
 	(void)b;

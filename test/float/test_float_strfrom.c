@@ -132,7 +132,8 @@ void _yIO_run_tests_print_float_custom$1(void) {
 			'g',
 	};
 	static const int precisions[] = {
-			-1, 0, 1, 2, 3, 4, 5, 6, 10
+			-1, 0,
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 	};
 
 	for (size_t istrfrom = 0; istrfrom < ARRAY_SIZE(_yIO_astrfroms$1); ++istrfrom) {

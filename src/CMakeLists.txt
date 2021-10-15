@@ -100,6 +100,7 @@ endforeach()
 set(_float_gensrcs)
 foreach(source IN ITEMS
 		${CMAKE_CURRENT_SOURCE_DIR}/yio/private/yio_float_strfrom_strfrom.c.in
+		${CMAKE_CURRENT_SOURCE_DIR}/yio/private/yio_float_strfrom_custom.c.in
 )
 	foreach(ss IN LISTS YIO_FLOAT_SUFFIXES)
 		file(RELATIVE_PATH _source_rel ${SRCDIR} ${source})
@@ -297,7 +298,7 @@ function(yio_add_library name)
 		c_variadic_macros
 	)
 	target_link_libraries(${name} PUBLIC m)
-	if(0 AND NOT BUILD_SHARED_LIBS)
+	if(YIO_DEV AND NOT BUILD_SHARED_LIBS)
 		check_c_compiler_flag("-ffunction-sections -fdata-sections -Wl,gc-sections" YIO_GC_SECTIONS)
 		if(YIO_GC_SECTIONS)
 			target_compile_options(${name} PUBLIC -fdata-sections -ffunction-sections)

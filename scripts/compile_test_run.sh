@@ -2,25 +2,27 @@
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"/..
-gen="./gen"
-#libs=$(
-	#find _build/Debug/lib -maxdepth 1 -name '*.a' -type f -printf "%f\n" |
-	#sed 's/lib/-l/;s/\.a//'
-#)
+lib=$(ls -td _build/*/lib | head -n1)
+lib=$(basename "$lib")
 
-opts=()
+opts=(-fdata-sections -ffunction-sections -Wl,--gc-sections)
 while (($#)); do
 	case "$1" in
+	-use=*) lib=${1#*=}; ;;
+	-custom) opts+=(-DYIO_PRINT_FLOATS_WITH=YIO_PRINT_FLOATS_WITH_CUSTOM); ;;
 	-*) opts+=("$1"); ;;
 	*) break;
 	esac
 	shift
 done
 
+gen="$lib"/gen
+lib="$lib"/lib
+
 tmp=$(mktemp)
 trap 'rm "$tmp"' EXIT
 src=$(
-	printf '#include <%s.h>\n' yio ywio yuio
+	printf '#include <%s.h>\n' yio ywio yuio float
 	if (($#)); then
 		printf "%s\n" "$@"
 	else
@@ -28,7 +30,7 @@ src=$(
 	fi
 )
 cmd=(
-	gcc -I"$gen" -L_build/Debug/lib -Wall -o "$tmp" -xc - "${opts[@]}" -lyio -lunistring -lm
+	${CC:-gcc} -I"$gen" -L"$lib" -Wall -o "$tmp" -xc - "${opts[@]}" -lyio -lunistring -lm
 )
 
 echo "$src" >&2

@@ -141,6 +141,22 @@ set(_floats
 	"_Decimal128x"   "d128x"    "d128x"   "d128x"
 )
 
+# If two types are the same, set _yIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
+function(exclude_same type1 type2 suffix)
+	check_c_source_compiles(
+		"int main() { return _Generic((${type1})0, ${type1}: 0, ${type2}: 0); }"
+		_yIO_samecompiles_FLOAT${suffix}
+	)
+	if(NOT _yIO_samecompiles_FLOAT${suffix})
+		# cmake-lint: disable=C0103
+		set(_yIO_HAS_FLOAT${suffix} 0 CACHE INTERNAL "")
+	endif()
+endfunction()
+# Intel compiler
+exclude_same("float" "_Float32" f32)
+exclude_same("double" "_Float32x" f32x)
+exclude_same("double" "_Float64" f64)
+
 set(YIO_FLOAT_SUFFIXES)
 foreach(ii IN LISTS _floats)
 	foreach_count_items(ii foreachstatevar
@@ -153,7 +169,9 @@ foreach(ii IN LISTS _floats)
 		log("Detecting: '${type}' '${mathsuffix}' '${suffix}' '${strtosuffix}'")
 	endif()
 
-	check_type_exists_bool(${type} _yIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
+	if(NOT DEFINED _yIO_HAS_FLOAT${suffix})
+		check_type_exists_bool(${type} _yIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
+	endif()
 	yio_config_gen_add(_yIO_HAS_FLOAT${suffix})
 	if(_yIO_HAS_FLOAT${suffix})
 		list(APPEND YIO_FLOAT_SUFFIXES ${suffix})
@@ -182,6 +200,32 @@ yio_config_gen_check_c_source_compiles([=[
 #endif
 int main() {}
 ]=] _yIO_HAS_COMPLEX)
+
+if(NOT DEFINED _yIO_MUSL_BROKEN_EXP10)
+	if(NOT CMAKE_CROSSCOMPILING AND _yIO_HAS_exp10l AND _yIO_HAS_FLOAT_H)
+		set(_o  ${CMAKE_CURRENT_BINARY_DIR}/checkexp10)
+		file(MAKE_DIRECTORY ${_o})
+		file(WRITE ${_o}/checkexp10.c [=[
+#include <math.h>
+int main() {
+	return powl(10.0, -4933) == 0;
+}
+]=]
+		)
+		try_run(
+			runres compileres
+			${_o} ${_o}/checkexp10.c
+			LINK_LIBRARIES m
+		)
+		if(compileres AND runres EQUAL 1)
+			set(_yIO_MUSL_BROKEN_EXP10 1 CACHE INTERNAL "")
+		endif()
+	endif()
+endif()
+if(NOT DEFINED _yIO_MUSL_BROKEN_EXP10)
+	set(_yIO_MUSL_BROKEN_EXP10 0 CACHE INTERNAL "")
+endif()
+yio_config_gen_add(_yIO_MUSL_BROKEN_EXP10)
 
 #########################################################################
 # handle and detect stdfix

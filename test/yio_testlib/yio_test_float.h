@@ -49,6 +49,7 @@ static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
 #undef M
 
 #define M(x) { #x, _yIO_FLOAT_C$1(x) }, { "-"#x, _yIO_FLOAT_C$1(-x) }
+		M(0.0),
 		M(123.456),
 		M(0.4583577231),
 		M(0.4895080385),
@@ -80,16 +81,16 @@ static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
 		M(16050.524290657),
 		M(15651.24164915),
 		M(8115.8194332141),
-		M(0.0),
-		M(0.1),
-		M(0.2),
-		M(0.3),
-		M(0.4),
-		M(0.5),
-		M(0.6),
-		M(0.7),
-		M(0.8),
-		M(0.9),
+		M(289643189.86512),
+		M(2016712781.0609),
+		M(1699010479.2088),
+		M(228915587.8934),
+		M(730705637.65974),
+		M(1939533384.0968),
+		M(1303683268.3929),
+		M(1430875890.3337),
+		M(1738724809.1903),
+		M(1399713878.3482),
 		M(1.0),
 		M(2.0),
 		M(3.0),
@@ -99,6 +100,15 @@ static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
 		M(7.0),
 		M(8.0),
 		M(9.0),
+		M(0.1),
+		M(0.2),
+		M(0.3),
+		M(0.4),
+		M(0.5),
+		M(0.6),
+		M(0.7),
+		M(0.8),
+		M(0.9),
 		M(0.01),
 		M(0.02),
 		M(0.03),
@@ -108,6 +118,42 @@ static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
 		M(0.07),
 		M(0.08),
 		M(0.09),
+		M(0.001),
+		M(0.002),
+		M(0.003),
+		M(0.004),
+		M(0.005),
+		M(0.006),
+		M(0.007),
+		M(0.008),
+		M(0.009),
+		M(0.0001),
+		M(0.0002),
+		M(0.0003),
+		M(0.0004),
+		M(0.0005),
+		M(0.0006),
+		M(0.0007),
+		M(0.0008),
+		M(0.0009),
+		M(0.00001),
+		M(0.00002),
+		M(0.00003),
+		M(0.00004),
+		M(0.00005),
+		M(0.00006),
+		M(0.00007),
+		M(0.00008),
+		M(0.00009),
+		M(0.000001),
+		M(0.000002),
+		M(0.000003),
+		M(0.000004),
+		M(0.000005),
+		M(0.000006),
+		M(0.000007),
+		M(0.000008),
+		M(0.000009),
 		M(1111111111.99),
 		M(9234567890.123),
 		M(9234569999.99),
@@ -159,41 +205,6 @@ static const struct _yIO_astrfroms$1_s  _yIO_astrfroms$1[] = {
 		T(_yIO_float_astrfrom_printf$1)
 #undef T
 };
-
-static inline
-_yIO_FLOAT$1 _yIO_diff$1(_yIO_FLOAT$1 in, _yIO_FLOAT$1 out) {
-	static _yIO_FLOAT$1 very_close = _yIO_FLOAT_C$1(1e-6);
-
-	if (isnan(in)) {
-		return isnan(out) ? 0 : 1;
-	}
-	if (isnan(out)) {
-		return 1;
-	}
-	if (isinf(in)) {
-		return isinf(in) != isinf(out);
-	}
-	if (isinf(out)) {
-		// the conversion function resulted in INF from MAX value, it's fine
-		if (_yIO_fabs$1(in) >= _yIO_FLOAT_MAX$1) return very_close;
-		return 1;
-	}
-	if (in == out) {
-		return 0;
-	}
-
-	const _yIO_FLOAT$1 greater = in < out ? out : in;
-	const _yIO_FLOAT$1 smaller = in < out ? in : out;
-	// epsilong was converted to zero, (or zero to zero), that's fine
-	if (_yIO_fabs$1(greater) <= _yIO_FLOAT_EPSILON$1) return very_close;
-	const _yIO_FLOAT$1 diff1 = (greater - smaller) / greater;
-	assert(!isnan(diff1));
-	assert(!isinf(diff1));
-	const _yIO_FLOAT$1 diff = _yIO_fabs$1(diff1);
-	assert(0 <= diff);
-	assert(diff <= 1);
-	return diff;
-}
 
 #endif
 

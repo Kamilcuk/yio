@@ -11,6 +11,10 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+#ifdef __INTEL_COMPILER
+#pragma warning disable 3179
+#endif
+
 /* ------------------------------------------------------------------------------- */
 
 static inline

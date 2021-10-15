@@ -23,8 +23,8 @@ if(DFP)
 	target_link_libraries(${PROJECT_NAME} PUBLIC
 		${DFP}
 	)
-else()
-	target_link_libraries(${PROJECT_NAME} PUBLIC
-		yio_compat
-	)
+#else()
+	#target_link_libraries(${PROJECT_NAME} PUBLIC
+		#yio_compat
+	#)
 endif()

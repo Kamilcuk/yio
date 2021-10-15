@@ -4,9 +4,9 @@
 
 SHELL = bash
 
+MAKEFLAGS += -rR --no-print-directory
 .SUFFIXES:
 .NOTPARALLEL:
-MAKEFLAGS += -rR --no-print-directory
 
 # check if we have nice
 NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
@@ -17,7 +17,7 @@ SUDO += $(shell hash sudo >/dev/null 2>&1 && echo sudo)
 STDBUF = $(shell hash stdbuf >/dev/null 2>&1 && echo stdbuf -oL -eL)
 
 HELP_VAR +=~ NPROC - Number of cores to use
-NPROC = $(shell grep -c processor /proc/cpuinfo)
+NPROC = $(shell echo $$(( $$(grep -c processor /proc/cpuinfo) * 100 / 75)) )
 
 ###############################################################################
 
@@ -81,18 +81,22 @@ ifeq ($(findstring .$(CC).,.clang.icc.),.$(CC).)
 _BCCNAME = $(CC)
 endif
 endif
+ISALPINE ?= $(shell grep -q alpine /etc/os-release 2>/dev/null && echo 1)
+ifeq ($(ISALPINE),1)
+_BCCNAME = alpine
+endif
 _BNAME = $(_BCCNAME)$(SYSTEM)$(CMAKE_BUILD_TYPE)$(shell MODE=$(MODE) && echo $${MODE^})
 HELP_VAR +=~ B - Build directory location
 B ?= _build/$(_BNAME)
 
 # Default cmake and other flags
+CMAKE_BUILD_PARALLEL_LEVEL ?= $(NPROF)
 CMAKE = $(NICE) cmake
 CMAKEFLAGS += -S.
 ifeq ($(shell hash ninja 2>&1),)
 MAKEFLAGS += --warn-undefined-variables
 CMAKEFLAGS += -GNinja
 else
-CMAKE_BUILD_PARALLEL_LEVEL ?= $(NPROF)
 export CMAKE_BUILD_PARALLEL_LEVEL=$(CMAKE_BUILD_PARALLEL_LEVEL)
 endif
 ifneq ($(shell cmake --help | grep log-level),)
@@ -117,6 +121,7 @@ BUILDFLAGS += --verbose
 CTESTFLAGS += -V
 endif
 
+TESTFLAGS ?=
 CTESTFLAGS += $(if $(value R),-j 0 -R "$(R)")
 
 ###############################################################################
@@ -357,15 +362,20 @@ define HELP_PARSE
 			column -t -s "~"; \
 		fi; \
 	else \
-		sed 's/|/\t- /'; \
+		sed 's/|/   - /'; \
 	fi
 endef
+HELP_VARIABLES = $(subst ~,,$(filter ~%,$(subst ~ ,~,$(HELP_VAR))))
 help:
 	@echo "$$HELP_DESC"
 	@echo
 	@echo "Targets:"
 	@echo "$$HELP" | $(HELP_PARSE)
-	@$(if $(value HELP_VAR), echo && echo "Options:" && echo "$$HELP_VAR" | $(HELP_PARSE) )
+	@$(if $(value HELP_VAR), echo)
+	@$(if $(value HELP_VAR), echo "Options:")
+	@$(if $(value HELP_VAR),\
+	printf "Default: %s\n" $(foreach v,$(HELP_VARIABLES),"$(v)=$($(v))") | \
+	paste -d' ' <(tr '~' '\n' <<<"$$HELP_VAR" | sed 1d) - | $(HELP_PARSE) )
 
 
 ###############################################################################

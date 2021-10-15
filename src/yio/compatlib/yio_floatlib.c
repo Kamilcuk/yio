@@ -39,7 +39,9 @@
 #endif
 
 static inline void floaterror(const char *func) {
-	fprintf(stderr, "yio: decimallib: Function %s is not implemented. Link with an actual implementation.", func);
+	fprintf(stderr,
+			"yio: decimallib: Function %s is not implemented. Link with an actual implementation.\n",
+			func);
 	errno = ENOSYS;
 #if _yIO_HAS_FLOAT_H
 	feraiseexcept(FE_INVALID);

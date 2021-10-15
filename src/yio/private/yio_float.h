@@ -99,6 +99,8 @@ _yIO_FLOAT$1 fabs$2(_yIO_FLOAT$1);
 #define _yIO_fabs$1    fabs$2
 _yIO_FLOAT$1 pow$2(_yIO_FLOAT$1, _yIO_FLOAT$1);
 #define _yIO_pow$1     pow$2
+_yIO_FLOAT$1 nextafter$2(_yIO_FLOAT$1, _yIO_FLOAT$1);
+#define _yIO_nextafter$1  nextafter$2
 
 #ifndef _yIO_FLOAT_C$1
 #define _yIO_FLOAT_C$1(x)  ((_yIO_FLOAT$1)x)

@@ -37,6 +37,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+m4_ifdef(«m4_FORFLOAT», «», «m4_fatal_error(«m4_FORFLOAT not defined»)»)
+m4_ifelse(m4_regexp(m4_FORFLOAT, «^d[0-9].*$»), «0», «
+// Disabled for _Decimal* types.  FORFLOAT=m4_FORFLOAT
+», «
+
 #ifndef NDEBUG
 #define ASSERTMSG(expr, fmt, ...) do { \
 	if (!(expr)) { \
@@ -49,6 +54,7 @@
 #define ASSERTMSG(...)  ((void)0)
 #endif
 
+
 static const char _yIO_NAN[3] = {'N','A','N'};
 static const char _yIO_nan[3] = {'n','a','n'};
 static const char (*_yIO_nans[3])[] = { &_yIO_NAN, &_yIO_nan, };
@@ -59,11 +65,8 @@ static const char _yIO_digit_to_HEX[] = {'0','1','2','3','4','5','6','7','8','9'
 static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
-m4_applysync(«(
-		(f), (d), (l),
-		(f16), (f32), (f64), (f128),
-		(f32x), (f64x), (f128x),
-)», « ;
+m4_applysync(«((m4_FORFLOAT))», «
+»»m4_syncline()««
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -72,17 +75,11 @@ m4_applysync(«(
 
 #define TYPE     _yIO_FLOAT$1
 #define FLOOR    _yIO_floor$1
-_yIO_FLOAT$1 FLOOR(_yIO_FLOAT$1);
 #define EXP2     _yIO_exp2$1
-_yIO_FLOAT$1 EXP2(_yIO_FLOAT$1);
 #define EXP10    _yIO_exp10$1
-_yIO_FLOAT$1 EXP10(_yIO_FLOAT$1);
 #define FABS     _yIO_fabs$1
-_yIO_FLOAT$1 FABS(_yIO_FLOAT$1);
 #define FREXP2   _yIO_frexp2$1
-_yIO_FLOAT$1 FREXP2(_yIO_FLOAT$1, int *);
 #define FREXP10  _yIO_frexp10$1
-_yIO_FLOAT$1 FREXP10(_yIO_FLOAT$1, int *);
 #define FC(x)    _yIO_FLOAT_C$1(x)
 #ifdef __CDT_PARSER__
 #undef FC
@@ -103,6 +100,7 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 	);
 	if (!(0 <= digit && digit <= baseint)) {
 		_yIO_res_end_err(v);
+		printf("HERE\n");
 		return YIO_ERROR_ENOSYS;
 	}
 
@@ -191,7 +189,10 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 				// this is strange, the standard says "Let P" not "Let precision".
 				((spec0lower == 'g' && precision == 0) ? 1 : precision);
 		val10 = val + (spec0lower == 'g' ? FC(0.5) : FC(0.05)) * EXP10(round_exp10);
-		if (isinf(val10)) goto ERROR_ENOSYS;
+		if (isinf(val10)) {
+			// We can't round up - stay as it is.
+			val10 = val;
+		}
 		val10 = FREXP10(val10, &exponent10);
 	}
 
@@ -220,18 +221,24 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 	if (val_is_zero) {
 		exponent = 0;
 	} else if (speclower == 'f') {
-		val += FC(0.5) * EXP10(-precision);
-		if (isinf(val)) goto ERROR_ENOSYS;
+		const _yIO_FLOAT$1 tmp = val + FC(0.5) * EXP10(-precision);
+		if (!isinf(tmp)) {
+			val = tmp;
+		}
 		val = FREXP10(val, &exponent);
 	} else if (speclower == 'a') {
 		// rounding makes no sense, when precision is maximum available
 		if (precision0 >= 0) {
 			int exponent_tmp;
 			FREXP2(val, &exponent_tmp);
-			if (precision > INT_MAX / 4) goto ERROR_ENOSYS;
+			if (precision > INT_MAX / 4) {
+				goto ERROR_ENOSYS;
+			}
 			const int bitpos = -5 + -4 * precision + exponent_tmp;
-			val += EXP2(bitpos);
-			if (isinf(val)) goto ERROR_ENOSYS;
+			_yIO_FLOAT$1 tmp = val + EXP2(bitpos);
+			if (!isinf(tmp)) {
+				val = tmp;
+			}
 		}
 		val = FREXP2(val, &exponent);
 		// I start printing with initial leading 1 bit always set.
@@ -242,6 +249,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 		val = val10;
 	} else {
 		assert(0);
+		goto ERROR_EINVAL;
 	}
 
 	// at this point, val should be after frexp
@@ -323,6 +331,9 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 	ERROR_ENOSYS:
 	_yIO_res_end_err(v);
 	return YIO_ERROR_ENOSYS;
+	ERROR_EINVAL:
+	_yIO_res_end_err(v);
+	return YIO_ERROR_FMT_INVALID;
 }
 
 #undef TYPE
@@ -336,4 +347,5 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 
 #endif
 
+»)
 »)
