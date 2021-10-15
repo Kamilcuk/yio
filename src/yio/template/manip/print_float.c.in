@@ -36,8 +36,11 @@ int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 	_yIO_CACHE_AUTO_DECL(_result, result, length);
 	err = _yIO_float_astrfrom_$2$1(&result, &length, precision, type, var);
 	if (err) return err;
-	if (isdigit((unsigned char)result[0])) { // TODO: There's something wrong here.
-		const bool is_negative = result[0] == '-';
+	const bool is_negative = result[0] == '-';
+	if (
+			isdigit((unsigned char)result[0]) ||
+			(is_negative && isdigit((unsigned char)result[1]))
+	) {
 		err = yπio_printctx_put_number(t, result + is_negative, length - is_negative, !is_negative);
 	} else {
 		err = yπio_printctx_put(t, result, length);
