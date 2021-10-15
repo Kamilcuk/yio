@@ -7,14 +7,18 @@
  * @brief
  */
 #define __STDC_WANT_IEC_60559_TYPES_EXT__
-#include "yio_decimal.h"
+#include "yio_float.h"
 #include "private.h"
 #include <math.h>
 
 m4_applyforeachdefine(«(
 	(d32), (d64), (d128),
+	(d32x), (d64x), (d128x),
 )», m4_syncline()«
 
+#ifndef _yIO_HAS_FLOAT$1
+#error  _yIO_HAS_FLOAT$1
+#endif
 #if _yIO_HAS_FLOAT$1
 
 // Forward declaration so we get compile time errors.
@@ -38,10 +42,6 @@ _yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1 val, int *exp) {
 		}
 	}
 	return val;
-}
-
-_yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp) {
-	return frexp$1(val, exp);
 }
 
 #endif

@@ -25,6 +25,6 @@ if(DFP)
 	)
 else()
 	target_link_libraries(${PROJECT_NAME} PUBLIC
-		yio_decimallib
+		yio_compat
 	)
 endif()

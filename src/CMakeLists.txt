@@ -84,18 +84,37 @@ list(APPEND _gensrcs yio/yio_error_messages.h)
 ##############################################################################################
 # Preprocess files with m4.
 
-file(GLOB_RECURSE m4srcs *.c *.h)
-list(FILTER m4srcs EXCLUDE REGEX "src/yio/template/")
-list(FILTER m4srcs EXCLUDE REGEX "src/yio/y*io/")
-foreach(source IN LISTS m4srcs)
-	file(RELATIVE_PATH sourcenice ${SRCDIR} ${source})
-	set(_output ${GENDIR}/${sourcenice})
+file(GLOB_RECURSE _m4srcs *.c *.h)
+list(FILTER _m4srcs EXCLUDE REGEX "src/yio/template/")
+list(FILTER _m4srcs EXCLUDE REGEX "src/yio/y*io/")
+foreach(source IN LISTS _m4srcs)
+	file(RELATIVE_PATH _output ${SRCDIR} ${source})
 	# dbg("m4_add_command ${_output} ${source}")
 	m4_add_command(
-		OUTPUT ${_output}
+		OUTPUT ${GENDIR}/${_output}
 		SOURCE ${source}
 	)
-	list(APPEND _gensrcs ${sourcenice})
+	list(APPEND _gensrcs ${_output})
+endforeach()
+
+set(_float_gensrcs)
+foreach(source IN ITEMS
+		${CMAKE_CURRENT_SOURCE_DIR}/yio/private/yio_float_strfrom_strfrom.c.in
+)
+	foreach(ss IN LISTS YIO_FLOAT_SUFFIXES)
+		file(RELATIVE_PATH _source_rel ${SRCDIR} ${source})
+		get_filename_component(_source_rel_dir ${_source_rel} DIRECTORY)
+		get_filename_component(_source_name ${source} NAME)
+		set(_output ${_source_rel_dir}/${ss}_${_source_name}.c)
+		# message("m4_add_command ${_output} ${source}")
+		m4_add_command(
+			OUTPUT ${GENDIR}/${_output}
+			SOURCE ${source}
+			OPTIONS -D m4_FORFLOAT=${ss}
+		)
+		list(APPEND _gensrcs ${_output})
+		list(APPEND _float_gensrcs ${_output})
+	endforeach()
 endforeach()
 
 include(yio/yio/template.cmake)
@@ -278,7 +297,7 @@ function(yio_add_library name)
 		c_variadic_macros
 	)
 	target_link_libraries(${name} PUBLIC m)
-	if(NOT BUILD_SHARED_LIBS)
+	if(0 AND NOT BUILD_SHARED_LIBS)
 		check_c_compiler_flag("-ffunction-sections -fdata-sections -Wl,gc-sections" YIO_GC_SECTIONS)
 		if(YIO_GC_SECTIONS)
 			target_compile_options(${name} PUBLIC -fdata-sections -ffunction-sections)
@@ -314,24 +333,25 @@ endfunction()
 ##################################################################################
 # Add libraries
 
-file_glob_srcs_relative_to_srcdir(GLOB auto_decimallib_srcs yio/decimallib)
-yio_add_library(yio_decimallib
-	${auto_decimallib_srcs}
+file_glob_srcs_relative_to_srcdir(GLOB _auto_compat_srcs yio/compatlib)
+yio_add_library(yio_compat
+	${_auto_compat_srcs}
 	yio/yio_config.h
 	yio/yio_version.h
 	yio/yio_config_gen.h
 )
 
-file_glob_srcs_relative_to_srcdir(GLOB auto_generic_srcs yio)
-file_glob_srcs_relative_to_srcdir(GLOB auto_yio_private_srcs yio/private)
+file_glob_srcs_relative_to_srcdir(GLOB _auto_generic_srcs yio)
+file_glob_srcs_relative_to_srcdir(GLOB _auto_yio_private_srcs yio/private)
 set(_yio_sources
 	yio/yio_version.h
 	yio/yio_config.h
 	yio/yio_config_gen.h
 	yio/yio_error_messages.h
 
-	${auto_yio_private_srcs}
-	${auto_generic_srcs}
+	${_float_gensrcs}
+	${_auto_yio_private_srcs}
+	${_auto_generic_srcs}
 	yio.h
 	${yio_gensrcs}
 	ywio.h

@@ -11,7 +11,6 @@
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 #include "yio_float_strfrom_strfrom.h"
 #include "yio_float.h"
-#include "yio_decimal.h"
 #include "yio_res.h"
 #include "private.h"
 #include <assert.h>
@@ -49,12 +48,8 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int pr
 	assert(fmtpnt <= fmt + FMT_SIZE);
 }
 
-m4_applysync(«(
-			(f), (d), (l),
-			(f16), (f32), (f64), (f128),
-			(f32x), (f64x), (f128x),
-			(d32), (d64), (d128),
-)», «)
+m4_ifdef(«m4_FORFLOAT», «», «m4_fatal_error(«m4_FORFLOAT not defined»)»)
+m4_applysync(«((m4_FORFLOAT))», «
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -62,7 +57,7 @@ m4_applysync(«(
 #if _yIO_HAS_FLOAT$1
 
 #ifndef _yIO_HAS_strfrom$1
-#error
+#error  _yIO_HAS_strfrom$1
 #endif
 
 // In case it's not defined in standard headers, so that we get a link time error.

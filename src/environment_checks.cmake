@@ -136,11 +136,12 @@ set(_floats
 	"_Decimal32"     "d32"      "d32"     "d32"
 	"_Decimal64"     "d64"      "d64"     "d64"
 	"_Decimal128"    "d128"     "d128"    "d128"
-	#"_Decimal32x"    "d32x"     "d32x"    "d32x"
-	#"_Decimal64x"    "d64x"     "d64x"    "d64x"
-	#"_Decimal128x"   "d128x"    "d128x"   "d128x"
+	"_Decimal32x"    "d32x"     "d32x"    "d32x"
+	"_Decimal64x"    "d64x"     "d64x"    "d64x"
+	"_Decimal128x"   "d128x"    "d128x"   "d128x"
 )
 
+set(YIO_FLOAT_SUFFIXES)
 foreach(ii IN LISTS _floats)
 	foreach_count_items(ii foreachstatevar
 		type mathsuffix suffix strtosuffix
@@ -155,6 +156,7 @@ foreach(ii IN LISTS _floats)
 	check_type_exists_bool(${type} _yIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
 	yio_config_gen_add(_yIO_HAS_FLOAT${suffix})
 	if(_yIO_HAS_FLOAT${suffix})
+		list(APPEND YIO_FLOAT_SUFFIXES ${suffix})
 		yio_config_gen_add_value(_yIO_FLOAT${suffix} ${type})
 		check_symbol_exists_bool(exp10${mathsuffix}  "math.h"    _yIO_HAS_exp10${suffix})
 		check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  _yIO_HAS_strfrom${suffix})
@@ -164,6 +166,7 @@ foreach(ii IN LISTS _floats)
 		endforeach()
 	endif()
 endforeach()
+set(YIO_FLOAT_SUFFIXES "${YIO_FLOAT_SUFFIXES}" PARENT_SCOPE)
 
 yio_config_gen_check_c_source_compiles([=[
 float _Imaginary fi = 1;

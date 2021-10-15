@@ -7,17 +7,21 @@
  * @brief
  */
 #define _GNU_SOURCE  1
-#define _ISOC99_SOURCE  1
-#define _POSIX_C_SOURCE  200112L
-#define _XOPEN_SOURCE  1
-#define _DEFAULT_SOURCE  1
+#define _XOPEN_SOURCE  700
+#define _POSIX_C_SOURCE  200809L
 #define _BSD_SOURCE  1
 #define _SVID_SOURCE  1
+#define _DEFAULT_SOURCE  1
+#define __STDC_WANT_LIB_EXT2__  1
+#define __STDC_WANT_DEC_FP__  1
+#define __STDC_WANT_IEC_60559_EXT__  1
+#define __STDC_WANT_IEC_60559_DFP_EXT__  1
+#define __STDC_WANT_IEC_60559_BFP_EXT__  1
+#define __STDC_WANT_IEC_60559_FUNCS_EXT__  1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
 #include "yio_float_strfrom_custom.h"
 #include "yio_res.h"
 #include "yio_float.h"
-#include "yio_decimal.h"
 #include "private.h"
 
 #include <assert.h>
@@ -68,11 +72,17 @@ m4_applysync(«(
 
 #define TYPE     _yIO_FLOAT$1
 #define FLOOR    _yIO_floor$1
+_yIO_FLOAT$1 FLOOR(_yIO_FLOAT$1);
 #define EXP2     _yIO_exp2$1
+_yIO_FLOAT$1 EXP2(_yIO_FLOAT$1);
 #define EXP10    _yIO_exp10$1
+_yIO_FLOAT$1 EXP10(_yIO_FLOAT$1);
 #define FABS     _yIO_fabs$1
+_yIO_FLOAT$1 FABS(_yIO_FLOAT$1);
 #define FREXP2   _yIO_frexp2$1
+_yIO_FLOAT$1 FREXP2(_yIO_FLOAT$1, int *);
 #define FREXP10  _yIO_frexp10$1
+_yIO_FLOAT$1 FREXP10(_yIO_FLOAT$1, int *);
 #define FC(x)    _yIO_FLOAT_C$1(x)
 #ifdef __CDT_PARSER__
 #undef FC

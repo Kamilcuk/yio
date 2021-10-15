@@ -18,10 +18,16 @@
 // m4_generate_print_floats(type, suffix, promoted_type<for float it's double> )
 m4_define_function(«m4_generate_print_floats», m4_syncline(1)«m4_dnl);
 
-static inline
-int _yΩIO_print_float_$2$3_in(yπio_printctx_t *t, _yIO_FLOAT$3 var);
+m4_ifelse(«$1», «f», «», m4_syncline()«
 
+m4_ifelse(«$1», «d», m4_syncline()«
+// For double, we export the prototype.
+int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var);
+», m4_syncline()«
+// Otherwise, the function is local.
 static inline
+»)
+m4_syncline_dnl()
 int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 	int err = yπio_printctx_init(t);
 	if (err) return err;
@@ -40,11 +46,21 @@ int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 	return err;
 }
 
-int _yΩIO_print_float_$2$1(yπio_printctx_t *t) {
-	const _yIO_FLOAT$3 var = yπio_printctx_va_arg2(t, _yIO_FLOAT$1, _yIO_FLOAT$3);
-	return _yΩIO_print_float_$2$3_in(t, var);
-}
+»)
+m4_syncline_dnl()
 
+int _yΩIO_print_float_$2$1(yπio_printctx_t *t) {
+m4_ifelse(«$1», «f», m4_syncline()«
+	// Float calls double
+	const double var = yπio_printctx_va_arg2(t, _yIO_FLOAT$1, double);
+	int _yΩIO_print_float_$2d_in(yπio_printctx_t *t, _yIO_FLOATd var);
+	return _yΩIO_print_float_$2d_in(t, var);
+», m4_syncline()«
+	// Not float.
+	const _yIO_FLOAT$1 var = yπio_printctx_va_arg2(t, _yIO_FLOAT$1, _yIO_FLOAT$1);
+	return _yΩIO_print_float_$2$1_in(t, var);
+»)
+}
 
 #if 0
 m4_ifelse(«$1», «f», m4_syncline(1)«m4_dnl;
@@ -57,30 +73,23 @@ int _yΩIO_print_float_$2$1pnt(yπio_printctx_t *t) {
 
 ») m4_dnl;
 
-m4_ifdef(«m4_floatlist», «»,
-«m4_define(«m4_floatlist», «
-		(f),(d),(l)
-»)
-»)
-
-m4_applysync((m4_floatlist),
+m4_ifdef(«m4_FORFLOAT», «», «m4_fatal_error(«m4_FORFLOAT is not defined»)»)
+m4_applysync(((m4_FORFLOAT)),
 «
-
-m4_define(«m4_arg2», «m4_ifelse(«$1», «f», «d», «$1»)»)
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
 #endif
 #if _yIO_HAS_FLOAT$1
 
-m4_generate_print_floats($1, strfrom, m4_arg2)
+m4_generate_print_floats($1, strfrom)
 
 #if _yIO_has_float_custom$1
-m4_generate_print_floats($1, custom, m4_arg2)
+m4_generate_print_floats($1, custom)
 #endif
 
 #if _yIO_has_float_printf$1
-m4_generate_print_floats($1, printf, m4_arg2)
+m4_generate_print_floats($1, printf)
 #endif
 
 #endif

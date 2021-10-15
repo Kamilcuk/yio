@@ -9,7 +9,6 @@
 #define _GNU_SOURCE
 #include "yio_float_strfrom_printf.h"
 #include "yio_float.h"
-#include "yio_decimal.h"
 #include "yio_res.h"
 #include "private.h"
 #include <assert.h>

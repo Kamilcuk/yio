@@ -33,7 +33,8 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 		int precision, char spec, _yIO_FLOAT$1 val);
 
 #define _yIO_has_float_printf$1  1
-
+#else
+#define _yIO_has_float_printf$1  0
 #endif
 
 »)
@@ -41,6 +42,7 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 m4_applysync(«(
 		(f16), (f32), (f64), (f128),
 		(f32x), (f64x), (f128x),
+		(d32x), (d64x), (d128x),
 )»,«
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
