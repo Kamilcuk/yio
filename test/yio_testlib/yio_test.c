@@ -12,6 +12,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+static unsigned failures = 0;
+
 static inline
 const char * _yIO__test_get_relative_filepath(const char *file) {
 	const char *this_file = __FILE__;
@@ -27,6 +29,7 @@ const char * _yIO__test_get_relative_filepath(const char *file) {
 
 static
 void _yIO__test_failed_atexit(void) {
+	printf("_yIO_TEST: failures: %u\n", failures);
 	_Exit(EXIT_FAILURE);
 }
 
@@ -71,6 +74,7 @@ bool _yIO__test_failed(int unused, bool result,
 	}
 
 	if (fail) {
+		failures++;
 		static bool failurer_registered = false;
 		if (failurer_registered == false) {
 			failurer_registered = true;
