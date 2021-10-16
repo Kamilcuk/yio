@@ -11,6 +11,7 @@
 #include "../../private/yio_float_strfrom_custom.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
 #include "../../private/yio_float_strfrom_printf.h"
+#include "../../private/yio_float_strfrom_ryu.h"
 #include "../ctx.h"
 
 #ifndef YIO_PRINT_FLOATS_WITH_STRFROM
@@ -21,6 +22,9 @@
 #endif
 #ifndef YIO_PRINT_FLOATS_WITH_PRINTF
 #define YIO_PRINT_FLOATS_WITH_PRINTF   3
+#endif
+#ifndef YIO_PRINT_FLOATS_WITH_RYU
+#define YIO_PRINT_FLOATS_WITH_RYU      4
 #endif
 
 #ifndef YIO_PRINT_FLOATS_WITH
@@ -53,6 +57,9 @@ m4_applysync((m4_floatlist), «)
 #ifndef _yIO_has_float_printf$1
 #error  _yIO_has_float_printf$1
 #endif
+#ifndef _yIO_has_float_ryu$1
+#error  _yIO_has_float_ryu$1
+#endif
 
 int _yΩIO_print_float_strfrom$1(yπio_printctx_t *t);
 #if _yIO_has_float_custom$1
@@ -60,6 +67,9 @@ int _yΩIO_print_float_custom$1(yπio_printctx_t *t);
 #endif
 #if _yIO_has_float_printf$1
 int _yΩIO_print_float_printf$1(yπio_printctx_t *t);
+#endif
+#if _yIO_has_float_ryu$1
+int _yΩIO_print_float_ryu$1(yπio_printctx_t *t);
 #endif
 
 #ifndef _yΩIO_PRINT_FLOAT$1
@@ -69,6 +79,8 @@ int _yΩIO_print_float_printf$1(yπio_printctx_t *t);
 #		define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_custom$1
 #	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_PRINTF && _yIO_has_float_printf$1
 #		define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_printf$1
+#	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_RYU && _yIO_has_float_ryu$1
+#		define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_ryu$1
 #	else
 #		if _yIO_HAS_strfrom$1
 #			define _yΩIO_PRINT_FLOAT$1  _yΩIO_print_float_strfrom$1

@@ -12,8 +12,6 @@
 
 m4_applysync(«(
 		(f), (d), (l),
-		(f16), (f32), (f64), (f128),
-		(f32x), (f64x), (f128x),
 )», «
 
 #ifndef _yIO_HAS_FLOAT$1
@@ -31,25 +29,27 @@ m4_applysync(«(
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int _yIO_float_astrfrom_custom$1(char **resultp, size_t *lengthp,
+int _yIO_float_astrfrom_ryu$1(char **resultp, size_t *lengthp,
 		int precision, char spec0, _yIO_FLOAT$1 val);
 
-#define _yIO_has_float_custom$1  1
+#define _yIO_has_float_ryu$1  1
 #else
-#define _yIO_has_float_custom$1  0
+#define _yIO_has_float_ryu$1  0
 #endif // _yIO_FLOAT$1
 
 »)
 
 m4_applysync(«(
+		(f16), (f32), (f64), (f128),
+		(f32x), (f64x), (f128x),
 		(d32), (d64), (d128),
 )», «
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
 #endif
 #if _yIO_HAS_FLOAT$1
-#ifndef _yIO_has_float_custom$1
-#define _yIO_has_float_custom$1  0
+#ifndef _yIO_has_float_ryu$1
+#define _yIO_has_float_ryu$1  0
 #endif
 #endif
 »)

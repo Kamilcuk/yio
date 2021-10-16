@@ -41,4 +41,9 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 
 #endif
 
+// strfrom is always available
+// in case of problems, users will get link errors, so they can implement
+// strfrom themselves.
+#define _yIO_has_float_strfrom$1  1
+
 »);

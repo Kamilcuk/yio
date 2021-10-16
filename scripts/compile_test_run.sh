@@ -10,6 +10,7 @@ while (($#)); do
 	case "$1" in
 	-use=*) lib=${1#*=}; ;;
 	-custom) opts+=(-DYIO_PRINT_FLOATS_WITH=YIO_PRINT_FLOATS_WITH_CUSTOM); ;;
+	-ryu) opts+=(-DYIO_PRINT_FLOATS_WITH=YIO_PRINT_FLOATS_WITH_RYU); ;;
 	-*) opts+=("$1"); ;;
 	*) break;
 	esac

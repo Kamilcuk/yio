@@ -95,6 +95,10 @@ m4_generate_print_floats($1, custom)
 m4_generate_print_floats($1, printf)
 #endif
 
+#if _yIO_has_float_ryu$1
+m4_generate_print_floats($1, ryu)
+#endif
+
 #endif
 
 »)
