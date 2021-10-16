@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"/..
 lib=$(ls -td _build/*/lib | head -n1)
-lib=$(basename "$lib")
+lib=$(dirname "$lib")
 
 opts=(-fdata-sections -ffunction-sections -Wl,--gc-sections)
 while (($#)); do
