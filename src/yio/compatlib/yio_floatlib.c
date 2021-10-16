@@ -40,7 +40,7 @@
 
 static inline void floaterror(const char *func) {
 	fprintf(stderr,
-			"yio: decimallib: Function %s is not implemented. Link with an actual implementation.\n",
+			"yio: compatlib: Function %s is not implemented. Link with an actual implementation.\n",
 			func);
 	errno = ENOSYS;
 #if _yIO_HAS_FLOAT_H
@@ -137,20 +137,28 @@ weak _yIO_FLOAT$1 frexp$2(_yIO_FLOAT$1 val, int *exp) {
 	return NAN;
 }
 
+#ifdef frexp$2
+#undef frexp$2
+#endif
+weak _yIO_FLOAT$1 pow$2(_yIO_FLOAT$1 val, _yIO_FLOAT$1 to);
+weak _yIO_FLOAT$1 pow$2(_yIO_FLOAT$1 val, _yIO_FLOAT$1 to) {
+	ERROR();
+	return NAN;
+}
+
 #endif // _yIO_HAS_FLOAT$1
 
 »)
 
 m4_applyforeachdefine(«(
-			(f), (d,1), (l),
+			(f), (d), (l),
 			(f16), (f32), (f64), (f128),
 			(f32x), (f64x), (f128x),
 			(d32), (d64), (d128),
 			(d32x), (d64x), (d128x),
 )», m4_syncline()«m4_dnl;
 
-m4_worktodo($1,
-m4_ifelse(«$2», «», «$1», «»))
+m4_worktodo($1, m4_ifelse(«$1», «d», «», «$1»))
 
 ») // m4_dnl m4_applyforeachdefine ;
 

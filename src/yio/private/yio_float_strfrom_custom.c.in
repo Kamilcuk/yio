@@ -38,9 +38,6 @@
 #include <string.h>
 
 m4_ifdef(«m4_FORFLOAT», «», «m4_fatal_error(«m4_FORFLOAT not defined»)»)
-m4_ifelse(m4_regexp(m4_FORFLOAT, «^d[0-9].*$»), «0», «
-// Disabled for _Decimal* types.  FORFLOAT=m4_FORFLOAT
-», «
 
 #ifndef NDEBUG
 #define ASSERTMSG(expr, fmt, ...) do { \
@@ -66,7 +63,9 @@ static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9'
 static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
 m4_applysync(«((m4_FORFLOAT))», «
-»»m4_syncline()««
+m4_ifelse(m4_regexp($1, «^d[0-9].*$»), «0», «
+#define DECIMAL 1
+»)
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -84,6 +83,19 @@ m4_applysync(«((m4_FORFLOAT))», «
 #ifdef __CDT_PARSER__
 #undef FC
 #define FC(x)  x
+#endif
+
+#if DECIMAL && __GNUC__
+// workaround for GNU bug
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674
+#ifdef isinf
+#undef isinf
+#endif
+#ifdef fpclassify
+#undef fpclassify
+#endif
+#define isinf(x)  (x == __builtin_inf$1() || x == -__builtin_inf$1())
+#define fpclassify(x)  (isinf(x) ? FP_INFINITE : x != x ? FP_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
 #endif
 
 static inline
@@ -347,5 +359,4 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 
 #endif
 
-»)
 »)

@@ -103,6 +103,11 @@ foreach(source IN ITEMS
 		${CMAKE_CURRENT_SOURCE_DIR}/yio/private/yio_float_strfrom_custom.c.in
 )
 	foreach(ss IN LISTS YIO_FLOAT_SUFFIXES)
+		# Disable _custom for _Decimal types
+		if(ss MATCHES "d[0-9]" AND source MATCHES "_custom")
+			continue()
+		endif()
+		#
 		file(RELATIVE_PATH _source_rel ${SRCDIR} ${source})
 		get_filename_component(_source_rel_dir ${_source_rel} DIRECTORY)
 		get_filename_component(_source_name ${source} NAME)
