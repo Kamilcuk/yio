@@ -38,7 +38,7 @@ int _yIO__testing(bool verbose, const char *expr, const char *file, int line);
  * @param fmt Printf like
  * @return True if result failed, false otherwise.
  */
-_yIO_format(__printf__, 7, 8) _yIO_nn()
+_yIO_format(__printf__, 7, 8) _yIO_nn(4, 5, 7)
 bool _yIO__test_failed(int unused, bool result, int flags,
 		const char *expr, const char *file, int line, const char *fmt, ...);
 

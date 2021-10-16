@@ -132,6 +132,14 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 
 #if _yIO_HAS_WCHAR_H
 int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
+	if (!mb_len) {
+		*wc = NULL;
+		if (wc_len) {
+			*wc_len = 0;
+		}
+		return 0;
+	}
+
 	int ret = 0;
 
 	mbstate_t ps;
@@ -217,6 +225,14 @@ m4_syncline()
 #if _yIO_HAS_WCHAR_H
 
 int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
+	if (!wc_len) {
+		*mb = NULL;
+		if (mb_len) {
+			*mb_len = 0;
+		}
+		return 0;
+	}
+
 	int ret = 0;
 
 	mbstate_t ps;
@@ -270,6 +286,14 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 #if __STDC_UTF_32__ && __STDC_ISO_10646__
 	_yIO_RETURN_STRCONV_SAME(wchar_t, char32_t, src, src_len, dst, dst_len);
 #else
+	if (!src_len) {
+		*dst = NULL;
+		if (dst_len) {
+			*dst_len = 0;
+		}
+		return 0;
+	}
+
 	char *mb; size_t mb_len;
 	int ret = _yIO_strconv_wstr_to_str(src, src_len, &mb, &mb_len);
 	if (ret) return ret;
@@ -295,6 +319,14 @@ m4_define(«m4_uchar_functions», «m4_dnl;
 »m4_syncline()«
 
 int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **mb, size_t *mb_len) {
+	if (!c32_len) {
+		*mb = NULL;
+		if (mb_len) {
+			*mb_len = 0;
+		}
+		return 0;
+	}
+
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 
@@ -341,6 +373,14 @@ int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **m
 
 static inline
 int _yIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wchar_t **wc, size_t *wc_len) {
+	if (!c32_len) {
+		*wc = NULL;
+		if (wc_len) {
+			*wc_len = 0;
+		}
+		return 0;
+	}
+
 	int ret = 0;
 
 	const char *mb;

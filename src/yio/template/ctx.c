@@ -76,15 +76,15 @@ int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const Yc
 static inline
 size_t _yΩIO_width(const Ychar *str, size_t str_len) {
 #if _yIO_TYPE_YIO && _yIO_HAS_UNISTRING
-		return u8_width((const uint8_t*)str, str_len, locale_charset());
+	return u8_width((const uint8_t*)str, str_len, locale_charset());
 #elif _yIO_TYPE_YWIO && _yIO_HAS_wcswidth
-		return wcswidth(str, str_len);
+	return wcswidth(str, str_len);
 #elif  _yIO_TYPE_YC16IO
-		return u16_width(str, str_len, locale_charset());
+	return u16_width(str, str_len, locale_charset());
 #elif  _yIO_TYPE_YUIO
-		return u32_width(str, str_len, locale_charset());
+	return u32_width(str, str_len, locale_charset());
 #else
-		return str_len;
+	return str_len;
 #define HAS_WIDTH  1
 #endif
 #ifndef HAS_WIDTH
