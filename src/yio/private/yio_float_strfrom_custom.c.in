@@ -94,8 +94,14 @@ m4_ifelse(m4_regexp($1, «^d[0-9].*$»), «0», «
 #ifdef fpclassify
 #undef fpclassify
 #endif
-#define isinf(x)  (x == __builtin_inf$1() || x == -__builtin_inf$1())
-#define fpclassify(x)  (isinf(x) ? FP_INFINITE : x != x ? FP_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
+#ifndef DEC_INFINITY
+#define DEC_INFINITY  __builtin_inf$1()
+#endif
+#ifndef DEC_NAN
+#define DEC_NAN  __builtin_nan$1()
+#endif
+#define isinf(x)  (x == DEC_INFINITY || x == -DEC_INFINITY)
+#define fpclassify(x)  (isinf(x) ? FP_INFINITE : x != x ? DEC_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
 #endif
 
 static inline
