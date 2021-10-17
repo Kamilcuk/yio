@@ -1,4 +1,62 @@
 @PACKAGE_INIT@
 
-include("${CMAKE_CURRENT_LIST_DIR}/yioTargets.cmake")
+###############################################################################
+# https://github.com/alexreinking/SharedStaticStarter/blob/master/packaging/SomeLibConfig.cmake
+set(yio_known_comps static shared)
+set(yio_comp_static NO)
+set(yio_comp_shared NO)
+foreach (yio_comp IN LISTS ${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
+    if (yio_comp IN_LIST yio_known_comps)
+        set(yio_comp_${yio_comp} YES)
+    else ()
+        set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+            "yio does not recognize component `${yio_comp}`.")
+        set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+        return()
+    endif ()
+endforeach ()
+
+if (yio_comp_static AND yio_comp_shared)
+    set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+        "yio `static` and `shared` components are mutually exclusive.")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+    return()
+endif ()
+
+set(yio_static_targets "${CMAKE_CURRENT_LIST_DIR}/yio-static-targets.cmake")
+set(yio_shared_targets "${CMAKE_CURRENT_LIST_DIR}/yio-shared-targets.cmake")
+
+macro(yio_load_targets type)
+    if (NOT EXISTS "${yio_${type}_targets}")
+        set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+            "yio `${type}` libraries were requested but not found.")
+        set(${CMAKE_FIND_PACKAGE_NAME}_FOUND FALSE)
+        return()
+    endif ()
+    include("${yio_${type}_targets}")
+endmacro()
+
+if (yio_comp_static)
+    yio_load_targets(static)
+elseif (yio_comp_shared)
+    yio_load_targets(shared)
+elseif (DEFINED yio_SHARED_LIBS AND yio_SHARED_LIBS)
+    yio_load_targets(shared)
+elseif (DEFINED yio_SHARED_LIBS AND NOT yio_SHARED_LIBS)
+    yio_load_targets(static)
+elseif (BUILD_SHARED_LIBS)
+    if (EXISTS "${yio_shared_targets}")
+        yio_load_targets(shared)
+    else ()
+        yio_load_targets(static)
+    endif ()
+else ()
+    if (EXISTS "${yio_static_targets}")
+        yio_load_targets(static)
+    else ()
+        yio_load_targets(shared)
+    endif ()
+endif ()
+###############################################################################
+
 check_required_components("@PROJECT_NAME@")

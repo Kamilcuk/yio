@@ -196,9 +196,12 @@ include(CMakePackageConfigHelpers)
 
 # The directory where auto-generated installation files are placed
 get_filename_component(installgen "${CMAKE_CURRENT_BINARY_DIR}/installgen" ABSOLUTE)
-set(_config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(_project_config "${installgen}/${PROJECT_NAME}Config.cmake")
-set(_version_config "${installgen}/${PROJECT_NAME}ConfigVersion.cmake")
+if(NOT DEFINED YIO_INSTALL_CMAKEDIR)
+	set(YIO_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}"
+		CACHE STRING "Path to YIO Cmake files"
+	)
+endif()
 set(_install_targets)
 set(_install_headers)
 
@@ -212,6 +215,7 @@ endmacro()
 
 
 function(yio_install_after_targets)
+	set(_version_config "${installgen}/${PROJECT_NAME}ConfigVersion.cmake")
 	write_basic_package_version_file(
 	    "${_version_config}"
 	    COMPATIBILITY SameMajorVersion
@@ -220,7 +224,7 @@ function(yio_install_after_targets)
 	configure_package_config_file(
 	    "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
 	    "${_project_config}"
-	    INSTALL_DESTINATION "${_config_install_dir}"
+	    INSTALL_DESTINATION "${YIO_INSTALL_CMAKEDIR}"
 	)
 	install(
 		TARGETS ${_install_targets}
@@ -245,13 +249,20 @@ function(yio_install_after_targets)
 	endforeach()
 	install(
 		FILES "${_project_config}" "${_version_config}"
-		DESTINATION "${_config_install_dir}"
+		DESTINATION "${YIO_INSTALL_CMAKEDIR}"
 	)
+	if(BUILD_SHARED_LIBS)
+		set(type shared)
+	else()
+		set(type static)
+	endif()
 	install(
 		EXPORT yioTargets
-		DESTINATION "${_config_install_dir}"
+		DESTINATION "${YIO_INSTALL_CMAKEDIR}"
 		NAMESPACE yio::
+		FILE yio-${type}-targets.cmake
 	)
+
 endfunction()
 
 ################################################################################################
@@ -286,12 +297,14 @@ function(yio_add_library name)
 
 	# Add the library.
 	add_library(${name} ${srcs})
-	set_property(TARGET ${name} PROPERTY
+	set_target_properties(${name} PROPERTIES
 		C_EXTENSIONS YES
 		C_STANDARD 11
 		C_STANDARD_REQUIRED NO
 		$<$<NOT:$<CONFIG:DEBUG>>:INTERPROCEDURAL_OPTIMIZATION TRUE>
 		DEBUG_POSTFIX "d"
+		VERSION "${YIO_PROJECT_VERSION}"
+		SOVERSION "${YIO_PROJECT_SOVERSION}"
 	)
 	target_include_directories(${name} PUBLIC
 		$<BUILD_INTERFACE:${GENDIR}>
