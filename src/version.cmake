@@ -18,13 +18,13 @@ if(NOT _output MATCHES "v([0-9]+).([0-9]+).([0-9]+)[\\.-]?([0-9]*)?.*")
 endif()
 
 # version numbers have to be max 255
-foreach(i IN ITEMS 1 2 3)
-	if(CMAKE_MATCH_${i} GREATER_EQUAL 255)
+foreach(ii IN ITEMS 1 2 3)
+	if(CMAKE_MATCH_${ii} GREATER_EQUAL 255)
 		message(FATAL_ERROR "Welcome to the future, version too high: ${_output}")
 	endif()
 endforeach()
 # If no 4th match, set to zero
-if("${CMAKE_MATCH_4}" STREQUAL "")
+if(NOT DEFINED CMAKE_MATCH_4 OR CMAKE_MATCH_4 STREQUAL "")
 	set(CMAKE_MATCH_4 0)
 endif()
 # If greater then 255, crop at 255
