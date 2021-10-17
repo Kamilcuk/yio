@@ -9,6 +9,7 @@
 // M4_NOSYNCLINES
 #pragma once
 
+// m4_ign(
 /**
  * @defgroup yio_macros
  * Macros used for defining printing function dispatch
@@ -110,6 +111,7 @@ m4_ifelse(«$1», «1», «», «m4_dnl; \
 /**
  * @}
  */
+// m4_ign )
 
 /**
  * On __GNUC__ use @c __extentions({...})

@@ -16,6 +16,7 @@ enum _yIO_TYPES {
 	_yIO_TYPE_YUIO = 0,
 };
 
+// m4_ign(
 #if __CDT_PARSER__
 
 //#define « /**/
@@ -75,6 +76,7 @@ typedef int Yint;
 #define _yIO_FLOAT$1  double
 
 #endif
+// )
 
 /**
  * @defgroup compilermacros
