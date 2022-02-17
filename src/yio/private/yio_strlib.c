@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 #include "private.h"
 #include "yio_strlib.h"
 #if _yIO_HAS_UNISTRING

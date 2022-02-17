@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#define _POSIX_C_SOURCE  1
 #include "private.h"
 #include "yio/private/yio_time.h"
 #include <time.h>
