@@ -13,9 +13,9 @@ include(CheckTypeSize)
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 include(CMakePushCheckState)
-include(foreach_count_items)
-include(check_type_exists_bool)
-include(check_symbol_exists_bool)
+include(k/foreach_count_items)
+include(k/check_type_exists_bool)
+include(k/check_symbol_exists_bool)
 
 cmake_push_check_state(RESET)
 

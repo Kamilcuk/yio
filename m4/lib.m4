@@ -2,14 +2,14 @@ m4_divert(-1)
 
 m4_changequote(`«',`»')
 
-m4_include(lib/lib.m4)
+m4_include(k.m4)
 
 m4_changecom(«/*», «*/»)
 
 m4_include(template_chooser.m4)
 
 /**
- * @defgroup m4 
+ * @defgroup m4
  * @brief Group with m4 macros.
  */
 

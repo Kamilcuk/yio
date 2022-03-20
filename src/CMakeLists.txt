@@ -7,9 +7,9 @@ endif()
 
 include(CMakeDependentOption)
 include(CheckIncludeFile)
-include(m4)
-include(list_filter)
-include(var_to_0_or_1)
+include(k/m4)
+include(k/list_filter)
+include(k/var_to_0_or_1)
 include(${CMAKE_CURRENT_LIST_DIR}/yio/template/yio_template.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/yio_config_gen.cmake)
 

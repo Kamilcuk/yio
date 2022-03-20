@@ -1,0 +1,3 @@
+[submodule "kcmakelib"]
+	path = kcmakelib
+	url = ../kcmakelib

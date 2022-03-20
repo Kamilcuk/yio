@@ -5,8 +5,9 @@ if(NOT "${PROJECT_NAME}" STREQUAL "yio")
 	message(FATAL_ERROR "DO NOT INCLUDE THIS FILE BY ITS OWN: PROJECT_NAME=${PROJECT_NAME}")
 endif()
 
-include(subdirlist)
-include(test_extract_properties_from_file)
+include(k/subdirlist)
+include(k/test_extract_properties_from_file)
+include(k/redirectstdin)
 
 set(ENV{LC_ALL} "en_US.utf-8")
 
@@ -56,12 +57,16 @@ function(yio_add_test name file)
 				set(tmp "${CMAKE_CROSSCOMPILING_EMULATOR}")
 			endif()
 			add_test(NAME ${name}
-				COMMAND "$<TARGET_FILE:redirectstdin>" "${input}" ${tmp} "$<TARGET_FILE:${name}>")
-			set_property(TEST ${name} APPEND PROPERTY LABELS redirectedstdin)
+        COMMAND
+          ${CMAKE_COMMAND}
+          -P "${REDIRECTSTDIN_CMAKE}"
+          "${input}"
+          ${tmp} "$<TARGET_FILE:${name}>"
+      )
 		endif()
 		set_property(TEST ${name} APPEND PROPERTY TIMEOUT 10)
 
-		test_extract_properties_from_file(${name} ${realfile})
+		test_extract_properties_from_file(${name} ${name} ${realfile})
 	else()
 		add_test(NAME ${name} COMMAND ${name})
 		set_tests_properties(${name} PROPERTIES LABELS normal)

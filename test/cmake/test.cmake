@@ -1,2 +1,0 @@
-include(get_filename_component_name_wble)
-test_get_filename_component_name_wble()
