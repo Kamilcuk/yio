@@ -1,0 +1,32 @@
+
+{% macro j_seq(FROM, TO, EXPR, PREFIX, SUFFIX, REPLACE, SEP) %}
+	{% if FROM < TO %}
+		{% set LIST = range(FROM, TO + 1) %}
+	{% else %}
+		{% set LIST = range(TO, FROM + 1) | reverse %}
+	{% endif %}
+	{% for I in LIST %}
+		{{- PREFIX -}}
+		{% if EXPR %}
+			{% if REPLACE %}
+				{{- EXPR | replace(REPLACE, I) -}}
+			{% else %}
+				{{- EXPR -}}
+			{% endif %}
+		{% else %}
+			{{- I -}}
+		{% endif %}
+		{{- SUFFIX -}}
+		{{- "" if loop.last else SEP -}}
+	{%- endfor %}
+{% endmacro %}
+
+{% macro j_seqcomma(FROM, TO, EXPR) %}
+	{{- j_seq(FROM, TO, EXPR, SEP=",") -}}
+{% endmacro %}
+
+{% macro j_seqdashcomma(FROM, TO, EXPR) %}
+	{{- j_seq(FROM, TO, EXPR, SEP=",", PREFIX="_") -}}
+{% endmacro %}
+
+

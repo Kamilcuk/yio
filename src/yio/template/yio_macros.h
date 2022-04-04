@@ -51,8 +51,9 @@ m4_define_function(«m4_yio_macros_argsizes»,
  * @param _i Argument to apply for
  */
 #define m4_yio_macros_derefsizes(_i) »
-m4_define_function(«m4_yio_macros_derefsizes»,
-«_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_EMPTY, _yIO_FIRSTSIZEOFDEREFPOSTCOMMA)($1, _yIO_ESC _yIO_FIRST $1)»)m4_dnl;
+{% macro j_yio_macro_derefsizes(J) -%}
+	_yIO_IFBA62A_IN(_yIO_ESC {{J}}(_yIO_EMPTY, _yIO_FIRSTSIZEOFDEREFPOSTCOMMA)({{J}}, _yIO_ESC _yIO_FIRST {{J}})
+{%- endmacro %}
 
 «
 /**
@@ -63,8 +64,9 @@ m4_define_function(«m4_yio_macros_derefsizes»,
  * @param _i Argument to apply the transofrmation on
  */
 #define m4_yio_macros_gen_args(_i) »
-m4_define_function(«m4_yio_macros_gen_args»,
-«_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)($1, _yIO_ESC _yIO_FIRST $1)»)m4_dnl;
+{% macro j_yio_macros_gen_args(J) -%}
+	_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)($1, _yIO_ESC _yIO_FIRST $1)
+{%- endmacro %}
 
 
 «
@@ -86,27 +88,13 @@ m4_define_function(«m4_yio_macros_gen_args»,
  *
  * @param _i The count of arguments passed to function.
  */
-#define m4_yio_macros_rest_of_args(_i) »
-m4_define_function(«m4_yio_macros_fmt_and_args», «m4_dnl; \
-fmt«»m4_dnl; \
-m4_ifdef(«m4_DEBUG», «m4_dnl; \
-, \
-m4_ifelse(«$1», «1», «m4_dnl; \
-m4_dnl If only one argument, then just pass nothing for argsizes and pass fmt \
-		(const size_t[]){0} \
-», «m4_dnl; \
-		(const size_t[]){ \
-			m4_forloopdashX(2, $1, «m4_yio_macros_argsizes(X)», « \
-			») \
-			0 \
-		} \
-»)m4_dnl; \
-»)m4_dnl; \
-m4_ifelse(«$1», «1», «», «m4_dnl; \
-		m4_forloopdashX(2, $1, «m4_yio_macros_gen_args(X)», « \
-		»)m4_dnl; \
-»)m4_dnl; \
-»)m4_dnl;
+{% macro j_yio_macros_rest_of_args(I) %}
+	fmt, \
+	{% for J in range(2, I+1) %}
+	{{j_yio_macros_gen_args(J)}} \
+	{% endfor %}
+	/**/
+{% endmacro %}
 
 /**
  * @}
@@ -128,7 +116,7 @@ m4_ifelse(«$1», «1», «», «m4_dnl; \
 /**
  * Initial overload of argument over number of arguments.
  */
-#define _yΩIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+#define _yΩIO_print_arguments_N({{m4_seqdashcomma(1, j_MLVLS)}}, N, ...)  \
 		_yΩIO_print_arguments_##N
 
 
@@ -137,6 +125,6 @@ m4_ifelse(«$1», «1», «», «m4_dnl; \
 /**
  * Initial overload of argument over number of arguments.
  */
-#define _yΩIO_scan_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+#define _yΩIO_scan_arguments_N({{j_seqdashcomma(1, j_MLVLS)}}, N, ...)  \
 		_yΩIO_scan_arguments_##N
 

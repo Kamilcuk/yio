@@ -6,18 +6,24 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "yio_error.h"
-#include "yio_error_messages.h"
 #include "yio_static_assert.h"
 #include <string.h>
 #include <stdio.h>
 
+/**
+ * A static list of error messages 
+ * that correspond to enumeration in enum _yIO_errors_e
+ */
+static const char * const _yIO_error_messages[] = {
+{% from "yio/yio_error.jinja" import ERR %}
+{% for v, k in ERR %}#line
+	"{{ k }}",
+{% endfor %}
+};
+
 static const char unknown_error[] = "unknown error";
 
 const char *yio_strerror(int error) {
-#ifdef __GNUC__
-	static_assert(__builtin_types_compatible_p(
-			__typeof__(_yIO_error_messages), __typeof__(&_yIO_error_messages[0])) == 0, "");
-#endif
 	static_assert(sizeof(_yIO_error_messages)/sizeof(_yIO_error_messages[0]) > 1, "");
 	static_assert(sizeof(_yIO_error_messages)/sizeof(_yIO_error_messages[0]) < 100, "");
 	static_assert(sizeof(_yIO_error_messages)/sizeof(_yIO_error_messages[0]) ==

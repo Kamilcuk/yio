@@ -9,9 +9,7 @@
 // M4_NOSYNCLINES
 #pragma once
 
-m4_divert(-1)
-m4_include(«yio/template/yio_macros.h»)
-m4_divert(0)m4_dnl;
+{% from "yio/template/yio_macros.h" import j_yio_macros_funcs, j_yio_macros_fmt_and_args &}
 
 /* print ------------------------------------------------------------------------- */
 
@@ -20,21 +18,21 @@ m4_divert(0)m4_dnl;
 				static const yπio_printdata_t _yΩIO_printdata = {0}; \
 				&_yΩIO_printdata;	\
 		}), \
-		m4_yio_macros_fmt_and_args(1)
+		{{j_yio_macros_fmt_and_args(1)}}
 
-m4_applyforloopdefine(2, m4_MLVLS, «m4_dnl;
-#define _yΩIO_print_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
+{% for I in range(2, j_MLVLS) %}
+#define _yΩIO_print_arguments_$1(func_gen, fmt, {{j_seqdashcomma(2, I)}}) \
 		__extension__({ \
 			static const _yΩIO_printfunc_t _yΩIO_printfuncs[] = { \
-				m4_forloopdashX(2, $1, «m4_yio_macros_funcs(X, func_gen)», « \
-				») \
+				{% for J in range(2, I+1) %}
+					{{j_yio_macros_funcs(J, func_gen)}} \
+				{% endfor %}
 				NULL \
 			}; \
 			_yΩIO_printfuncs; \
 		}), \
-		m4_yio_macros_fmt_and_args($1)
-
-») m4_dnl _yIO_print_arguments_$1 ;
+		{{j_yio_macros_fmt_and_args(I)}}
+{% endfor %}
 
 /* scan ----------------------------------------------------------------- */
 

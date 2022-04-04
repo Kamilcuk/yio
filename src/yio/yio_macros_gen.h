@@ -1,3 +1,4 @@
+{% from "library.jinja" import j_seqdashcomma, j_seqcomma %}
 /**
  * @file
  * @date 2020-05-15
@@ -51,10 +52,10 @@
  */
 #define _yIO_IFBA62A_0(then, else)   else
 #define _yIO_IFBA62A_62(then, else)  then
-#define _yIO_IFBA62A_N(m4_seqdashcomma(1, 70), N, ...) \
+#define _yIO_IFBA62A_N({{j_seqdashcomma(1, 70)}}, N, ...) \
 		_yIO_IFBA62A_##N
 #define _yIO_IFBA62A_IN(expr) \
-		_yIO_IFBA62A_N(expr, m4_seqcommaX(64, 74, «62»), m4_seqcommaX(1, 61, «0»))
+		_yIO_IFBA62A_N(expr, {{j_seqcomma(64, 74, 62)}}, {{j_seqcomma(1, 61, 0)}})
 // m4_define(«m4_yIO_IFBA62A», «_yIO_IFBA62A_IN(_yIO_ESC $1)($2, $3)»)
 #define _yIO_IFBA62A(expr, then, else) m4_yIO_IFBA62A(expr, then, else)
 
@@ -83,6 +84,7 @@
  * @def m4_SIZEOFDECAY
  * Applies sizeof on decayed argument on m4 stage.
  */
+{% macro j_SIZEOFDECAY(X) %}sizeof(((void)0),({{X}}))/*NOLINT(clang-diagnostic-sizeof-array-decay)*/{% endmacro %}
 // m4_define(«m4_SIZEOFDECAY», «sizeof(((void)0),($1))/*NOLINT(clang-diagnostic-sizeof-array-decay)*/»)
 
 /**
@@ -112,10 +114,10 @@
  */
 #define _yIO_PRECOMMAIGNORE1_0(...)
 #define _yIO_PRECOMMAIGNORE1_2(_1, ...)  ,__VA_ARGS__
-#define _yIO_PRECOMMAIGNORE1_N(m4_seqdashcomma(0, m4_MLVLS), N, ...) \
+#define _yIO_PRECOMMAIGNORE1_N({{j_seqdashcomma(0, j_MLVLS)}}, N, ...) \
 		_yIO_PRECOMMAIGNORE1_##N
 #define _yIO_PRECOMMAIGNORE1(...)  \
-		_yIO_PRECOMMAIGNORE1_N(__VA_ARGS__, m4_forloopdashX(m4_MLVLS, 1, «2», «,»),0,0)(__VA_ARGS__)
+		_yIO_PRECOMMAIGNORE1_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 1, 2)}},0,0)(__VA_ARGS__)
 
 /**
  * @def _yIO_FORWARD_XFROMSECOND
@@ -138,14 +140,14 @@
  */
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_0()
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_1(_1)
-m4_applyforloopdefine(2, m4_MLVLS, «m4_dnl;
-#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_$1(_1,m4_seqdashcomma(2, $1)) \
-		m4_forloopdashX(2, $1, «m4_SIZEOFDECAY(X),»)
-»)m4_dnl;
-#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(m4_seqdashcomma(1, m4_MLVLS), N, ...) \
+{% for I in range(2, j_MLVLS + 1) %}
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_{{X}}(_1,{{j_seqdashcomma(2, I)}}) \
+	{%+ for J in range(2, I + 1) %}{{j_SIZEOFDECAY("_"+J|string)}},{% endfor +%}
+{% endfor %}
+#define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N({{j_seqdashcomma(1, j_MLVLS)}}, N, ...) \
 		_yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_##N
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(...) \
-		_yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(__VA_ARGS__)
+		_yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})(__VA_ARGS__)
 
 /**
  * @def _yIO_I1FSDPC_XF2(_1, ...)
@@ -163,6 +165,12 @@ m4_applyforloopdefine(2, m4_MLVLS, «m4_dnl;
  */
 #define _yIO_STRLEN(s) (\
 		!(s)[0]?0:!(s)[1]?1:\
-		m4_applyforloopdefine(2, 120, «!(s)[$1]?$1:m4_ifelse(m4_eval($1%5),«1»,«\
-		»)») \
+		{% for I in range(2, 121) -%}
+			!(s)[{{I}}]?{{I}}:
+			{%- if I % 5 -%}
+				1
+			{%- else -%}
+				\
+			{% endif %}
+		{% endfor %}
 		-1)
