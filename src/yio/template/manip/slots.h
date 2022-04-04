@@ -32,19 +32,10 @@
  *      }
  *
  */
-/**
- * @def YΩIO_SCAN_SLOT_100
- * User define-able macro that can be used to provide
- * an user overload for specific types.
- * @see YΩIO_PRINT_SLOT_100
- */
 
 m4_applyforloopdefine(100, m4_SLOTS_END, «m4_dnl;
 #ifndef YΩIO_PRINT_SLOT_$1
 #define YΩIO_PRINT_SLOT_$1
-#endif
-#ifndef YΩIO_SCAN_SLOT_$1
-#define YΩIO_SCAN_SLOT_$1
 #endif
 »)m4_dnl;
 
@@ -54,11 +45,3 @@ m4_applyforloopdefine(100, m4_SLOTS_END, «m4_dnl;
  */
 #define _yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
 		m4_applyforloopdefine(100, m4_SLOTS_END, «YΩIO_PRINT_SLOT_$1», « »)
-
-/**
- * Expanded all slots macros.
- */
-#define _yΩIO_SCAN_FUNC_GENERIC_SLOTS() \
-		m4_applyforloopdefine(100, m4_SLOTS_END, «YΩIO_SCAN_SLOT_$1», « »)
-
-

@@ -1,14 +1,14 @@
 
 set(YIO_M4_MLVLS_COMMENT [=[
 The count of levels variadic macros expand to.  This specifies the maximum
-number of arguments that can be passed to yprintf and yscanf functions.
+number of arguments that can be passed to yprintf functions.
 A bigger number will generate longer and bigger include files.
 ]=])
 set(YIO_M4_MLVLS 62 CACHE STRING "${YIO_M4_MLVLS_COMMENT}")
 
 set(YIO_M4_SLOTS_END_COMMENT [=[
 The upper count of slots available for custom overloads.
-The slots for custom overloads named YIO_PRINT_SLOT_1XX and YIO_SCAN_SLOT_1XX
+The slots for custom overloads named YIO_PRINT_SLOT_1XX
 available for custom overloads of the _Generic print function chooser.
 This number should be greater then 100 and is the ending number at which
 the supported slots end. A bigger number is actually fine, it's not that
@@ -32,17 +32,8 @@ or alternatively in order equivalent 0, 1, 2 or 3.
 ]=])
 set(YIO_PRINT_FLOATS_WITH 0 CACHE STRING "${YIO_PRINT_FLOATS_WITH_COMMENT}")
 
-if(_yIO_HAS_UNISTD_H)
-
-set(YIO_USE_INPUT_FD_COMMENT [=[
-When set to true, yscan() will read from file descriptor 0 instead of FILE * stdin.
-]=])
-set(YIO_USE_INPUT_FD 1 CACHE BOOL "${YIO_USE_INPUT_FD_COMMENT}")
-
 set(YIO_USE_OUTPUT_FD_COMMENT [=[
 When set to true, yprint will read from file descriptor 1 instead of using FILE * stdout.
 ]=])
 set(YIO_USE_OUTPUT_FD 1 CACHE BOOL "${YIO_USE_OUTPUT_FD_COMMENT}")
-
-endif()
 

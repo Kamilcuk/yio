@@ -11,7 +11,7 @@
 #include <assert.h>
 #include <stdarg.h>
 
-/// Common context information in both printctx and scanctx.
+/// Common context information
 struct _yΩIO_commonctx_s {
 	/// va_list of current argument.
 	va_list *va;

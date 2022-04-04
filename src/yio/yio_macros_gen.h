@@ -36,7 +36,6 @@
 /**
  * Print the arguments using a custom callback function.
  * Actually we could name it: "register" function to print those arguments.
- * void yiocb(int callback(yio_scanctx_t *), ...);
  * void yiocb(int callback(yio_printctx_t *), ...);
  * @param callback The callback to call.
  * @param ... Additional arguments to call.

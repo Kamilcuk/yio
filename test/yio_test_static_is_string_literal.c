@@ -36,7 +36,6 @@ int main() {
 	_yIO_TEST(!_yIO_IS_STRING_LITERAL(b + a));
 	_yIO_TEST(!_yIO_IS_STRING_LITERAL("a"[0]));
 	_yIO_TEST(!_yIO_IS_STRING_LITERAL(*""));
-	_yIO_TEST(_yIO_SCAN_FUNC_GENERIC("\n") == _yIO_scan_string_literal);
 
 	_yIO_TEST(_yIO_IS_CHARACTER_STRING_LITERAL("a"));
 	_yIO_TEST(_yIO_IS_CHARACTER_STRING_LITERAL("abc"));

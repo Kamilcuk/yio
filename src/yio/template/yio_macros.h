@@ -46,16 +46,6 @@ m4_define_function(«m4_yio_macros_argsizes»,
 
 «
 /**
- * The same as m4_yio_macros_argsizes but applies sizeof on dereferenced arguments.
- * This is used in scanf to get the size of output arrays and buffers.
- * @param _i Argument to apply for
- */
-#define m4_yio_macros_derefsizes(_i) »
-m4_define_function(«m4_yio_macros_derefsizes»,
-«_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_EMPTY, _yIO_FIRSTSIZEOFDEREFPOSTCOMMA)($1, _yIO_ESC _yIO_FIRST $1)»)m4_dnl;
-
-«
-/**
  * Transform one argument from the list of PRINT_ARGUMENTS arguments into
  * arguments passed to _yIO_printf() function. Each argument if has more then 62 braces,
  * then @c _yIO_FORWARD_XFROMSECOND first argument is removed and rest is passed.
@@ -130,13 +120,4 @@ m4_ifelse(«$1», «1», «», «m4_dnl; \
  */
 #define _yΩIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
 		_yΩIO_print_arguments_##N
-
-
-/* _yIO_scan_arguments_N ----------------------------------------------------------------------------------------------------- */
-
-/**
- * Initial overload of argument over number of arguments.
- */
-#define _yΩIO_scan_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
-		_yΩIO_scan_arguments_##N
 

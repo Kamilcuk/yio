@@ -16,8 +16,3 @@ _yIO_error("Type is not handled")
 // _yIO_deprecated("Type is not handled")
 int (*_yΩIO_print_unhandled_type(void))(yπio_printctx_t *t);
 #define _yΩIO_print_unhandled_type  (_yΩIO_print_unhandled_type())
-
-_yIO_error("Type is not handled")
-// _yIO_deprecated("Type is not handled")
-int (*_yΩIO_scan_unhandled_type(void))(yπio_scanctx_t *t);
-#define _yΩIO_scan_unhandled_type  (_yΩIO_scan_unhandled_type())

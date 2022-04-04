@@ -29,9 +29,6 @@
 #if YIO_USE_OUTPUT_FD
 #error "You can't output to fd without unistd.h"
 #endif
-#if YIO_USE_INPUT_FD
-#error "You can't read from fd without unistd.h"
-#endif
 #endif
 
 

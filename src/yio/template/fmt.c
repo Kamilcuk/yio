@@ -27,30 +27,12 @@ int _yΩIO_printctx_stdintparam(struct _yΩIO_printctx_s *t, const Ychar *ptr, c
 	return _yΩIO_commonctx_stdintparam(_yΩIO_printctx_stdintparam_callback, t, ptr, endptr, res);
 }
 
-static inline
-int _yΩIO_scanctx_stdintparam_callback(void *arg) {
-	struct _yΩIO_scanctx_s *t = arg;
-	++t->ifunc;
-	return yπio_scanctx_va_arg(t, int);
-}
-
-static inline
-int _yΩIO_scanctx_stdintparam(struct _yΩIO_scanctx_s *t, const Ychar *ptr, const Ychar **endptr, int *res) {
-	return _yΩIO_commonctx_stdintparam(_yΩIO_scanctx_stdintparam_callback, t, ptr, endptr, res);
-}
-
 const struct yπio_printfmt_s _yΩIO_printfmt_default = {
 		.width = -1,
 		.precision = -1,
 		.fill = Yc(' '),
 		.align = Yc('>'),
 		.sign = Yc('-'),
-};
-
-const struct yπio_scanfmt_s _yΩIO_scanfmt_default = {
-		.width = -1,
-		.set = NULL,
-		.ignore = 0,
 };
 
 bool _yΩIO_strnulchrbool(const Ychar *s, Ychar c) {
@@ -127,34 +109,3 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 	*endptr = fmt;
 	return ret;
 }
-
-
-
-/* --------------------------------------------------------------------------------- */
-
-int _yΩIO_scan_parse_scanfmt(struct _yΩIO_scanctx_s *c, struct yπio_scanfmt_s *sf,
-		const Ychar *fmt, const Ychar **endptr) {
-	// {[*][width][iduoxfegacspn]}
-	int err = 0;
-	*sf = _yΩIO_scanfmt_default;
-	if (fmt[0] != Yc('{')) {
-		err = YIO_ERROR_SCANFMT_INVALID;
-		goto EXIT;
-	}
-	++fmt;
-	sf->ignore = fmt[0] == Yc('*') ? fmt++, Yc('*') : 0;
-	err = _yΩIO_scanctx_stdintparam(c, fmt, &fmt, &sf->width);
-	if (err) {
-		goto EXIT;
-	}
-	sf->type = _yΩIO_strnulchrbool(Yc("iduoxfegacspn"), fmt[0]) ? fmt++[0] : 0;
-	if (fmt[0] != Yc('}')) {
-		err = YIO_ERROR_SCANFMT_INVALID;
-		goto EXIT;
-	}
-	++fmt;
-	EXIT:
-	*endptr = fmt;
-	return err;
-}
-

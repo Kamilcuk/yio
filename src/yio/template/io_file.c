@@ -8,7 +8,6 @@
  */
 #include "private.h"
 
-/* ------------------------------------------------------------------------- */
 
 static inline _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
 size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
@@ -48,7 +47,6 @@ m4_template_chooser2(
 	return size;
 )
 }
-/* ------------------------------------------------------------------------- */
 
 static _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
 int _yΩIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
@@ -57,19 +55,6 @@ int _yΩIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 	return cnt == size ? 0 : YIO_ERROR_EIO;
 }
 
-static
-int _yΩIO_yfscanf_cb(void *arg, Yint *data) {
-	FILE *f = arg;
-	*data = fgetc(f);
-	if (*data == YEOF) {
-		if (ferror(f)) {
-			return YIO_ERROR_EIO;
-		}
-	}
-	return 0;
-}
-
-/* ------------------------------------------------------------------------- */
 
 int _yΩIO_yfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
@@ -83,16 +68,3 @@ int yπvfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, va_list *
 	return yπvbprintf(_yΩIO_yvfprintf_cb, file, data, fmt, va);
 }
 
-/* ------------------------------------------------------------------------- */
-
-struct yπio_scanret_s _yΩIO_yfscanf(FILE *file, yπio_scandata_t *data, const Ychar *fmt, ...) {
-	va_list va;
-	va_start(va, fmt);
-	const struct yπio_scanret_s ret = yπvfscanf(file, data, fmt, &va);
-	va_end(va);
-	return ret;
-}
-
-struct yπio_scanret_s yπvfscanf(FILE *file, yπio_scandata_t *data, const Ychar *fmt, va_list *va) {
-	return yπvbscanf(_yΩIO_yfscanf_cb, file, data, fmt, va);
-}

@@ -77,33 +77,3 @@ struct yπio_printfmt_s {
  * @}
  */
 
-/**
- * @defgroup scanfmt Yio scanning format
- * @{
- */
-/**
- * Scanning formatting options.
- */
-struct yπio_scanfmt_s {
-	/**
-	 * Field width - how many character can you read from input.
-	 * Negative means endless.
-	 */
-	int width;
-	/**
-	 * TODO: pointer to "[^abc]" or "[def]"
-	 */
-	const Ychar *set;
-	/**
-	 * 0 or '*', when input should be ignored.
-	 */
-	Ychar ignore;
-	/**
-	 * Scanning type, standard valid characters are "iduoxfegacspn".
-	 */
-	Ychar type;
-};
-/**
- * @}
- */
-

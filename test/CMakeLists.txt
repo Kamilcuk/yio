@@ -142,10 +142,8 @@ list(FILTER _sources EXCLUDE REGEX "ywio") # these are not working yet
 if(NOT _yIO_HAS_STDFIX_TYPES)
 	list(FILTER _sources EXCLUDE REGEX "stdfix")
 endif()
-# list(FILTER _sources EXCLUDE REGEX "scan")
 # list(FILTER _sources INCLUDE REGEX "examples")
 # list(FILTER _sources INCLUDE REGEX "simple/")
-# list(FILTER _sources INCLUDE REGEX "scan.*08")
 
 foreach(source IN LISTS _sources)
 	file(RELATIVE_PATH sourcenice "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")

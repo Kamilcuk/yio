@@ -70,7 +70,6 @@ endforeach()
 
 if(_yIO_HAS_UNISTD_H)
 	foreach(ii IN ITEMS
-		YIO_USE_INPUT_FD
 		YIO_USE_OUTPUT_FD
 	)
 		if(NOT DEFINED "${ii}")

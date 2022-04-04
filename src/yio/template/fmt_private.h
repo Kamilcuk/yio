@@ -15,12 +15,6 @@
 extern const struct yπio_printfmt_s _yΩIO_printfmt_default;
 
 /**
- * @ingroup scanfmt
- * The default values of scanfmt
- */
-extern const struct yπio_scanfmt_s _yΩIO_scanfmt_default;
-
-/**
  * Parse pythong formatting string
  * @param c
  * @param pf
@@ -52,12 +46,3 @@ _yIO_wur _yIO_nn()
 int _yΩIO_printformat_string(yπio_printctx_t *t, const Ychar str[]);
 
 bool _yΩIO_strnulchrbool(const Ychar *s, Ychar c);
-
-_yIO_wur _yIO_nn(1, 2, 3)
-int _yΩIO_scan_parse_scanfmt(struct _yΩIO_scanctx_s *c, struct yπio_scanfmt_s *sf,
-		const Ychar *fmt, const Ychar **endptr);
-
-_yIO_wur _yIO_nn()
-int _yΩIO_scan_string_literal_in(yπio_scanctx_t *t,
-		const Ychar *str, const Ychar *end);
-
