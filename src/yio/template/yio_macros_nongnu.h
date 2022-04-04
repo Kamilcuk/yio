@@ -6,27 +6,23 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-// M4_NOSYNCLINES
 #pragma once
 
-m4_divert(-1)
-m4_include(«yio/template/yio_macros.h»)
-m4_divert(0)m4_dnl;
+{% from "yio/template/yio_macros.h" import j_yio_macros_fmt_and_args, j_yio_macros_funcs %}
 
-/* print ------------------------------------------------------------------------- */
+#define _yΩIO_print_arguments_1(func_gen, fmt) \
+		(const _yΩIO_printfunc_t[]){ NULL }, \
+		{{ j_yio_macros_fmt_and_args(0) }}
 
-#define _yΩIO_print_arguments_1(func_gen, fmt)  \
-		(const _yΩIO_printfunc_t[]){0}, \
-		m4_yio_macros_fmt_and_args(1)
-
-m4_applyforloopdefine(2, m4_MLVLS, «m4_dnl;
-#define _yΩIO_print_arguments_$1(func_gen, fmt, m4_seqdashcomma(2, $1)) \
+{% for I in j_range(2, j_MLVLS) %}{% call j_APPLY(I) %}
+#line
+#define _yΩIO_print_arguments_$1(func_gen, fmt{{j_seq(2, I, FMT=",_{}")}}) \
 		(const _yΩIO_printfunc_t[]){ \
-			m4_forloopdashX(2, $1, «m4_yio_macros_funcs(X, func_gen)», « \
-			») \
+			{% for J in j_range(2, I) %}
+			{{ j_yio_macros_funcs("_"+J|string, "func_gen") }} \
+			{% endfor %}
 			NULL \
 		}, \
-		m4_yio_macros_fmt_and_args($1)
-
-»)m4_dnl;
+		{{ j_yio_macros_fmt_and_args(I) }}
+{% endcall %}{% endfor %}
 

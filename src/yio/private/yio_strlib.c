@@ -194,7 +194,8 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 
 #if _yIO_HAS_UCHAR_H
 
-m4_define(«m4_str_to_ustr», «m4_dnl;
+{% macro j_str_to_ustr() %}
+#line
 int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32, size_t *c32_len) {
 #if __STDC_UTF_32__ && _yIO_HAS_UNISTRING
 	size_t length = 0;
@@ -213,17 +214,14 @@ int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32
 	return -1;
 #endif
 }
-»)m4_dnl;
-
-m4_patsubst(m4_patsubst(m4_str_to_ustr(), «32», «16»), «ustr», «c16str») m4_dnl;
-
-m4_str_to_ustr() m4_dnl;
+{% endmacro %}
+{{ j_str_to_ustr() | replace('32', '16') | replace('ustr', 'c16str') }}
+{{ j_str_to_ustr() }}
 
 #endif // _yIO_HAS_UCHAR_H
 
 /* strconv_wstr_to_* -------------------------------------------------------------------- */
 
-m4_syncline()
 #if _yIO_HAS_WCHAR_H
 
 int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
@@ -282,8 +280,8 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 
 #if _yIO_HAS_UCHAR_H
 
-m4_define_function(«m4_wstr_to_ustr», «
-
+{% macro j_wstr_to_ustr() %}
+#line
 int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t **dst, size_t *dst_len) {
 #if __STDC_UTF_32__ && __STDC_ISO_10646__
 	_yIO_RETURN_STRCONV_SAME(wchar_t, char32_t, src, src_len, dst, dst_len);
@@ -304,10 +302,9 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 	return ret;
 #endif
 }
-
-»)m4_dnl;
-m4_patsubst(m4_patsubst(m4_wstr_to_ustr(), «32», «16»), «ustr», «c16str») m4_dnl;
-m4_wstr_to_ustr() m4_dnl;
+{% endmacro %}
+{{ j_wstr_to_ustr() | replace('32', '16') | replace('ustr', 'c16str') }}
+{{ j_wstr_to_ustr() }}
 
 #endif // _yIO_HAS_UCHAR_H
 
@@ -317,9 +314,8 @@ m4_wstr_to_ustr() m4_dnl;
 
 #if _yIO_HAS_UCHAR_H
 
-m4_define(«m4_uchar_functions», «m4_dnl;
-»m4_syncline()«
-
+{% macro j_uchar_functions() %}
+#line
 int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **mb, size_t *mb_len) {
 	if (!c32_len) {
 		*mb = NULL;
@@ -410,13 +406,9 @@ int _yIO_strconv_ustr_to_wstr(const char32_t *c32, size_t c32_len, const wchar_t
 #endif
 }
 #endif // _yIO_HAS_WCHAR_H
-
-»)m4_dnl;
-m4_dnl Generate char16_t fucntions by replacing 32 to 16
-m4_patsubst(m4_patsubst(m4_uchar_functions(), «32», «16»), «ustr», «c16str»)
-m4_dnl Then just generate 32
-m4_uchar_functions()
-m4_dnl;
+{% endmacro %}
+{{ j_uchar_functions() | replace('32', '16') | replace('ustr', 'c16str') }}
+{{ j_uchar_functions() }}
 
 int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
 #if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && _yIO_HAS_UNISTRING
@@ -452,4 +444,3 @@ int _yIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char1
 
 #endif // _yIO_HAS_UCHAR_H
 
-/* --------------------------------------------------------------------------- */

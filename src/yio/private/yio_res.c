@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_syncline(1)m4_dnl;
 #include "yio_res.h"
 #include "../yio_error.h"
 #include <stddef.h>

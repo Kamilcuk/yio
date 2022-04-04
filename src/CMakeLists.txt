@@ -10,7 +10,6 @@ include(CheckIncludeFile)
 include(k/m4)
 include(k/list_filter)
 include(k/var_to_0_or_1)
-include(${CMAKE_CURRENT_LIST_DIR}/yio/template/yio_template.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/yio_config_gen.cmake)
 
 function(log)
@@ -57,82 +56,22 @@ configure_file(${SRCDIR}/yio/yio_version.h.in ${GENDIR}/yio/yio_version.h)
 list(APPEND _gensrcs yio/yio_version.h)
 
 ###########################################################################################
-# generate config.m4
-configure_file(
-	${SRCDIR}/m4/yio_config.m4.in
-	${CMAKE_CURRENT_BINARY_DIR}/m4gen/yio_config.m4
-	@ONLY
-)
-list(APPEND gennodirsrcs ${CMAKE_CURRENT_BINARY_DIR}/m4gen/yio_config.m4)
 
-# generate error messages ####################
-add_custom_command(
-	OUTPUT
-		${GENDIR}/yio/yio_error_messages.h
-	COMMENT "Generate yio/yio_error_messages.h file"
-	DEPENDS
-		${SRCDIR}/yio/yio_error.h
-		${SRCDIR}/yio/yio_error_messages.cmake
-	COMMAND ${CMAKE_COMMAND}
-		-D OUTPUT=${GENDIR}/yio/yio_error_messages.h
-		-D INPUT=${SRCDIR}/yio/yio_error.h
-		-P ${CMAKE_CURRENT_SOURCE_DIR}/yio/yio_error_messages.cmake
-	VERBATIM
-)
-list(APPEND _gensrcs yio/yio_error_messages.h)
-
-##############################################################################################
-# Preprocess files with m4.
-
-file(GLOB_RECURSE _m4srcs *.c *.h)
-list(FILTER _m4srcs EXCLUDE REGEX "src/yio/template/")
-list(FILTER _m4srcs EXCLUDE REGEX "src/yio/y*io/")
-foreach(source IN LISTS _m4srcs)
+file(GLOB_RECURSE _srcs *.c *.h)
+foreach(source IN LISTS _srcs)
 	file(RELATIVE_PATH _output ${SRCDIR} ${source})
-	# dbg("m4_add_command ${_output} ${source}")
-	m4_add_command(
-		OUTPUT ${GENDIR}/${_output}
-		SOURCE ${source}
-	)
-	list(APPEND _gensrcs ${_output})
-endforeach()
-
-set(_float_gensrcs)
-foreach(source IN ITEMS
-		${CMAKE_CURRENT_SOURCE_DIR}/yio/private/yio_float_strfrom_strfrom.c.in
-		${CMAKE_CURRENT_SOURCE_DIR}/yio/private/yio_float_strfrom_custom.c.in
-)
-	foreach(ss IN LISTS YIO_FLOAT_SUFFIXES)
-		# Disable _custom for _Decimal types
-		if(ss MATCHES "d[0-9]" AND source MATCHES "_custom")
-			continue()
-		endif()
-		#
-		file(RELATIVE_PATH _source_rel ${SRCDIR} ${source})
-		get_filename_component(_source_rel_dir ${_source_rel} DIRECTORY)
-		get_filename_component(_source_name ${source} NAME)
-		set(_output ${_source_rel_dir}/${ss}_${_source_name}.c)
-		# message("m4_add_command ${_output} ${source}")
-		m4_add_command(
-			OUTPUT ${GENDIR}/${_output}
-			SOURCE ${source}
-			OPTIONS -D m4_FORFLOAT=${ss}
-		)
+	if(source MATCHES "yio/template/.*")
+		foreach(mode IN ITEMS yio ywio yuio yc16io)
+			string(REGEX REPLACE "template" "${mode}" "_tmp" "${_output}")
+      list(APPEND _gensrcs ${_tmp})
+			list(APPEND _${mode}_gensrcs "${_tmp}")
+		endforeach()
+	else()
 		list(APPEND _gensrcs ${_output})
-		list(APPEND _float_gensrcs ${_output})
-	endforeach()
+	endif()
 endforeach()
+list(SORT _gensrcs)
 
-include(yio/yio/template.cmake)
-list(APPEND _gensrcs ${yio_gensrcs})
-include(yio/ywio/template.cmake)
-list(APPEND _gensrcs ${ywio_gensrcs})
-include(yio/yc16io/template.cmake)
-list(APPEND _gensrcs ${yc16io_gensrcs})
-include(yio/yuio/template.cmake)
-list(APPEND _gensrcs ${yuio_gensrcs})
-
-##############################################################################################
 # Maintainance of GENDIR
 
 # All files in _gensrcs are relative
@@ -174,11 +113,31 @@ foreach(ii IN LISTS _gensrcs)
 	list(APPEND _genabssrcs "${GENDIR}/${ii}")
 endforeach()
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+add_custom_command(
+	COMMENT "Preprocess the sources"
+	COMMAND
+		${Python3_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/preprocess.py
+		-I "${SRCDIR}"
+		-O "${GENDIR}"
+		-D "j_MLVLS=${YIO_M4_MLVLS}"
+		-D "j_SLOTS_END=${YIO_M4_SLOTS_END}"
+		-C "${CMAKE_CURRENT_BINARY_DIR}/jinjacache"
+    --debug
+	DEPENDS
+		${CMAKE_CURRENT_SOURCE_DIR}/preprocess.py
+		${CMAKE_CURRENT_SOURCE_DIR}/library.jinja
+		${_srcs}
+	OUTPUT
+		${_genabssrcs}
+)
+
 set(_YIO_GEN_FILE ${CMAKE_CURRENT_BINARY_DIR}/yio_generated.stamp CACHE INTERNAL "")
 add_custom_command(
 	OUTPUT ${_YIO_GEN_FILE}
 	COMMAND ${CMAKE_COMMAND} -E touch ${_YIO_GEN_FILE}
-	DEPENDS ${_genabssrcs} ${gennodirsrcs}
+	DEPENDS ${_genabssrcs}
 	COMMENT "yio: Generated source files (dependency)"
 )
 
@@ -366,22 +325,20 @@ set(_yio_sources
 	yio/yio_version.h
 	yio/yio_config.h
 	yio/yio_config_gen.h
-	yio/yio_error_messages.h
 
-	${_float_gensrcs}
 	${_auto_yio_private_srcs}
 	${_auto_generic_srcs}
 	yio.h
-	${yio_gensrcs}
+	${_yio_gensrcs}
 	ywio.h
-	${ywio_gensrcs}
+	${_ywio_gensrcs}
 )
 if(UNISTRING_LIB)
 	list(APPEND _yio_sources
 		yc16io.h
-		${yc16io_gensrcs}
+		${_yc16io_gensrcs}
 		yuio.h
-		${yuio_gensrcs}
+		${_yuio_gensrcs}
 	)
 endif()
 yio_add_library(yio ${_yio_sources})

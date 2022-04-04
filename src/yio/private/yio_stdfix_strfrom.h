@@ -8,12 +8,10 @@
  */
 #pragma once
 #if _yIO_HAS_STDFIX_TYPES
-m4_divert(-1)
-// «m4_stdfix_types»
-m4_include(«yio/private/yio_stdfix.h»)
-m4_divert(0)m4_dnl;
 
-m4_applyforeachdefine((m4_stdfix_types), «m4_dnl;
+{% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
+{% call j_FOREACHAPPLY(j_STDFIX) %}
+#line
 /**
  * Converts a $2 value to a string.
  * @param resultp @see _yIO_wur
@@ -25,6 +23,6 @@ m4_applyforeachdefine((m4_stdfix_types), «m4_dnl;
  */
 _yIO_wur _yIO_nn()
 int _yIO_astrfrom$1(char **resultp, size_t *lengthp, int precision0, char spec0, $2 val);
-»)m4_dnl;
+{% endcall %}
 
 #endif // _yIO_HAS_STDFIX_TYPES

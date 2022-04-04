@@ -16,68 +16,6 @@ enum _yIO_TYPES {
 	_yIO_TYPE_YUIO = 0,
 };
 
-// m4_ign(
-#if __CDT_PARSER__
-
-//#define « /**/
-#define m4_regexp(...)
-#define m4_ifelse(...)
-#define m4_patsubst(a, ...)   a
-// My functions:
-#define m4_syncline(...)
-#define m4_syncline_dnl(...)
-#define m4_template_chooser(a, ...)  a
-#define m4_template_chooser2(a, ...) a
-#define m4_applyforeachdefine(a, ...)  __VA_ARGS__
-#define m4_applysync(a, ...)  __VA_ARGS__
-//#define » /**/
-
-#define _yIO_TYPE_YIO 1
-
-#define _Generic(...)  /**/
-
-/**
- * @defgroup privatemacros
- * @brief Private macros for internal use on m4 preprocessing stage
- * These symbols should be defined by m4/cfg_*.m4 files.
- * @{
- */
-
-/**
- * Represents a character. A pointer to it represents a string.
- */
-typedef char Ychar;
-/**
- * A character or EOF.
- */
-typedef int Yint;
-/**
- * The EOF character.
- */
-#define YEOF EOF
-/**
- * @param x A character within single qoutes
- *          or string within double quotes.
- * @brief Defines a character constant.
- */
-#define Yc(c)  c
-/**
- * @param str <tt>const Ychar*</tt> A zero terminated string.
- * @return The count of characters (not bytes) in a string.
- */
-#define Ystrlen(str)      strlen(str)
-#define Yfgetc(f)         fgetc(f)
-#define Ystrchr(str, c)   strchr(str, c)
-#define Yidigit(c)        isdigit((unsigned char)c)
-/**
- * @}
- */
-
-#define _yIO_FLOAT$1  double
-
-#endif
-// )
-
 /**
  * @defgroup compilermacros
  * @brief Macros used for compiler compatibility

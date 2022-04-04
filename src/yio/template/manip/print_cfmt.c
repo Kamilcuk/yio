@@ -72,8 +72,8 @@ int _yΩIO_cfmt_parse(struct _yΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
 }
 
 int _yΩIO_print_cfmt(yπio_printctx_t *t) {
-	const char *str = yπio_printctx_va_arg(t, const char *);
-	const char *endptr = NULL;
+	const Ychar *str = yπio_printctx_va_arg(t, const Ychar *);
+	const Ychar *endptr = NULL;
 	int err = _yΩIO_cfmt_parse(t, &t->pf, str, &endptr);
 	if (err) return err;
 	if ((size_t)(endptr - str) != Ystrlen(str)) {

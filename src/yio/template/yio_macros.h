@@ -6,17 +6,15 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-// M4_NOSYNCLINES
 #pragma once
 
-// m4_ign(
 /**
  * @defgroup yio_macros
  * Macros used for defining printing function dispatch
  * @{
  */
 
-«
+{#
 /**
  * Extract the printing function name from arguments.
  * If argument has more then 62 braces
@@ -26,25 +24,12 @@
  * @param _i Argument to apply the transformation on
  * @param function_arg function that get's what printing function to choose for argument
  */
-#define m4_yio_macros_funcs(_i, function_arg) »
-m4_define_function(«m4_yio_macros_funcs»,
-«_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_SECONDX, $2)($1, _yIO_FIRST _yIO_FIRST $1),»)m4_dnl;
+#}
+{% macro j_yio_macros_funcs(A, B) -%}
+	_yIO_IFBA62A_IN(_yIO_ESC {{A}})(_yIO_SECONDX, {{B}})({{A}}, _yIO_FIRST _yIO_FIRST {{A}}),
+{%- endmacro %}
 
-«
-/**
- * Extract the sizes of arguments after decay, so that @c va_arg can
- * potentially the size of argument poped from stack.
- * If argument has more then 62 braces, then
- *   ignore for each argument apply sizeof decay
- * otherwise
- *   apply sizeof decay and add a post comma.
- * @param _i Argument to apply the transofrmation on
- */
-#define m4_yio_macros_argsizes(_i) »
-m4_define_function(«m4_yio_macros_argsizes»,
-«_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_I1FSDPC_XF2, _yIO_FIRSTSIZEOFDECAYPOSTCOMMAX)($1, _yIO_ESC _yIO_FIRST $1)»)m4_dnl;
-
-«
+{#
 /**
  * Transform one argument from the list of PRINT_ARGUMENTS arguments into
  * arguments passed to _yIO_printf() function. Each argument if has more then 62 braces,
@@ -52,12 +37,13 @@ m4_define_function(«m4_yio_macros_argsizes»,
  * Otherwise @c _yIO_PRECOMMAFIRST a leading command is added so this doesn't need a comma.
  * @param _i Argument to apply the transofrmation on
  */
-#define m4_yio_macros_gen_args(_i) »
-m4_define_function(«m4_yio_macros_gen_args»,
-«_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)($1, _yIO_ESC _yIO_FIRST $1)»)m4_dnl;
+#}
+{% macro j_yio_macros_gen_args(J) -%}{% call j_APPLY(J) -%}
+	_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)($1, _yIO_ESC _yIO_FIRST $1)
+{%- endcall %}{%- endmacro %}
 
 
-«
+{#
 /**
  * Add formatting and additional arguments to be passed from macros.
  *
@@ -76,32 +62,21 @@ m4_define_function(«m4_yio_macros_gen_args»,
  *
  * @param _i The count of arguments passed to function.
  */
-#define m4_yio_macros_rest_of_args(_i) »
-m4_define_function(«m4_yio_macros_fmt_and_args», «m4_dnl; \
-fmt«»m4_dnl; \
-m4_ifdef(«m4_DEBUG», «m4_dnl; \
-, \
-m4_ifelse(«$1», «1», «m4_dnl; \
-m4_dnl If only one argument, then just pass nothing for argsizes and pass fmt \
-		(const size_t[]){0} \
-», «m4_dnl; \
-		(const size_t[]){ \
-			m4_forloopdashX(2, $1, «m4_yio_macros_argsizes(X)», « \
-			») \
-			0 \
-		} \
-»)m4_dnl; \
-»)m4_dnl; \
-m4_ifelse(«$1», «1», «», «m4_dnl; \
-		m4_forloopdashX(2, $1, «m4_yio_macros_gen_args(X)», « \
-		»)m4_dnl; \
-»)m4_dnl; \
-»)m4_dnl;
+#}
+{% macro j_yio_macros_fmt_and_args(I) %}
+	fmt \
+	{% if I %}
+		{% for J in j_range(2, I) %}
+	{{ j_yio_macros_gen_args("_"+J|string) }} \
+		{% endfor %}
+	{% endif %}
+	/**/
+{% endmacro %}
+#line
 
 /**
  * @}
  */
-// m4_ign )
 
 /**
  * On __GNUC__ use @c __extentions({...})
@@ -118,6 +93,6 @@ m4_ifelse(«$1», «1», «», «m4_dnl; \
 /**
  * Initial overload of argument over number of arguments.
  */
-#define _yΩIO_print_arguments_N(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+#define _yΩIO_print_arguments_N({{j_seqdashcomma(j_MLVLS)}}, N, ...)  \
 		_yΩIO_print_arguments_##N
 

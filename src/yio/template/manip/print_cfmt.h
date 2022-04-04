@@ -21,16 +21,16 @@ int _yΩIO_cfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 
 int _yΩIO_print_cfmt(yπio_printctx_t *t);
 
-int _yIO_print_cfmt(yio_printctx_t *t);
+int _yΩIO_print_cfmt(yπio_printctx_t *t);
 
 
-#define _yIO_ypcfmt_0(fmt)                fmt
-#define _yIO_ypcfmt_1(fmt, spec)          fmt, _Generic((spec),int:(spec))
-#define _yIO_ypcfmt_2(fmt, spec, spec2)   fmt, _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
-#define _yIO_ypcfmt_N(_0,_1,_2,N,...)  _yIO_ypcfmt_##N
+#define _yΩIO_ypcfmt_0(fmt)                _Generic((fmt),Ychar:(fmt)),
+#define _yΩIO_ypcfmt_1(fmt, spec)          _Generic((fmt),Ychar:(fmt)), _Generic((spec),int:(spec))
+#define _yΩIO_ypcfmt_2(fmt, spec, spec2)   _Generic((fmt),Ychar:(fmt)), _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
+#define _yΩIO_ypcfmt_N(_0,_1,_2,N,...)  _yΩIO_ypcfmt_##N
 /**
  * Format output by reading C format string.
  * @param ... C formatting string like "%s".
  * @param ... Optional up to two int values.
  */
-#define ypcfmt(...)  yiocb(_yIO_print_cfmt, _yIO_ypcfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
+#define yπpcfmt(...)  yiocb(_yΩIO_print_cfmt, _yΩIO_ypcfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))

@@ -17,10 +17,7 @@
 
 #if _yIO_HAS_STDFIX_TYPES
 
-m4_divert(-1)
-// «m4_stdfix_types»
-m4_include(«yio/private/yio_stdfix.h»)
-m4_divert(0)m4_dnl;
+{% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
 
 static const char _yIO_stdfix_strfrom_i_to_c_HEX[] = "0123456789ABCDEF";
 static const char _yIO_stdfix_strfrom_i_to_c_hex[] = "0123456789abcdef";
@@ -29,8 +26,8 @@ const char *_yIO_stdfix_strfrom_i_to_c(bool upper) {
 	return upper ? _yIO_stdfix_strfrom_i_to_c_HEX : _yIO_stdfix_strfrom_i_to_c_hex;
 }
 
-m4_applyforeachdefine(((8), (16), (32), (64)), «m4_dnl;
-#line m4___line__
+{% call j_FOREACHAPPLY([8, 16, 32, 64]) %}
+#line
 #define TYPEUINT  uint_least$1_t
 
 // I think this is countl, but I am not sure
@@ -143,12 +140,11 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 }
 
 #undef TYPEUINT
+{% endcall %}
 
-»)m4_dnl;
 
-
-m4_applyforeachdefine((m4_stdfix_types), «m4_dnl;
-#line m4___line__
+{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
+#line
 #define TYPE      $2
 #define TYPEUINT  _yIO_UINT_$3
 
@@ -166,18 +162,20 @@ int _yIO_astrfrom$1(char **resultp, size_t *lengthp, int precision0, char spec0,
 	_yIO_res *o = &_mem;
 	_yIO_res_init(o, resultp, lengthp);
 
-m4_ifelse(m4_regexp(«$2», «unsigned»), «-1», «m4_dnl;
+	{% if not j_match(V.1, "unsigned") %}
+	#line
+	// Handle negative for x type for signed.
 	if (spec != 'x') {
 		const bool negative = val < 0;
 		if (negative) {
 			err = _yIO_res_putc(o, '-');
 			if (err) return err;
-
+			// TODO: undefined behavior for _MIN
 			val = -val;
 		}
 	}
-»)m4_dnl;
-#line m4___line__
+	{% endif %}
+	#line
 
 	int precision = 0;
 	// rounding
@@ -216,7 +214,6 @@ m4_ifelse(m4_regexp(«$2», «unsigned»), «-1», «m4_dnl;
 
 #undef TYPE
 #undef TYPEUINT
-
-»)m4_dnl;
+{% endcall %}
 
 #endif // _yIO_HAS_STDFIX_TYPES

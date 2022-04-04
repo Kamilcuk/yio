@@ -5,7 +5,6 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-m4_syncline()m4_dnl;
 #define _XOPEN_SOURCE  1 // wcswidth
 #include "private.h"
 #if _yIO_HAS_UNISTRING

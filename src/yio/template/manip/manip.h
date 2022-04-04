@@ -20,17 +20,9 @@
 #include "print_time.h"
 #include "print_stdfix.h"
 #include "print_complex.h"
-
-m4_ifdef(«_yIO_TYPE_YIO», m4_syncline(1)«m4_dnl;
 #include "print_modifiers.h"
 #include "print_count.h"
 #include "print_cfmt.h"
-»)m4_syncline(1) m4_dnl;
-
-/* ---------------------------------------------------------------- */
-
-
-/* ---------------------------------------------------------------- */
 
 /**
  * @def _yΩIO_PRINT_FUNC_GENERIC

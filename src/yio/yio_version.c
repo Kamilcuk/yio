@@ -7,8 +7,6 @@
  */
 #include "yio_version.h"
 
-static const char yio_version_string[] = YIO_VERSION_STRING;
-
 static const char yio_banner[] =
 "YIO Library "YIO_VERSION_STRING" compiled on "__DATE__" "__TIME__"\n"
 "Copyright (C) 2020 by Kamil Cukrowski\n"
@@ -25,6 +23,6 @@ unsigned long yio_get_version(void) {
 }
 
 const char *yio_get_version_string(void) {
-	return yio_version_string;
+	return YIO_VERSION_STRING;
 }
 

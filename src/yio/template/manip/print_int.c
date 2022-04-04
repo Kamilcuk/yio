@@ -1,4 +1,5 @@
 /**
+#line
  * @file
  * @date 5 kwi 2020
  * @author Kamil Cukrowski
@@ -44,25 +45,27 @@ const Ychar *_yΩIO_printint_to_fmt(Ychar type) {
 			Yc("0123456789abcdef");
 }
 
-m4_applyforeachdefine((
-	(short, short),
-	(ushort, unsigned short),
-	(int, int),
-	(uint, unsigned int),
-	(long, long),
-	(ulong, unsigned long),
-	(llong, long long),
-	(ullong, unsigned long long),
-	(__int128, __int128, _yIO_HAS_INT128),
-	(u__int128, unsigned __int128, _yIO_HAS_INT128)
-), m4_syncline(1)«m4_dnl;
+{% call(V) j_FOREACHAPPLY([
+	["short", "short"],
+	["ushort", "unsigned short"],
+	["int", "int"],
+	["uint", "unsigned int"],
+	["long", "long"],
+	["ulong", "unsigned long"],
+	["llong", "long long"],
+	["ullong", "unsigned long long"],
+	["__int128", "__int128", "_yIO_HAS_INT128"],
+	["u__int128", "unsigned __int128", "_yIO_HAS_INT128"],
+	]) %}
 
-m4_ifelse(«$3»,«»,«», m4_syncline(1)«m4_dnl;
+{% if V.3 %}
+#line
 #ifndef $3
 #error
 #endif
 #if $3
-») m4_syncline(1) m4_dnl;
+{% endif %}
+#line
 
 int _yΩIO_print_$1(yπio_printctx_t *t) {
 	$2 arg = yπio_printctx_va_arg_num(t, $2);
@@ -76,13 +79,15 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 	const $2 radix = _yΩIO_printint_to_radix(type);
 	const Ychar *format = _yΩIO_printint_to_fmt(type);
 	const bool negative =
-m4_ign("If $2 is unsigned, it can't be negative"
-		"So remove the check, so that -Wtype-limits doesn't throw") m4_dnl;
-m4_ifelse(m4_regexp(«$2»,«unsigned»),«-1»,
-			arg < 0;
-,
+	{# If $2 is unsigned, it can't be negative So remove the check, so that -Wtype-limits doesn't throw #}
+	{% if j_match(V.1, "unsigned") %}
+#line
 			false;
-) m4_dnl;
+	{% else %}
+#line
+			arg < 0;
+	{% endif %}
+#line
 	assert(res != num);
 	const $2 tmp = arg % radix;
 	(--num)[0] = format[negative ? -tmp : tmp];
@@ -95,12 +100,10 @@ m4_ifelse(m4_regexp(«$2»,«unsigned»),«-1»,
 		} while (arg /= radix);
 	}
 	const size_t length = res_end - num;
-	return yπio_printctx_putπ_number(t, num, length, !negative);
+	return yπio_printctx_putπ_number(t, num, length, negative);
 }
 
-m4_ifelse(«$3»,«»,«», m4_syncline(1)«m4_dnl;
+{% if V.3 %}
 #endif // $3
-») m4_syncline(1) m4_dnl;
-
-») m4_dnl;
-
+{% endif %}
+{% endcall %}

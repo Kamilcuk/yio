@@ -48,14 +48,12 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int pr
 	assert(fmtpnt <= fmt + FMT_SIZE);
 }
 
-m4_ifdef(«m4_FORFLOAT», «», «m4_fatal_error(«m4_FORFLOAT not defined»)»)
-m4_applysync(«((m4_FORFLOAT))», «
-
+{% call j_FOREACHAPPLY(j_FLOATS) %}
+#line
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
 #endif
 #if _yIO_HAS_FLOAT$1
-
 #ifndef _yIO_HAS_strfrom$1
 #error  _yIO_HAS_strfrom$1
 #endif
@@ -102,4 +100,4 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 
 #endif
 
-»)
+{% endcall %}

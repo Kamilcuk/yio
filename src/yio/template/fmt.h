@@ -8,11 +8,11 @@
  */
 #pragma once
 #include <stdbool.h>
-m4_template_chooser2(,
+{% if MODEX == 2 %}
 #include <wchar.h>
-,
+{% elif MODEX == 3 %}
 #include <uchar.h>
-)
+{% endif %}
 
 static const Ychar YΩIO_NUL = Yc('\0');
 

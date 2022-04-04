@@ -32,16 +32,8 @@
 #endif
 
 
-m4_ifdef(«m4_floatlist», «», 
-«m4_define(«m4_floatlist», «
-	(f), (d), (l),
-	(f16), (f32), (f64), (f128),
-	(f32x), (f64x), (f128x),
-	(d32), (d64), (d128),
-»)
-»)
-
-m4_applysync((m4_floatlist), «)
+{% call j_FOREACHAPPLY(j_FLOATS) %}
+#line
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -101,9 +93,11 @@ int _yΩIO_print_float_ryu$1(yπio_printctx_t *t);
 
 #endif
 
-»)
+{% endcall %}
 
 #define _yΩIO_PRINT_FUNC_GENERIC_FLOATS() \
-m4_applyforeachdefine((m4_floatlist),
-		«_yΩIO_PRINT_FUNC_GENERIC_FLOAT$1()»)
+		{% call j_FOREACHAPPLY(j_FLOATS) %}
+		_yΩIO_PRINT_FUNC_GENERIC_FLOAT$1() \
+		{% endcall %}
+		/**/
 

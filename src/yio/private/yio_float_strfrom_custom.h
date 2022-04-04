@@ -10,15 +10,16 @@
 #include "../yio_config.h"
 #include <stddef.h>
 
-m4_applysync(«(
-		(f), (d), (l),
-		(f16), (f32), (f64), (f128),
-		(f32x), (f64x), (f128x),
-)», «
-
+{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
+#line
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
 #endif
+{% if V.0 in [
+		"f", "d", "l",
+		"f16", "f32", "f64", "f128",
+		"f32x", "f64x", "f128x"] %}
+#line
 #if _yIO_HAS_FLOAT$1
 
 /**
@@ -38,18 +39,9 @@ int _yIO_float_astrfrom_custom$1(char **resultp, size_t *lengthp,
 #else
 #define _yIO_has_float_custom$1  0
 #endif // _yIO_FLOAT$1
-
-»)
-
-m4_applysync(«(
-		(d32), (d64), (d128),
-)», «
-#ifndef _yIO_HAS_FLOAT$1
-#error  _yIO_HAS_FLOAT$1
-#endif
-#if _yIO_HAS_FLOAT$1
-#ifndef _yIO_has_float_custom$1
+{% else %}
+#line
 #define _yIO_has_float_custom$1  0
-#endif
-#endif
-»)
+{% endif %}
+{% endcall %}
+

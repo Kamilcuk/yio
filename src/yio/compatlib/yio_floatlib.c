@@ -52,7 +52,10 @@ static inline void floaterror(const char *func) {
 
 /* ------------------------------------------------------------------------- */
 
-m4_define(«m4_worktodo», m4_syncline()«
+{% from "library.jinja" import j_FLOATS %}
+{% for I in j_FLOATS %}
+	{% call j_APPLY(I, "" if I == "d" else I) %}
+#line
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -146,58 +149,21 @@ weak _yIO_FLOAT$1 pow$2(_yIO_FLOAT$1 val, _yIO_FLOAT$1 to) {
 	return NAN;
 }
 
-#endif // _yIO_HAS_FLOAT$1
-
-»)
-
-m4_applyforeachdefine(«(
-			(f), (d), (l),
-			(f16), (f32), (f64), (f128),
-			(f32x), (f64x), (f128x),
-			(d32), (d64), (d128),
-			(d32x), (d64x), (d128x),
-)», m4_syncline()«m4_dnl;
-
-m4_worktodo($1, m4_ifelse(«$1», «d», «», «$1»))
-
-») // m4_dnl m4_applyforeachdefine ;
-
-/* ------------------------------------------------------------------------- */
-
-m4_applysync(«(
-			(f), (s), (l),
-			(f16), (f32), (f64), (f128),
-			(f32x), (f64x), (f128x),
-			(d32), (d64), (d128),
-			(d32x), (d64x), (d128x),
-)», «
-
-#if _yIO_HAS_FLOAT$1
 int strfrom$1(char *restrict str, size_t n, const char *restrict format, _yIO_FLOAT$1 fp);
 weak int strfrom$1(char *restrict str, size_t n, const char *restrict format, _yIO_FLOAT$1 fp) {
 	errno = ENOSYS;
 	return -1;
 }
-#endif
 
-»)
-
-/* ------------------------------------------------------------------------- */
-
-m4_applysync(«(
-			(f), (d), (ld),
-			(f16), (f32), (f64), (f128),
-			(f32x), (f64x), (f128x),
-			(d32), (d64), (d128),
-			(d32x), (d64x), (d128x),
-)», «
-
-#if _yIO_HAS_FLOAT$1
 _yIO_FLOAT$1 strto$1(const char *restrict str, char **restrict pnt);
 weak _yIO_FLOAT$1 strto$1(const char *restrict str, char **restrict pnt) {
 	errno = ENOSYS;
 	return -1;
 }
-#endif
 
-»)
+#endif // _yIO_HAS_FLOAT$1
+
+	{% endcall %}
+{% endfor %}
+
+

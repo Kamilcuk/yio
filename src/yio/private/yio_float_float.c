@@ -16,11 +16,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-m4_applyforeachdefine(«(
-			(f), (d), (l),
-			(f16), (f32), (f64), (f128),
-			(f32x), (f64x), (f128x),
-)», m4_syncline(1)«m4_dnl;
+{% call j_FOREACHAPPLY(["f", "d", "l", "f16", "f32", "f64", "f128", "f32x", "f64x", "f128x"]) %}
 
 /* suffix $1 ---------------------------------------------------- */
 
@@ -59,5 +55,4 @@ _yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 val, int *exp) {
 
 #endif // _yIO_HAS_FLOAT$1
 
-») m4_dnl m4_applyforeachdefine
-
+{% endcall %}

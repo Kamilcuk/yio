@@ -1,0 +1,109 @@
+
+{% macro j_seq(FROM, TO, FMT="{}", SEP="") %}
+	{% if TO is undefined %}
+		{% set TO = FROM %}
+		{% set FROM = 1 %}
+	{% endif %}
+	{% set TO = TO|int %}
+	{% set FROM = FROM|int %}
+	{% set FMT = FMT|string %}
+	{% set SEP = SEP|string %}
+	{% if FROM < TO %}
+		{% set LIST = range(FROM, TO + 1) %}
+	{% else %}
+		{% set LIST = range(TO, FROM + 1) | reverse %}
+	{% endif %}
+	{# #}
+	{% for I in LIST %}
+		{{- FMT.format(I) -}}
+		{{- "" if loop.last else SEP -}}
+	{%- endfor %}
+{% endmacro %}
+
+{% macro j_seqcomma(FROM, TO, FMT="{}") %}
+	{{- j_seq(FROM, TO, FMT=FMT, SEP=",") -}}
+{% endmacro %}
+
+{% macro j_seqdashcomma(FROM, TO) %}
+	{{- j_seq(FROM, TO, SEP=",", FMT="_{}") -}}
+{% endmacro %}
+
+{% set j_ERRORS = [
+		[ "YIO_ERROR_ENOMEM", "Not enough memory", ],
+		[ "YIO_ERROR_ENOSYS", "Function not implemented", ],
+		[ "YIO_ERROR_EIO", "Input/output error", ],
+		[ "YIO_ERROR_ENOBUFS", "No buffer space available", ],
+		[ "YIO_ERROR_FMT_INVALID", "Invalid format specifier", ],
+		[ "YIO_ERROR_PYFMT_INVALID", "Invalid python format specifier", ],
+		[ "YIO_ERROR_CFMT_INVALID", "Invalid C format specifier", ],
+		[ "YIO_ERROR_SCANFMT_INVALID", "Invalid scan format specifier", ],
+		[ "YIO_ERROR_SCAN_NOT_MATCHED", "Scanned character not matched", ],
+		[ "YIO_ERROR_SCAN_OVERFLOW", "Scanning overflowed", ],
+		[ "YIO_ERROR_SCAN_UNDERFLOW", "Scanning underflowed", ],
+		[ "YIO_ERROR_TOO_MANY_FMT", "Too many format strings for arguments", ],
+		[ "YIO_ERROR_SCAN_NOTHING", "No matching characters scanned", ],
+		[ "YIO_ERROR_WCTOMB", "wctomb returned -1", ],
+		[ "YIO_ERROR_MBTOWC", "mbtowc returned -1", ],
+		[ "YIO_ERROR_U32_CONV_TO_ENCODING", "u32_conv_to_encoding returned NULL", ],
+		[ "YIO_ERROR_U16_CONV_TO_ENCODING", "u16_conv_to_encoding returned NULL", ],
+		[ "YIO_ERROR_U32_CONV_FROM_ENCODING", "u32_conv_from_encoding returned NULL", ],
+		[ "YIO_ERROR_U16_CONV_FROM_ENCODING", "u16_conv_from_encoding returned NULL", ],
+		[ "YIO_ERROR_C32TOMB", "c32rtomb returned -1", ],
+		[ "YIO_ERROR_C16TOMB", "c16rtomb returned -1", ],
+		[ "YIO_ERROR_MBTOC32", "c32rtomb returned -1", ],
+		[ "YIO_ERROR_MBTOC16", "c16rtomb returned -1", ],
+	]
+%}
+
+{% macro j_APPLY_IN(STR, I) %}
+	{% set v = {"v": STR } %}
+	{% if I is string or I is integer %}
+		{% set _ = v.update({"v": v.v | replace("$1", I|string) }) %}
+	{% elif I is sequence %}
+		{% for J in I %}
+			{% set _ = v.update({"v": v.v | replace("$" + loop.index|string, J) }) %}
+		{% endfor %}
+	{% else %}
+		ERROR
+	{% endif %}
+	{{- v.v -}}
+{% endmacro %}
+
+{% macro j_APPLY() %}
+	{{- j_APPLY_IN(caller(varargs) if caller.arguments|length else caller(), varargs) -}}
+{% endmacro %}
+
+{% macro j_FOREACHAPPLY(array) %}
+	{% if array is undefined %}
+		{{ fatal("array undefined") }}
+	{% endif %}
+	{% for I in array %}
+		{% set STR =
+			caller(I, loop) if caller.arguments|length == 2 else
+			caller(I) if caller.arguments|length == 1 else
+			caller() %}
+		{{- j_APPLY_IN(STR, I) -}}
+	{% endfor %}
+{% endmacro %}
+
+{# suffix #}
+{% set j_FLOATS = [
+	[ "f", ],
+	[ "d", ],
+	[ "l", ],
+	[ "f16", ],
+	[ "f32", ],
+	[ "f64", ],
+	[ "f128", ],
+	[ "f32x", ],
+	[ "f64x", ],
+	[ "f128x", ],
+	[ "d32", ],
+	[ "d64", ],
+	[ "d128", ],
+	]
+%}
+
+{% macro j_FUNC(replacefor) %}
+	{{- replacefor | replace('{}', caller()) -}}
+{% endmacro %}

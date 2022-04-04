@@ -33,15 +33,17 @@
  *
  */
 
-m4_applyforloopdefine(100, m4_SLOTS_END, «m4_dnl;
+{% call j_FOREACHAPPLY(j_range(100, j_SLOTS_END)) %}
 #ifndef YΩIO_PRINT_SLOT_$1
 #define YΩIO_PRINT_SLOT_$1
 #endif
-»)m4_dnl;
+{% endcall %}
 
 
 /**
  * Expanded all slots macros.
  */
 #define _yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
-		m4_applyforloopdefine(100, m4_SLOTS_END, «YΩIO_PRINT_SLOT_$1», « »)
+		{% call j_FOREACHAPPLY(j_range(100, j_SLOTS_END)) %}
+		YΩIO_PRINT_SLOT_$1
+		{% endcall %}

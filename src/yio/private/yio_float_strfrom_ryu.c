@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include "yio/yio_error.h"
 #define _GNU_SOURCE  1
 #define _XOPEN_SOURCE  700
 #define _POSIX_C_SOURCE  200809L
@@ -20,6 +19,7 @@
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 #define __STDC_WANT_IEC_60559_FUNCS_EXT__  1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
+#include "yio/yio_error.h"
 #include "yio_float_strfrom_ryu.h"
 #include "yio_float_strfrom_custom.h"
 #include "yio_res.h"
@@ -98,9 +98,9 @@ int _yIO_float_astrfrom_ryul(char ** const resultp, size_t * const lengthp,
 
 #endif
 
-m4_applysync(«(
-		(f), (d),
-)», «
+{% call j_FOREACHAPPLY(["f", "d"]) %}
+#line
+
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
 #endif
@@ -153,4 +153,4 @@ int _yIO_float_astrfrom_ryu$1(char ** const resultp, size_t * const lengthp,
 }
 
 #endif
-»)
+{% endcall %}

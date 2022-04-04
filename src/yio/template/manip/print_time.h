@@ -32,51 +32,38 @@
  */
 int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, const Ychar **enptr);
 
-m4_define_function(«m4_print_time_gen1»,m4_dnl;
-int $1(yπio_printctx_t *t);
-int $1_constpnt(yπio_printctx_t *t);
-) m4_dnl ;
+int _yΩIO_print_tm(yπio_printctx_t *t);
 
-m4_define_function(«m4_print_time_gen2»,«m4_dnl;
-		$1: $2, \
-		$1 *: $2_constpnt, \
-		const $1 *: $2_constpnt m4_dnl;
-») m4_dnl ;
-
-m4_print_time_gen1(_yΩIO_print_tm)
-#define _yΩIO_PRINT_GENERIC_TM() \
-		m4_print_time_gen2(struct tm, _yΩIO_print_tm),
-
-m4_print_time_gen1(_yΩIO_print_time_gmtime)
+int _yΩIO_print_time_gmtime(yπio_printctx_t *t);
 #define yπptgmtime(time_t_variable) \
-		yiocb(_Generic((time_t_variable), \
-		m4_print_time_gen2(time_t, _yΩIO_print_time_gmtime) \
+		yiocb(_Generic((time_t_variable) \
+		time_t: _yΩIO_print_time_gmtime \
 		),(time_t_variable))
 
-m4_print_time_gen1(_yΩIO_print_time_localtime)
+int _yΩIO_print_time_localtime(yπio_printctx_t *t);
 #define yπptlocaltime(time_t_variable) \
 		yiocb(_Generic((time_t_variable), \
-		m4_print_time_gen2(time_t, _yΩIO_print_time_localtime) \
+		time_t: _yΩIO_print_time_localtime \
 		),(time_t_variable))
 
 #if _yIO_HAS_timespec
-m4_print_time_gen1(_yΩIO_print_timespec)
+int _yΩIO_print_timespec(yπio_printctx_t *t);
 #define _yΩIO_PRINT_GENERIC_TIMESPEC() \
-		m4_print_time_gen2(struct timespec, _yΩIO_print_timespec),
-#else // _yIO_HAS_timespec
+		struct timespec: _yΩIO_print_timespec,
+#else
 #define _yΩIO_PRINT_GENERIC_TIMESPEC()
-#endif // _yIO_HAS_timespec
+#endif
 
 #if _yIO_HAS_timeval
-m4_print_time_gen1(_yΩIO_print_timeval)
+int _yΩIO_print_timeval(yπio_printctx_t *t);
 #define _yΩIO_PRINT_GENERIC_TIMEVAL() \
-		m4_print_time_gen2(struct timeval, _yΩIO_print_timeval),
+		struct timeval: _yΩIO_print_timeval,
 #else // _yIO_HAS_timeval
 #define _yΩIO_PRINT_GENERIC_TIMEVAL()
 #endif // _yIO_HAS_timeval
 
 #define _yΩIO_PRINT_GENERIC_TIME() \
-		_yΩIO_PRINT_GENERIC_TM() \
+		struct tm: _yΩIO_print_tm, \
 		_yΩIO_PRINT_GENERIC_TIMESPEC() \
 		_yΩIO_PRINT_GENERIC_TIMEVAL()
 

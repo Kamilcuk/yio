@@ -26,7 +26,6 @@
  * The API here is written in a "self-cleaning" fashion - if any of the functions
  * return with error, then there is no need for cleanup, it is called automatically.
  */
-m4_syncline(1)m4_dnl;
 #pragma once
 #include "../yio_common.h"
 #include "../yio.h"

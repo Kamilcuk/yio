@@ -40,10 +40,8 @@ void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
 	assert(fmtpnt <= fmt + fmtsize);
 }
 
-m4_applysync(«(
-		(f), (d), (l),
-		(d32), (d64), (d128),
-)», «);
+{% call j_FOREACHAPPLY(["f", "d", "l", "d32", "d64", "d128"]) %}
+#line
 
 #ifndef _yIO_has_float_printf$1
 #error  _yIO_has_float_printf$1
@@ -97,4 +95,4 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 
 #endif
 
-»);
+{% endcall %}

@@ -55,9 +55,5 @@ void _yΩIO_printctx_init(yπio_printctx_t *t,
 		.ifunc = data,
 		.fmt = fmt,
 	};
-	m4_ifdef(«m4_DEBUG»,«
-	// Debug build also has size_t argument passed
-	_yΩIO_printctx.c.argsizespnt = va_arg(*va, const size_t*);
-	»)
 	*t = _yΩIO_printctx;
 }

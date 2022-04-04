@@ -7,15 +7,15 @@
  * @brief
  */
 #pragma once
-m4_template_chooser2(«», «m4_dnl);
+{% if MODEX == 2 %}
 #include <wchar.h>
-»,«m4_dnl;
+{% elif MODEX == 3 %}
 #include <uchar.h>
 #include <stdint.h>
 #if _yIO_HAS_UNISTRING
 #include <unitypes.h>
 #endif
-»)m4_dnl;
+{% endif %}
 #include "fmt.h"
 #include "ctx.h"
 #include "io.h"

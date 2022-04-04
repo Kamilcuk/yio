@@ -11,10 +11,8 @@
 #include "private.h"
 #include <math.h>
 
-m4_applyforeachdefine(«(
-	(d32), (d64), (d128),
-	(d32x), (d64x), (d128x),
-)», m4_syncline()«
+{% call j_FOREACHAPPLY(["d32", "d64", "d128", "d32x", "d64x", "d128x"]) %}
+#line
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -46,5 +44,5 @@ _yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1 val, int *exp) {
 
 #endif
 
-»)
+{% endcall %}
 

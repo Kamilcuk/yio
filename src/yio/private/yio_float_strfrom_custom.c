@@ -37,8 +37,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-m4_ifdef(«m4_FORFLOAT», «», «m4_fatal_error(«m4_FORFLOAT not defined»)»)
-
 #ifndef NDEBUG
 #define ASSERTMSG(expr, fmt, ...) do { \
 	if (!(expr)) { \
@@ -62,11 +60,9 @@ static const char _yIO_digit_to_HEX[] = {'0','1','2','3','4','5','6','7','8','9'
 static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
-m4_applysync(«((m4_FORFLOAT))», «
-m4_ifelse(m4_regexp($1, «^d[0-9].*$»), «0», «
-#define DECIMAL 1
-»)
-
+{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
+	{% if not j_match(V.0, "^d[0-9]") %}{# exclude floats #}
+#line
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
 #endif
@@ -80,29 +76,27 @@ m4_ifelse(m4_regexp($1, «^d[0-9].*$»), «0», «
 #define FREXP2   _yIO_frexp2$1
 #define FREXP10  _yIO_frexp10$1
 #define FC(x)    _yIO_FLOAT_C$1(x)
-#ifdef __CDT_PARSER__
-#undef FC
-#define FC(x)  x
-#endif
 
-#if DECIMAL && __GNUC__
-// workaround for GNU bug
+{% if j_match(V.0, "^d[0-9]") %}{# check if DECIMAL float #}
+#line
+#if __GNUC__
+// Workaround for GNU bug aroud decimal floating point numbers.
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674
-#ifdef isinf
-#undef isinf
-#endif
-#ifdef fpclassify
-#undef fpclassify
-#endif
 #ifndef DEC_INFINITY
 #define DEC_INFINITY  __builtin_inf$1()
 #endif
 #ifndef DEC_NAN
-#define DEC_NAN  __builtin_nan$1()
+#define DEC_NAN  __builtin_nan$1("")
 #endif
-#define isinf(x)  (x == DEC_INFINITY || x == -DEC_INFINITY)
-#define fpclassify(x)  (isinf(x) ? FP_INFINITE : x != x ? DEC_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
+#define ISINF(x)  (x == DEC_INFINITY || x == -DEC_INFINITY)
+#define FPCLASSIFY(x)  (ISINF(x) ? FP_INFINITE : x != x ? DEC_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
 #endif
+{% else %}
+#line
+#define FPCLASSIFY fpclassify
+#define ISINF  isinf
+{% endif %}
+#line
 
 static inline
 int get_next_digit$1(_yIO_res *v, TYPE *val,
@@ -164,7 +158,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 	const bool is_lower_spec = spec0lower == spec0;
 
 	// take INF and NAN out of the way
-	const int val_class = fpclassify(val);
+	const int val_class = FPCLASSIFY(val);
 	const char (*nan_or_inf_str)[3] =
 			val_class == FP_NAN ? _yIO_nans[is_lower_spec] :
 					val_class == FP_INFINITE ? _yIO_infs[is_lower_spec] :
@@ -207,7 +201,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 				// this is strange, the standard says "Let P" not "Let precision".
 				((spec0lower == 'g' && precision == 0) ? 1 : precision);
 		val10 = val + (spec0lower == 'g' ? FC(0.5) : FC(0.05)) * EXP10(round_exp10);
-		if (isinf(val10)) {
+		if (ISINF(val10)) {
 			// We can't round up - stay as it is.
 			val10 = val;
 		}
@@ -240,7 +234,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 		exponent = 0;
 	} else if (speclower == 'f') {
 		const _yIO_FLOAT$1 tmp = val + FC(0.5) * EXP10(-precision);
-		if (!isinf(tmp)) {
+		if (!ISINF(tmp)) {
 			val = tmp;
 		}
 		val = FREXP10(val, &exponent);
@@ -254,7 +248,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 			}
 			const int bitpos = -5 + -4 * precision + exponent_tmp;
 			_yIO_FLOAT$1 tmp = val + EXP2(bitpos);
-			if (!isinf(tmp)) {
+			if (!ISINF(tmp)) {
 				val = tmp;
 			}
 		}
@@ -362,7 +356,9 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 #undef FREXP2
 #undef FREXP10
 #undef FC
+#undef FPCLASSIFY
+#undef ISINF
 
 #endif
 
-»)
+{% endif %}{% endcall %}

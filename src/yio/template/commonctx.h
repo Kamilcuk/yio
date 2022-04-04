@@ -21,26 +21,12 @@ struct _yΩIO_commonctx_s {
 	va_list *iva;
 	/// Copy of format string when iterating.
 	const Ychar *ifmt;
-m4_ifdef(«m4_DEBUG», «m4_dnl;
-	/// Iterator into an array of arguments sizes.
-	const size_t *argsizespnt;
-»)m4_dnl;
 };
 
 static inline _yIO_wur _yIO_nn() _yIO_rnn
 va_list *_yΩIO_commonctx_inc_va_list(struct _yΩIO_commonctx_s *commonctx,
 		size_t sizeof_realtype) {
 	(void)sizeof_realtype;
-m4_ifdef(«m4_DEBUG», «m4_dnl;
-	assert((commonctx) != NULL);
-	assert((commonctx)->argsizespnt != NULL);
-	assert(*(commonctx)->argsizespnt != 0 ||
-			!"You called va_arg too many times");
-	assert(*(commonctx)->argsizespnt == sizeof_realtype ||
-			!"You called va_arg with invalid type");
-	(void)sizeof_realtype;
-	commonctx->argsizespnt++;
-»)m4_dnl;
 	return commonctx->va;
 }
 

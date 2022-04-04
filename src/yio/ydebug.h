@@ -20,23 +20,22 @@
 # endif
 #endif
 
-m4_applyforloopdefine(1, m4_MLVLS, «m4_dnl;
-#define _yIO_ydebug_$1(m4_seqdashcomma(1, $1)) \
-			m4_forloopdashX(1, $1,
-			«#X"=", X»,
-			«, " ", \
-			»)
-»)m4_dnl;
-#define _yIO_ydebug(m4_seqdashcomma(1, m4_MLVLS), N, ...)  \
+{% for I in j_range(j_MLVLS) %}
+#define _yIO_ydebug_{{I}}({{j_seqdashcomma(I)}}) \
+	{% for J in j_range(I) %}
+		#_{{J}}"=", _{{J}}{% if not loop.last %}, " ", \{% endif +%}
+	{% endfor %}
+{% endfor %}
+#define _yIO_ydebug({{j_seqdashcomma(j_MLVLS)}}, N, ...)  \
 		_yIO_ydebug_##N
 
 
 #define ydebug(...) \
 	yfprint(stderr, \
 			__FILE__, (char)':', __LINE__, (char)':', _yIO_DEBUG_FUNCTION, (char)':', (char)' ', \
-			_yIO_ydebug(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(__VA_ARGS__), (char)'\n')
+			_yIO_ydebug(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})(__VA_ARGS__), (char)'\n')
 #define ydebugil(...)  \
 	yfprint(stderr, \
-			_yIO_ydebug(__VA_ARGS__, m4_seqcomma(m4_MLVLS, 0))(__VA_ARGS__), (char)'\n')
+			_yIO_ydebug(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})(__VA_ARGS__), (char)'\n')
 
 #endif

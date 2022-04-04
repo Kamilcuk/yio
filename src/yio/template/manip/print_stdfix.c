@@ -14,15 +14,12 @@
 #include "../../private/yio_stdfix.h"
 #include "../../private/yio_stdfix_strfrom.h"
 
-m4_divert(-1)
-// «m4_stdfix_types»
-m4_include(«yio/private/yio_stdfix.h»)
-m4_divert(0)m4_dnl;
+{% from "yio/private/yio_stdfix.h" import j_STDFIX %}
 
-m4_applyforeachdefine((m4_stdfix_types), «m4_dnl;
-
+{% call j_FOREACHAPPLY(j_STDFIX) %}
+#line
 int _yΩIO_print_$3(yπio_printctx_t *t) {
-	const _yIO_TYPE_$3 v = yπio_printctx_va_arg(t, _yIO_TYPE_$3);
+	const _yIO_STDFIX_$3 v = yπio_printctx_va_arg(t, _yIO_STDFIX_$3);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
 	struct yπio_printfmt_s *pf = yπio_printctx_get_fmt(t);
@@ -34,7 +31,6 @@ int _yΩIO_print_$3(yπio_printctx_t *t) {
 	_yIO_CACHE_AUTO_FREE(_buf, result, length);
 	return err;
 }
-
-»)m4_dnl;
+{% endcall %}
 
 #endif // _yIO_HAS_STDFIX_TYPES

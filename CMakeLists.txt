@@ -154,46 +154,10 @@ if(YIO_DEV)
 
 endif(YIO_DEV)
 
-######################################################################
-
 find_library(UNISTRING_LIB
 	NAMES unistring
 	DOC "Path to unistring library"
 )
-
-######################################################################
-
-#add_compile_options(-ffunction-sections -fdata-sections)
-#add_link_options(-Wl,--gc-sections)
-
-include(k/m4)
-m4_add_options(
-	--fatal-warnings
-	--fatal-warnings
-	# pass context
-	-D m4_SRCDIR=${SRCDIR}
-	-D m4_GENDIR=${GENDIR}
-)
-if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
-	m4_add_options(-D m4_DEBUG=1)
-else()
-	m4_add_options(-D m4_NDEBUG=1 -D m4_RELEASE=1)
-endif()
-m4_add_include_directories(
-	${CMAKE_CURRENT_SOURCE_DIR}/m4
-	# Note: SRCDIR is included, so I can do `m4_include(yio/blabla)`.
-	${SRCDIR}
-)
-
-m4_add_files(
-	# Always load library.
-	${CMAKE_CURRENT_SOURCE_DIR}/m4/lib.m4
-	# Load our configuration.
-	# Note - file is generated from src/CMakeLists.txt
-	${CMAKE_CURRENT_BINARY_DIR}/src/m4gen/yio_config.m4
-)
-
-######################################################################
 
 get_directory_property(dir_prop_COMPILE_OPTIONS COMPILE_OPTIONS)
 get_directory_property(dir_prop_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
@@ -280,9 +244,11 @@ endforeach()
 
 add_subdirectory(src)
 
+if(0)
 if(YIO_DEV OR (YIO_BUILD_TESTING AND BUILD_TESTING))
 	include(CTest)
   add_subdirectory(test)
+endif()
 endif()
 
 

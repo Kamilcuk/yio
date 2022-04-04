@@ -6,17 +6,16 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#pragma once
 #include "../yio_config.h"
 #include <stddef.h>
 
-m4_applysync(«(
-			(f), (d), (l),
-			(d32), (d64), (d128),
-)», «
-
+{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
+#line
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
 #endif
+{% if V.0 in ["f", "d", "l", "d32", "d64", "d128"] %}
 #if _yIO_HAS_FLOAT$1
 
 /**
@@ -36,20 +35,8 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 #else
 #define _yIO_has_float_printf$1  0
 #endif
-
-»)
-
-m4_applysync(«(
-		(f16), (f32), (f64), (f128),
-		(f32x), (f64x), (f128x),
-		(d32x), (d64x), (d128x),
-)»,«
-#ifndef _yIO_HAS_FLOAT$1
-#error  _yIO_HAS_FLOAT$1
-#endif
-#if _yIO_HAS_FLOAT$1
+{% else %}
 #define _yIO_has_float_printf$1 0
-#endif
-»)
-
+{% endif %}
+{% endcall %}
 

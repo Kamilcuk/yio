@@ -10,12 +10,8 @@
 #include "../yio_config.h"
 #include <stddef.h>
 
-m4_applysync(«(
-			(f), (d), (l),
-			(f16), (f32), (f64), (f128),
-			(f32x), (f64x), (f128x),
-			(d32), (d64), (d128),
-)», «
+
+{% call j_FOREACHAPPLY(j_FLOATS) %}
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -46,4 +42,4 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 // strfrom themselves.
 #define _yIO_has_float_strfrom$1  1
 
-»);
+{% endcall %}
