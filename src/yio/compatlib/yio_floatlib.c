@@ -52,9 +52,7 @@ static inline void floaterror(const char *func) {
 
 /* ------------------------------------------------------------------------- */
 
-{% from "library.jinja" import j_FLOATS %}
-{% for I in j_FLOATS %}
-	{% call j_APPLY(I, "" if I == "d" else I) %}
+{% for V in j_FLOATS %}{% call j_APPLY(V.0, V.math, V.strto) %}
 #line
 
 #ifndef _yIO_HAS_FLOAT$1
@@ -155,15 +153,14 @@ weak int strfrom$1(char *restrict str, size_t n, const char *restrict format, _y
 	return -1;
 }
 
-_yIO_FLOAT$1 strto$1(const char *restrict str, char **restrict pnt);
-weak _yIO_FLOAT$1 strto$1(const char *restrict str, char **restrict pnt) {
+_yIO_FLOAT$1 strto$3(const char *restrict str, char **restrict pnt);
+weak _yIO_FLOAT$1 strto$3(const char *restrict str, char **restrict pnt) {
 	errno = ENOSYS;
 	return -1;
 }
 
 #endif // _yIO_HAS_FLOAT$1
 
-	{% endcall %}
-{% endfor %}
+{% endcall %}{% endfor %}
 
 

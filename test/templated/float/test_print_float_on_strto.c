@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-m4_syncline(1)m4_dnl;
 #include <yio_test.h>
 #include <math.h>
 #include <assert.h>
@@ -60,8 +59,8 @@ static const struct formats_s formats[] = {
 			diff, diffatmost
 
 
-m4_applyforeachdefine(((f),(d),(l),),
-m4_syncline(1)«m4_dnl;
+{% call j_FOREACHAPPLY(["f", "d", "l"]) %}
+#line
 
 #ifndef _yIO_HAS_FLOAT$1
 #error
@@ -201,7 +200,8 @@ static void test_floats_$1(void) {
 
 #endif
 
-») m4_syncline(1)m4_dnl;
+{% endcall %}
+#line
 
 int main() {
 	// let newlib initialize

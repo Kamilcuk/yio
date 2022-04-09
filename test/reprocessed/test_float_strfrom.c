@@ -33,7 +33,8 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 	return abs(*buf_last_digit - *valstr_last_digit) <= 1;
 }
 
-m4_applysync(«((f),(d),(l))», «
+{% call j_FOREACHAPPLY(["f", "d", "l"]) %}
+#line
 
 #ifndef _yIO_HAS_FLOAT$1
 #error  _yIO_HAS_FLOAT$1
@@ -156,7 +157,7 @@ void _yIO_run_tests_print_float_custom$1(void) {
 
 #endif
 
-»);
+{% endcall %}
 
 int main() {
 #ifdef __GLIBC__

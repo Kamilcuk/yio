@@ -63,10 +63,19 @@ foreach(source IN LISTS _srcs)
 	if(source MATCHES "yio/template/.*")
 		foreach(mode IN ITEMS yio ywio yuio yc16io)
 			string(REGEX REPLACE "template" "${mode}" "_tmp" "${_output}")
-      list(APPEND _gensrcs ${_tmp})
+			jinja_generate(
+				SOURCE ${source}
+				OUTPUT ${GENDIR}/${_tmp}
+				--mode ${mode}
+			)
+			list(APPEND _gensrcs ${_tmp})
 			list(APPEND _${mode}_gensrcs "${_tmp}")
 		endforeach()
 	else()
+		jinja_generate(
+			SOURCE ${source}
+			OUTPUT ${GENDIR}/${_output}
+		)
 		list(APPEND _gensrcs ${_output})
 	endif()
 endforeach()
@@ -98,7 +107,7 @@ function(gen_list_exclude result listin listexclude)
 	endforeach()
 	set(${result} "${tmp}" PARENT_SCOPE)
 endfunction()
-file(GLOB_RECURSE files RELATIVE ${GENDIR} ${GENDIR}/*.c ${GENDIR}/*.h ${GENDIR}/*.m4)
+file(GLOB_RECURSE files RELATIVE ${GENDIR} ${GENDIR}/*.c ${GENDIR}/*.h)
 gen_list_exclude(files_not_in_gensrcs files _gensrcs)
 if(files_not_in_gensrcs)
 	foreach(ii IN LISTS files_not_in_gensrcs)
@@ -112,26 +121,6 @@ set(_genabssrcs)
 foreach(ii IN LISTS _gensrcs)
 	list(APPEND _genabssrcs "${GENDIR}/${ii}")
 endforeach()
-
-find_package(Python3 COMPONENTS Interpreter REQUIRED)
-add_custom_command(
-	COMMENT "Preprocess the sources"
-	COMMAND
-		${Python3_EXECUTABLE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/preprocess.py
-		-I "${SRCDIR}"
-		-O "${GENDIR}"
-		-D "j_MLVLS=${YIO_M4_MLVLS}"
-		-D "j_SLOTS_END=${YIO_M4_SLOTS_END}"
-		-C "${CMAKE_CURRENT_BINARY_DIR}/jinjacache"
-    --debug
-	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/preprocess.py
-		${CMAKE_CURRENT_SOURCE_DIR}/library.jinja
-		${_srcs}
-	OUTPUT
-		${_genabssrcs}
-)
 
 set(_YIO_GEN_FILE ${CMAKE_CURRENT_BINARY_DIR}/yio_generated.stamp CACHE INTERNAL "")
 add_custom_command(

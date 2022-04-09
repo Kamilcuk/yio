@@ -12,11 +12,6 @@
 #error leaked stdfix.h to public headers
 #endif
 
-m4_divert(-1)
-// «m4_stdfix_types»
-m4_include(«yio/private/yio_stdfix.h»)
-m4_divert(0)m4_dnl;
-
 int main() {
 	{
 		const short _Fract a = 0.123456789;

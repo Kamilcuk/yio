@@ -25,9 +25,9 @@
  * @param function_arg function that get's what printing function to choose for argument
  */
 #}
-{% macro j_yio_macros_funcs(A, B) -%}
-	_yIO_IFBA62A_IN(_yIO_ESC {{A}})(_yIO_SECONDX, {{B}})({{A}}, _yIO_FIRST _yIO_FIRST {{A}}),
-{%- endmacro %}
+{% macro j_yio_macros_funcs() -%}{% call j_APPLY(*varargs) -%}
+	_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_SECONDX, $2)($1, _yIO_FIRST _yIO_FIRST $1),
+{%- endcall %}{%- endmacro %}
 
 {#
 /**
@@ -38,7 +38,7 @@
  * @param _i Argument to apply the transofrmation on
  */
 #}
-{% macro j_yio_macros_gen_args(J) -%}{% call j_APPLY(J) -%}
+{% macro j_yio_macros_gen_args() -%}{% call j_APPLY(*varargs) -%}
 	_yIO_IFBA62A_IN(_yIO_ESC $1)(_yIO_FORWARD_XFROMSECOND, _yIO_PRECOMMAFIRST)($1, _yIO_ESC _yIO_FIRST $1)
 {%- endcall %}{%- endmacro %}
 

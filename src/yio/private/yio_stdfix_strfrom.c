@@ -26,7 +26,7 @@ const char *_yIO_stdfix_strfrom_i_to_c(bool upper) {
 	return upper ? _yIO_stdfix_strfrom_i_to_c_HEX : _yIO_stdfix_strfrom_i_to_c_hex;
 }
 
-{% call j_FOREACHAPPLY([8, 16, 32, 64]) %}
+{% call(V) j_FOREACHAPPLY([8, 16, 32, 64]) %}
 #line
 #define TYPEUINT  uint_least$1_t
 
@@ -62,7 +62,7 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 		} else {
 			// a little bit of a hack to print it on newlib-nano
 			// fbit is going to be max 32 anyway
-			typedef m4_ifelse(«$1», «64», «uint32_t», «uint$1_t») uint_32_when_64_otherwise_type_t;
+			typedef {% if V == 64 %}uint32_t{% else %}uint$1_t{% endif %} uint_32_when_64_otherwise_type_t;
 			const uint_32_when_64_otherwise_type_t integer_part = v >> fbit;
 			// The + 0 promotes integer_part to an integer type, so it isn't detected as (char)
 			err = _yIO_res_yprintf(o, "{:d}", integer_part + 0);

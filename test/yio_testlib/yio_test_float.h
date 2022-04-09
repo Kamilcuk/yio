@@ -18,11 +18,12 @@
 #pragma warning disable 1188
 #endif
 
-m4_applyforeachdefine(«(
-		(f, ,  FLT, F),
-		(d, ,  DBL,  ),
-		(l, , LDBL, L),
-)», m4_syncline(1)«m4_dnl;
+{% call j_FOREACHAPPLY([
+		["f", "",  "FLT", "F"],
+		["d", "",  "DBL",  ""],
+		["l", "", "LDBL", "L"],
+	]) %}
+#line
 
 #ifndef _yIO_HAS_FLOAT$1
 #error
@@ -208,4 +209,4 @@ static const struct _yIO_astrfroms$1_s  _yIO_astrfroms$1[] = {
 
 #endif
 
-»)
+{% endcall %}

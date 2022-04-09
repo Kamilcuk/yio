@@ -7,7 +7,6 @@ endif()
 
 include(k/subdirlist)
 include(k/test_extract_properties_from_file)
-include(k/redirectstdin)
 
 set(ENV{LC_ALL} "en_US.utf-8")
 
@@ -32,9 +31,22 @@ set(YIO_TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 # Then read properties of the test from propertiesfile
 function(yio_add_test name file)
 
+	# unicode tests need unicode support
+	if(NOT _yIO_HAS_UCHAR_H AND (file MATCHES "yui" OR file MATCHES "yc16io"))
+    return()
+	endif()
+	# stdfix are run only if we have stdfix
+	if(NOT _yIO_HAS_STDFIX_TYPES AND file MATCHES "stdfix")
+    return()
+	endif()
+
+  string(REPLACE "/" "_" name "${name}")
+  string(REPLACE "\\" "_" name "${name}")
+  string(REGEX REPLACE "\\..*$" "" name "${name}")
+
 	# message(STATUS "Adding test ${name} ${file}")
 	add_executable(${name} ${file})
-	target_link_libraries(${name} PRIVATE _yio_testlib m)
+	target_link_libraries(${name} PRIVATE yio_testlib m)
 	add_dependencies(build_tests ${name})
 
 	set(realfile "${file}")
@@ -43,42 +55,13 @@ function(yio_add_test name file)
 	endif()
 
 	if(NOT realfile STREQUAL "")
-		file(STRINGS ${realfile} input REGEX "^// INPUT ")
-
-		if(NOT input)
-			add_test(NAME ${name} COMMAND ${name})
-			set_tests_properties(${name} PROPERTIES LABELS normal)
-		else()
-			string(REGEX REPLACE "^[ \t]*// INPUT " "" input "${input}")
-			string(REGEX REPLACE ";[ \t]*// INPUT " "\n" input "${input}")
-
-			set(tmp)
-			if(DEFINED CMAKE_CROSSCOMPILING_EMULATOR)
-				set(tmp "${CMAKE_CROSSCOMPILING_EMULATOR}")
-			endif()
-			add_test(NAME ${name}
-        COMMAND
-          ${CMAKE_COMMAND}
-          -P "${REDIRECTSTDIN_CMAKE}"
-          "${input}"
-          ${tmp} "$<TARGET_FILE:${name}>"
-      )
-		endif()
+		add_test(NAME ${name} COMMAND ${name})
+		set_tests_properties(${name} PROPERTIES LABELS normal)
 		set_property(TEST ${name} APPEND PROPERTY TIMEOUT 10)
-
 		test_extract_properties_from_file(${name} ${name} ${realfile})
 	else()
 		add_test(NAME ${name} COMMAND ${name})
 		set_tests_properties(${name} PROPERTIES LABELS normal)
-	endif()
-
-	# unicode tests need unicode support
-	if(NOT _yIO_HAS_UCHAR_H AND (file MATCHES "yui" OR file MATCHES "yc16io"))
-		set_property(TEST ${name} PROPERTY DISABLED TRUE)
-	endif()
-	# stdfix are run only if we have stdfix
-	if(NOT _yIO_HAS_STDFIX_TYPES AND file MATCHES "stdfix")
-		set_property(TEST ${name} PROPERTY DISABLED TRUE)
 	endif()
 
 	set_from_env(YIO_STEST)
@@ -139,26 +122,12 @@ endforeach()
 list(REMOVE_DUPLICATES _sources)
 list(SORT _sources)
 list(FILTER _sources EXCLUDE REGEX "ywio") # these are not working yet
-if(NOT _yIO_HAS_STDFIX_TYPES)
-	list(FILTER _sources EXCLUDE REGEX "stdfix")
-endif()
 # list(FILTER _sources INCLUDE REGEX "examples")
 # list(FILTER _sources INCLUDE REGEX "simple/")
 
 foreach(source IN LISTS _sources)
 	file(RELATIVE_PATH sourcenice "${CMAKE_CURRENT_SOURCE_DIR}" "${source}")
-
-	m4_add_command(
-		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${sourcenice}
-		SOURCE ${source}
-	)
-
-	set(name "${sourcenice}")
-	string(REPLACE "/" "_" name "${name}")
-	string(REPLACE "\\" "_" name "${name}")
-	string(REGEX REPLACE "\\..*$" "" name "${name}")
-
-	yio_add_test("${name}" "${CMAKE_CURRENT_BINARY_DIR}/${sourcenice}" "${source}")
+	yio_add_test("${sourcenice}" "${source}")
 endforeach()
 
 ######################################################################################

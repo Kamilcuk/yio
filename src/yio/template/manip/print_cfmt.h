@@ -24,9 +24,9 @@ int _yΩIO_print_cfmt(yπio_printctx_t *t);
 int _yΩIO_print_cfmt(yπio_printctx_t *t);
 
 
-#define _yΩIO_ypcfmt_0(fmt)                _Generic((fmt),Ychar:(fmt)),
-#define _yΩIO_ypcfmt_1(fmt, spec)          _Generic((fmt),Ychar:(fmt)), _Generic((spec),int:(spec))
-#define _yΩIO_ypcfmt_2(fmt, spec, spec2)   _Generic((fmt),Ychar:(fmt)), _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
+#define _yΩIO_ypcfmt_0(fmt)                ((void)_Generic((fmt),const Ychar*:1,Ychar*:1),(fmt))
+#define _yΩIO_ypcfmt_1(fmt, spec)          ((void)_Generic((fmt),const Ychar*:1,Ychar*:1),(fmt)), _Generic((spec),int:(spec))
+#define _yΩIO_ypcfmt_2(fmt, spec, spec2)   ((void)_Generic((fmt),const Ychar*:1,Ychar*:1),(fmt)), _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
 #define _yΩIO_ypcfmt_N(_0,_1,_2,N,...)  _yΩIO_ypcfmt_##N
 /**
  * Format output by reading C format string.

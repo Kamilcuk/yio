@@ -69,7 +69,7 @@ _yIO_FLOAT$1 frexp$2(_yIO_FLOAT$1, int *);
  * @define _yIO_frexp2$1
  * Like frexp(), but always with base 2.
  */
-{% if varargs.3 %}
+{% if varargs.3 is defined %}
 #line
 _yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1, int *);
 {% else %}
@@ -82,7 +82,7 @@ _yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1, int *);
  * @define _yIO_frexp10$1
  * Like frexp(), but always with base 10.
  */
-{% if varargs.3 %}
+{% if varargs.3 is defined %}
 #line
 #define _yIO_frexp10$1  frexp$2
 {% else %}

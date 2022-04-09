@@ -21,6 +21,6 @@ foreach(i IN ITEMS
 endforeach()
 target_link_libraries(correct_function_is_chosen PRIVATE
 	yio
-	_yio_testlib
+	yio_testlib
 )
 add_test(NAME correct_function_is_chosen COMMAND correct_function_is_chosen)

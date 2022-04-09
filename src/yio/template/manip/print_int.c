@@ -40,9 +40,10 @@ int _yΩIO_printint_to_radix(Ychar type) {
 
 static inline
 const Ychar *_yΩIO_printint_to_fmt(Ychar type) {
-	return Yisupper(type) ?
-			Yc("0123456789ABCDEF") :
-			Yc("0123456789abcdef");
+	if (type == Yc('x')) {
+		return Yc("0123456789abcdef");
+	}
+	return Yc("0123456789ABCDEF");
 }
 
 {% call(V) j_FOREACHAPPLY([
@@ -58,7 +59,7 @@ const Ychar *_yΩIO_printint_to_fmt(Ychar type) {
 	["u__int128", "unsigned __int128", "_yIO_HAS_INT128"],
 	]) %}
 
-{% if V.3 %}
+{% if V.2 is defined %}
 #line
 #ifndef $3
 #error
@@ -71,10 +72,6 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 	$2 arg = yπio_printctx_va_arg_num(t, $2);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-
-	Ychar res[sizeof($2) * CHAR_BIT + 1] = {0};
-	Ychar * const res_end = res + sizeof(res)/sizeof(*res);
-	Ychar * num = res_end;
 	const Ychar type = yπio_printctx_get_fmt(t)->type;
 	const $2 radix = _yΩIO_printint_to_radix(type);
 	const Ychar *format = _yΩIO_printint_to_fmt(type);
@@ -88,7 +85,10 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 			arg < 0;
 	{% endif %}
 #line
-	assert(res != num);
+
+	Ychar res[sizeof($2) * CHAR_BIT + 1] = {0};
+	Ychar *const res_end = res + sizeof(res)/sizeof(*res);
+	Ychar *num = res_end;
 	const $2 tmp = arg % radix;
 	(--num)[0] = format[negative ? -tmp : tmp];
 	if (arg /= radix) {
@@ -100,10 +100,10 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 		} while (arg /= radix);
 	}
 	const size_t length = res_end - num;
-	return yπio_printctx_putπ_number(t, num, length, negative);
+	return yπio_printctx_putπ_number(t, num, length, !negative);
 }
 
-{% if V.3 %}
+{% if V.2 is defined %}
 #endif // $3
 {% endif %}
 {% endcall %}

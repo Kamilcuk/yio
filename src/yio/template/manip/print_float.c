@@ -15,7 +15,7 @@
 #define _yIO_FLOAT$3  double
 #endif
 
-// m4_generate_print_floats(type, suffix, promoted_type<for float it's double> )
+// j_generate_print_floats(type, suffix, promoted_type<for float it's double> )
 {% macro j_generate_print_floats() %}{% call(V) j_APPLY(*varargs) %}
 #line
 {% if V.0 != "f" %}

@@ -55,13 +55,17 @@
 	]
 %}
 
-{% macro j_APPLY_IN(STR, I) %}
+{% macro j_APPLY_IN(STR, II) %}
 	{% set v = {"v": STR } %}
-	{% if I is string or I is integer %}
-		{% set _ = v.update({"v": v.v | replace("$1", I|string) }) %}
-	{% elif I is sequence %}
-		{% for J in I %}
-			{% set _ = v.update({"v": v.v | replace("$" + loop.index|string, J) }) %}
+	{% if II is string or II is integer %}
+		{% set _ = v.update({"v": v.v | replace("$1", II|string) }) %}
+	{% elif II is mapping %}
+		{% for JJ in II %}
+			{% set _ = v.update({"v": v.v | replace("$" + loop.index|string, II[JJ]) }) %}
+		{% endfor %}
+	{% elif II is iterable %}
+		{% for JJ in II %}
+			{% set _ = v.update({"v": v.v | replace("$" + loop.index|string, JJ) }) %}
 		{% endfor %}
 	{% else %}
 		ERROR
@@ -75,7 +79,7 @@
 
 {% macro j_FOREACHAPPLY(array) %}
 	{% if array is undefined %}
-		{{ fatal("array undefined") }}
+		{{ fatal("array undefined: " + array|string) }}
 	{% endif %}
 	{% for I in array %}
 		{% set STR =
@@ -85,24 +89,6 @@
 		{{- j_APPLY_IN(STR, I) -}}
 	{% endfor %}
 {% endmacro %}
-
-{# suffix #}
-{% set j_FLOATS = [
-	[ "f", ],
-	[ "d", ],
-	[ "l", ],
-	[ "f16", ],
-	[ "f32", ],
-	[ "f64", ],
-	[ "f128", ],
-	[ "f32x", ],
-	[ "f64x", ],
-	[ "f128x", ],
-	[ "d32", ],
-	[ "d64", ],
-	[ "d128", ],
-	]
-%}
 
 {% macro j_FUNC(replacefor) %}
 	{{- replacefor | replace('{}', caller()) -}}

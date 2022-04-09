@@ -20,7 +20,7 @@
 
 /**
  * Copies the formatting string that will be passed to strftime
- * in such way that {{ and }} sequences are transformed into { and }.
+ * in such way that \{\{ and \}\} sequences are transformed into \{ and \}.
  * A freestanding } ends the formatting string.
  * A freestanding { is a formatting error.
  * @param dest Either a NULL or a valid pointer to allocated memory enough
@@ -36,7 +36,7 @@ int _yΩIO_print_tm(yπio_printctx_t *t);
 
 int _yΩIO_print_time_gmtime(yπio_printctx_t *t);
 #define yπptgmtime(time_t_variable) \
-		yiocb(_Generic((time_t_variable) \
+		yiocb(_Generic((time_t_variable), \
 		time_t: _yΩIO_print_time_gmtime \
 		),(time_t_variable))
 
