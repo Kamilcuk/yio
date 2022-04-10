@@ -149,8 +149,8 @@ static void fmc_unhook(void) {}
 __attribute__((__format__(__printf__, 1, 2)))
 #endif
 static void _fmc_printf(const char *fmt, ...) {
-	int ret = 0;
 	FMC_IGNORE_BLOCK() {
+		int ret = 0;
 		ret = fflush(stdout);
 		assert(ret == 0); (void)ret;
 		ret = fflush(stderr);

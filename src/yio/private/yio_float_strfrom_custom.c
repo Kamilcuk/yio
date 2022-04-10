@@ -42,6 +42,7 @@
 	if (!(expr)) { \
 		fprintf(stderr, "%s:%d: ERROR: %s failed: " fmt "\n", \
 				__func__, __LINE__, #expr, ##__VA_ARGS__); \
+		void abort(void); \
 		abort(); \
 	} \
 } while (0)
@@ -107,8 +108,8 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 
 	const int baseint = dec ? 10 : 16;
 	ASSERTMSG(0 <= digit && digit < baseint,
-			"digit=%d dec=%d is_last=%d val=%La\n",
-			digit, dec, is_last, (long double)*val
+			"digit=%d dec=%d is_last=%d val=%a\n",
+			digit, dec, is_last, (float)*val
 	);
 	if (!(0 <= digit && digit <= baseint)) {
 		_yIO_res_end_err(v);

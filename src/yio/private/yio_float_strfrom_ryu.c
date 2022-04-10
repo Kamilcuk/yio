@@ -39,6 +39,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef _yIO_USE_STRFROM_RYU
+#error _yIO_USE_STRFROM_RYU
+#endif
+#if _yIO_USE_STRFROM_RYU
+
 /* ------------------------------------------------------------------------- */
 
 // https://github.com/ulfjack/ryu/blob/master/ryu/ryu.h
@@ -154,3 +159,4 @@ int _yIO_float_astrfrom_ryu$1(char ** const resultp, size_t * const lengthp,
 
 #endif
 {% endcall %}
+#endif

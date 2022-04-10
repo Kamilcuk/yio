@@ -94,6 +94,8 @@ endif()
 
 set(_yIO_HAS_FLOAT_H_COMMENT "Do we have float.h?")
 yio_config_gen_check_include_file("float.h" _yIO_HAS_FLOAT_H)
+set(_yIO_HAS_FENV_H_COMMENT "Do we have fenv.h?")
+yio_config_gen_check_include_file("float.h" _yIO_HAS_FENV_H)
 
 yio_config_gen_check_type_exists(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
 yio_config_gen_check_symbol_exists(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)
@@ -113,6 +115,11 @@ if(UNISTRING_LIB)
 	set(_yIO_HAS_UNISTRING 1)
 endif()
 yio_config_gen_add(_yIO_HAS_UNISTRING)
+
+set(_yIO_USE_STRFROM_PRINTF 1)
+yio_config_gen_add(_yIO_USE_STRFROM_PRINTF)
+set(_yIO_USE_STRFROM_RYU 1)
+yio_config_gen_add(_yIO_USE_STRFROM_RYU)
 
 #########################################################################
 # handle and detect _floats

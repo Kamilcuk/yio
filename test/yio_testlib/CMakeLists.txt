@@ -18,6 +18,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio
   m
 )
+add_dependencies(${PROJECT_NAME} yio_preprocess)
 find_library(DFP dfp)
 if(DFP)
 	target_link_libraries(${PROJECT_NAME} PUBLIC

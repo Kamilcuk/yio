@@ -53,12 +53,12 @@ R ?=
 
 ifeq ($(SYSTEM),)
 else ifeq ($(SYSTEM),arm)
-CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/arm-none-eabi-gcc.cmake
+CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake
 else ifeq ($(SYSTEM),arm2)
-CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/arm-none-eabi-gcc.cmake
+CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake
 CMAKE_C_FLAGS += -mthumb -march=armv7e-m -mfloat-abi=soft -g -Os -ffunction-sections -fdata-sections -flto
 else ifeq ($(SYSTEM),sdcc)
-CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/cmake/Toolchain/sdcc.cmake
+CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/kcmakelib/cmake/Toolchain/sdcc.cmake
 else
 $(error SYSTEM - invalid value)
 endif
@@ -225,6 +225,12 @@ CPPCHECK_FLAGS_INIT = \
 	--suppress=unmatchedSuppression \
 	--suppress=unreadVariable \
 	--suppress=unusedFunction \
+	--suppress="*:$(PWD)/src*" \
+	--suppress="*:src*" \
+	--suppress="*:$(PWD)/test/templated*" \
+	--suppress="*:test/templated*" \
+	--suppress="*:$(PWD)/test/reprocessed*" \
+	--suppress="*:test/reprocessed*" \
 	--library=posix \
 	--report-progress  \
 	-x c

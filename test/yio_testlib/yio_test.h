@@ -57,7 +57,7 @@ bool _yIO_test_is_in_valgrind(void);
 	_yIO_IN_TEST_MSG(flag, expr, exprstr, __VA_ARGS__)
 #define _yIO_IN_TEST_N(_1,_2,_3,_4,_5,_6,_7,_8,_9, N, ...)  _yIO_IN_TEST_##N
 #define _yIO_IN_TEST(flag, expr, exprstr, ...)  \
-	_yIO_IN_TEST_N(__VA_ARGS__, 2,2,2,2,2,2,2,2,1)(flag, expr, exprstr, __VA_ARGS__)
+	_yIO_IN_TEST_N(0, ##__VA_ARGS__, 2,2,2,2,2,2,2,2,1)(flag, expr, exprstr, ##__VA_ARGS__)
 
 /**
  * @def _yIO_TEST(expr, ...)
@@ -67,17 +67,17 @@ bool _yIO_test_is_in_valgrind(void);
  * If expr fails, then an error message is printed and
  * process will exit with EXIT_FAILURE.
  */
-#define _yIO_TEST(expr, ...)  _yIO_IN_TEST(0, expr, #expr, __VA_ARGS__)
+#define _yIO_TEST(expr, ...)  _yIO_IN_TEST(0, expr, #expr, ##__VA_ARGS__)
 
 /**
  * Same as _yIO_TEST but doesn't fail the process
  */
-#define _yIO_TEST_NOFAIL(expr, ...)  _yIO_IN_TEST(_yIO_TEST_FLAG_NOFAIL, expr, #expr, __VA_ARGS__)
+#define _yIO_TEST_NOFAIL(expr, ...)  _yIO_IN_TEST(_yIO_TEST_FLAG_NOFAIL, expr, #expr, ##__VA_ARGS__)
 
 /**
  * Same as _yIO_TEST but terminates immiedately in case of failure.
  */
-#define _yIO_ASSERT(expr, ...)  _yIO_IN_TEST(_yIO_TEST_FLAG_ASSERT, expr, #expr, __VA_ARGS__)
+#define _yIO_ASSERT(expr, ...)  _yIO_IN_TEST(_yIO_TEST_FLAG_ASSERT, expr, #expr, ##__VA_ARGS__)
 
 /**
  * @see _yIO_TEST

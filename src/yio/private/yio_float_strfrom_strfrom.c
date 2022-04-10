@@ -80,7 +80,7 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 	const int len = strfrom$1(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 	if (len <= 0) {
 		// this is not possible
-		return -ENOSYS;
+		return -YIO_ERROR_STRFROM;
 	}
 	if ((size_t)len < _yIO_res_size(v)) {
 		_yIO_set_used(v, len);

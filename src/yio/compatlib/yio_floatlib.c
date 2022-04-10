@@ -27,6 +27,11 @@
 #endif
 #if _yIO_HAS_FLOAT_H
 #include <float.h>
+#endif
+#ifndef _yIO_HAS_FENV_H
+#error
+#endif
+#if _yIO_HAS_FENV_H
 #include <fenv.h>
 #endif
 #include <stdlib.h>
@@ -38,12 +43,16 @@
 #define weak  __attribute__((__weak__))
 #endif
 
+#ifndef ENOSYS
+#define	ENOSYS		38	/* Invalid system call number */
+#endif
+
 static inline void floaterror(const char *func) {
 	fprintf(stderr,
 			"yio: compatlib: Function %s is not implemented. Link with an actual implementation.\n",
 			func);
 	errno = ENOSYS;
-#if _yIO_HAS_FLOAT_H
+#if _yIO_HAS_FENV_H
 	feraiseexcept(FE_INVALID);
 #endif
 }
@@ -111,13 +120,13 @@ weak _yIO_FLOAT$1 log2$2(_yIO_FLOAT$1 x) {
 	_yIO_FLOAT$1 k = 2 * kpow;
 
 	do {
-	    n += _yIO_FLOAT_C$1(2.0);
+	    n += 2;
 	    kpow *= kpow2;
 	    dk = _yIO_FLOAT_C$1(2.0) * kpow / n;
 	    k += dk;
 	} while (fabs$2(dk) >= eps);
 
-	return dk;
+	return k;
 }
 
 #ifdef log10$2

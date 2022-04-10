@@ -20,6 +20,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef _yIO_USE_STRFROM_PRINTF
+#error _yIO_USE_STRFROM_PRINTF
+#endif
+#if _yIO_USE_STRFROM_PRINTF
+
 static inline
 void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
 		int precision, char spec, const char *pri, size_t prisize) {
@@ -96,3 +101,4 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 #endif
 
 {% endcall %}
+#endif

@@ -47,6 +47,7 @@ function(yio_add_test name file)
 	# message(STATUS "Adding test ${name} ${file}")
 	add_executable(${name} ${file})
 	target_link_libraries(${name} PRIVATE yio_testlib m)
+  add_dependencies(${name} yio_preprocess)
 	add_dependencies(build_tests ${name})
 
 	set(realfile "${file}")

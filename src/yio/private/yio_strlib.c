@@ -19,6 +19,7 @@
 #error
 #endif
 
+// {#
 #ifdef __CDT_PARSER__
 #define _yIO_strconv_str_to_πstr
 #define _yIO_strconv_wstr_to_πstr
@@ -29,6 +30,7 @@
 #define _yIO_strconv_free_c16str_to_πstr
 #define _yIO_strconv_free_ustr_to_πstr
 #endif
+// #}
 
 /* ------------------------------------------------------------------------- */
 

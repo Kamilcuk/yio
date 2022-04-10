@@ -319,9 +319,13 @@ set(_yio_sources
 	${_auto_generic_srcs}
 	yio.h
 	${_yio_gensrcs}
-	ywio.h
-	${_ywio_gensrcs}
 )
+if(_yIO_HAS_WCHAR_H)
+  list(APPEND _yio_sources
+    ywio.h
+    ${_ywio_gensrcs}
+  )
+endif()
 if(UNISTRING_LIB)
 	list(APPEND _yio_sources
 		yc16io.h
@@ -334,6 +338,7 @@ yio_add_library(yio ${_yio_sources})
 if(UNISTRING_LIB)
 	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
 endif()
+add_dependencies(yio yio_preprocess)
 
 ##################################################################################
 

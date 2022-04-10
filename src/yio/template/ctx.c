@@ -131,7 +131,6 @@ int _yΩIO_printformat_prefix__print_sign_hash(yπio_printctx_t *t,
 		const struct yπio_printfmt_s *f,
 		bool has_sign, bool has_hash, bool is_positive) {
 	if (has_sign) {
-		printf("has_sign=%d is_positive=%d f->sign=%c\n", has_sign, is_positive, f->sign);
 		const Ychar c = is_positive ? f->sign : Yc('-');
 		const int err = yπio_printctx_raw_write(t, &c, 1);
 		if (err) return err;

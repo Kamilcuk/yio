@@ -29,6 +29,16 @@ get_filename_component(SRCDIR ${CMAKE_CURRENT_SOURCE_DIR}/src ABSOLUTE)
 # Generated directory
 get_filename_component(GENDIR ${CMAKE_CURRENT_BINARY_DIR}/gen ABSOLUTE)
 
+if(CMAKE_C_COMPILER_ID MATCHES SDCC)
+  string(APPEND CMAKE_C_FLAGS " --include malloc.h ")
+  set(_yIO_USE_STRFROM_PRINTF 0 CACHE INTERNAL "")
+  set(_yIO_USE_STRFROM_RYU 0 CACHE INTERNAL "")
+  set(_yIO_HAS_FLOATd 0 CACHE INTERNAL "")
+  set(_yIO_HAS_FLOATl 0 CACHE INTERNAL "")
+  set(_yIO_HAS_WCHAR_H 0 CACHE INTERNAL "")
+  set(_yIO_HAS_UCHAR_H 0 CACHE INTERNAL "")
+endif()
+
 # YIO_DEV is internal variable set if the developer of this library is building it
 if(YIO_DEV)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
@@ -256,12 +266,12 @@ add_custom_command(
 		${Python3_EXECUTABLE}
 		-c
 		"import py_compile, sys ; py_compile.compile(sys.argv[1], cfile=sys.argv[2], doraise=True)"
-		${SRCDIR}/preprocess.py
+		"${SRCDIR}/preprocess.py"
 		"${JINJASCRIPT}"
-	DEPENDS ${SRCDIR}/preprocess.py
+	DEPENDS "${SRCDIR}/preprocess.py"
 	VERBATIM
 )
-add_custom_target(yio_jinjascript
+add_custom_target(yio_preprocess
 	DEPENDS "${JINJASCRIPT}"
 	COMMENT "jinja2: compiling preproces script target"
 )
@@ -283,27 +293,35 @@ function(jinja_generate)
   if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${A_SOURCE}")
     message(FATAL_ERROR "Source file does not exist: ${A_SOURCE}")
   endif()
+  set(debug)
+  if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
+    set(debug --debug)
+  endif()
 
 	add_custom_command(
 		OUTPUT "${A_OUTPUT}"
 		COMMENT "jinja2: ${A_SOURCE} -> ${reloutputf}"
 		COMMAND
-			${Python3_EXECUTABLE}
-			${JINJASCRIPT}
+			"${Python3_EXECUTABLE}"
+      "${SRCDIR}/preprocess.py"
 			-S "${JINJAPROJECTSRC}"
       -S "${CMAKE_CURRENT_SOURCE_DIR}"
 			-D "j_MLVLS=${YIO_MLVLS}"
 			-D "j_SLOTS_END=${YIO_SLOTS_END}"
 			--depfile "${depfile}"
 			--cachedir "${CMAKE_CURRENT_BINARY_DIR}/jinjacache"
-			--debug
+      ${debug}
 			${A_UNPARSED_ARGUMENTS}
 			"${A_SOURCE}"
 			"${A_OUTPUT}"
 		DEPFILE "${depfile}"
 		DEPENDS
-			yio_jinjascript
+      yio_preprocess
+      $<TARGET_PROPERTY:yio_preprocess,GENERATED_FILE>
+      "${SRCDIR}/preprocess.py"
+      "${JINJASCRIPT}"
 			"${A_SOURCE}"
+    VERBATIM
 	)
 endfunction()
 

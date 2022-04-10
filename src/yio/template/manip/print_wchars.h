@@ -8,6 +8,10 @@
  */
 #pragma once
 
+#ifndef _yIO_HAS_WCHAR_H
+#error _yIO_HAS_WCHAR_H
+#endif
+#if _yIO_HAS_WCHAR_H
 int _yΩIO_print_wchar(yπio_printctx_t *t);
 int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
 
@@ -30,3 +34,7 @@ int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
 
 #define _yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
 		wchar_t: _yΩIO_print_wchar,
+#else
+#define _yΩIO_PRINT_FUNC_GENERIC_WCHARS()
+#define _yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
+#endif
