@@ -24,9 +24,6 @@ NPROC = $(shell echo $$(( $$(grep -c processor /proc/cpuinfo) * 100 / 75)) )
 HELP_VAR +=~ CMAKE_BUILD_TYPE
 CMAKE_BUILD_TYPE ?= Debug
 
-HELP_VAR +=~ SYSTEM - {,arm,arm2,sdcc}
-SYSTEM ?=
-
 HELP_VAR +=~ MODE - {,coverage,sanitize}
 MODE ?=
 
@@ -51,18 +48,6 @@ R ?=
 
 ###############################################################################
 
-ifeq ($(SYSTEM),)
-else ifeq ($(SYSTEM),arm)
-CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake
-else ifeq ($(SYSTEM),arm2)
-CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake
-CMAKE_C_FLAGS += -mthumb -march=armv7e-m -mfloat-abi=soft -g -Os -ffunction-sections -fdata-sections -flto
-else ifeq ($(SYSTEM),sdcc)
-CMAKEFLAGS += -DCMAKE_TOOLCHAIN_FILE=$(PWD)/kcmakelib/cmake/Toolchain/sdcc.cmake
-else
-$(error SYSTEM - invalid value)
-endif
-
 ifeq ($(MODE),)
 else ifeq ($(MODE),coverage)
 CMAKE_C_FLAGS += -g --coverage -fprofile-abs-path
@@ -85,19 +70,20 @@ ISALPINE ?= $(shell grep -q alpine /etc/os-release 2>/dev/null && echo 1)
 ifeq ($(ISALPINE),1)
 _BCCNAME = alpine
 endif
-_BNAME = $(_BCCNAME)$(SYSTEM)$(CMAKE_BUILD_TYPE)$(shell MODE=$(MODE) && echo $${MODE^})
+_BNAME = $(_BCCNAME)$(CMAKE_BUILD_TYPE)$(shell MODE=$(MODE) && echo $${MODE^})
 HELP_VAR +=~ B - Build directory location
 B ?= _build/$(_BNAME)
 
 # Default cmake and other flags
 CMAKE_BUILD_PARALLEL_LEVEL ?= $(NPROF)
 CMAKE = $(NICE) cmake
+CTEST = $(NICE) ctest
 CMAKEFLAGS += -S.
 ifeq ($(shell hash ninja 2>&1),)
 MAKEFLAGS += --warn-undefined-variables
 CMAKEFLAGS += -GNinja
 else
-export CMAKE_BUILD_PARALLEL_LEVEL=$(CMAKE_BUILD_PARALLEL_LEVEL)
+export CMAKE_BUILD_PARALLEL_LEVEL
 endif
 ifneq ($(shell cmake --help | grep log-level),)
 CMAKEFLAGS_INIT += --log-level=TRACE
@@ -131,6 +117,11 @@ all: help
 ###############################################################################
 # Generic configure+build+test targets
 
+.run_preset:
+	$(CMAKE) --preset=$(PRESET) --log-level=TRACE
+	$(CMAKE) --build _build/$(PRESET) $(BUILDFLAGS) <&-
+	$(MAKE) testonly B=_build/$(PRESET)
+
 HELP +=~ configure - Configure the project
 configure:
 	$(CMAKE) -B$(B) $(CMAKEFLAGS) $(CONFIGFLAGS)
@@ -153,7 +144,7 @@ HELP +=~ test - Run tests using ctest
 test: build testonly
 
 testonly:
-	ulimit -c 0 ; ( cd $(B) && $(NICE) ctest --output-on-failure -j $(NPROC) $(CTESTFLAGS) $(TESTFLAGS) )
+	ulimit -c 0 ; ( cd $(B) && $(CTEST) --output-on-failure -j $(NPROC) $(CTESTFLAGS) $(TESTFLAGS) )
 
 HELP +=~ valgrind - Run tests under valgrind
 valgrind: CTESTFLAGS += -LE nomemcheck -D ExperimentalMemCheck
@@ -164,7 +155,7 @@ testone_%:
 	$(MAKE) .build_$* testonly CTESTFLAGS="-j 0 -R '^$*\$$\$$' -V"
 
 lint:
-	$(MAKE) LINT=1 CONFIGFLAGS='-D_yIO_HAS_FLOATd32=0 -D_yIO_HAS_FLOATd64=0 -D_yIO_HAS_FLOATd128=0' B=.cache/lint build
+	$(MAKE) LINT=1 CONFIGFLAGS='-D_yIO_HAS_FLOATd32=0 -D_yIO_HAS_FLOATd64=0 -D_yIO_HAS_FLOATd128=0 -D_yIO_HAS_FLOATf128=0' B=.cache/lint build
 
 ###############################################################################
 
@@ -175,7 +166,7 @@ cicd:
 	$(MAKE) test_project
 	$(MAKE) test MODE=sanitize
 	CC=clang $(MAKE) test
-	$(MAKE) SYSTEM=arm test
+	$(MAKE) arm
 	$(MAKE) gitlab_pages
 
 HELP +=~ debug - Build the project in debug mode
@@ -195,16 +186,19 @@ release_test:
 
 # Exotic Targets ##################################################
 
-coverage:
-	$(MAKE) _coverage_in MODE=coverage
-_coverage_in: CTESTFLAGS += -LE nomemcheck
-_coverage_in: CMAKEFLAGS_INIT =
-_coverage_in: CMAKEFLAGS += -UYIO_DEV -DYIO_BUILD_TESTING=1
-#_coverage_in: CMAKE_BUILD_TYPE=Release
-_coverage_in: B = _build/coverage
-_coverage_in: test _coverage_gen
-_coverage_gen: MODE=coverage
-_coverage_gen:
+arm: PRESET=arm
+arm: .run_preset
+
+arm2: PRESET=arm2
+arm2: .run_preset
+
+sdcc: PRESET=sdcc
+sdcc: .run_preset
+
+coverage: PRESET=coverage
+coverage: .run_preset coverage_gen
+coverage_gen: B=_build/coverage
+coverage_gen:
 	gcovr --print-summary --txt - --xml ./_build/cobertura-coverage.xml --json ./coverage.json --filter "$(B)/gen" --filter "src" -r . "$(B)"
 
 ###############################################################################
@@ -239,17 +233,6 @@ HELP +=~ cppcheck Run cppcheck
 cppcheck: linuxincdir = $(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
 cppcheck: release
 	nice cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
-
-###############################################################################
-# ctags
-
-ctags:
-	git ls-files -z --exclude-standard --others --cached test/ src/ | \
-	xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
-
-ctags_gen:
-	find gen/ test/ -type f -print0 | \
-	xargs -0 nice ctags --recurse --append --extras=+q --fields=+aimS --c-kinds=+p --c++-kinds=+p
 
 ###############################################################################
 

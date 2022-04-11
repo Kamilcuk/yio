@@ -62,7 +62,7 @@ j_FLOATS = [
 
 j_FLOATS = [
     # "invert" the table and replace N for 0, so it is j_FLOATS = [ {0:"f", "type": "float", etc..}, ... ]
-    (dict([(0, x[0])]) | {v: k for v, k in zip(j_FLOATS[0], x) if v != "N"})
+    {**dict([(0, x[0])]), **{v: k for v, k in zip(j_FLOATS[0], x) if v != "N"}}
     for x in j_FLOATS[1:]
 ]
 
@@ -102,6 +102,13 @@ def j_lineno():
     return j_frametemplate().get_corresponding_lineno(
         inspect.currentframe().f_back.f_lineno
     )
+
+
+def test_integer(value) -> bool:
+    """Return true if the object is an integer.
+    .. versionadded:: 2.11
+    """
+    return isinstance(value, int) and value is not True and value is not False
 
 
 ###############################################################################
@@ -328,6 +335,7 @@ def prepare_environment(args):
         kk, vv = ii.split("=", 2)
         defglobals[kk] = vv
     env.globals.update(defglobals)
+    env.tests['integer'] = test_integer
     return env
 
 

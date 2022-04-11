@@ -1,187 +1,233 @@
-# :notebook: Yio Input Output Library
+# :notebook: Yio Iconic Output library
 
-> A misplaced decimal point will always end up where it will do the greatest damage.  
+> A misplaced decimal point will always end up where it will do the greatest damage.
 > -- unknown  :fire: :ambulance:
 
-:star: `Yio Input Output` library is aiming to be python-like type-safe `printf` and `scanf` replacement for C language.
+:star: `YIO` library is aiming to be python-like type-safe `printf` replacement for C language.
 
 
 [[_TOC_]]
 
 # dev
 
-[doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/index.html) [cdash dashboard](https://cdash.karta.dyzio.pl/index.php?project=Yio)
+[doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/index.html)
 
-master: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
-devel: ![pipeline status badge](https://gitlab.com/kamcuk/yio/badges/devel/pipeline.svg)
-
-last cdash build: ![Passed tests](https://img.shields.io/badge/dynamic/json?color=blue&label=Passed%20tests&query=pass&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
-![Failed tests](https://img.shields.io/badge/dynamic/json?color=blue&label=Failed%20tests&query=fail&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
-![Tests time](https://img.shields.io/badge/dynamic/json?color=blue&label=Tests%20time&query=time&url=https%3A%2F%2Fkamcuk.gitlab.io%2Fyio%2Fbadge.json)
+master: ![pipeline master status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
+devel: ![pipeline dev status badge](https://gitlab.com/kamcuk/yio/badges/devel/pipeline.svg)
 
 # Installation
 
-### Debian
-
-```
-sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-keys 9AB6D219060C0B5B
-sudo apt-key adv -a --export 9AB6D219060C0B5B | sudo apt-key add -
-echo 'deb https://kamcuk.gitlab.io/yio/debian buster main' | sudo tee -a /etc/apt/sources.list.d/yio.list
-sudo apt-get update
-sudo apt-get install -y yio
-```
-
-### Ubuntu
-
-```
-sudo apt-key adv --keyserver hkp://pool.sks-keyservers.net --recv-keys 9AB6D219060C0B5B
-sudo apt-key adv -a --export 9AB6D219060C0B5B | sudo apt-key add -
-echo 'deb https://kamcuk.gitlab.io/yio/ubuntu focal main' | sudo tee -a /etc/apt/sources.list.d/yio.list
-sudo apt-get update
-sudo apt-get install -y yio
-
-```
-
-### Archlinux
-
-```
-sudo pacman-key --keyserver hkp://pool.sks-keyservers.net --recv-keys 9AB6D219060C0B5B
-sudo pacman-key --lsign-key 9AB6D219060C0B5B
-sudo cp /etc/pacman.conf /etc/pacman.con.backup
-printf "%s\n" '' '[yio]' 'Server = https://kamcuk.gitlab.io/yio/archlinux/$arch/' '' | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy --noconfirm yio
-```
-
-### Alpine
-
-```
-apk add -X https://kamcuk.gitlab.io/yio/alpine/ --allow-untrusted yio
-```
-
-WARNING: The following does not work, I don't know how to make it work, because the public key is wrong and I don't know how to import it or maybe sign it properly, dunno.
-
-```
-wget 'https://kamcuk.gitlab.io/yio/alpine/kamilcukrowski@gmail.com.rsa.pub' -O /etc/apk/keys/kamilcukrowski@gmail.com.rsa.pu
-echo 'https://kamcuk.gitlab.io/yio/alpine/' >> /etc/apk/repositories
-apk add yio
-```
-
 ## Build, compilation and CMake
-
-Add this repo to your project as a git submodule and add the main CMakeLists.txt as a subdirectory.
-I think this would be the preferred way to use this library.
 
 ### Build dependencies
 
-- `cmake` is used for compilation
-- `m4` is used as templating system for file generation
+- `cmake`
+- `python3` and [`jinja2`](https://pypi.org/project/Jinja2/) for templating
 - `bash` and `make` are used for various administration tasks
 
 ### Compilation and installation with CMake
 
 ```
+# Configure
 cmake -S . -B _build
-cmake --build _build --target install
+# Build
+cmake --build _build --parallel
+# Install
+cmake --build _build --target install --prefix /usr/local/lib
 ```
 
-### CMake as add subdirectory
+### CMake `add_subdirectory`
+
+Clone the repository and just do `add_subdirectory` and link with `yio` target.
+Here's an example with `FetchContent`:
 
 ```
-# Ie. clone the library your preferred way 
-if(NOT EXISTS third_party/yio)
-	execute_process(
-		COMMAND git clone https://gitlab.com/kamcuk/yio/ third_party/yio
-	)
-endif()
-
-add_subdirectory(yio)
+cmake_minimum_required(VERSION 3.11)
+project(yio_cmake_example)
+include(FetchContent)
+FetchContent_Declare(
+  yio
+  GIT_REPOSITORY https://gitlab.com/Kamcuk/yio.git
+  GIT_TAG master
+)
+FetchContent_MakeAvailable(yio)
+file(WRITE main.c [=[
+#include <yio.h>
+int main() {
+  yprintf("{}\n", 123);
+}
+]=])
+add_executable(yourtarget main.c)
 target_link_libraries(yourtarget yio)
 ```
 
-### CMake with find_package after installation
+### CMake with `find_package` after installation
 
 ```
 find_package(yio REQUIRED)
 target_link_libraries(yourtarget yio::yio)
 ```
 
-# :beginner: Examples :heart_eyes:
+## Archlinux
 
-> Chuck Norris counted to infinity... twice.  
+```
+yay -S yiolibc
+```
+
+# :notebook: Documentation
+
+> Chuck Norris counted to infinity... twice.
 > -- unknown :repeat:
 
-The following program does what you think it does:
-<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:15,endLineNumber:7,positionColumn:15,positionLineNumber:7,selectionStartColumn:15,selectionStartLineNumber:7,startColumn:15,startLineNumber:7),source:'%23include+%3Cyio.h%3E%0A%0A%23include+%3Cyio.h%3E%0Aint+main()+%7B%0A++++yprint(%22How+old+are+you%3F%5Cn%22)%3B%0A++++int+a%3B%0A++++yscan(%26a)%3B%0A++++yprint(%22You+are+%22,+a,+%22+years+old.%5Cn%22)%3B%0A%7D%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'25',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'0'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
+The project aims to implement python formatting and `std::format` formatting in C.
+See [python Format specification Mini-Language](https://docs.python.org/3/library/string.html#formatspec) and [cpprefrence standard format specification](https://en.cppreference.com/w/cpp/utility/format/formatter#Standard_format_specification).
+
+
+## :beginner: Basic functionality
+
+The library exposes it's feature using headers `yio.h`, `ywio.h`, `yc16io.h` and `yuio.h`.
+
+The heart of the library is the function `yprintf`:
 
 ```
-#include <yio.h>
-int main() {
-    yprint("How old are you?\n");
-    int a;
-    yscan(&a);
-    yprint("You are ", a, " years old.\n");
-}
+long yes_votes = 42572654;
+long no_votes = 43132495;
+double percentage = (double)yes_votes / (yes_votes + no_votes);
+yprint("{:-9} YES votes  {:2.2%}\n", yes_votes, percentage);
+// ' 42572654 YES votes  49.67%'
 ```
 
-You can change the type of `a` to `long` or `short` and both functions `yscan` and `yprint` will properly work.
-There are two "set" of functions available - one that end with `f` and other do not.
-Those that end with `f` are to be read as "yio print Format" and accept a python-like formatting string specifier:
-<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:5,endLineNumber:5,positionColumn:5,positionLineNumber:5,selectionStartColumn:5,selectionStartLineNumber:5,startColumn:5,startLineNumber:5),source:'%23include+%3Cyio.h%3E%0A%0Aint+main()+%7B%0A++++yprintf(%22%7B:%3E10%7D+%7B:%3C10%7D%5Cn%22,+%22time%22,+%22value%22)%3B%0A++++yprintf(%22%7B:%3E10%7D+%7B:%3C10%7D%5Cn%22,+(time_t)123,+456ull)%3B%0A%7D%0A%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'1'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
+Another way of printing is using the `yprint` which doesn't take format string and just prints all arguments.
 
 ```
-yprintf("{:>10} {:<10}\n", "time", "value");
-yprintf("{:>10} {:<10}\n", (time_t)123, 456ull);
+int year = 2016;
+const char *event = "Referendum";
+yprint("Results of the ", event, " ", event, "\n");
+// 'Results of the 2016 Referendum'
 ```
 
-In addition the library also accepts a _custom modifier_ functions.
-Such function are specially crafted and can affect the formatting output of the function.
-They are used with no-`f`-suffix-version of the function to specify formatting options, or to specify explicit type to print the variable witt.
-They can also accepts a formatting modifiers:
-<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:77,endLineNumber:4,positionColumn:77,positionLineNumber:4,selectionStartColumn:77,selectionStartLineNumber:4,startColumn:77,startLineNumber:4),source:'%23include+%3Cyio.h%3E%0Aint+main()+%7B%0A++++yprint(yppfmt(%22%7B:%3E10%7D%22),+%22time%22,+%22+%22,+yppfmt(%22%7B:%3C10%7D%22),+%22value%22,+%22%5Cn%22)%3B%0A++++yprint(yppfmt(%22%7B:%3E10%7D%22),+(time_t)123,+%22+%22,+yppfmt(%22%7B:%3C10%7D%22),+456,+%22%5Cn%22)%3B%0A%7D%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'25',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'0'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
+These are two main functions. Additionally, various other variations are provided:
+
+- `ybprint`/`ybprintf` - functions that take custom output callback
+- `yfprint[f]?` - functions for printing into `FILE*`
+- `yaprint[f]?` - functions just like `aprintf`, for allocating memory
+
+Additionally:
+
+- `yreaprint[f]?` - reallocate given memory
+- `yformat[f]?` - just like `yaprintf`, but only return `NULL` in case of errors
+- `yreformat[f]?` - reallocate given memory, and return a pointer to it
+- `ydprint[f]?` - print into a file descriptor
+
+Next, the library comes in 4 flavors - normal or multi-byte character mode, wide character mode, UTF-16 mode and UTF-32 mode.
+Normal mode has no prefix, wide has `w`, UTF-16 uses `c16` and UTF-32 uses `u`.
+Below the character `π` is used to represent the prefix.
+UTF-16 and UTF-32 require libunistring library.
+The prefix comes after `y` character in function names. So we have:
+
+- `char *normal    = yformatf("Hello");` for printing using normal strings
+- `wchar_t *wide   = ywformatf(L"Hello")` for printing using wide strings
+- `char16_t *utf16 = yc16formatf(u"Hello")` for printing using UTF-16 strings
+- `char32_t *utf32 = yuformatf(U"Hello")` for printing using UTF-32 strings
+
+To all options a `va_list` version is provided, which has letter `v` after mode prefix. For example `yuvformatf` or `yc16vprintf`.
+
+### Features
+
+Implemented:
+
+- Fill and align: `<` `>` `^`
+- Sign: `+` `-` ` `
+- `#` and `0`
+- width and precision
+- `char *` and `const char *`
+    - `s` specifier
+- `char`, `signed char` and `unsigned char`
+    - `c` specifier
+- all standard integer types
+    - `b` `B` `x` `X` `o` `O` `c` `d` specifiers
+- standard floating-point types and `_Float*` interchange
+  and extended floating-point types from [n2601](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2601.pdf)
+  and decimal floating-point types from [n2401](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2401.pdf)
+    - `g` `G` `f` `F` `a` `A` `e` `E` specifiers
+    - There are four "backends" for printing floating points.
+        - based on `strfrom*`
+        - "custom" in-house backend that uses functions from `math.h`
+        - based on `snprintf*` call
+        - based on `*ryu` implementation available from https://github.com/ulfjack/ryu
+    - The library will prefer to use `strfrom*` functions if they are available.
+    - You can use a macro to choose the printing function.
+    - Decimal floating-point
+        - require `math.h` functions or `strfrom*` support (depending on chosen backend), see https://github.com/libdfp/libdfp
+        - the support in major compilers is not enough right now
+- `_Imaginary` and `_Complex` standard floating-point types
+    - formatting specifier is ignored and they are just printed as `[+-]<real>[+-]<imag>i`
+- `_Accum`, `_Fract`, `stdfix.h` fixed-point types
+    - `x` `X` `f` `a` `A` specifiers
+- `void *`
+    - `p` specifier
+    - the pointer is just converted to appropriate size integer type and printed as `{:#x}`
+- `struct tm` time formatting
+    - the formatting string is straight passed to `strftime`
+- `struct tm` and `struct timespec`
+    - format string ignored
+    - just printed as `[+-]<sec>.<nano/milli-sec>`
+- `wchar_t *`
+    - `s` specifier
+
+Not implemented:
+
+- `!a` conversion flag
+- `L` locale specific printing
+- Argument index specifying is not implemented.
+
+### Namespaces
+
+ - `y*` - Many common public symbols, like `yprintf`, `ysnprintf`.
+ - `yio_*` `y{w,c16,u}io_*` - Public internal functions, symbols for implementators of _custom modifiers_.
+ - `YIO_*` - Macros, options, constants, error codes.
+ - `_yIO_*` `_y{W,C16,U}IO_*` - All the plethora of private symbols that is used by the library.
+
+### Examples :heart_eyes:
+
+See [test/examples](test/examples) and overall all in [test](test) directory.
+
+## Custom callbacks
+
+For a given variable a custom callback can be provided for invoking a custom function when given as a parameter to string. The function replaces the auto-deduced callback.
+The are number of given provided callbacks for various things, for example to replace `%n` printf format specifier:
 
 ```
-yprint(yppfmt("{:>10}"), "time", " ", yppfmt("{:<10}"), "value", "\n");
-yprint(yppfmt("{:>10}"), (time_t)123, " ", yppfmt("{:<10}"), 456, "\n");
+int count;
+yprintf('The value of pi is approximately {:.3f}.\n{}', 3.14, ypcount(&count));
+yprintf("Above expression printed {} characters.\n", count);
 ```
 
-Mny more examples are available in [tests/01_examples](tests/01_examples) and overall in [test](test) directory.
-And of course the ultimate `yformat` that allows for allocating the buffer and works just as you would expect:
-<a href="https://ce.karta.dyzio.pl/#g:!((g:!((g:!((h:codeEditor,i:(fontScale:14,j:1,lang:___c,selection:(endColumn:5,endLineNumber:4,positionColumn:5,positionLineNumber:4,selectionStartColumn:5,selectionStartLineNumber:4,startColumn:5,startLineNumber:4),source:'%23include+%3Cyio.h%3E%0Aint+main()+%7B%0A++++char+*str+%3D+yformat(%22Hello%22,+(char)!'+!')%3B%0A++++if+(str+%3D%3D+NULL)+abort()%3B%0A++++str+%3D+yreformat(str,+%22world%22,+%22%5Cn%22)%3B%0A++++if+(str+%3D%3D+NULL)+abort()%3B%0A++++yprint(str)%3B+//+prints+!'Hello+world!'%0A++++free(str)%3B%0A%7D%0A'),l:'5',n:'0',o:'C+source+%231',t:'0')),k:100,l:'4',m:50,n:'0',o:'',s:0,t:'0'),(g:!((h:executor,i:(argsPanelShown:'1',compilationPanelShown:'0',compiler:gcc1010,compilerOutShown:'0',execArgs:'',execStdin:'25',fontScale:14,j:1,lang:___c,libs:!(),options:'',source:1,stdinPanelShown:'0'),l:'5',n:'0',o:'x86-64+gcc+10.1.0+Executor+(Editor+%231)+C',t:'0')),header:(),l:'4',m:50,n:'0',o:'',s:0,t:'0')),l:'3',n:'0',o:'',t:'0')),version:4">Try it out!</a>
+There are available, where `π` represents mode prefix (see above):
 
+- `yπcount` - for getting the count of characters printed
+- `yπptlocaltime` - calls `localtime()` on `time_t` argument and prints it like `struct tm`
+- `yπptgtime` - as above, just calls `gmtime()`
+- `yπpwchar` - for printing a `wchar_t` variable, and
+- `yπpwstring` - for printing a `wchar_t` string
 
-```
-   char *str = yformat("Hello", (char)' ');
-   if (str == NULL) abort();
-   str = yreformat(str, "world", "\n");
-   if (str == NULL) abort();
-   yprint(str); // prints 'Hello world'
-   free(str);
-```
+## Extending the library
 
-### Namespaces:
+The argument to a callback function is solely `yπio_printctx_t`.
+Each callback function is _required_ to first call `yπio_printctx_va_arg` to "eat" the arguments and after that the callback function _has to_ call `yπio_printctx_t` and if it's argument is not zero, return it.
+This is to ensure that `va_list` stack is properly managed and that "jumping" above `va_list` elements is properly done.
 
- - `y*` - Many common symbols, like `yprintf` or `yppfmt` or `yscanf`.
- - `yio_*` - Public functions and symbol for implementators of implementators of _custom modifiers_.
- - `YIO_*` - Macros, options and constants.
- - `_yIO_*` - All pletoria of private symbols that is used by the library.
+#### Creating a custom callback.
 
-# Specification and internal info
+Callbacks are written with special `yiocb()` callback modifier function. An example can be found at [test/examples/yio_test_custom_type_slot.c](test/examples/yio_test_custom_type_slot.).
 
-Generally the idea is to adhere to [standard format specification](https://en.cppreference.com/w/cpp/utility/format/formatter#Standard_format_specification),
-but many, many features are implemented yet.
+### Slots
 
-- All standard types work
-- `b` `B` `x` `X` `o` `O` `c` `d` work
-- `<` `>` `^` work
-- `g` `G` `f` `F` `a` `A` `e` `E` work
-    - There are three "backends" to print floating points.
-      The library will prefer to use `strfrom*` functions if they are available.
-      You can use YIO_PRINT_FLOAT_WITH macro to choose the printing function, see yio/yio/manip/print_float.h
-- No, `L` locale specific is not implemented. Locale is handled in a chaotic way.
-- Specifying `arg-id` is not implemented.
- 
+User can provide override for custom types in the form of "slot" macro expansions. An example is available at [test/examples/yio_test_custom_type_slot.c](test/examples/yio_test_custom_type_slot.c).
 
-# Archaic and references
+# Internal info
+
+## Archaic and references
 
 ## :cyclone: History and design choices :school:
 
@@ -209,11 +255,11 @@ oscan(&i);
 oprint("You are ", ofmt_fill('#'), ofmt_width(10), ofmt_precision(5), i, " years old.", oendl());
 ```
 
-But I didn't like that design. What's the point of creating something people don't want to use. Using `std::cout` is so much typing and that is the reason [fmtlib/fmt](https://github.com/fmtlib/fmt) get's trackion and is so popular. We want something in between - something with good checking and semi-good static type-checking. We want printf, but we want something flexible. We want printf, but we want to be able to specify custom types and format specifiers, to "overload" them and affect them.
+But I didn't like that design. What's the point of creating something people don't want to use. Using `std::cout` is so much typing and that is the reason [fmtlib/fmt](https://github.com/fmtlib/fmt) get's traction and is so popular. We want something in between - something with good checking and semi-good static type-checking. We want `printf`, but we want something flexible. We want `printf`, but we want to be able to specify custom types and format specifiers, to "overload" them and affect them.
 
 That's why [python Format String](https://docs.python.org/3/library/string.html#formatstrings) is so nice - it allows to specify that in a short form. The problem is the static type checking, we can only do _some_ of that in C, not all. I wish there would be `consteval` in C, but that would mean compiler has to do double job.
 
-Finally I settlet for:
+Finally I settled for:
 
 ```
 yprint("How old are you?", yendl());
@@ -288,8 +334,16 @@ So the float should be that way:
    Now that handler parses two optional arguments with the format string for each type 
    _separately_.
 3. Each handler has it's own logic how to handle the format string. 
- 
-## :family: User reviews :scroll:
+
+#### Changes in 2022
+
+Because it came to me that `y*scan*` functions are hard to implement and they do not bring really much
+to the library, I decided to remove all `scan` functions from the library. The library named stayed.
+
+Also the library was rewritten from M4 preprocessor to python jinja2. Jinja2 is way simpler and easier to maintain.
+This increased readability and maintanability of the library.
+
+# :family: User reviews :scroll:
 
 > Do something with your life finally. When will you graduate?  
 > -- :woman: Mom  
@@ -329,5 +383,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ```
+
 
 

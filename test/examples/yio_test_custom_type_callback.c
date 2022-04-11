@@ -16,6 +16,8 @@ struct A {
 static
 int _yprint_A(yio_printctx_t *t) {
 	struct A a = yio_printctx_va_arg(t, struct A);
+	int ret = yio_printctx_init(t);
+	if (ret) return ret;
 	return yio_printctx_print(t, a.a, " ", a.b);
 }
 

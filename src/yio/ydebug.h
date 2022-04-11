@@ -23,7 +23,8 @@
 {% for I in j_range(j_MLVLS) %}
 #define _yIO_ydebug_{{I}}({{j_seqdashcomma(I)}}) \
 	{% for J in j_range(I) %}
-		#_{{J}}"=", _{{J}}{% if not loop.last %}, " ", \{% endif +%}
+		#_{{J}}"=", _{{J}}{% if not loop.last %}, " ", \
+{% endif %}
 	{% endfor %}
 {% endfor %}
 #define _yIO_ydebug({{j_seqdashcomma(j_MLVLS)}}, N, ...)  \

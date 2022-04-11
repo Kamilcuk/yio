@@ -48,10 +48,11 @@ foreach(src IN LISTS srcs)
 			OUTPUT ${_path}
 			--mode ${mode}
 		)
-    set(name ${mode}/${src})
-    string(REGEX REPLACE "/" "_" name "${name}")
-    string(REGEX REPLACE "\\..$" "" name "${name}")
+		set(name ${mode}/${src})
+		string(REGEX REPLACE "/" "_" name "${name}")
+		string(REGEX REPLACE "\\..$" "" name "${name}")
 		yio_add_test(${name} ${_path} ${src})
+		add_dependencies(${name} yio_gen)
 		set_property(TEST ${name} APPEND PROPERTY LABELS ${mode})
 
 	endforeach()

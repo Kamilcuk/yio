@@ -1,0 +1,81 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 11,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "default",
+      "binaryDir": "_build/${presetName}",
+      "generator": "Ninja",
+			"warnings": {
+				"dev": true,
+				"deprecated": true,
+				"uninitialized": false,
+				"unusedCli": true,
+				"systemVars": true
+			},
+			"cacheVariables": {
+				"YIO_DEV": "1",
+        "YIO_BUILD_TESTING": "1",
+				"BUILD_TESTING": "1"
+			}
+		},
+    {
+      "name": "coverage",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": " -g --coverage -fprofile-abs-path ",
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "sanitize",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": " -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection"
+      }
+    },
+    {
+      "name": "arm",
+      "inherits": "default",
+			"toolchainFile": "${sourceDir}/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake",
+			"cacheVariables": {
+				"ARM_NONE_EABI_GCC_NO_NEWLIB_NANO": "1"
+			}
+    },
+    {
+      "name": "arm2",
+      "inherits": "arm",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": " -mthumb -march=armv7e-m -mfloat-abi=soft -g -Os -ffunction-sections -fdata-sections -flto "
+      }
+    },
+    {
+      "name": "sdcc",
+      "inherits": "default",
+      "toolchainFile": "${sourceDir}/kcmakelib/cmake/Toolchain/sdcc.cmake",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": " --include malloc.h ",
+        "_yIO_USE_STRFROM_PRINTF": "0",
+        "_yIO_USE_STRFROM_RYU": "0",
+        "_yIO_HAS_FLOATd": "0",
+        "_yIO_HAS_FLOATl": "0",
+        "_yIO_HAS_WCHAR_H": "0",
+        "_yIO_HAS_UCHAR_H": "0"
+      }
+    },
+		{
+			"name": "lint",
+			"inherits": "default",
+			"cacheVariables": {
+				"_yIO_HAS_FLOATd32": "0",
+				"_yIO_HAS_FLOATd64": "0",
+				"_yIO_HAS_FLOATd128": "0",
+				"_yIO_HAS_FLOATf128": "0"
+			}
+		}
+	]
+}

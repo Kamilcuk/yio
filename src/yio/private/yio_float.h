@@ -9,6 +9,7 @@
 #pragma once
 #include "../yio_config.h"
 
+// {#
 #ifdef __CDT_PARSER__
 #define _yIO_HAS_FLOAT$1  1
 #define _yIO_FLOAT$1      float
@@ -16,6 +17,7 @@
 #define $3_MANT_DIG  20
 #define _yIO_FLOAT_HUGE_VALf$1  HUGE_VALf
 #endif
+// #}
 
 /* ------------------------------------------------------------------------- */
 
@@ -123,7 +125,11 @@ _yIO_FLOAT$1 _yIO_exp10$1(_yIO_FLOAT$1 x) {
 #endif
 
 #ifndef _yIO_FLOAT_MANT_DIG$1
+#ifdef $3_MANT_DIG
 #define _yIO_FLOAT_MANT_DIG$1  $3_MANT_DIG
+#elif defined(__$3_MANT_DIG__)
+#define _yIO_FLOAT_MANT_DIG$1  __$3_MANT_DIG__
+#endif
 #endif
 
 #define _yIO_FLOAT_MAX$1       $3_MAX

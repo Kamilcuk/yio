@@ -7,7 +7,6 @@ endif()
 
 include(CMakeDependentOption)
 include(CheckIncludeFile)
-include(k/m4)
 include(k/list_filter)
 include(k/var_to_0_or_1)
 include(${CMAKE_CURRENT_LIST_DIR}/yio_config_gen.cmake)
@@ -35,7 +34,7 @@ foreach(ii IN ITEMS SRCDIR GENDIR CMAKE_BUILD_TYPE_UPPER)
 	endif()
 endforeach()
 
-# List of generated files by m4
+# List of generated files
 set(_gensrcs)
 
 # CPack
@@ -122,19 +121,18 @@ foreach(ii IN LISTS _gensrcs)
 	list(APPEND _genabssrcs "${GENDIR}/${ii}")
 endforeach()
 
-set(_YIO_GEN_FILE ${CMAKE_CURRENT_BINARY_DIR}/yio_generated.stamp CACHE INTERNAL "")
-add_custom_command(
-	OUTPUT ${_YIO_GEN_FILE}
-	COMMAND ${CMAKE_COMMAND} -E touch ${_YIO_GEN_FILE}
-	DEPENDS ${_genabssrcs}
-	COMMENT "yio: Generated source files (dependency)"
-)
-
-# Generate all files target
-add_custom_target(yio_gen
-	DEPENDS ${_YIO_GEN_FILE}
-	COMMENT "yio: Generated source files"
-)
+#set(_YIO_GEN_FILE ${CMAKE_CURRENT_BINARY_DIR}/yio_generated.stamp CACHE INTERNAL "")
+#add_custom_command(
+	#OUTPUT ${_YIO_GEN_FILE}
+	#COMMAND ${CMAKE_COMMAND} -E touch ${_YIO_GEN_FILE}
+	#COMMENT "yio: Generated source files (dependency)"
+	#DEPENDS ${_genabssrcs}
+#)
+## Generate all files target
+#add_custom_target(yio_gen2
+	#DEPENDS ${_YIO_GEN_FILE}
+	#COMMENT "yio: Generated source files"
+#)
 
 ################################################################################################
 # Installation configuration
@@ -220,7 +218,6 @@ add_custom_target(
 	yio_targets
 	COMMENT "Build all yio targets"
 )
-add_dependencies(yio_targets yio_gen)
 
 # @def yio_add_library(name sources)
 # Adds the library with the name <name>
@@ -272,7 +269,7 @@ function(yio_add_library name)
 		endif()
 	endif()
 
-	add_dependencies(${name} yio_gen)
+	add_dependencies(${name} yio_gen3)
 
 	add_dependencies(yio_targets ${name})
 
@@ -338,7 +335,6 @@ yio_add_library(yio ${_yio_sources})
 if(UNISTRING_LIB)
 	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
 endif()
-add_dependencies(yio yio_preprocess)
 
 ##################################################################################
 

@@ -4,6 +4,7 @@ foreach(src IN LISTS srcs)
     SOURCE ${src}
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${src}
   )
-  yio_add_test(reprocessed/${src} ${CMAKE_CURRENT_BINARY_DIR}/${src} ${src})
+  yio_add_test(reprocessed/${src} ${CMAKE_CURRENT_BINARY_DIR}/${src} ${src} GETNAME name)
+
 endforeach()
 

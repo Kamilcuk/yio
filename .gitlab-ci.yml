@@ -19,7 +19,7 @@ icc_test:
   script:
     - . /root/.oneapi_env_vars
     - apt update
-    - apt install -y git m4 libunistring-dev ninja-build
+    - apt install -y git libunistring-dev python-jinja2
     - make test
 
 gcc_test:
@@ -33,7 +33,7 @@ gcc_sanitize_test:
   variables:
     CC: gcc
   script:
-    - make MODE=sanitize test
+    - make sanitize
 
 clang_test:
   variables:
@@ -43,16 +43,16 @@ clang_test:
 
 arm_test:
   script:
-    - make SYSTEM=arm test
+    - make arm
 
 project_add_subdirectory_test:
   script:
     - make test_project_add_subdirectory
 
 alpine_test:
-  image: registry.gitlab.com/kamcuk/builder:alpine
+  image: alpine
   script:
-    - apk add libunistring-dev
+    - apk add build-base make cmake ninja bash gcc py3-jinja2 libunistring-dev git
     - make test
 
 pages_build:
@@ -62,6 +62,16 @@ pages_build:
     paths:
       - public/
     expire_in: 1 week
+
+centos8:
+  image: centos:8
+  script:
+    # https://stackoverflow.com/questions/70926799/centos-through-a-vm-no-urls-in-mirrorlist
+    - sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-*
+    # https://www.linode.com/community/questions/19087/how-do-i-install-libunistring-devel-on-centos-8
+    - yum install dnf-plugins-core
+    - yum -y install gcc cmake python3 python3-jinja2 git
+    - make test
 
 ###############################################################################
 

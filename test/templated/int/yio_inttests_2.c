@@ -76,7 +76,6 @@ int main() {
 	_yio_inttest2_llong(&err, Yc("{}"), Yc("%lld"), LLONG_MIN);
 	_yio_inttest2_llong(&err, Yc("{}"), Yc("%lld"), LLONG_MAX);
 	_yio_inttest2_ullong(&err, Yc("{}"), Yc("%llu"), ULLONG_MAX);
-
 	_yio_inttest2_ullong(&err, Yc("{: 30}"), Yc("% 30llu"), ULLONG_MAX);
 	_yio_inttest2_ullong(&err, Yc("{:#030X}"), Yc("%+#030llX"), ULLONG_MAX);
 

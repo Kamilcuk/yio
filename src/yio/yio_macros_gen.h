@@ -139,7 +139,8 @@
 {% for I in j_range(2, j_MLVLS) %}
 #line
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_{{I}}({{j_seqdashcomma(I)}}) \
-	{%+ for J in j_range(2, I) %}{{j_SIZEOFDECAY("_"+J|string)}},{% endfor +%}
+	{% for J in j_range(2, I) %}{{ j_SIZEOFDECAY("_"+J|string) }},{% endfor %}
+
 {% endfor %}
 #line
 #define _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA_N({{j_seqdashcomma(j_MLVLS)}}, N, ...) \
