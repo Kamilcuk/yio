@@ -14,20 +14,20 @@
 #include <uchar.h>
 {% endif %}
 
-static const Ychar YΩIO_NUL = Yc('\0');
+static const TCHAR YΩIO_NUL = TC('\0');
 
-static const Ychar YΩIO_ALIGN_LEFT = Yc('<');
-static const Ychar YΩIO_ALIGN_RIGHT = Yc('>');
-static const Ychar YΩIO_ALIGN_PADSIGN = Yc('=');
-static const Ychar YΩIO_ALIGN_CENTER = Yc('^');
+static const TCHAR YΩIO_ALIGN_LEFT = TC('<');
+static const TCHAR YΩIO_ALIGN_RIGHT = TC('>');
+static const TCHAR YΩIO_ALIGN_PADSIGN = TC('=');
+static const TCHAR YΩIO_ALIGN_CENTER = TC('^');
 
-static const Ychar YΩIO_SIGN_ALWAYS = Yc('+');
-static const Ychar YΩIO_SIGN_NEGATIVE = Yc('-');
-static const Ychar YΩIO_SIGN_ALWAYSSPACE = Yc(' ');
+static const TCHAR YΩIO_SIGN_ALWAYS = TC('+');
+static const TCHAR YΩIO_SIGN_NEGATIVE = TC('-');
+static const TCHAR YΩIO_SIGN_ALWAYSSPACE = TC(' ');
 
-static const Ychar YΩIO_GROUPING_COMMA = Yc(',');
-static const Ychar YΩIO_GROUPING_UNDERSCORE = Yc('_');
-static const Ychar YΩIO_GROUPING_NONE = Yc('\0');
+static const TCHAR YΩIO_GROUPING_COMMA = TC(',');
+static const TCHAR YΩIO_GROUPING_UNDERSCORE = TC('_');
+static const TCHAR YΩIO_GROUPING_NONE = TC('\0');
 
 static const bool YΩIO_HASH_ON = true;
 static const bool YΩIO_HASH_OFF = false;
@@ -51,25 +51,25 @@ struct yπio_printfmt_s {
 	/**
 	 * Filling character.
 	 */
-	Ychar fill;
+	TCHAR fill;
 	/**
 	 * May be one of '<' '>' '^' '=' characters or 0 when unset.
 	 */
-	Ychar align;
+	TCHAR align;
 	/**
 	 * May be on of '+' '-' ' ' character or 0 when unset.
 	 */
-	Ychar sign;
+	TCHAR sign;
 	/**
 	 * May be set to '_' ',' or 0 when unset.
 	 */
-	Ychar grouping;
+	TCHAR grouping;
 	/**
 	 * The printing type character. The standard valid characters are "bcdeEfFgGnosxX%".
 	 */
-	Ychar type;
+	TCHAR type;
 	/// The conversion specifier.
-	Ychar conversion;
+	TCHAR conversion;
 	/**
 	 * Use of alternate form.
 	 */

@@ -18,8 +18,8 @@ int main() {
 		.tm_sec  = 0,
 	};
 	setlocale(LC_ALL, "C");
-	yπprintf(Yc("{}\n"), t);
-	yπprintf(Yc("{:}\n"), t);
+	yπprintf(TC("{}\n"), t);
+	yπprintf(TC("{:}\n"), t);
 }
 // PASS_REGULAR_EXPRESSION Sun Jan  1 20:00:00 1900
 // PASS_REGULAR_EXPRESSION Sun Jan  1 20:00:00 1900

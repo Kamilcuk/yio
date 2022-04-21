@@ -13,7 +13,7 @@ int _yΩIO_print_voidp(yπio_printctx_t *t) {
 	int err = yπio_printctx_init(t);
 	if (err) return err;
 	const uintptr_t var = (uintptr_t)val;
-	return yπio_printctx_printf(t, Yc("{:#x}"), var);
+	return yπio_printctx_printf(t, TC("{:#x}"), var);
 }
 
 

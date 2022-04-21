@@ -7,11 +7,11 @@
 #include <yio.h>
 #include <yπio.h>
 
-static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const Ychar *fmt, ...) {
+static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	yprintf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
-	Ychar * const ret = yπvformatf(data, fmt, &va);
+	TCHAR * const ret = yπvformatf(data, fmt, &va);
 	va_end(va);
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);

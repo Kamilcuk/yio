@@ -13,17 +13,17 @@
 /* yvbprintf helpers ------------------------------------------------------ */
 
 static inline
-int yπvbprintf_iterate_until_format_callback(yπio_printctx_t *t, const Ychar *begin, const Ychar *end) {
+int yπvbprintf_iterate_until_format_callback(yπio_printctx_t *t, const TCHAR *begin, const TCHAR *end) {
 	//fprintf(stderr, "PO:out=`%.*s`\n", (int)(end - begin), begin);
 	return yπio_printctx_raw_write(t, begin, end - begin);
 }
 
 static inline
-int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const Ychar *fmt, const Ychar **endptr) {
-	const Ychar *pos = fmt;
-	while (fmt[0] != Yc('\0')) {
+int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR *fmt, const TCHAR **endptr) {
+	const TCHAR *pos = fmt;
+	while (fmt[0] != TC('\0')) {
 		//fprintf(stderr, "P1:pos=`%s` fmt=`%s`\n", pos, fmt);
-		if (fmt[0] == Yc('{') || fmt[0] == Yc('}')) {
+		if (fmt[0] == TC('{') || fmt[0] == TC('}')) {
 			if (fmt[0] == fmt[1]) {
 				// double { { or } }
 				if (fmt != pos) {
@@ -42,7 +42,7 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const Ychar *fmt
 					continue;
 				}
 			} else {
-				if (fmt[0] == Yc('}')) {
+				if (fmt[0] == TC('}')) {
 					return YIO_ERROR_SINGLE_RIGHT_BRACE;
 				}
 				// {} or {:stuff} found
@@ -82,23 +82,23 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 	while (1) {
 		int err = _yΩIO_yvbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
 		if (err) return err;
-		if (t->fmt[0] == Yc('\0')) break;
-		assert(t->fmt[0] == Yc('{'));
+		if (t->fmt[0] == TC('\0')) break;
+		assert(t->fmt[0] == TC('{'));
 		t->fmt++;
 
 		t->pf = _yΩIO_printfmt_default;
 		// Handle conversion specifier.
-		if (t->fmt[0] == Yc('!')) {
+		if (t->fmt[0] == TC('!')) {
 			t->fmt++;
-			if (t->fmt[0] != Yc('s')) {
+			if (t->fmt[0] != TC('s')) {
 				return YIO_ERROR_UNKNOWN_CONVERSION;
 			}
 			t->pf.conversion = t->fmt[0];
 			t->fmt++;
 		}
-		if (t->fmt[0] == Yc(':')) {
+		if (t->fmt[0] == TC(':')) {
 			t->fmt++;
-		} else if (t->fmt[0] != Yc('}')) {
+		} else if (t->fmt[0] != TC('}')) {
 			return YIO_ERROR_PYFMT_INVALID;
 		}
 
@@ -115,7 +115,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 	return 0;
 }
 
-int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);

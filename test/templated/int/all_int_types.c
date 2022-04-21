@@ -18,9 +18,9 @@
 #define TEST_in(type, value) \
     do { \
         type _var = value; \
-        Ychar *_ptr = yπformat("("#type")"#value" -> ", _var, "\n"); \
+        TCHAR *_ptr = yπformat("("#type")"#value" -> ", _var, "\n"); \
         yπprint(_ptr); \
-        _yIO_TEST(Ystrcmp(_ptr, #value) == 0, "%"YPRI" failed", _ptr); \
+        _yIO_TEST(TSTRCMP(_ptr, #value) == 0, "%"TPRI" failed", _ptr); \
         free(_ptr); \
     } while(0)
 #undef TEST_in

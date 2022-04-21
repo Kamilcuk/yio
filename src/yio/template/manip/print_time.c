@@ -20,30 +20,30 @@
 // conversion_spec    ::=  "%" [modifier] chrono_type
 // literal_char       ::=  <a character other than '{', '}' or '%'>
 static inline
-int _yΩIO_print_time_parse_format(yπio_printctx_t *t, const Ychar **beginptr, const Ychar **endptr) {
-	const Ychar *fmt = t->fmt;
-	const Ychar *chrono_specs = fmt;
+int _yΩIO_print_time_parse_format(yπio_printctx_t *t, const TCHAR **beginptr, const TCHAR **endptr) {
+	const TCHAR *fmt = t->fmt;
+	const TCHAR *chrono_specs = fmt;
 	struct yπio_printfmt_s *const pf = &t->pf;
 	//
 	if (fmt != NULL) {
-		if (fmt[0] != Yc('\0')) {
+		if (fmt[0] != TC('\0')) {
 			// guess [[fill]align]
-			if (_yΩIO_strnulchrbool(Yc("<>=^"), fmt[1])) {
+			if (_yΩIO_strnulchrbool(TC("<>=^"), fmt[1])) {
 				pf->fill = fmt++[0];
 				pf->align = fmt++[0];
-			} else if (_yΩIO_strnulchrbool(Yc("<>=^"), fmt[0])) {
+			} else if (_yΩIO_strnulchrbool(TC("<>=^"), fmt[0])) {
 				pf->align = fmt++[0];
 			}
 		}
-		if (fmt[0] != Yc('\0')) {
+		if (fmt[0] != TC('\0')) {
 			// guess width
 			const int err = _yΩIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
 			if (err) return err;
 		}
-		if (fmt[0] == Yc('.')) {
+		if (fmt[0] == TC('.')) {
 			// guess precision
 			fmt++;
-			if (fmt[0] == Yc('\0')) {
+			if (fmt[0] == TC('\0')) {
 				return YIO_ERROR_MISSING_PRECISION;
 			}
 			const int err = _yΩIO_printctx_stdintparam(t, fmt, &fmt, &pf->precision);
@@ -51,10 +51,10 @@ int _yΩIO_print_time_parse_format(yπio_printctx_t *t, const Ychar **beginptr, 
 		}
 		// chrono_specs preserve as-is
 		chrono_specs = fmt;
-		while (fmt[0] != Yc('\0') && fmt[0] != Yc('}')) {
+		while (fmt[0] != TC('\0') && fmt[0] != TC('}')) {
 			fmt++;
 		}
-		if (fmt[0] != Yc('}')) {
+		if (fmt[0] != TC('}')) {
 			return YIO_ERROR_MISSING_RIGHT_BRACE;
 		}
 	}
@@ -67,15 +67,15 @@ static inline
 int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	int ret = 0;
 	//
-	const Ychar *fmtbegin;
-	const Ychar *fmtend;
+	const TCHAR *fmtbegin;
+	const TCHAR *fmtend;
 	ret = _yΩIO_print_time_parse_format(t, &fmtbegin, &fmtend);
 	if (ret) {
 		goto FORMAT_EXTRACT_ERROR;
 	}
 	// Advance global fmt.
 	if (t->fmt) {
-		assert(fmtend[0] == Yc('}'));
+		assert(fmtend[0] == TC('}'));
 		t->fmt = fmtend;
 	}
 	// Initialize printctx - after erading format string.
@@ -202,7 +202,7 @@ int _yΩIO_print_timespec(yπio_printctx_t *t) {
 	const struct timespec ts = yπio_printctx_va_arg(t, struct timespec);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, Yc("{}.{:09}"), ts.tv_sec, ts.tv_nsec);
+	return yπio_printctx_printf(t, TC("{}.{:09}"), ts.tv_sec, ts.tv_nsec);
 }
 #endif // _yIO_HAS_timespec
 
@@ -211,7 +211,7 @@ int _yΩIO_print_timeval(yπio_printctx_t *t) {
 	const struct timeval ts = yπio_printctx_va_arg(t, struct timeval);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, Yc("{}.{:06}"), ts.tv_sec, ts.tv_usec);
+	return yπio_printctx_printf(t, TC("{}.{:06}"), ts.tv_sec, ts.tv_usec);
 }
 #endif // _yIO_HAS_timeval
 

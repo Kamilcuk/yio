@@ -24,7 +24,7 @@ extern const struct yπio_printfmt_s _yΩIO_printfmt_default;
  */
 _yIO_wur _yIO_nn()
 int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
-		const Ychar *fmt, const Ychar **endptr);
+		const TCHAR *fmt, const TCHAR **endptr);
 
 /**
  * @ingroup printmod
@@ -34,7 +34,7 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
  * @return 0 on success, error otherwise
  */
 _yIO_wur _yIO_nn()
-int _yΩIO_printformat_number(yπio_printctx_t *t, const Ychar str[], bool positive);
+int _yΩIO_printformat_number(yπio_printctx_t *t, const TCHAR str[], bool positive);
 
 /**
  * @ingroup printmod
@@ -43,9 +43,9 @@ int _yΩIO_printformat_number(yπio_printctx_t *t, const Ychar str[], bool posit
  * @return 0 on success, error otherwise
  */
 _yIO_wur _yIO_nn()
-int _yΩIO_printformat_string(yπio_printctx_t *t, const Ychar str[]);
+int _yΩIO_printformat_string(yπio_printctx_t *t, const TCHAR str[]);
 
 
 int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
-		const Ychar *ptr, const Ychar **endptr, int *res);
-bool _yΩIO_strnulchrbool(const Ychar *s, Ychar c);
+		const TCHAR *ptr, const TCHAR **endptr, int *res);
+bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c);

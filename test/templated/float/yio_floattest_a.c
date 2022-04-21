@@ -8,6 +8,6 @@
  */
 #include <yio_test.h>
 int main() {
-	return yπprintf(Yc("{:a}\n"), 123.456) <= 0;
+	return yπprintf(TC("{:a}\n"), 123.456) <= 0;
 }
 // PASS_REGULAR_EXPRESSION 0x

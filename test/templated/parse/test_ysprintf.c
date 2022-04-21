@@ -10,32 +10,32 @@
 #include <yπio.h>
 #include <stdint.h> // SIZE_MAX
 int main() {
-	Ychar buf[200];
+	TCHAR buf[200];
 	int err = 0;
 
-	err = yπsprintf(buf, sizeof(buf)/sizeof(*buf), Yc("123"));
+	err = yπsprintf(buf, sizeof(buf)/sizeof(*buf), TC("123"));
 	_yIO_TEST(err > 0, "err=%s", yio_strerror(err));
-	_yIO_TEST(Ystrcmp(buf, Yc("123")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0);
 
-	err = yπsprintf(buf, SIZE_MAX, Yc("123"));
+	err = yπsprintf(buf, SIZE_MAX, TC("123"));
 	_yIO_TEST(err > 0);
-	_yIO_TEST(Ystrcmp(buf, Yc("123")) == 0  {% if MODEX == 1 %}, "%s", buf{% endif %}  );
+	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0  {% if MODEX == 1 %}, "%s", buf{% endif %}  );
 
-	err = yπsprintf(buf, 2, Yc("123"));
+	err = yπsprintf(buf, 2, TC("123"));
 	_yIO_TEST(err < 0);
-	_yIO_TEST(Ystrcmp(buf, Yc("1")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("1")) == 0);
 
-	err = yπsprintf(buf, 3, Yc("123"));
+	err = yπsprintf(buf, 3, TC("123"));
 	_yIO_TEST(err < 0);
-	_yIO_TEST(Ystrcmp(buf, Yc("12")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("12")) == 0);
 
-	err = yπsprintf(buf, 4, Yc("123"));
+	err = yπsprintf(buf, 4, TC("123"));
 	_yIO_TEST(err > 0);
-	_yIO_TEST(Ystrcmp(buf, Yc("123")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0);
 
-	err = yπsprintf(buf, 1, Yc("123"));
+	err = yπsprintf(buf, 1, TC("123"));
 	_yIO_TEST(err < 0);
-	_yIO_TEST(Ystrcmp(buf, Yc("")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("")) == 0);
 
 	return 0;
 }

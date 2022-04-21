@@ -30,7 +30,7 @@
  * zero terminating character that would have been written to or were written to
  * @c dest depending if it's a null pointer or not.
  */
-int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, const Ychar **enptr);
+int _yΩIO_print_time_in_extract_format_add_space(TCHAR *dest, const TCHAR *fmt, const TCHAR **enptr);
 
 int _yΩIO_print_tm(yπio_printctx_t *t);
 

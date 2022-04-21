@@ -17,7 +17,7 @@ int main() {
 #ifdef _yIO_HAS_$1
 	{
 		const $2 a = 0.123456789;
-		yπprintf(Yc("{:25}: {} {:x} {} {:a}\n"), "$2", (float)a, a, a, a);
+		yπprintf(TC("{:25}: {} {:x} {} {:a}\n"), "$2", (float)a, a, a, a);
 	}
 #endif
 	{% endcall %}

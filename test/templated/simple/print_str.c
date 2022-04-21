@@ -13,7 +13,7 @@ int main() {
 	char s[] = "hello";
 	const char s2[] = "hello";
 	const int ret1 = yπprint(s, " world", a++, "\n");
-	const int ret2 = yπprintf(Yc("{} {}{}{:.1}"), s2, "world", a++, nl);
+	const int ret2 = yπprintf(TC("{} {}{}{:.1}"), s2, "world", a++, nl);
 	_yIO_TEST(ret1 > 0 && ret2 > 0, "ret1=%d ret2=%d\n", ret1, ret2);
 }
 // PASS_REGULAR_EXPRESSION hello world1

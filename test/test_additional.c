@@ -10,8 +10,20 @@ int main() {
 
 	YIO_TEST_FAIL("{", tm);
 	YIO_TEST_FAIL("{aaaa", tm);
+	YIO_TEST_FAIL("{:aaaa", tm);
 	YIO_TEST(" A", "{:2A}", tm);
 	YIO_TEST(" A ", "{:^3A}", tm);
 	YIO_TEST("BAB", "{:B^3A}", tm);
+	YIO_TEST("BAB", "{:B^3.3A}", tm);
+
+	int count;
+	yprintf("Hello\n{}", ypcount(&count));
+	_yIO_TEST(count == 6);
+
+	//YIO_TEST("\\x02", "{!a}", "\x02");
+
+	const void *p = &tm;
+	yprintf("{}", p);
+	yprintf("{:p}", p);
 }
 

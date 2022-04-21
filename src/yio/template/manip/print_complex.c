@@ -24,7 +24,7 @@ int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2); // NOLINT(clang-analyzer-valist.Uninitialized)
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, Yc("{}{:+}i"), creal$3(val), cimag$3(val));
+	return yπio_printctx_printf(t, TC("{}{:+}i"), creal$3(val), cimag$3(val));
 }
 {% endcall %}
 
@@ -35,7 +35,7 @@ int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, Yc("0{:+}i"), cimag$3(val));
+	return yπio_printctx_printf(t, TC("0{:+}i"), cimag$3(val));
 }
 {% endcall %}
 #endif // _yIO_HAS_IMAGINARY

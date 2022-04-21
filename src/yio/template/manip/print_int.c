@@ -19,17 +19,17 @@
 /* ------------------------------------------------------------------------------- */
 
 static inline
-int _yΩIO_printint_to_radix(Ychar type) {
+int _yΩIO_printint_to_radix(TCHAR type) {
 	switch (type) {
 	case 0:
-	case Yc('d'):
+	case TC('d'):
 		return 10;
-	case Yc('x'):
-	case Yc('X'):
+	case TC('x'):
+	case TC('X'):
 		return 16;
-	case Yc('o'):
+	case TC('o'):
 		return 8;
-	case Yc('b'):
+	case TC('b'):
 		return 2;
 	}
 	return -1;
@@ -37,11 +37,11 @@ int _yΩIO_printint_to_radix(Ychar type) {
 
 
 static inline
-const Ychar *_yΩIO_printint_to_fmt(Ychar type) {
-	if (type == Yc('x')) {
-		return Yc("0123456789abcdef");
+const TCHAR *_yΩIO_printint_to_fmt(TCHAR type) {
+	if (type == TC('x')) {
+		return TC("0123456789abcdef");
 	}
-	return Yc("0123456789ABCDEF");
+	return TC("0123456789ABCDEF");
 }
 
 {% call(V) j_FOREACHAPPLY([
@@ -70,12 +70,12 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 	$2 arg = yπio_printctx_va_arg_num(t, $2);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
-	const Ychar type = yπio_printctx_get_fmt(t)->type;
+	const TCHAR type = yπio_printctx_get_fmt(t)->type;
 	const $2 radix = _yΩIO_printint_to_radix(type);
 	if (radix == ($2)-1) {
 		return YIO_ERROR_UNKNOWN_FMT;
 	}
-	const Ychar *format = _yΩIO_printint_to_fmt(type);
+	const TCHAR *format = _yΩIO_printint_to_fmt(type);
 	const bool negative =
 	{# If $2 is unsigned, it can't be negative So remove the check, so that -Wtype-limits doesn't throw #}
 	{% if j_match(V.1, "unsigned") %}
@@ -87,9 +87,9 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 	{% endif %}
 #line
 
-	Ychar res[sizeof($2) * CHAR_BIT + 1] = {0};
-	Ychar *const res_end = res + sizeof(res)/sizeof(*res);
-	Ychar *num = res_end;
+	TCHAR res[sizeof($2) * CHAR_BIT + 1] = {0};
+	TCHAR *const res_end = res + sizeof(res)/sizeof(*res);
+	TCHAR *num = res_end;
 	const $2 tmp = arg % radix;
 	(--num)[0] = format[negative ? -tmp : tmp];
 	if (arg /= radix) {

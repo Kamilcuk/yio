@@ -32,7 +32,7 @@ typedef struct _yΩIO_printctx_s yπio_printctx_t;
  * @param count Count of characters to print
  * @return 0 on success, anything else on error
  */
-typedef int _yΩIO_printcb_t(void *arg, const Ychar *data, size_t count)
+typedef int _yΩIO_printcb_t(void *arg, const TCHAR *data, size_t count)
 		_yIO_wur _yIO_nn(2) _yIO_access_r(2, 3);
 
 /**
@@ -63,7 +63,7 @@ int yπio_printctx_init(yπio_printctx_t *t);
  * @return 0 on success, anything else on error.
  */
 _yIO_wur _yIO_nn()
-int yπio_printctx_raw_write(yπio_printctx_t *t, const Ychar *ptr, size_t size);
+int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *ptr, size_t size);
 
 /**
  * Calls the next context parsing function in chain.
@@ -83,7 +83,7 @@ _yIO_wur _yIO_nn() _yIO_const
 struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t);
 
 _yIO_wur _yIO_nn()
-const Ychar *yπio_printctx_get_fmtstrpnt(yπio_printctx_t *t);
+const TCHAR *yπio_printctx_get_fmtstrpnt(yπio_printctx_t *t);
 
 /**
  * Internal callback called from @see yπio_printctx_print
@@ -92,14 +92,14 @@ const Ychar *yπio_printctx_get_fmtstrpnt(yπio_printctx_t *t);
  * @return
  */
 _yIO_wur _yIO_nn(1, 2)
-int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const TCHAR *fmt, ...);
 
 _yIO_wur _yIO_nn()
 int _yΩIO_printformat_generic(yπio_printctx_t *t,
-		const Ychar str[], size_t str_len, bool is_number, bool is_positive);
+		const TCHAR str[], size_t str_len, bool is_number, bool is_positive);
 
 _yIO_wur _yIO_nn() static inline
-int yπio_printctx_putπ(yπio_printctx_t *t, const Ychar str[], size_t str_len) {
+int yπio_printctx_putπ(yπio_printctx_t *t, const TCHAR str[], size_t str_len) {
 	return _yΩIO_printformat_generic(t, str, str_len, false, false);
 }
 
@@ -120,7 +120,7 @@ int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_
 {% endif %}
 
 _yIO_wur _yIO_nn() static inline
-int yπio_printctx_putπ_number(yπio_printctx_t *t, const Ychar str[], size_t str_len, bool is_positive) {
+int yπio_printctx_putπ_number(yπio_printctx_t *t, const TCHAR str[], size_t str_len, bool is_positive) {
 	return _yΩIO_printformat_generic(t, str, str_len, true, is_positive);
 }
 

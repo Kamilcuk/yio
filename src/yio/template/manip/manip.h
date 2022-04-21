@@ -78,6 +78,7 @@ int _yΩIO_print_voidp(yπio_printctx_t *t);
 			_yΩIO_PRINT_STDFIX() \
 			_yΩIO_PRINT_COMPLEX() \
 			void*: _yΩIO_print_voidp, \
+			const void*: _yΩIO_print_voidp, \
 		default: _Generic((arg), \
 			signed char: _yΩIO_print_schar, \
 			unsigned char: _yΩIO_print_uchar, \

@@ -39,7 +39,7 @@ struct _yΩIO_printctx_s {
 	/// User argument for outputting functions.
 	void *outarg;
 	/// Current iterator in the format string.
-	const Ychar *fmt;
+	const TCHAR *fmt;
 	/// The count of characters written.
 	size_t writtencnt;
 	/// Description of print formatting.
@@ -49,7 +49,7 @@ struct _yΩIO_printctx_s {
 static inline _yIO_nn(1, 2, 4, 6)
 void _yΩIO_printctx_init(yπio_printctx_t *t,
 		_yΩIO_printcb_t *out, void *outarg,
-		const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+		const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
 	yπio_printctx_t _yΩIO_printctx = {
 		.va = va,
 		.fmt = fmt,

@@ -19,31 +19,32 @@
 {% elif MODE == 4 %}
 #define shouldbe_snprintf u32_u32_snprintf
 {% else %}{{ j_fatal() }}{% endif %}
+#line
 
 #define _yio_inttest2(SUFFIX, TYPE) \
 static inline \
-int _yio_inttest2_ ## SUFFIX(int *err, const Ychar *fmt, \
-		const Ychar *printfmt, TYPE arg) { \
-	Ychar shouldbe[256]; \
-	Ychar buf[256]; \
+int _yio_inttest2_ ## SUFFIX(int *err, const TCHAR *fmt, \
+		const TCHAR *printfmt, TYPE arg) { \
+	TCHAR shouldbe[256]; \
+	TCHAR buf[256]; \
 	shouldbe_snprintf(shouldbe, sizeof(shouldbe)/sizeof(*shouldbe), printfmt, arg); \
 	if (1) { \
-		Yprintf("Testing %s yprint|\"%"YPRI"\", ", #TYPE, fmt); \
-		Yprintf("| \tvs snprintf|\"%"YPRI"\", ", printfmt ? printfmt : Yc("?")); \
-		Yprintf("| \t-> %d\"%"YPRI"\"\n", \
-				(int)Ystrlen(shouldbe), shouldbe); \
+		TFPRINTF(stdout, "Testing %s yprint|\"%"TPRI"\", ", #TYPE, fmt); \
+		TFPRINTF(stdout, "| \tvs snprintf|\"%"TPRI"\", ", printfmt ? printfmt : TC("?")); \
+		TFPRINTF(stdout, "| \t-> %d\"%"TPRI"\"\n", \
+				(int)TSTRLEN(shouldbe), shouldbe); \
 	} \
 	const int ret = yπsprintf(buf, sizeof(buf), fmt, arg); \
 	if (ret < 0) { \
-		Yfprintf(stderr, "%s:%d: yprint \"%"YPRI"\", ", __FILE__, __LINE__, fmt); \
-		Yfprintf(stderr, " -> %d\n", ret); \
+		TFPRINTF(stderr, "%s:%d: yprint \"%"TPRI"\", ", __FILE__, __LINE__, fmt); \
+		TFPRINTF(stderr, " -> %d\n", ret); \
 		*err = __LINE__; \
 	} \
-	if (Ystrcmp(shouldbe, buf) != 0) { \
-		Yfprintf(stderr, "%s:%d: yprint|\"%"YPRI"\", ", __FILE__, __LINE__, fmt); \
-		Yfprintf(stderr, "| -> %d\"%"YPRI"\" != %d\"%"YPRI"\"\n", \
-				(int)Ystrlen(buf), buf, \
-				(int)Ystrlen(shouldbe), shouldbe); \
+	if (TSTRCMP(shouldbe, buf) != 0) { \
+		TFPRINTF(stderr, "%s:%d: yprint|\"%"TPRI"\", ", __FILE__, __LINE__, fmt); \
+		TFPRINTF(stderr, "| -> %d\"%"TPRI"\" != %d\"%"TPRI"\"\n", \
+				(int)TSTRLEN(buf), buf, \
+				(int)TSTRLEN(shouldbe), shouldbe); \
 		*err = __LINE__; \
 	} \
 	return 0; \
@@ -60,22 +61,22 @@ _yio_inttest2(ullong, unsigned long long)
 
 int main() {
 	int err = 0;
-	_yio_inttest2_int(&err, Yc("{}"), Yc("%d"), 5);
-	_yio_inttest2_int(&err, Yc("{}"), Yc("%d"), 5);
-	_yio_inttest2_int(&err, Yc("{}"), Yc("%d"), INT_MAX);
-	_yio_inttest2_int(&err, Yc("{}"), Yc("%d"), INT_MIN);
-	_yio_inttest2_uint(&err, Yc("{}"), Yc("%u"), UINT_MAX);
-	_yio_inttest2_short(&err, Yc("{}"), Yc("%hd"), SHRT_MIN);
-	_yio_inttest2_short(&err, Yc("{}"), Yc("%hd"), SHRT_MAX);
-	_yio_inttest2_ushort(&err, Yc("{}"), Yc("%hu"), USHRT_MAX);
-	_yio_inttest2_long(&err, Yc("{}"), Yc("%ld"), LONG_MIN);
-	_yio_inttest2_long(&err, Yc("{}"), Yc("%ld"), LONG_MAX);
-	_yio_inttest2_ulong(&err, Yc("{}"), Yc("%lu"), ULONG_MAX);
-	_yio_inttest2_llong(&err, Yc("{}"), Yc("%lld"), LLONG_MIN);
-	_yio_inttest2_llong(&err, Yc("{}"), Yc("%lld"), LLONG_MAX);
-	_yio_inttest2_ullong(&err, Yc("{}"), Yc("%llu"), ULLONG_MAX);
-	_yio_inttest2_ullong(&err, Yc("{: 30}"), Yc("% 30llu"), ULLONG_MAX);
-	_yio_inttest2_ullong(&err, Yc("{:#030X}"), Yc("%+#030llX"), ULLONG_MAX);
+	_yio_inttest2_int(&err, TC("{}"), TC("%d"), 5);
+	_yio_inttest2_int(&err, TC("{}"), TC("%d"), 5);
+	_yio_inttest2_int(&err, TC("{}"), TC("%d"), INT_MAX);
+	_yio_inttest2_int(&err, TC("{}"), TC("%d"), INT_MIN);
+	_yio_inttest2_uint(&err, TC("{}"), TC("%u"), UINT_MAX);
+	_yio_inttest2_short(&err, TC("{}"), TC("%hd"), SHRT_MIN);
+	_yio_inttest2_short(&err, TC("{}"), TC("%hd"), SHRT_MAX);
+	_yio_inttest2_ushort(&err, TC("{}"), TC("%hu"), USHRT_MAX);
+	_yio_inttest2_long(&err, TC("{}"), TC("%ld"), LONG_MIN);
+	_yio_inttest2_long(&err, TC("{}"), TC("%ld"), LONG_MAX);
+	_yio_inttest2_ulong(&err, TC("{}"), TC("%lu"), ULONG_MAX);
+	_yio_inttest2_llong(&err, TC("{}"), TC("%lld"), LLONG_MIN);
+	_yio_inttest2_llong(&err, TC("{}"), TC("%lld"), LLONG_MAX);
+	_yio_inttest2_ullong(&err, TC("{}"), TC("%llu"), ULLONG_MAX);
+	_yio_inttest2_ullong(&err, TC("{: 30}"), TC("% 30llu"), ULLONG_MAX);
+	_yio_inttest2_ullong(&err, TC("{:#030X}"), TC("%+#030llX"), ULLONG_MAX);
 
 	return err;
 }

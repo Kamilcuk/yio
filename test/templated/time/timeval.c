@@ -13,6 +13,6 @@ int main() {
 		.tv_sec = 1234567,
 		.tv_usec = 1,
 	};
-	return yπprintf(Yc("{}"), t) == strlen("1234567.000001") ? 0 : 1;
+	return yπprintf(TC("{}"), t) == strlen("1234567.000001") ? 0 : 1;
 #endif
 }

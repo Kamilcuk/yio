@@ -15,15 +15,15 @@
 int main() {
 	{
 		const short _Fract a = 0.123456789;
-		yπprintf(Yc("{:x} {} {:a}\n"), a, a, a);
+		yπprintf(TC("{:x} {} {:a}\n"), a, a, a);
 	}
 	{
 		const _Fract a = 0.123456789;
-		yπprintf(Yc("{:x} {} {:a}\n"), a, a, a);
+		yπprintf(TC("{:x} {} {:a}\n"), a, a, a);
 	}
 	{
 		const long _Fract a = 0.123456789;
-		yπprintf(Yc("{:x} {} {:a}\n"), a, a, a);
+		yπprintf(TC("{:x} {} {:a}\n"), a, a, a);
 	}
 }
 // PASS_REGULAR_EXPRESSION f 0.12[^ ]* [^ ]*

@@ -41,7 +41,7 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 #endif
 
 static inline _yIO_access_r(2, 3)
-int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
+int _yΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 {% if MODEX == 1 %}
 #line
 	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
@@ -64,11 +64,11 @@ int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 {% else %}{{ j_fatal() }}{% endif %}
 }
 
-int yπvdprintf(int fd, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvdprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
 	return yπvbprintf(_yΩIO_yπvdprintf_cb, &fd, data, fmt, va);
 }
 
-int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvdprintf(fd, data, fmt, &va);

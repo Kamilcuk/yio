@@ -10,14 +10,14 @@
 
 
 static inline _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
-size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
+size_t _yΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
 	{% if MODEX == 1 %}
 	#line
 	return fwrite(str, 1, size, file);
 	{% elif MODEX == 2 %}
 	#line
 	for (size_t n = 0; n < size; n++) {
-		if (fputwc(str[n], file) == YEOF) {
+		if (fputwc(str[n], file) == TEOF) {
 			return n;
 		}
 	}
@@ -37,7 +37,7 @@ size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
 		int ret = _yIO_strconv_πstr_to_wstr(str, size, &wc, &wc_len);
 		if (ret) return ret;
 		for (size_t i = wc_len; i--; ) {
-			if (fputwc(wc[i], file) == YEOF) {
+			if (fputwc(wc[i], file) == TEOF) {
 				_yIO_strconv_free_πstr_to_wstr(str, wc);
 				return i;
 			}
@@ -49,14 +49,14 @@ size_t _yΩIO_fwrite(FILE *file, const Ychar* str, size_t size) {
 }
 
 static _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
-int _yΩIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
+int _yΩIO_yvfprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 	FILE *f = arg;
 	const size_t cnt = _yΩIO_fwrite(f, ptr, size);
 	return cnt == size ? 0 : YIO_ERROR_EIO;
 }
 
 
-int _yΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvfprintf(file, data, fmt, &va);
@@ -64,7 +64,7 @@ int _yΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const Ychar *fmt,
 	return ret;
 }
 
-int yπvfprintf(FILE *file, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvfprintf(FILE *file, const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
 	return yπvbprintf(_yΩIO_yvfprintf_cb, file, data, fmt, va);
 }
 

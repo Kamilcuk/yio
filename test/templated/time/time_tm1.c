@@ -16,14 +16,14 @@ int main() {
 		.tm_min  = 10,
 		.tm_sec  = 20,
 	};
-	yπprintf(Yc("{:%Y-%m-%d %H:%M:%S}\n"), t);
+	yπprintf(TC("{:%Y-%m-%d %H:%M:%S}\n"), t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	yπprintf(Yc("{:%D}\n"), t);
+	yπprintf(TC("{:%D}\n"), t);
 // PASS_REGULAR_EXPRESSION 10/09/12
-	yπprintf(Yc("{:%F %T}\n"), t);
+	yπprintf(TC("{:%F %T}\n"), t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	yπprintf(Yc({{"\"{:A%%B{{C}}D}\\n\""}}), t);
+	yπprintf(TC({{"\"{:A%%B{{C}}D}\\n\""}}), t);
 // PASS_REGULAR_EXPRESSION A%B{C}D
-	yπprintf(Yc("{:%y %w %u}\n"), t);
+	yπprintf(TC("{:%y %w %u}\n"), t);
 // PASS_REGULAR_EXPRESSION 12 0 7
 }

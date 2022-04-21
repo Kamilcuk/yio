@@ -16,7 +16,7 @@ int _yΩIO_print_wcharpnt_in(yπio_printctx_t *t, const wchar_t *ws) {
 	if (ret) return ret;
 	const struct yπio_printfmt_s *pf = yπio_printctx_get_fmt(t);
 	const size_t ws_len = pf->precision >= 0 ? _yIO_wstrnlen(ws, pf->precision) : wcslen(ws);
-	const Ychar *dst;
+	const TCHAR *dst;
 	size_t dst_len;
 	ret = _yIO_strconv_wstr_to_πstr(ws, ws_len, &dst, &dst_len);
 	if (ret) return ret;

@@ -111,13 +111,13 @@ static inline
 void test_onefloat_$1(const char *instr, TYPE$1 in,
 		const char *format, double diffatmost) {
 	errno = 0;
-	Ychar *const format_native = yπformatf(Yc("{}"), format);
+	TCHAR *const format_native = yπformatf(TC("{}"), format);
 	_yIO_TEST_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
 	_yIO_ASSERT(format_native);
 
 	if (!instr) instr = "(null)";
 
-	Ychar *str_native = NULL;
+	TCHAR *str_native = NULL;
 	errno = 0;
 	int err = yπaprintf(&str_native, format_native, in);
 	_yIO_TEST_NOFAIL(errno == 0, "%s,%s %d %s", format, instr, errno, strerror(errno));

@@ -14,10 +14,10 @@ int _yΩIO_print_bool(yπio_printctx_t *t) {
 
 	const struct yπio_printfmt_s *fmt = yπio_printctx_get_fmt(t);
 	if (fmt->type == 's') {
-		const Ychar *arr[] = { Yc("false"), Yc("true") };
+		const TCHAR *arr[] = { TC("false"), TC("true") };
 		const unsigned lengths[] = { 5, 4 };
 		return yπio_printctx_putπ(t, arr[value], lengths[value]);
 	}
-	const Ychar zeroone[2] = { Yc('0'), Yc('1') };
+	const TCHAR zeroone[2] = { TC('0'), TC('1') };
 	return yπio_printctx_putπ(t, &zeroone[value], 1);
 }

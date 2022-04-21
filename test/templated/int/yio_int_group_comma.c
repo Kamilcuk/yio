@@ -6,25 +6,25 @@
  */
 #include <yπio.h>
 int main() {
-	yπprintf(Yc("{:,}\n"), 1);
-	yπprintf(Yc("{:,}\n"), 10);
-	yπprintf(Yc("{:,}\n"), 100);
-	yπprintf(Yc("{:,}\n"), 1000);
-	yπprintf(Yc("{:,}\n"), 10000);
-	yπprintf(Yc("{:,}\n"), 100000);
-	yπprintf(Yc("{:,}\n"), 1000000);
-	yπprintf(Yc("{:,}\n"), 10000000);
-	yπprintf(Yc("{:,}\n"), 100000000);
-	yπprintf(Yc("{:,}\n"), 1000000000);
-	yπprintf(Yc("{:,}\n"), 10000000000);
-	yπprintf(Yc("{:,}\n"), 100000000000);
-	yπprintf(Yc("{:,}\n"), 1000000000000);
-	yπprintf(Yc("{:,}\n"), 10000000000000);
-	yπprintf(Yc("{:,}\n"), 100000000000000);
-	yπprintf(Yc("{:,}\n"), 1000000000000000);
-	yπprintf(Yc("{:,}\n"), 10000000000000000);
-	yπprintf(Yc("{:,}\n"), 100000000000000000);
-	yπprintf(Yc("{:,}\n"), 1000000000000000000);
+	yπprintf(TC("{:,}\n"), 1);
+	yπprintf(TC("{:,}\n"), 10);
+	yπprintf(TC("{:,}\n"), 100);
+	yπprintf(TC("{:,}\n"), 1000);
+	yπprintf(TC("{:,}\n"), 10000);
+	yπprintf(TC("{:,}\n"), 100000);
+	yπprintf(TC("{:,}\n"), 1000000);
+	yπprintf(TC("{:,}\n"), 10000000);
+	yπprintf(TC("{:,}\n"), 100000000);
+	yπprintf(TC("{:,}\n"), 1000000000);
+	yπprintf(TC("{:,}\n"), 10000000000);
+	yπprintf(TC("{:,}\n"), 100000000000);
+	yπprintf(TC("{:,}\n"), 1000000000000);
+	yπprintf(TC("{:,}\n"), 10000000000000);
+	yπprintf(TC("{:,}\n"), 100000000000000);
+	yπprintf(TC("{:,}\n"), 1000000000000000);
+	yπprintf(TC("{:,}\n"), 10000000000000000);
+	yπprintf(TC("{:,}\n"), 100000000000000000);
+	yπprintf(TC("{:,}\n"), 1000000000000000000);
 }
 // PASS_REGULAR_EXPRESSION 1
 // PASS_REGULAR_EXPRESSION 10

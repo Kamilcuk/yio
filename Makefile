@@ -184,7 +184,8 @@ coverage:
 	$(MAKE) test coverage_gen PRESET=$@
 
 HELP +=~ coverage_gen
-coverage_gen: ; $(MAKE) .coverage_gen PRESET=coverage
+coverage_gen:
+	$(MAKE) .coverage_gen PRESET=coverage
 .coverage_gen:
 	gcovr --print-summary --txt - --xml ./_build/cobertura-coverage.xml --json ./coverage.json --filter "$(B)/gen" --filter "src" -r . "$(B)"
 

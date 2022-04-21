@@ -17,21 +17,18 @@ template_data = {
         "omega": ["",    "W",    "C16",    "U", ],
         "pi":    ["",    "w",    "c16",    "u", ],
         "names": {
-            "Ychar": ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
-            "Yint":  ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
-            "YEOF":  ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
-            "YPRI":  ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
+            "TCHAR": ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
+            "TINT":  ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
+            "TEOF":  ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
+            "TPRI":  ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
             },
         "funcs": {
-            "Yc":       ["{}",                         "L{}",          "u{}",                    "U{}", ],
-            "Yfprintf": ["fprintf({})",                "fprintf({})",  "ulc_fprintf({})",        "ulc_fprintf({})", ],
-            "Yisdigit": ["isdigit((unsigned char){})", "iswdigit({})", "uc_is_digit({})",        "uc_is_digit({})", ],
-            "Yisprint": ["isprint((unsigned char){})", "iswprint({})", "uc_is_print({})",        "uc_is_print({})", ],
-            "Yisupper": ["isupper((unsigned char){})", "iswupper({})", "uc_is_upper({})",        "uc_is_upper({})", ],
-            "Yprintf":  ["printf({})",                 "printf({})",   "ulc_fprintf(stdout,{})", "ulc_fprintf(stdout,{})", ], # noqa
-            "Ystrchr":  ["strchr({})",                 "wcschr({})",   "u16_strchr({})",         "u32_strchr({})", ],
-            "Ystrcmp":  ["strcmp({})",                 "wcscmp({})",   "u16_strcmp({})",         "u32_strcmp({})", ],
-            "Ystrlen":  ["strlen({})",                 "wcslen({})",   "u16_strlen({})",         "u32_strlen({})", ],
+            "TC":       ["{}",                         "L{}",          "u{}",                    "U{}", ],
+            "TFPRINTF": ["fprintf({})",                "fprintf({})",  "ulc_fprintf({})",        "ulc_fprintf({})", ],
+            "TISDIGIT": ["isdigit((unsigned char){})", "iswdigit({})", "uc_is_digit({})",        "uc_is_digit({})", ],
+            "TSTRCHR":  ["strchr({})",                 "wcschr({})",   "u16_strchr({})",         "u32_strchr({})", ],
+            "TSTRCMP":  ["strcmp({})",                 "wcscmp({})",   "u16_strcmp({})",         "u32_strcmp({})", ],
+            "TSTRLEN":  ["strlen({})",                 "wcslen({})",   "u16_strlen({})",         "u32_strlen({})", ],
             },
         }
 

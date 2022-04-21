@@ -10,22 +10,22 @@
 #include <yπio.h>
 
 int main() {
-	Ychar *buf;
-	buf = yπformatf(Yc("{:+0{}}"), 3, 10);
+	TCHAR *buf;
+	buf = yπformatf(TC("{:+0{}}"), 3, 10);
 	_yIO_TEST(buf != NULL);
-	_yIO_TEST(Ystrcmp(buf, Yc("+000000003")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("+000000003")) == 0);
 	free(buf);
-	buf = yπformatf(Yc("{:+0.{}}"), 3, 10);
+	buf = yπformatf(TC("{:+0.{}}"), 3, 10);
 	_yIO_TEST(buf != NULL);
-	_yIO_TEST(Ystrcmp(buf, Yc("+3")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("+3")) == 0);
 	free(buf);
-	buf = yπformatf(Yc("{:+0{}.{}}"), 3, 10, 10);
+	buf = yπformatf(TC("{:+0{}.{}}"), 3, 10, 10);
 	_yIO_TEST(buf != NULL);
-	_yIO_TEST(Ystrcmp(buf, Yc("+000000003")) == 0);
+	_yIO_TEST(TSTRCMP(buf, TC("+000000003")) == 0);
 	free(buf);
-	buf = yπformatf(Yc("{:+0.{}}"), Yc("12345678901234567890"), 10);
+	buf = yπformatf(TC("{:+0.{}}"), TC("12345678901234567890"), 10);
 	_yIO_TEST(buf != NULL);
-	_yIO_TEST(Ystrcmp(buf, Yc("1234567890")) == 0
+	_yIO_TEST(TSTRCMP(buf, TC("1234567890")) == 0
 			{% if MODEX == 1 %}, "%s", buf{%endif %}
 	);
 	free(buf);

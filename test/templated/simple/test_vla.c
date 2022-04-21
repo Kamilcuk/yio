@@ -16,12 +16,12 @@ int main() {
 	a[2] = 3;
 	a[3] = 2;
 	a[4] = 1;
-	yπprintf(Yc("{}\n"), a[0]);
-	yπprintf(Yc("{} {}\n"), a[1], a[2]);
-	yπprintf(Yc("{} {} {} {} {}\n"), a[3], a[4], a[0], a[1], a[2]);
-	yπprint(a[0], Yc("\n"));
-	yπprint(a[1], Yc(" "), a[2], Yc("\n"));
-	yπprint(a[3], Yc(" "), a[4], Yc(" "), a[0], Yc(" "), a[1], Yc(" "), a[2], Yc("\n"));
+	yπprintf(TC("{}\n"), a[0]);
+	yπprintf(TC("{} {}\n"), a[1], a[2]);
+	yπprintf(TC("{} {} {} {} {}\n"), a[3], a[4], a[0], a[1], a[2]);
+	yπprint(a[0], TC("\n"));
+	yπprint(a[1], TC(" "), a[2], TC("\n"));
+	yπprint(a[3], TC(" "), a[4], TC(" "), a[0], TC(" "), a[1], TC(" "), a[2], TC("\n"));
 }
 // PASS_REGULAR_EXPRESSION 5
 // PASS_REGULAR_EXPRESSION 4 3

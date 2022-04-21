@@ -7,14 +7,14 @@
 #include <yio.h>
 #include <yπio.h>
 
-static Ychar *(* const f_vpnt)(yπio_printdata_t *, const Ychar *fmt, va_list *va) = yπvformatf;
-static int (* const f_pnt)(yπio_printdata_t *, const Ychar *fmt, ...) = _yΩIO_yprintf;
+static TCHAR *(* const f_vpnt)(yπio_printdata_t *, const TCHAR *fmt, va_list *va) = yπvformatf;
+static int (* const f_pnt)(yπio_printdata_t *, const TCHAR *fmt, ...) = _yΩIO_yprintf;
 
-static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const Ychar *fmt, ...) {
+static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	yprintf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
-	Ychar * const ret = f_vpnt(data, fmt, &va);
+	TCHAR * const ret = f_vpnt(data, fmt, &va);
 	va_end(va);
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);
