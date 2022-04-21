@@ -12,51 +12,53 @@
 
 /* yvbprintf helpers ------------------------------------------------------ */
 
-static inline _yIO_wur _yIO_nn() _yIO_rnn
-const Ychar *_yΩIO_strpbrk_braces(const Ychar *str) {
-	while (*str != Yc('\0')) {
-		if (*str == Yc('{') || *str == Yc('}')) {
-			break;
-		}
-		++str;
-	}
-	return str;
+static inline
+int yπvbprintf_iterate_until_format_callback(yπio_printctx_t *t, const Ychar *begin, const Ychar *end) {
+	//fprintf(stderr, "PO:out=`%.*s`\n", (int)(end - begin), begin);
+	return yπio_printctx_raw_write(t, begin, end - begin);
 }
 
 static inline
-int _yΩIO_yvbgeneric_iterate_until_format(const Ychar *fmt, const Ychar **endptr,
-		int (*callback)(void *arg, const Ychar *begin, const Ychar *end), void *arg) {
-	bool double_braces_found = false;
-	while (fmt[0]) {
-		const Ychar * const after_brace = fmt + double_braces_found;
-		const Ychar * const brace = _yΩIO_strpbrk_braces(after_brace);
-		if (after_brace != brace) {
-			const int err = callback(arg, fmt, brace);
-			if (err) return err;
-			fmt = brace;
-
-			if (fmt[0] == Yc('\0')) {
+int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const Ychar *fmt, const Ychar **endptr) {
+	const Ychar *pos = fmt;
+	while (fmt[0] != Yc('\0')) {
+		//fprintf(stderr, "P1:pos=`%s` fmt=`%s`\n", pos, fmt);
+		if (fmt[0] == Yc('{') || fmt[0] == Yc('}')) {
+			if (fmt[0] == fmt[1]) {
+				// double { { or } }
+				if (fmt != pos) {
+					//fprintf(stderr, "P2\n");
+					// If we are at start, we can flush already known characters,
+					// and continue one after.
+					const int err = yπvbprintf_iterate_until_format_callback(t, pos, fmt + 1);
+					if (err) return err;
+					pos = fmt + 2;
+					fmt = pos;
+					continue;
+				} else {
+					// We can optimize a bit - continue from the next character.
+					pos += 1;
+					fmt = pos + 1;
+					continue;
+				}
+			} else {
+				if (fmt[0] == Yc('}')) {
+					return YIO_ERROR_SINGLE_RIGHT_BRACE;
+				}
+				// {} or {:stuff} found
 				break;
 			}
 		}
-		fmt = brace;
-
-		assert(fmt[0] == Yc('{') || fmt[0] == Yc('}'));
-		double_braces_found = fmt[0] == fmt[1];
-		if (double_braces_found) {
-			++fmt;
-			continue;
-		}
-		break;
+		fmt++;
 	}
+	if (fmt != pos) {
+		// Flush skipped characters up until now.
+		const int err = yπvbprintf_iterate_until_format_callback(t, pos, fmt);
+		if (err) return err;
+	}
+	//
 	*endptr = fmt;
 	return 0;
-}
-
-static inline
-int yπvbprintf_iterate_until_format_callback(void *arg, const Ychar *begin, const Ychar *end) {
-	yπio_printctx_t *t = arg;
-	return yπio_printctx_raw_write(t, begin, end - begin);
 }
 
 /* yvbprintf ----------------------------------------------------------- */
@@ -78,20 +80,27 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 	}
 
 	while (1) {
-		int err = _yΩIO_yvbgeneric_iterate_until_format(t->fmt, &t->fmt,
-				yπvbprintf_iterate_until_format_callback, t);
+		int err = _yΩIO_yvbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
 		if (err) return err;
 		if (t->fmt[0] == Yc('\0')) break;
-
-		assert(t->fmt[0] == '{');
+		assert(t->fmt[0] == Yc('{'));
 		t->fmt++;
-		if (t->fmt[0] != ':' && t->fmt[0] != '}') {
-			return YIO_ERROR_ENOSYS;
-		}
-		if (t->fmt[0] == ':') {
+
+		t->pf = _yΩIO_printfmt_default;
+		// Handle conversion specifier.
+		if (t->fmt[0] == Yc('!')) {
+			t->fmt++;
+			if (t->fmt[0] != Yc('s')) {
+				return YIO_ERROR_UNKNOWN_CONVERSION;
+			}
+			t->pf.conversion = t->fmt[0];
 			t->fmt++;
 		}
-		t->pf = _yΩIO_printfmt_default;
+		if (t->fmt[0] == Yc(':')) {
+			t->fmt++;
+		} else if (t->fmt[0] != Yc('}')) {
+			return YIO_ERROR_PYFMT_INVALID;
+		}
 
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
 			return YIO_ERROR_TOO_MANY_FMT;

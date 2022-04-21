@@ -68,6 +68,8 @@ struct yπio_printfmt_s {
 	 * The printing type character. The standard valid characters are "bcdeEfFgGnosxX%".
 	 */
 	Ychar type;
+	/// The conversion specifier.
+	Ychar conversion;
 	/**
 	 * Use of alternate form.
 	 */

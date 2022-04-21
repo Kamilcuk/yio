@@ -9,6 +9,7 @@
 #include "ctx.h"
 #include "fmt_private.h"
 #include "ctx_private.h"
+#include "yio/yio_error.h"
 #include <stdio.h>
 #include <stdbool.h>
 #include <errno.h>
@@ -58,7 +59,7 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 		goto EXIT;
 	}
 	if (fmt[0] == '\0') {
-		ret = YIO_ERROR_PYFMT_INVALID;
+		ret = YIO_ERROR_EOF_IN_FMT;
 		goto EXIT;
 	}
 	const bool has_fill = _yΩIO_strnulchrbool(Yc("<>=^"), fmt[1]);
@@ -89,7 +90,7 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 		}
 		// If there is a dot, there must be precision.
 		if (endparamptr == fmt) {
-			ret = YIO_ERROR_PYFMT_INVALID;
+			ret = YIO_ERROR_MISSING_PRECISION;
 			goto EXIT;
 		}
 		fmt = endparamptr;
@@ -100,7 +101,7 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 	pf->type = _yΩIO_strnulchrbool(Yc("bcdeEfFaAgGnosxX%"), fmt[0]) ? fmt++[0] : 0;
 
 	if (fmt[0] != '}') {
-		ret = YIO_ERROR_PYFMT_INVALID;
+		ret = YIO_ERROR_MISSING_RIGHT_BRACE;
 		goto EXIT;
 	}
 	++fmt;
@@ -109,3 +110,4 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 	*endptr = fmt;
 	return ret;
 }
+
