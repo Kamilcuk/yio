@@ -25,8 +25,12 @@
  * The structure that allows for printing context manipulation.
  */
 struct _yΩIO_printctx_s {
-	/// Common.
-	struct _yΩIO_commonctx_s c;
+	/// va_list of current argument.
+	va_list *va;
+#ifdef YIO_HAS_POSARG
+	/// Copy of va_list when iterating
+	va_list *iva;
+#endif
 	/// Iterator in callback functions.
 	const _yΩIO_printfunc_t *ifunc;
 	/// The pointer to the data.
@@ -48,12 +52,12 @@ void _yΩIO_printctx_init(yπio_printctx_t *t,
 		_yΩIO_printcb_t *out, void *outarg,
 		const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	yπio_printctx_t _yΩIO_printctx = {
+		.va = va,
+		.fmt = fmt,
+		.ifunc = data,
 		.data = data,
-		.c.va = va,
 		.out = out,
 		.outarg = outarg,
-		.ifunc = data,
-		.fmt = fmt,
 	};
 	*t = _yΩIO_printctx;
 }

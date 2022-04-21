@@ -286,13 +286,7 @@ endfunction()
 ##################################################################################
 # Add libraries
 
-file_glob_srcs_relative_to_srcdir(GLOB _auto_compat_srcs yio/compatlib)
-yio_add_library(yio_compat
-	${_auto_compat_srcs}
-	yio/yio_config.h
-	yio/yio_version.h
-	yio/yio_config_gen.h
-)
+add_custom_target(yio_gen DEPENDS ${_genabssrcs})
 
 file_glob_srcs_relative_to_srcdir(GLOB _auto_generic_srcs yio)
 file_glob_srcs_relative_to_srcdir(GLOB _auto_yio_private_srcs yio/private)
@@ -324,6 +318,15 @@ yio_add_library(yio ${_yio_sources})
 if(UNISTRING_LIB)
 	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
 endif()
+
+file_glob_srcs_relative_to_srcdir(GLOB _auto_compat_srcs yio/compatlib)
+yio_add_library(yio_compat
+	${_auto_compat_srcs}
+	yio/yio_config.h
+	yio/yio_version.h
+	yio/yio_config_gen.h
+)
+add_dependencies(yio_compat yio)
 
 ##################################################################################
 

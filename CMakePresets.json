@@ -13,14 +13,15 @@
       "warnings": {
         "dev": true,
         "deprecated": true,
-        "uninitialized": false,
+        "uninitialized": true,
         "unusedCli": true,
-        "systemVars": true
+        "systemVars": false
       },
       "cacheVariables": {
         "YIO_DEV": "1",
         "YIO_BUILD_TESTING": "1",
-        "BUILD_TESTING": "1"
+        "BUILD_TESTING": "1",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
       }
     },
     {
@@ -71,10 +72,34 @@
       "name": "lint",
       "inherits": "default",
       "cacheVariables": {
+        "_yIO_HAS_FLOATf32": "0",
+        "_yIO_HAS_FLOATf32x": "0",
+        "_yIO_HAS_FLOATf64": "0",
+        "_yIO_HAS_FLOATf64x": "0",
         "_yIO_HAS_FLOATd32": "0",
         "_yIO_HAS_FLOATd64": "0",
         "_yIO_HAS_FLOATd128": "0",
-        "_yIO_HAS_FLOATf128": "0"
+        "_yIO_HAS_FLOATf128": "0",
+				"YIO_CPPLINT": "1",
+				"YIO_CLANG_TIDY": "1"
+      }
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "default",
+      "configurePreset": "default",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "valgrind",
+      "inherits": "default",
+      "filter": {
+        "exclude": {
+          "label": "nomemcheck"
+        }
       }
     }
   ]

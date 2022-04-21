@@ -47,7 +47,10 @@ foreach(src IN LISTS srcs)
 			OUTPUT ${genout}
 			--mode ${mode}
 		)
-		yio_add_test(${genout} NAME ${mode}/${src} REALFILE ${src} LABELS ${mode})
+		yio_add_test(${genout} NAME ${mode}/${src} REALFILE ${src} LABELS ${mode} GETNAME testname)
+		if(mode STREQUAL "ywio" AND src MATCHES "simple/yio_test_other.c")
+			set_tests_properties(${testname} PROPERTIES LABELS nomemcheck)
+		endif()
 	endforeach()
 endforeach()
 

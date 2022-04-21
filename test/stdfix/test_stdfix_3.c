@@ -13,7 +13,7 @@
 #error leaked stdfix.h to public headers
 #endif
 
-int hex_dot_hex_to_int(char *str) {
+static int hex_dot_hex_to_int(char *str) {
 	int r = 0;
 	while (*str != 0) {
 		char c = str[0];

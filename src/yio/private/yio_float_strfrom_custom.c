@@ -113,7 +113,6 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 	);
 	if (!(0 <= digit && digit <= baseint)) {
 		_yIO_res_end_err(v);
-		printf("HERE\n");
 		return YIO_ERROR_ENOSYS;
 	}
 

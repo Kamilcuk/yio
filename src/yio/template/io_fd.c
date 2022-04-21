@@ -32,7 +32,7 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	return ret;
 }
 
-#if defined __NEWLIB__ && defined _FORTIFY_SOURCE && _yIO_TYPE_YWIO
+#if {{(MODEX == 2)|int}} && defined __NEWLIB__ && defined _FORTIFY_SOURCE
 		// there is a bug in newlib
 		// in include/ssp/wchar.h when checking size for wcrtomb
 #define SUPER_MB_LEN_MAX  (MB_LEN_MAX > sizeof(wchar_t) ? MB_LEN_MAX :  sizeof(wchar_t))
@@ -42,30 +42,26 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 
 static inline _yIO_access_r(2, 3)
 int _yΩIO_yπvdprintf_cb(void *arg, const Ychar *ptr, size_t size) {
-#if _yIO_TYPE_YIO
+{% if MODEX == 1 %}
+#line
 	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
-#elif _yIO_TYPE_YWIO || _yIO_TYPE_YC16IO || _yIO_TYPE_YUIO
+{% elif MODEX == 2 or MODEX == 3 %}
+#line
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	while (size--) {
 		char s[SUPER_MB_LEN_MAX];
 		const size_t wr =
-#if _yIO_TYPE_YWIO
-				wcrtomb
-#elif _yIO_TYPE_YC16IO
-				c16rtomb
-#elif _yIO_TYPE_YUIO
-				c32rtomb
-#endif
-				(s, *ptr++, &ps);
+				{% if MODE == 2 %} wcrtomb {% elif MODE == 3 %} c16rtomb {% elif MODE == 4 %} c32rtomb {% else %}{{ j_fatal() }}{% endif %}
+				(s, *ptr, &ps);
+#line
+		ptr++;
 		if (wr == (size_t)-1) return YIO_ERROR_WCTOMB;
 		const int r = _yΩIO_yπvdprintf_cb_in(arg, s, wr);
 		if (r < 0) return r;
 	}
 	return 0;
-#else
-#error
-#endif
+{% else %}{{ j_fatal() }}{% endif %}
 }
 
 int yπvdprintf(int fd, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {

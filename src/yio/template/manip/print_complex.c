@@ -11,12 +11,17 @@
 #if _yIO_HAS_COMPLEX
 #include <complex.h>
 
+#if defined(__GNUC__) && !defined(__clang__) && __GNUC__ == 11
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105331
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
+
 {% from "yio/template/manip/print_complex.h" import j_complex_types, j_imaginary_types %}
 
 {% call j_FOREACHAPPLY(j_complex_types) %}
 #line
 int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
-	const $2 val = yπio_printctx_va_arg(t, $2);
+	const $2 val = yπio_printctx_va_arg(t, $2); // NOLINT(clang-analyzer-valist.Uninitialized)
 	int err = yπio_printctx_init(t);
 	if (err) return err;
 	return yπio_printctx_printf(t, Yc("{}{:+}i"), creal$3(val), cimag$3(val));

@@ -53,8 +53,8 @@ const Ychar *yπio_printctx_get_fmtstrpnt(yπio_printctx_t *t) {
 	return t->fmt;
 }
 
-va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype) {
-	return _yΩIO_commonctx_inc_va_list(&t->c, sizeof_realtype);
+va_list *_yΩIO_printctx_get_va(yπio_printctx_t *t) {
+	return t->va;
 }
 
 int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const Ychar *fmt, ...) {
@@ -74,13 +74,14 @@ int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const Yc
 
 static inline
 size_t _yΩIO_width(const Ychar *str, size_t str_len) {
-#if _yIO_TYPE_YIO && _yIO_HAS_UNISTRING
+#if {{(MODE == 1)|int}} && _yIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
-#elif _yIO_TYPE_YWIO && _yIO_HAS_wcswidth
-	return wcswidth(str, str_len);
-#elif  _yIO_TYPE_YC16IO
+#elif {{(MODE == 2)|int}} && _yIO_HAS_wcswidth
+	const int width = wcswidth(str, str_len);
+	return width < 0 ? str_len : (size_t)width;
+#elif {{(MODE == 3)|int}}
 	return u16_width(str, str_len, locale_charset());
-#elif  _yIO_TYPE_YUIO
+#elif {{(MODE == 4)|int}}
 	return u32_width(str, str_len, locale_charset());
 #else
 	return str_len;

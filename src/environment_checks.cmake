@@ -95,7 +95,7 @@ endif()
 set(_yIO_HAS_FLOAT_H_COMMENT "Do we have float.h?")
 yio_config_gen_check_include_file("float.h" _yIO_HAS_FLOAT_H)
 set(_yIO_HAS_FENV_H_COMMENT "Do we have fenv.h?")
-yio_config_gen_check_include_file("float.h" _yIO_HAS_FENV_H)
+yio_config_gen_check_include_file("fenv.h" _yIO_HAS_FENV_H)
 
 yio_config_gen_check_type_exists(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
 yio_config_gen_check_symbol_exists(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)

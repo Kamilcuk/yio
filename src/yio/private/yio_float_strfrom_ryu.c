@@ -144,6 +144,7 @@ int _yIO_float_astrfrom_ryu$1_in(char ** const resultp, size_t * const lengthp,
 	*lengthp = len;
 	return 0;
 ERROR_ENOSYS:
+	free(res);
 	*resultp = NULL;
 	*lengthp = 0;
 	return YIO_ERROR_ENOSYS;

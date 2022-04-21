@@ -154,6 +154,12 @@ va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype
 		_yΩIO_printctx_print(printctx, YΩIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
+ * Get va_list from printctx.
+ */
+_yIO_wur _yIO_rnn _yIO_nn() _yIO_access_r(1)
+va_list *_yΩIO_printctx_get_va(yπio_printctx_t *t);
+
+/**
  * Get next argument from variadic arguments stack. The argument has type @c type.
  * The type argument undergoes implicit conversion when calling a variadic function,
  * so char, short is converted to int, float is converted to double.
@@ -163,20 +169,7 @@ va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype
  * @param type Type of argument passed to va_list.
  * @return A value from the printcts va_list of type type.
  */
-#define yπio_printctx_va_arg(printctx, type)  yπio_printctx_va_arg2(printctx, type, type)
-
-/**
- * Get next argument of type 'realtype' from arguments stack.
- * The real argument type after implicit conversion is 'promotedtype'.
- * This function has only usage for 'realtype' equal to char, short or float.
- * @def yπio_printctx_va_arg2(printctx, realtype, promotedtype)
- * @param printctx Printing context, pointer to yπio_printctx_t
- * @param realtype The real type that was passed to va_list.
- * @param promotedtype The promoted type of real type.
- * @return A value from the printcts va_list of type promotedtype.
- */
-#define yπio_printctx_va_arg2(printctx, realtype, promotedtype)  \
-		va_arg(*_yΩIO_printctx_inc_va_list(printctx, sizeof(realtype)), promotedtype)
+#define yπio_printctx_va_arg(printctx, type)   va_arg(*_yΩIO_printctx_get_va(printctx), type)
 
 /**
  * Automatically promote the type for integer types.
@@ -186,12 +179,13 @@ va_list *_yΩIO_printctx_inc_va_list(yπio_printctx_t *t, size_t sizeof_realtype
  * @param numtype Numericall type, that arithmetics can be done for.
  * @return A value from the printcts va_list of type promoted numtype.
  */
-#define yπio_printctx_va_arg_num(printctx, numtype)  _Generic(+(numtype)1,\
-		int: yπio_printctx_va_arg2(printctx, numtype, int), \
-		unsigned: yπio_printctx_va_arg2(printctx, numtype, unsigned), \
-		float: yπio_printctx_va_arg2(printctx, numtype, double), \
-		default: yπio_printctx_va_arg2(printctx, numtype, numtype)  /* NOLINT(clang-diagnostic-varargs) */ \
-)
+#define yπio_printctx_va_arg_num(printctx, numtype)  \
+		_Generic(+(numtype)1, \
+			int: yπio_printctx_va_arg(printctx, int), \
+			unsigned: yπio_printctx_va_arg(printctx, unsigned), \
+			float: yπio_printctx_va_arg(printctx, double), \
+			default: yπio_printctx_va_arg(printctx, numtype)  /* NOLINT(clang-diagnostic-varargs) */ \
+		)
 
 /**
  * @}

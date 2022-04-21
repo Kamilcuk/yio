@@ -42,10 +42,9 @@ if(NOT DEFINED YIO_DEV)
 	set(YIO_DEV 0)
 endif()
 if(YIO_DEV)
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
-	set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 	# Use ccache if available
 	find_program(CCACHE_COMMAND "ccache")
@@ -65,6 +64,7 @@ if(YIO_DEV)
 			readability/todo     # I'm programming alone.
 			build/include        # This is hevily templated system, sometimes files don't include.
 			readability/nolint   # I use clang-tidy too, don't complain.
+			build/c++11          # This is C not C++.
 		)
 		string(REGEX REPLACE ";" ",-" _filter "${_filter}")
 		set(CMAKE_C_CPPLINT "cpplint" "--filter=-${_filter}")
@@ -116,24 +116,26 @@ if(YIO_DEV)
 		)
 	endif()
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+		if(NOT YIO_CLANG_TIDY)
+			check_c_compiler_flag(-fanalyzer _yIO_ANALYZER)
+			if(_yIO_ANALYZER)
+				add_compile_options(-fanalyzer)
+			endif()
+		endif()
 		check_c_compiler_flag(-Wattribute-warning _yIO_ATTRIBUTE_WARNING)
 		if(_yIO_ATTRIBUTE_WARNING)
-			add_compile_options(
-				-Wattribute-warning
-			)
+			add_compile_options(-Wattribute-warning)
 		endif()
-		add_compile_options(
-			-Wmissing-prototypes
-		)
-		add_compile_definitions(
-			_FORTIFY_SOURCE=2
-		)
+		add_compile_options(-Wmissing-prototypes)
+		add_compile_definitions(_FORTIFY_SOURCE=2)
 	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+		check_c_compiler_flag(--analyze _yIO_ANALYZER)
+		if(_yIO_ANALYZER)
+			#add_compile_options(--analyze)
+		endif()
 		check_c_compiler_flag(-ffixed-point _yIO_FIXED_POINT)
 		if(_yIO_FIXED_POINT)
-			add_compile_options(
-				-ffixed-point
-			)
+			add_compile_options(-ffixed-point)
 		endif()
 		add_compile_options(
 			-Wno-varargs
@@ -147,19 +149,6 @@ if(YIO_DEV)
 	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		add_compile_options(-fcolor-diagnostics)
 	endif()
-
-
-	function(yio_cdt_parser tgt)
-		add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
-		target_compile_definitions(${tgt} PRIVATE
-			__CDT_PARSER__=1
-		)
-		target_include_directories(${tgt} PRIVATE
-			${SRCDIR}
-			${GENDIR}
-		)
-		target_link_libraries(${tgt} PRIVATE library_that_does_not_exists)
-	endfunction()
 
 	yio_debug_variables(
 		BUILD_TESTING
@@ -188,10 +177,10 @@ if(YIO_DEV)
 		CCACHE_FOUND
 		UNISTRING_LIB
 		CPPLINT_COMMAND
-    DIRECTORY
-    COMPILE_OPTIONS
-    COMPILE_DEFINITIONS
-    LINK_OPTIONS
+		DIRECTORY
+		COMPILE_OPTIONS
+		COMPILE_DEFINITIONS
+		LINK_OPTIONS
 	)
 	if(0)
 		yio_debug_variables(
@@ -235,6 +224,20 @@ endif(YIO_DEV)
 
 ###############################################################################
 
+function(yio_cdt_parser tgt)
+	add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
+	target_compile_definitions(${tgt} PRIVATE
+		__CDT_PARSER__=1
+	)
+	target_include_directories(${tgt} PRIVATE
+		${SRCDIR}
+		${GENDIR}
+	)
+	target_link_libraries(${tgt} PRIVATE library_that_does_not_exists)
+endfunction()
+
+###############################################################################
+
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 if(POLICY CMP0116)
 	cmake_policy(SET CMP0116 NEW)
@@ -258,6 +261,8 @@ add_custom_target(yio_gen_prepare
 	COMMENT "jinja2: compiling preproces script target"
 )
 
+set_from_env(YIO_LINE) # Use to disable adding #line in source files
+
 #!
 function(jinja_generate)
 	cmake_parse_arguments(A "" "SOURCE;OUTPUT" "" ${ARGN})
@@ -274,7 +279,7 @@ function(jinja_generate)
 		message(FATAL_ERROR "Source file does not exist: ${A_SOURCE}")
 	endif()
 	set(debug)
-	if(YIO_DEV)
+	if((DEFINED YIO_LINE AND YIO_LINE) OR (NOT DEFINED YIO_LINE AND YIO_DEV))
 		set(debug --debug)
 	endif()
 	add_custom_command(
@@ -297,6 +302,7 @@ function(jinja_generate)
 		DEPFILE "${depfile}"
 		DEPENDS
 			yio_gen_prepare
+			"${JINJASCRIPT}"
 			"${A_SOURCE}"
 		VERBATIM
 	)

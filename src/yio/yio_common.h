@@ -10,11 +10,6 @@
 #include <stddef.h>
 #include <string.h>
 
-enum _yIO_TYPES {
-	_yIO_TYPE_YIO  = 0,
-	_yIO_TYPE_YWIO = 0,
-	_yIO_TYPE_YUIO = 0,
-};
 
 /**
  * @defgroup compilermacros
@@ -24,7 +19,7 @@ enum _yIO_TYPES {
 #ifdef __GNUC__
 #define _yIO_nn(...)          __attribute__((__nonnull__(__VA_ARGS__)))
 #define _yIO_wur              __attribute__((__warn_unused_result__))
-#define _yIO_malloc           __attribute__((__malloc__))
+#define _yIO_retmalloc        __attribute__((__malloc__))
 #define _yIO_const            __attribute__((__const__))
 #ifndef __INTEL_COMPILER
 #define _yIO_rnn              __attribute__((__returns_nonnull__))
@@ -50,9 +45,9 @@ enum _yIO_TYPES {
 /// Warn on function unused return value.
 #define _yIO_wur
 #endif
-#ifndef _yIO_malloc
+#ifndef _yIO_retmalloc
 /// Function allocates new memory and returns it.
-#define _yIO_malloc
+#define _yIO_retmalloc
 #endif
 #ifndef _yIO_const
 /// Function is a const-like function.

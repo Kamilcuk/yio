@@ -67,7 +67,7 @@ int yπvreaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt,
  * Calls yπvreformatf(NULL, ...). See yπvreformatf.
  * @see yπvreformatf
  */
-_yIO_malloc _yIO_nn(1, 3) _yIO_wur
+_yIO_retmalloc _yIO_nn(1, 3) _yIO_wur
 Ychar *yπvformatf(const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Dynamically allocates memory for formatted string.
@@ -118,7 +118,7 @@ _yIO_nn(1, 2)
 int _yΩIO_yaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 2)
 int _yΩIO_yreaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, ...);
-_yIO_nn(1) _yIO_malloc _yIO_wur
+_yIO_nn(1) _yIO_retmalloc _yIO_wur
 Ychar *_yΩIO_yformatf(const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(2) _yIO_wur
 Ychar *_yΩIO_yreformatf(Ychar *str, const yπio_printdata_t *data, const Ychar *fmt, ...);

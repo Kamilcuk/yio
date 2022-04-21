@@ -17,7 +17,7 @@ endif()
 
 # @def yio_add_test()
 function(yio_add_test T_SOURCE)
-	cmake_parse_arguments(T "LABELS" "NAME;REALFILE" "" ${ARGN})
+	cmake_parse_arguments(T "LABELS" "NAME;REALFILE;GETNAME" "" ${ARGN})
 
 	# unicode tests need unicode support
 	if(NOT _yIO_HAS_UCHAR_H AND (T_SOURCE MATCHES "yui" OR T_SOURCE MATCHES "yc16io"))
@@ -46,6 +46,10 @@ function(yio_add_test T_SOURCE)
 	set_tests_properties(${T_NAME} PROPERTIES LABELS "${A_LABELS}")
 	test_extract_properties_from_file(${T_NAME} ${T_NAME} ${T_REALFILE})
 
+
+	if(DEFINED T_GETNAME)
+		set(${T_GETNAME} ${T_NAME} PARENT_SCOPE)
+	endif()
 	#set_from_env(YIO_STEST)
 	#if(YIO_STEST)
 		#set_property(TARGET ${name} PROPERTY EXCLUDE_FROM_ALL TRUE)
@@ -92,10 +96,17 @@ endforeach()
 
 ######################################################################################
 
-# test if there are any absolute includes in the source tree
-add_test(NAME find_absolute_includes
-	COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/absolute_includes_find.sh ${GENDIR}
-)
-set_property(TEST find_absolute_includes APPEND PROPERTY LABELS nomemcheck)
+if(UNIX)
+	# test if there are any absolute includes in the source tree
+	add_test(NAME find_absolute_includes
+		COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/absolute_includes_find.sh ${GENDIR}
+	)
+	set_property(TEST find_absolute_includes APPEND PROPERTY LABELS nomemcheck)
 
-
+	# Test if {{}} are properly cast to int inside #if
+	add_test(
+		NAME no_jinja2_error_inside_if
+		COMMAND grep -ER "#.*if.*(False|True)" "${GENDIR}"
+	)
+	set_tests_properties(no_jinja2_error_inside_if PROPERTIES WILL_FAIL 1)
+endif()

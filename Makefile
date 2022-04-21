@@ -4,7 +4,7 @@
 
 SHELL = bash
 
-MAKEFLAGS += -rR --no-print-directory
+MAKEFLAGS += -rR --no-print-directory --warn-undefined-variables
 .SUFFIXES:
 .NOTPARALLEL:
 
@@ -12,9 +12,6 @@ MAKEFLAGS += -rR --no-print-directory
 NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
 # check if we have ionice from util-linux
 NICE += $(shell hash ionice >/dev/null 2>&1 && echo ionice -c 3)
-# Protect against non-existent sudo command
-SUDO += $(shell hash sudo >/dev/null 2>&1 && echo sudo)
-STDBUF = $(shell hash stdbuf >/dev/null 2>&1 && echo stdbuf -oL -eL)
 
 HELP_VAR +=~ NPROC - Number of cores to use
 NPROC = $(shell echo $$(( $$(grep -c processor /proc/cpuinfo) * 100 / 75)) )
@@ -24,17 +21,16 @@ NPROC = $(shell echo $$(( $$(grep -c processor /proc/cpuinfo) * 100 / 75)) )
 HELP_VAR +=~ CMAKE_BUILD_TYPE
 CMAKE_BUILD_TYPE ?= Debug
 
-HELP_VAR +=~ MODE - {,coverage,sanitize}
-MODE ?=
-
 HELP_VAR +=~ CMAKE_C_FLAGS
 CMAKE_C_FLAGS ?=
 
 HELP_VAR +=~ BUILD_TESTING
-BUILD_TESTING ?= ON
 
 HELP_VAR +=~ CTESTFLAGS
 CTESTFLAGS ?=
+
+HELP_VAR +=~ PRESET
+PRESET ?= default
 
 HELP_VAR +=~ LINT - set to 1 if want to run CPPLINT
 LINT ?=
@@ -45,17 +41,6 @@ endif
 
 HELP_VAR +=~ R - Pass option to ctest -R
 R ?=
-
-###############################################################################
-
-ifeq ($(MODE),)
-else ifeq ($(MODE),coverage)
-CMAKE_C_FLAGS += -g --coverage -fprofile-abs-path
-else ifeq ($(MODE),sanitize)
-CMAKE_C_FLAGS += -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection
-else
-$(error MODE - invalid value)
-endif
 
 ###############################################################################
 
@@ -70,36 +55,25 @@ ISALPINE ?= $(shell grep -q alpine /etc/os-release 2>/dev/null && echo 1)
 ifeq ($(ISALPINE),1)
 _BCCNAME = alpine
 endif
-_BNAME = $(_BCCNAME)$(CMAKE_BUILD_TYPE)$(shell MODE=$(MODE) && echo $${MODE^})
+_BNAME = $(_BCCNAME)$(CMAKE_BUILD_TYPE)$(shell PRESET=$(PRESET) && echo $${PRESET^})
 HELP_VAR +=~ B - Build directory location
 B ?= _build/$(_BNAME)
 
 # Default cmake and other flags
-CMAKE_BUILD_PARALLEL_LEVEL ?= $(NPROF)
 CMAKE = $(NICE) cmake
 CTEST = $(NICE) ctest
 CMAKEFLAGS += -S.
-ifeq ($(shell hash ninja 2>&1),)
-MAKEFLAGS += --warn-undefined-variables
-CMAKEFLAGS += -GNinja
-else
-export CMAKE_BUILD_PARALLEL_LEVEL
-endif
-ifneq ($(shell cmake --help | grep log-level),)
-CMAKEFLAGS_INIT += --log-level=TRACE
-endif
-CMAKEFLAGS_INIT += -DYIO_DEV=1
-CMAKEFLAGS += $(CMAKEFLAGS_INIT)
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += $(if $(value CMAKE_C_FLAGS),-DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)")
+ifneq ($(value BUILD_TESTING),)
 CMAKEFLAGS += -DBUILD_TESTING=$(BUILD_TESTING)
-CMAKEFLAGS += --warn-uninitialized
+endif
+CMAKEFLAGS += --log-level=TRACE
 
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
 
 BUILDFLAGS ?=
-CONFIGFLAGS ?=
 VERBOSE ?= 0
 
 ifeq ($(VERBOSE),1)
@@ -117,19 +91,14 @@ all: help
 ###############################################################################
 # Generic configure+build+test targets
 
-.run_preset:
-	$(CMAKE) --preset=$(PRESET) --log-level=TRACE
-	$(CMAKE) --build _build/$(PRESET) $(BUILDFLAGS) <&-
-	$(MAKE) testonly B=_build/$(PRESET)
-
 HELP +=~ configure - Configure the project
 configure:
-	$(CMAKE) -B$(B) $(CMAKEFLAGS) $(CONFIGFLAGS)
+	$(CMAKE) --preset=$(PRESET) -B$(B) $(CMAKEFLAGS)
 
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: configure
-	$(CMAKE) --build $(B) --target $* $(BUILDFLAGS) <&-
+	$(CMAKE) --build $(B) --target $(if $(value T),$T,$*) $(BUILDFLAGS) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen
@@ -144,18 +113,25 @@ HELP +=~ test - Run tests using ctest
 test: build testonly
 
 testonly:
-	ulimit -c 0 ; ( cd $(B) && $(CTEST) --output-on-failure -j $(NPROC) $(CTESTFLAGS) $(TESTFLAGS) )
+	ulimit -c 0 ; cd $(B) && $(CTEST) --output-on-failure -j $(NPROC) $(CTESTFLAGS) $(TESTFLAGS)
+
+###############################################################################
 
 HELP +=~ valgrind - Run tests under valgrind
-valgrind: CTESTFLAGS += -LE nomemcheck -D ExperimentalMemCheck
-valgrind: test
+valgrind:
+	$(MAKE) test CTESTFLAGS=" -LE nomemcheck -D ExperimentalMemCheck "
 
 HELP +=~ testone_% - Build and test one specific target
 testone_%:
-	$(MAKE) .build_$* testonly CTESTFLAGS="-j 0 -R '^$*\$$\$$' -V"
+	$(MAKE) .build_$* testonly CTESTFLAGS="-j 1 -R '^$*\$$\$$' -V"
 
+HELP +=~ lint - run linters
 lint:
-	$(MAKE) LINT=1 CONFIGFLAGS='-D_yIO_HAS_FLOATd32=0 -D_yIO_HAS_FLOATd64=0 -D_yIO_HAS_FLOATd128=0 -D_yIO_HAS_FLOATf128=0' B=.cache/lint build
+	$(MAKE) build PRESET=lint
+
+HELP +=~ clang
+clang:
+	CC=clang $(MAKE) test
 
 ###############################################################################
 
@@ -164,8 +140,8 @@ cicd: export CMAKE_BUILD_TYPE=Release
 cicd:
 	$(MAKE) valgrind
 	$(MAKE) test_project
-	$(MAKE) test MODE=sanitize
-	CC=clang $(MAKE) test
+	$(MAKE) test PRESET=sanitize
+	$(MAKE) clang
 	$(MAKE) arm
 	$(MAKE) gitlab_pages
 
@@ -186,19 +162,29 @@ release_test:
 
 # Exotic Targets ##################################################
 
-arm: PRESET=arm
-arm: .run_preset
+HELP +=~ sanitize
+sanitize:
+	$(MAKE) test PRESET=$@
 
-arm2: PRESET=arm2
-arm2: .run_preset
+HELP +=~ arm
+arm:
+	$(MAKE) test PRESET=$@
 
-sdcc: PRESET=sdcc
-sdcc: .run_preset
+HELP +=~ arm2 - does not work
+arm2:
+	$(MAKE) test PRESET=$@
 
-coverage: PRESET=coverage
-coverage: .run_preset coverage_gen
-coverage_gen: B=_build/coverage
-coverage_gen:
+HELP +=~ sdcc - does not work
+sdcc:
+	$(MAKE) test PRESET=$@
+
+HELP +=~ coverage
+coverage:
+	$(MAKE) test coverage_gen PRESET=$@
+
+HELP +=~ coverate_gen
+coverage_gen: ; $(MAKE) .coverage_gen PRESET=coverage
+.coverage_gen:
 	gcovr --print-summary --txt - --xml ./_build/cobertura-coverage.xml --json ./coverage.json --filter "$(B)/gen" --filter "src" -r . "$(B)"
 
 ###############################################################################
@@ -231,7 +217,7 @@ CPPCHECK_FLAGS = --quiet --enable=all
 HELP +=~ cppcheck Run cppcheck
 cppcheck: linuxincdir = $(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
 cppcheck: release
-	nice cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
+	$(NICE) cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
 
 ###############################################################################
 
