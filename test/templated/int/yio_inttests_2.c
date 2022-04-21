@@ -10,17 +10,15 @@
 #include <string.h>
 #include <assert.h>
 
-#if _yIO_TYPE_YIO
+{% if MODE == 1 %}
 #define shouldbe_snprintf snprintf
-#elif _yIO_TYPE_YWIO
+{% elif MODE == 2 %}
 #define shouldbe_snprintf swprintf
-#elif _yIO_TYPE_YC16IO
+{% elif MODE == 3 %}
 #define shouldbe_snprintf u16_u16_snprintf
-#elif _yIO_TYPE_YUIO
+{% elif MODE == 4 %}
 #define shouldbe_snprintf u32_u32_snprintf
-#else
-#error
-#endif
+{% else %}{{ j_fatal() }}{% endif %}
 
 #define _yio_inttest2(SUFFIX, TYPE) \
 static inline \

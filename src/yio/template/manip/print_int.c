@@ -31,10 +31,8 @@ int _yΩIO_printint_to_radix(Ychar type) {
 		return 8;
 	case Yc('b'):
 		return 2;
-	default:
-		assert(!"Invalid print type");
 	}
-	return 10;
+	return -1;
 }
 
 
@@ -74,6 +72,9 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 	if (err) return err;
 	const Ychar type = yπio_printctx_get_fmt(t)->type;
 	const $2 radix = _yΩIO_printint_to_radix(type);
+	if (radix == ($2)-1) {
+		return YIO_ERROR_UNKNOWN_FMT;
+	}
 	const Ychar *format = _yΩIO_printint_to_fmt(type);
 	const bool negative =
 	{# If $2 is unsigned, it can't be negative So remove the check, so that -Wtype-limits doesn't throw #}

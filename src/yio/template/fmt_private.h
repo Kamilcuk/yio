@@ -45,4 +45,7 @@ int _yΩIO_printformat_number(yπio_printctx_t *t, const Ychar str[], bool posit
 _yIO_wur _yIO_nn()
 int _yΩIO_printformat_string(yπio_printctx_t *t, const Ychar str[]);
 
+
+int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
+		const Ychar *ptr, const Ychar **endptr, int *res);
 bool _yΩIO_strnulchrbool(const Ychar *s, Ychar c);

@@ -74,9 +74,10 @@ SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
 
 BUILDFLAGS ?=
-VERBOSE ?= 0
+VERBOSE ?=
+V ?=
 
-ifeq ($(VERBOSE),1)
+ifeq ($(VERBOSE)$(V),1)
 BUILDFLAGS += --verbose
 CTESTFLAGS += -V
 endif
@@ -140,7 +141,7 @@ cicd: export CMAKE_BUILD_TYPE=Release
 cicd:
 	$(MAKE) valgrind
 	$(MAKE) test_project
-	$(MAKE) test PRESET=sanitize
+	$(MAKE) sanitize
 	$(MAKE) clang
 	$(MAKE) arm
 	$(MAKE) gitlab_pages
@@ -182,7 +183,7 @@ HELP +=~ coverage
 coverage:
 	$(MAKE) test coverage_gen PRESET=$@
 
-HELP +=~ coverate_gen
+HELP +=~ coverage_gen
 coverage_gen: ; $(MAKE) .coverage_gen PRESET=coverage
 .coverage_gen:
 	gcovr --print-summary --txt - --xml ./_build/cobertura-coverage.xml --json ./coverage.json --filter "$(B)/gen" --filter "src" -r . "$(B)"

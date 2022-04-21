@@ -11,6 +11,7 @@ int main() {
 	_yIO_TEST(err > 0, "%s | %s", yio_strerror(err), fmt);
 	_yIO_TEST(str != NULL);
 	_yIO_TEST(strcmp(str, out) == 0, "%s | %s", str, fmt);
+	yprintf("`{}`\n", str);
 	free(fmt);
 	free(str);
 }

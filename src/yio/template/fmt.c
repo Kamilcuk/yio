@@ -17,15 +17,58 @@
 #include <ctype.h>
 
 static inline
-int _yΩIO_printctx_stdintparam_callback(void *arg) {
-	struct _yΩIO_printctx_s *t = arg;
+int _yΩIO_printctx_get_va_arg_int(yπio_printctx_t *t) {
 	++t->ifunc;
 	return yπio_printctx_va_arg(t, int);
 }
 
 static inline
-int _yΩIO_printctx_stdintparam(struct _yΩIO_printctx_s *t, const Ychar *ptr, const Ychar **endptr, int *res) {
-	return _yΩIO_commonctx_stdintparam(_yΩIO_printctx_stdintparam_callback, t, ptr, endptr, res);
+int _yΩIO_digit_to_number(Ychar d) {
+{% if MODEX == 1 %}
+	return d - '0';
+{% else %}
+	const Ychar table[] = Yc("0123456789");
+	return Ystrchr(table, d) - table;
+{% endif %}
+}
+
+static inline
+int _yΩIO_printctx_strtoi_noerr(const Ychar **ptr) {
+	const Ychar *pnt = *ptr;
+	int num = 0;
+	do {
+		assert(num < INT_MAX / 10);
+		num *= 10;
+		const int c = _yΩIO_digit_to_number(pnt[0]);
+		assert(num < INT_MAX - c);
+		num += c;
+		++pnt;
+	} while (Yisdigit(pnt[0]));
+	*ptr = pnt;
+	return num;
+}
+
+int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
+		const Ychar *ptr, const Ychar **endptr, int *res) {
+	int num = -1;
+	int ret = 0;
+	if (ptr[0] == Yc('{')) {
+		ptr++;
+		if (Yisdigit(ptr[0])) {
+			return -ENOSYS;
+		}
+		if (ptr++[0] != Yc('}')) {
+			ret = YIO_ERROR_MISSING_RIGHT_BRACE;
+			goto EXIT;
+		}
+		num = _yΩIO_printctx_get_va_arg_int(t);
+	} else if (Yisdigit(ptr[0])) {
+		num = _yΩIO_printctx_strtoi_noerr(&ptr);
+	}
+	EXIT:
+	*endptr = ptr;
+	*res = num;
+	return ret;
 }
 
 const struct yπio_printfmt_s _yΩIO_printfmt_default = {
@@ -43,6 +86,7 @@ bool _yΩIO_strnulchrbool(const Ychar *s, Ychar c) {
 int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 		const Ychar *fmt, const Ychar **endptr) {
 	/*
+	https://fmt.dev/latest/syntax.html#format-specification-mini-language
 	format_spec     ::=  [[fill]align][sign][#][0][width][grouping_option][.precision][type]
 	fill            ::=  <any character>
 	align           ::=  "<" | ">" | "=" | "^"
@@ -54,19 +98,27 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 	 */
 	int ret = 0;
 
-	if (fmt[0] == '}') {
+	if (fmt[0] == Yc('}')) {
 		fmt++;
 		goto EXIT;
 	}
-	if (fmt[0] == '\0') {
+	if (fmt[0] == Yc('\0')) {
 		ret = YIO_ERROR_EOF_IN_FMT;
 		goto EXIT;
 	}
-	const bool has_fill = _yΩIO_strnulchrbool(Yc("<>=^"), fmt[1]);
-	pf->fill = has_fill ? fmt++[0] : Yc(' ');
-	pf->align = _yΩIO_strnulchrbool(Yc("<>=^"), fmt[0]) ? fmt++[0] : Yc('>');
-	pf->sign = _yΩIO_strnulchrbool(Yc("+- "), fmt[0]) ? fmt++[0] : Yc('-');
-	pf->hash = fmt[0] == Yc('#') ? fmt++, true : false;
+	if (fmt[0] != Yc('\0') && _yΩIO_strnulchrbool(Yc("<>=^"), fmt[1])) {
+		pf->fill = fmt++[0];
+		pf->align = fmt++[0];
+	} else if (_yΩIO_strnulchrbool(Yc("<>=^"), fmt[0])) {
+		pf->align = fmt++[0];
+	}
+	if (_yΩIO_strnulchrbool(Yc("+- "), fmt[0])) {
+		pf->sign = fmt++[0];
+	}
+	if (fmt[0] == Yc('#')) {
+		pf->hash = true;
+		fmt++;
+	}
 	if (fmt[0] == Yc('0')) {
 		fmt++;
 		pf->fill = Yc('0');

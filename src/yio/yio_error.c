@@ -11,11 +11,11 @@
 #include <stdio.h>
 
 /**
- * A static list of error messages 
+ * A static list of error messages
  * that correspond to enumeration in enum _yIO_errors_e
  */
 static const char *const _yIO_error_messages[] = {
-{% from "library.jinja" import j_ERRORS %}
+{% from "yio/yio_error.h" import j_ERRORS %}
 {% for v, k in j_ERRORS %}
 #line
 	"{{ k }}",

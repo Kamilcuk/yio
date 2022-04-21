@@ -98,28 +98,26 @@ _yIO_wur _yIO_nn()
 int _yΩIO_printformat_generic(yπio_printctx_t *t,
 		const Ychar str[], size_t str_len, bool is_number, bool is_positive);
 
-_yIO_wur _yIO_nn()
-int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
-		const char str[], size_t str_len, bool is_number, bool is_positive);
-
-#if !_yIO_TYPE_YIO
-_yIO_wur _yIO_nn() static inline
-int yπio_printctx_put(yπio_printctx_t *t, const char str[], size_t str_len) {
-	return _yΩIO_printformat_generic_char(t, str, str_len, false, false);
-}
-#endif
-
 _yIO_wur _yIO_nn() static inline
 int yπio_printctx_putπ(yπio_printctx_t *t, const Ychar str[], size_t str_len) {
 	return _yΩIO_printformat_generic(t, str, str_len, false, false);
 }
 
-#if !_yIO_TYPE_YIO
+{% if MODEX != 1 %}
+_yIO_wur _yIO_nn()
+int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
+		const char str[], size_t str_len, bool is_number, bool is_positive);
+
+_yIO_wur _yIO_nn() static inline
+int yπio_printctx_put(yπio_printctx_t *t, const char str[], size_t str_len) {
+	return _yΩIO_printformat_generic_char(t, str, str_len, false, false);
+}
+
 _yIO_wur _yIO_nn() static inline
 int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
 	return _yΩIO_printformat_generic_char(t, str, str_len, true, is_positive);
 }
-#endif
+{% endif %}
 
 _yIO_wur _yIO_nn() static inline
 int yπio_printctx_putπ_number(yπio_printctx_t *t, const Ychar str[], size_t str_len, bool is_positive) {

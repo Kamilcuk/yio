@@ -14,111 +14,126 @@
 #include <sys/time.h>
 #endif
 
-int _yΩIO_print_time_in_extract_format_add_space(Ychar *dest, const Ychar *fmt, const Ychar **endptr) {
-	int ret = 0;
-	if (fmt) {
-		while (fmt[0] != Yc('\0')) {
-			if (fmt[0] == '{' || fmt[0] == Yc('}')) {
-				if (fmt[1] != fmt[0]) {
-					if (fmt[0] == Yc('{')) {
-						ret = -1;
-						goto EXIT;
-					}
-					// fmt[0] == '}'
-					break;
-				}
-
-				if (dest) *dest++ = fmt[0];
-				ret++;
-				fmt+=2;
-			} else {
-				if (dest) *dest++ = fmt[0];
-				ret++;
-				fmt++;
+// https://fmt.dev/latest/syntax.html#chrono-format-specifications
+// chrono_format_spec ::=  [[fill]align][width]["." precision][chrono_specs]
+// chrono_specs       ::=  [chrono_specs] conversion_spec | chrono_specs literal_char
+// conversion_spec    ::=  "%" [modifier] chrono_type
+// literal_char       ::=  <a character other than '{', '}' or '%'>
+static inline
+int _yΩIO_print_time_parse_format(yπio_printctx_t *t, const Ychar **beginptr, const Ychar **endptr) {
+	const Ychar *fmt = t->fmt;
+	const Ychar *chrono_specs = fmt;
+	struct yπio_printfmt_s *const pf = &t->pf;
+	//
+	if (fmt != NULL) {
+		if (fmt[0] != Yc('\0')) {
+			// guess [[fill]align]
+			if (_yΩIO_strnulchrbool(Yc("<>=^"), fmt[1])) {
+				pf->fill = fmt++[0];
+				pf->align = fmt++[0];
+			} else if (_yΩIO_strnulchrbool(Yc("<>=^"), fmt[0])) {
+				pf->align = fmt++[0];
 			}
 		}
+		if (fmt[0] != Yc('\0')) {
+			// guess width
+			const int err = _yΩIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
+			if (err) return err;
+		}
+		if (fmt[0] == Yc('.')) {
+			// guess precision
+			fmt++;
+			if (fmt[0] == Yc('\0')) {
+				return YIO_ERROR_MISSING_PRECISION;
+			}
+			const int err = _yΩIO_printctx_stdintparam(t, fmt, &fmt, &pf->precision);
+			if (err) return err;
+		}
+		// chrono_specs preserve as-is
+		chrono_specs = fmt;
+		while (fmt[0] != Yc('\0') && fmt[0] != Yc('}')) {
+			fmt++;
+		}
 		if (fmt[0] != Yc('}')) {
-			ret = -2;
-			goto EXIT;
+			return YIO_ERROR_MISSING_RIGHT_BRACE;
 		}
 	}
-	// empty string results in %c
-	if (ret == 0) {
-		if (dest) {
-			*dest++ = Yc('%');
-			*dest++ = Yc('c');
-		}
-		ret = 2;
-	}
-	if (dest) {
-		// Add additional special space so that strftime
-		// never returns zero.
-		*dest++ = Yc(' ');
-		*dest = Yc('\0');
-	}
-	// Return +1 for additional space.
-	ret += 1;
-	//
-	EXIT:
-	if (endptr && fmt) {
-		*endptr = fmt + 1;
-	}
-	return ret;
+	*beginptr = chrono_specs;
+	*endptr = fmt;
+	return 0;
 }
 
 static inline
 int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	int ret = 0;
-
-	int len = _yΩIO_print_time_in_extract_format_add_space(NULL, t->fmt, NULL);
-	if (len < 0) {
-		ret = YIO_ERROR_PYFMT_INVALID;
+	//
+	const Ychar *fmtbegin;
+	const Ychar *fmtend;
+	ret = _yΩIO_print_time_parse_format(t, &fmtbegin, &fmtend);
+	if (ret) {
 		goto FORMAT_EXTRACT_ERROR;
 	}
-	Ychar *format_in = malloc(sizeof(*format_in) * (len + 1));
-	if (format_in == NULL) {
-		ret = YIO_ERROR_ENOMEM;
-		goto FORMAT_MALLOC_ERROR;
+	// Advance global fmt.
+	if (t->fmt) {
+		assert(fmtend[0] == Yc('}'));
+		t->fmt = fmtend;
 	}
-	const int len2 = _yΩIO_print_time_in_extract_format_add_space(format_in, t->fmt, &t->fmt);
-	(void)len2; assert(len2 == len);
+	// Initialize printctx - after erading format string.
+	int err = yπio_printctx_init(t);
+	if (err) return err;
+	//
+	const ptrdiff_t realfmtlen = fmtend - fmtbegin;
 
-	const char *format;
-	{% if MODEX == 1 %}
+	// Extract the format string.
+	// Add additional space.
+	const char *const emptyformat = "%c ";
+	const char *format = NULL;
+	if (realfmtlen == 0) {
+		// Zero fmt length results in '%c'.
+		format = emptyformat;
+	} else {
+		// Add additional space.
+		const ptrdiff_t fmtlen = realfmtlen + 2;
+		char *formatbuf = NULL;
+{% if MODEX == 1 %}
 #line
-	format_in[len] = '\0';
-	format = format_in;
-	if (0) { // silence warning
-		goto FORMAT_STRCONV_ERROR;
-	}
-	{% else %}
+		formatbuf = malloc(sizeof(*formatbuf) * fmtlen);
+		if (formatbuf == NULL) {
+			ret = YIO_ERROR_ENOMEM;
+			goto FORMAT_MALLOC_ERROR;
+		}
+		memcpy(formatbuf, fmtbegin, sizeof(*formatbuf) * realfmtlen);
+		if (0) goto FORMAT_STRCONV_ERROR;
+{% else %}
 #line
-	ret = _yIO_strconv_πstr_to_str(format_in, len, &format, NULL);
-	if (ret) {
-		ret = YIO_ERROR_ENOMEM;
-		goto FORMAT_STRCONV_ERROR;
-	}
-
-	char *pnt = realloc((void*)format, sizeof(*format) * (len + 1));
-	if (pnt == NULL) {
-		ret = YIO_ERROR_ENOMEM;
-		goto FORMAT_STRCONV_ERROR;
-	}
-	pnt[len] = '\0';
-	format = pnt;
-	{% endif %}
+		if (0) goto FORMAT_MALLOC_ERROR;
+		ret = _yIO_strconv_πstr_to_str(fmtbegin, realfmtlen, (const char **)&formatbuf, NULL);
+		if (ret) {
+			goto FORMAT_STRCONV_ERROR;
+		}
+		void *pnt = realloc((void *)formatbuf, sizeof(*formatbuf) * fmtlen);
+		if (pnt == NULL) {
+			ret = YIO_ERROR_ENOMEM;
+			goto FORMAT_STRCONV_ERROR;
+		}
+		formatbuf = pnt;
+		//
+{% endif %}
 #line
+		formatbuf[fmtlen - 2] = ' ';
+		formatbuf[fmtlen - 1] = '\0';
+		format = formatbuf;
+	}
+	assert(format != NULL);
+	assert(strlen(format) >= 1);
+	assert(format[strlen(format) - 1] == ' ');
 
 	// 80 is somewhat a psuedo standard here
 	char _buf_mem[80];
 	char *buf = _buf_mem;
-	int length = strftime(buf, sizeof(_buf_mem), format, tm);
-	if (length == 0) {
-		// if we fail, allocate dynamically
-		length = _yIO_astrftime_nonzero(&buf, sizeof(_buf_mem) * 2, format, tm);
-	}
-	if (length <= 0) {
-		ret = YIO_ERROR_ENOMEM;
+	const int length = _yIO_astrftime_nonzero(&buf, sizeof(_buf_mem), format, tm);
+	if (length < 0) {
+		ret = ret;
 		goto STRFTIME_ERROR;
 	}
 
@@ -126,13 +141,15 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	// Note that this _can_ result in an empty string here.
 	ret = yπio_printctx_put(t, buf, length - 1);
 
+	// exit
 	if (buf != _buf_mem) {
 		free(buf);
 	}
 	STRFTIME_ERROR:
-	_yIO_strconv_free_πstr_to_str(format_in, format);
 	FORMAT_STRCONV_ERROR:
-	free(format_in);
+	if (format != emptyformat) {
+		free((void *)format);
+	}
 	FORMAT_MALLOC_ERROR:
 	FORMAT_EXTRACT_ERROR:
 	return ret;

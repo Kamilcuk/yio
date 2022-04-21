@@ -107,7 +107,21 @@ bool _yIO_test_is_in_valgrind(void);
 #define STRING(a)   #a
 #define XSTRING(a)  STRING(a)
 
+#define YIO_TEST(shouldbe, fmt, ...)  \
+	do { \
+		char buf[100]; \
+		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
+		_yIO_TEST(err > 0, "fmt=`%s` err=%s", fmt, yio_strerror(err)); \
+		_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=`%s` buf=`%s`", shouldbe, buf); \
+		printf("%d: `%s`\n", __LINE__, buf); \
+	} while(0)
 
+#define YIO_TEST_FAIL(fmt, ...)  \
+	do { \
+		char buf[100]; \
+		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
+		_yIO_TEST(err < 0, "fmt=`%s` err=%s", fmt, yio_strerror(err)); \
+	} while(0)
 
 
 

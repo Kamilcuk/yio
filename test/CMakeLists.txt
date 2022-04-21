@@ -17,7 +17,7 @@ endif()
 
 # @def yio_add_test()
 function(yio_add_test T_SOURCE)
-	cmake_parse_arguments(T "LABELS" "NAME;REALFILE;GETNAME" "" ${ARGN})
+	cmake_parse_arguments(T "" "NAME;REALFILE;GETNAME" "LABELS" ${ARGN})
 
 	# unicode tests need unicode support
 	if(NOT _yIO_HAS_UCHAR_H AND (T_SOURCE MATCHES "yui" OR T_SOURCE MATCHES "yc16io"))
@@ -42,10 +42,9 @@ function(yio_add_test T_SOURCE)
 	target_link_libraries(${T_NAME} PRIVATE yio_testlib m)
 	add_dependencies(yio_build_tests ${T_NAME})
 	add_test(NAME ${T_NAME} COMMAND ${T_NAME})
-	list(APPEND A_LABELS "normal")
-	set_tests_properties(${T_NAME} PROPERTIES LABELS "${A_LABELS}")
+	list(APPEND T_LABELS "normal")
+	set_tests_properties(${T_NAME} PROPERTIES LABELS "${T_LABELS}")
 	test_extract_properties_from_file(${T_NAME} ${T_NAME} ${T_REALFILE})
-
 
 	if(DEFINED T_GETNAME)
 		set(${T_GETNAME} ${T_NAME} PARENT_SCOPE)

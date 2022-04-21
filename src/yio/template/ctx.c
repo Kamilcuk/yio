@@ -289,8 +289,22 @@ int _yΩIO_printformat_print(_yΩIO_printformat_t *pf, const Ychar str[], size_t
 	return 0;
 }
 
+static inline
+bool is_one_of_or_nul(Ychar c, const Ychar *str) {
+	return c == Yc('\0') || _yΩIO_strnulchrbool(str, c);
+}
+
+static inline
+void _yΩIO_printformat_assert_valid(const struct yπio_printfmt_s *pf) {
+	assert(is_one_of_or_nul(pf->align, Yc("<>=^")));
+	assert(is_one_of_or_nul(pf->sign, Yc("+- ")));
+	assert(pf->fill != Yc('{') && pf->fill != Yc('}'));
+	assert(is_one_of_or_nul(pf->grouping, Yc("_,")));
+}
+
 int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
 		const Ychar str[restrict], size_t str_len, bool is_number, bool is_positive) {
+	_yΩIO_printformat_assert_valid(&t->pf);
 	_yΩIO_printformat_t pf;
 	_yΩIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
 	int err = _yΩIO_printformat_prefix(&pf);
@@ -302,6 +316,7 @@ int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
 	return 0;
 }
 
+{% if MODEX != 1 %}
 int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive) {
 	const Ychar *dest;
@@ -312,4 +327,4 @@ int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 	_yIO_strconv_free_str_to_πstr(str, dest);
 	return ret;
 }
-
+{% endif %}

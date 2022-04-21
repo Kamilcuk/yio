@@ -24,12 +24,12 @@ static void streamed() {
 	double dbl = 20.123456;
 	yprint("Character is ", ch, "\n");
 	yprint("String is ", str, "\n");
-	yprint("Float value is ", ypcfmt("%f"), flt, "\n");
+	yprint("Float value is ", yppfmt("{:f}"), flt, "\n");
 	yprint("Integer value is ", no, "\n");
-	yprint("Double value is ", ypcfmt("%f"), dbl, "\n");
-	yprint("Octal value is ", ypcfmt("%o"), no, "\n");
+	yprint("Double value is ", yppfmt("{:f}"), dbl, "\n");
 	yprint("Octal value is ", yppfmt("{:o}"), no, "\n");
-	yprint("Hexadecimal value is ", ypcfmt("%x"), no, "\n");
+	yprint("Octal value is ", yppfmt("{:o}"), no, "\n");
+	yprint("Hexadecimal value is ", yppfmt("{:x}"), no, "\n");
 	yprint("Hexadecimal value is ", yppfmt("{:x}"), no, "\n");
 }
 
