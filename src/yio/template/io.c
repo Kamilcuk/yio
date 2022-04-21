@@ -18,7 +18,7 @@
 
 /* _yIO_y*printf ------------------------------------------------------------------------ */
 
-int _yΩIO_ybprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_ybprintf(_yΩIO_printcb_t *out, void *arg, const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvbprintf(out, arg, data, fmt, &va);
@@ -26,7 +26,7 @@ int _yΩIO_ybprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, c
 	return ret;
 }
 
-int _yΩIO_yprintf(yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_yprintf(const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvprintf(data, fmt, &va);
@@ -34,7 +34,7 @@ int _yΩIO_yprintf(yπio_printdata_t *data, const Ychar *fmt, ...) {
 	return ret;
 }
 
-int _yΩIO_ysprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_ysprintf(Ychar *dest, size_t size, const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvsprintf(dest, size, data, fmt, &va);
@@ -42,7 +42,7 @@ int _yΩIO_ysprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ych
 	return ret;
 }
 
-int _yΩIO_yaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_yaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvaprintf(strp, data, fmt, &va);
@@ -50,7 +50,7 @@ int _yΩIO_yaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, ...
 	return ret;
 }
 
-int _yΩIO_yreaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_yreaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvreaprintf(strp, data, fmt, &va);
@@ -58,7 +58,7 @@ int _yΩIO_yreaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, .
 	return ret;
 }
 
-Ychar *_yΩIO_yformatf(yπio_printdata_t *data, const Ychar *fmt, ...) {
+Ychar *_yΩIO_yformatf(const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	Ychar * const ret = yπvformatf(data, fmt, &va);
@@ -66,7 +66,7 @@ Ychar *_yΩIO_yformatf(yπio_printdata_t *data, const Ychar *fmt, ...) {
 	return ret;
 }
 
-Ychar *_yΩIO_yreformatf(Ychar *str, yπio_printdata_t *data, const Ychar *fmt, ...) {
+Ychar *_yΩIO_yreformatf(Ychar *str, const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	Ychar * const ret = yπvreformatf(str, data, fmt, &va);
@@ -124,7 +124,7 @@ int _yΩIO_yreaprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 
 /* yv*printf except yvbprintf ------------------------------------------------------ */
 
-int yπvprintf(yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvprintf(const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 #ifdef YIO_USE_OUTPUT_FD
 	return yπvdprintf(1, data, fmt, va);
 #else
@@ -132,7 +132,7 @@ int yπvprintf(yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 #endif
 }
 
-int yπvsprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvsprintf(Ychar *dest, size_t size, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	struct _yΩIO_yvsprintf_ctx_s ctx = {
 			.dest = dest,
 			.size = size,
@@ -144,12 +144,12 @@ int yπvsprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ychar *
 	return ret;
 }
 
-int yπvaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	*strp = NULL;
 	return yπvreaprintf(strp, data, fmt, va);
 }
 
-int yπvreaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvreaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	struct _yΩIO_yreaprintf_ctx_s ctx = {
 			.str = *strp,
 			.size = (*strp != NULL) ? Ystrlen(*strp) : 0,
@@ -166,11 +166,11 @@ int yπvreaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, va_li
 	return ret;
 }
 
-Ychar *yπvformatf(yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+Ychar *yπvformatf(const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	return yπvreformatf(NULL, data, fmt, va);
 }
 
-Ychar *yπvreformatf(Ychar *str, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+Ychar *yπvreformatf(Ychar *str, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	const int ret = yπvreaprintf(&str, data, fmt, va);
 	if (ret < 0) {
 		return NULL;

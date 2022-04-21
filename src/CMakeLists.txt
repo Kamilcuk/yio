@@ -1,20 +1,10 @@
 # src/CMakeLists.txt
-cmake_minimum_required(VERSION 3.12)
-
-if(NOT "${PROJECT_NAME}" STREQUAL "yio")
-	message(FATAL_ERROR "DO NOT INCLUDE THIS FILE BY ITS OWN: PROJECT_NAME=${PROJECT_NAME}")
-endif()
 
 include(CMakeDependentOption)
 include(CheckIncludeFile)
 include(k/list_filter)
 include(k/var_to_0_or_1)
 include(${CMAKE_CURRENT_LIST_DIR}/yio_config_gen.cmake)
-
-function(log)
-	get_filename_component(_log_list_filename ${CMAKE_CURRENT_LIST_FILE} NAME)
-	message(STATUS "yio: ${_log_list_filename}: ${ARGN}")
-endfunction()
 
 ###########################################################################################
 # Stub
@@ -269,7 +259,6 @@ function(yio_add_library name)
 		endif()
 	endif()
 
-	add_dependencies(${name} yio_gen3)
 
 	add_dependencies(yio_targets ${name})
 

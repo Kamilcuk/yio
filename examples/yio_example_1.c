@@ -1,24 +1,19 @@
 // https://www.programiz.com/c-programming/examples/print-integer
-#define _GNU_SOURCE  1
 #include <yio.h>
-#include <string.h>
 
-static int normal() {
+static void normal() {
     int number = 1;
     printf("number: %d\n", number);
-    return 0;
 }
 
-static int streamed() {
+static void streamed() {
     int number = 2;
     yprint("number: ", number, "\n");
-    return 0;
 }
 
-static int formatted() {
+static void formatted() {
     int number = 3;
     yprintf("number: {}\n", number);
-    return 0;
 }
 
 int main() {

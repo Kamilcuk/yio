@@ -38,7 +38,7 @@
 		TEST(type, TYPE_MINIMUM(type)); \
 		} while (0)
 
-void test_fundamental_types(void) {
+static void test_fundamental_types(void) {
     TESTINT(short);
     TESTINT(short int);
     TESTINT(signed short);
@@ -67,7 +67,7 @@ void test_fundamental_types(void) {
     TEST(_Bool, 2);
 }
 
-void test_std_types(void) {
+static void test_std_types(void) {
 	// stdint.h
 	TESTINT(int8_t);
 	TESTINT(uint8_t);
@@ -113,18 +113,18 @@ void test_std_types(void) {
 #define INT128_MAX (__int128)(((unsigned __int128) 1 << ((sizeof(__int128) * __CHAR_BIT__) - 1)) - 1)
 #define INT128_MIN (-INT128_MAX - 1)
 #define UINT128_MAX ((2 * (unsigned __int128) INT128_MAX) + 1)
-void test_int128(void) {
+static void test_int128(void) {
     TEST(__int128, INT128_MAX);
     TEST(__int128, INT128_MIN);
     TEST(unsigned __int128, UINT128_MAX);
 }
 #else
-void test_int128(void) {}
+static void test_int128(void) {}
 #endif
 
 #if _yIO_HAS_UNISTD_H
 #include <sys/types.h>
-void test_posix_types(void) {
+static void test_posix_types(void) {
     TESTINT(blkcnt_t);
     TESTINT(blksize_t);
     TESTINT(clock_t);
@@ -149,7 +149,7 @@ void test_posix_types(void) {
     // TESTINT(useconds_t);
 }
 #else
-void test_posix_types(void) {}
+static void test_posix_types(void) {}
 #endif
 
 int main() {

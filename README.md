@@ -190,7 +190,7 @@ Not implemented:
 
 ### Examples :heart_eyes:
 
-See [test/examples](test/examples) and overall all in [test](test) directory.
+See [examples](examples) and overall all in [test](test) directory.
 
 ## Custom callbacks
 

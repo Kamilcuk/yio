@@ -10,7 +10,7 @@
 static Ychar *(* const f_vpnt)(yπio_printdata_t *, const Ychar *fmt, va_list *va) = yπvformatf;
 static int (* const f_pnt)(yπio_printdata_t *, const Ychar *fmt, ...) = _yΩIO_yprintf;
 
-void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const Ychar *fmt, ...) {
+static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const Ychar *fmt, ...) {
 	yprintf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);

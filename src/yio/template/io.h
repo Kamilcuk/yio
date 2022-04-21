@@ -27,32 +27,32 @@
  * @return Number of characters written or negative on error.
  */
 _yIO_nn(1, 3, 5)
-int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+int yπvbprintf(_yΩIO_printcb_t *out, void *arg, const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Similar to printf() call.
  * @see yvbprintf
  */
 _yIO_nn(1, 3)
-int yπvprintf(yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+int yπvprintf(const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Similar to fprintf() call.
  * @see yvbprintf
  */
 _yIO_nn(1, 2, 4) _yIO_access_r(1) _yIO_access_r(2) _yIO_access_r(3) _yIO_access_r(4)
-int yπvfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+int yπvfprintf(FILE *file, const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Similar to snprintf() call.
  * @see yvbprintf
  */
 _yIO_nn(1, 3, 5) _yIO_access_w(1) _yIO_access_r(3) _yIO_access_r(4) _yIO_access_r(5)
-int yπvsprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+int yπvsprintf(Ychar *dest, size_t size, const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Works as-if the call to GNU extension asprintf().
  * Equal to doing: *strp = NULL; yvreasrintf(strp, ...);
  * @see yvreasprintf
  */
 _yIO_nn(1, 2, 4)
-int yπvaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+int yπvaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Reallocates a string to append the printed characters.
  * @param strp If is NULL, a new string is allocated, otherwise it is reallocated.
@@ -62,13 +62,13 @@ int yπvaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, va_list
  *         In case of memory error the pointer strp is freed and is set to NULL.
  */
 _yIO_nn(1, 2, 4)
-int yπvreaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+int yπvreaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Calls yπvreformatf(NULL, ...). See yπvreformatf.
  * @see yπvreformatf
  */
 _yIO_malloc _yIO_nn(1, 3) _yIO_wur
-Ychar *yπvformatf(yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+Ychar *yπvformatf(const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Dynamically allocates memory for formatted string.
  *
@@ -86,13 +86,13 @@ Ychar *yπvformatf(yπio_printdata_t *data, const Ychar *fmt, va_list *va);
  *         calling this function. *
  */
 _yIO_nn(2, 4) _yIO_wur
-Ychar *yπvreformatf(Ychar *str, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+Ychar *yπvreformatf(Ychar *str, const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * Output to the file descriptor. Similar to POSIX dprintf() call.
  * @see yvbprintf
  */
 _yIO_nn(2, 4)
-int yπvdprintf(int fd, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
+int yπvdprintf(int fd, const yπio_printdata_t *data, const Ychar *fmt, va_list *va);
 /**
  * @}
  */
@@ -107,23 +107,23 @@ int yπvdprintf(int fd, yπio_printdata_t *data, const Ychar *fmt, va_list *va);
  * @{
  */
 _yIO_nn(1, 2)
-int _yΩIO_ybprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_ybprintf(_yΩIO_printcb_t *out, void *arg, const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1)
-int _yΩIO_yprintf(yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_yprintf(const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 2)
-int _yΩIO_yfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 3) _yIO_access_w(1)
-int _yΩIO_ysprintf(Ychar *dest, size_t size, yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_ysprintf(Ychar *dest, size_t size, const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 2)
-int _yΩIO_yaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_yaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1, 2)
-int _yΩIO_yreaprintf(Ychar **strp, yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_yreaprintf(Ychar **strp, const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(1) _yIO_malloc _yIO_wur
-Ychar *_yΩIO_yformatf(yπio_printdata_t *data, const Ychar *fmt, ...);
+Ychar *_yΩIO_yformatf(const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(2) _yIO_wur
-Ychar *_yΩIO_yreformatf(Ychar *str, yπio_printdata_t *data, const Ychar *fmt, ...);
+Ychar *_yΩIO_yreformatf(Ychar *str, const yπio_printdata_t *data, const Ychar *fmt, ...);
 _yIO_nn(2)
-int _yΩIO_ydprintf(int fd, yπio_printdata_t *data, const Ychar *fmt, ...);
+int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const Ychar *fmt, ...);
 /**
  * @}
  */

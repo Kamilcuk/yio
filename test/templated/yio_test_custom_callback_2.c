@@ -7,7 +7,7 @@
 #include <yio.h>
 #include <yπio.h>
 
-void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const Ychar *fmt, ...) {
+static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const Ychar *fmt, ...) {
 	yprintf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);

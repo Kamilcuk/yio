@@ -56,7 +56,7 @@ int _yΩIO_yvfprintf_cb(void *arg, const Ychar *ptr, size_t size) {
 }
 
 
-int _yΩIO_yfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, ...) {
+int _yΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const Ychar *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvfprintf(file, data, fmt, &va);
@@ -64,7 +64,7 @@ int _yΩIO_yfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, ...) 
 	return ret;
 }
 
-int yπvfprintf(FILE *file, yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
+int yπvfprintf(FILE *file, const yπio_printdata_t *data, const Ychar *fmt, va_list *va) {
 	return yπvbprintf(_yΩIO_yvfprintf_cb, file, data, fmt, va);
 }
 

@@ -41,20 +41,13 @@ foreach(src IN LISTS srcs)
 	endif()
 
 	foreach(mode IN ITEMS ${modes})
-		set(_path ${CMAKE_CURRENT_BINARY_DIR}/gen/${mode}/${src})
-
+		set(genout ${CMAKE_CURRENT_BINARY_DIR}/gen/${mode}/${src})
 		jinja_generate(
 			SOURCE ${src}
-			OUTPUT ${_path}
+			OUTPUT ${genout}
 			--mode ${mode}
 		)
-		set(name ${mode}/${src})
-		string(REGEX REPLACE "/" "_" name "${name}")
-		string(REGEX REPLACE "\\..$" "" name "${name}")
-		yio_add_test(${name} ${_path} ${src})
-		add_dependencies(${name} yio_gen)
-		set_property(TEST ${name} APPEND PROPERTY LABELS ${mode})
-
+		yio_add_test(${genout} NAME ${mode}/${src} REALFILE ${src} LABELS ${mode})
 	endforeach()
 endforeach()
 

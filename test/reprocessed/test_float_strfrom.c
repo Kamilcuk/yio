@@ -41,7 +41,7 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 #endif
 #if _yIO_HAS_FLOAT$1
 
-int _yIO_test_print_float_custom_in$1(int precision,
+static int _yIO_test_print_float_custom_in$1(int precision,
         char type, _yIO_FLOAT$1 val, const char *valstr0,
 		int (*astrfrom)(char **resultp, size_t *lengthp, int precision, char type, _yIO_FLOAT$1 val),
 		const char *astrfrom_str) {
@@ -123,7 +123,7 @@ int _yIO_test_print_float_custom_in$1(int precision,
 	return err;
 }
 
-void _yIO_run_tests_print_float_custom$1(void) {
+static void _yIO_run_tests_print_float_custom$1(void) {
 	static const char specs[] = {
 			'F',
 			'E',

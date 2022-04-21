@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+# environment_checks.cmake
 
 # This script checks all that is needed from the environment
 # Ie. all possible needed functions
@@ -172,7 +172,7 @@ foreach(ii IN LISTS _floats)
 		continue()
 	endif()
 	if(NOT DEFINED _yIO_HAS_FLOAT${suffix})
-		log("Detecting: '${type}' '${mathsuffix}' '${suffix}' '${strtosuffix}'")
+		message(STATUS "Detecting: '${type}' '${mathsuffix}' '${suffix}' '${strtosuffix}'")
 	endif()
 
 	if(NOT DEFINED _yIO_HAS_FLOAT${suffix})

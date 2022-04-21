@@ -21,7 +21,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 )
 target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio
-  m
+	m
 )
 find_library(DFP dfp)
 if(DFP)

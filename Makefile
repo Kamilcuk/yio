@@ -209,7 +209,6 @@ CPPCHECK_FLAGS_INIT = \
 	-j $(shell nproc) \
 	-U__DOXYGEN__ \
 	-U__CDT_PARSER__ \
-	-UYIO_REALLY_CDT_PARSER \
 	-UNDEBUG \
 	-I${linuxincdir}/include \
 	-I/usr/local/include \
@@ -318,6 +317,9 @@ clean_test_project:
 HELP +=~ install - install project
 install: export CMAKE_BUILD_TYPE=Release
 install: .build_install
+
+buildclean:
+	cmake --build $(B) --target clean
 
 HELP +=~ clean - Remove specific directory
 clean:

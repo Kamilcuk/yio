@@ -1,8 +1,7 @@
 // https://fresh2refresh.com/c-programming/c-printf-and-scanf/
 #include <yio.h>
-#include <float.h>
 
-static int normal() {
+static void normal() {
 	char ch = 'A';
 	char str[20] = "fresh2refresh.com";
 	float flt = 10.234;
@@ -15,10 +14,9 @@ static int normal() {
 	printf("Double value is %lf\n", dbl);
 	printf("Octal value is %o\n", no);
 	printf("Hexadecimal value is %x\n", no);
-	return 0;
 }
 
-static int streamed() {
+static void streamed() {
 	char ch = 'A';
 	char str[20] = "fresh2refresh.com";
 	float flt = 10.234;
@@ -33,10 +31,9 @@ static int streamed() {
 	yprint("Octal value is ", yppfmt("{:o}"), no, "\n");
 	yprint("Hexadecimal value is ", ypcfmt("%x"), no, "\n");
 	yprint("Hexadecimal value is ", yppfmt("{:x}"), no, "\n");
-	return 0;
 }
 
-static int formatted() {
+static void formatted() {
 	char ch = 'A';
 	char str[20] = "fresh2refresh.com";
 	float flt = 10.234;
@@ -49,7 +46,6 @@ static int formatted() {
 	yprintf("Double value is {:f}\n", dbl);
 	yprintf("Octal value is {:o}\n", no);
 	yprintf("Hexadecimal value is {:x}\n", no);
-	return 0;
 }
 
 int main() {

@@ -10,19 +10,19 @@
       "name": "default",
       "binaryDir": "_build/${presetName}",
       "generator": "Ninja",
-			"warnings": {
-				"dev": true,
-				"deprecated": true,
-				"uninitialized": false,
-				"unusedCli": true,
-				"systemVars": true
-			},
-			"cacheVariables": {
-				"YIO_DEV": "1",
+      "warnings": {
+        "dev": true,
+        "deprecated": true,
+        "uninitialized": false,
+        "unusedCli": true,
+        "systemVars": true
+      },
+      "cacheVariables": {
+        "YIO_DEV": "1",
         "YIO_BUILD_TESTING": "1",
-				"BUILD_TESTING": "1"
-			}
-		},
+        "BUILD_TESTING": "1"
+      }
+    },
     {
       "name": "coverage",
       "inherits": "default",
@@ -41,10 +41,10 @@
     {
       "name": "arm",
       "inherits": "default",
-			"toolchainFile": "${sourceDir}/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake",
-			"cacheVariables": {
-				"ARM_NONE_EABI_GCC_NO_NEWLIB_NANO": "1"
-			}
+      "toolchainFile": "${sourceDir}/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake",
+      "cacheVariables": {
+        "ARM_NONE_EABI_GCC_NO_NEWLIB_NANO": "1"
+      }
     },
     {
       "name": "arm2",
@@ -67,15 +67,15 @@
         "_yIO_HAS_UCHAR_H": "0"
       }
     },
-		{
-			"name": "lint",
-			"inherits": "default",
-			"cacheVariables": {
-				"_yIO_HAS_FLOATd32": "0",
-				"_yIO_HAS_FLOATd64": "0",
-				"_yIO_HAS_FLOATd128": "0",
-				"_yIO_HAS_FLOATf128": "0"
-			}
-		}
-	]
+    {
+      "name": "lint",
+      "inherits": "default",
+      "cacheVariables": {
+        "_yIO_HAS_FLOATd32": "0",
+        "_yIO_HAS_FLOATd64": "0",
+        "_yIO_HAS_FLOATd128": "0",
+        "_yIO_HAS_FLOATf128": "0"
+      }
+    }
+  ]
 }

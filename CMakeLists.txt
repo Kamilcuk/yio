@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.11)
 cmake_policy(SET CMP0054 NEW) #-- fixes IF() with quoted args
 cmake_policy(SET CMP0057 NEW) #-- enables IF(.. IN_LIST ..)
+cmake_policy(SET CMP0075 NEW) #-- uses CMAKE_REQUIRED_LIBRARIES
 
 include(./kcmakelib/cmake/kcmakelib.cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -11,7 +12,7 @@ include(src/version.cmake)
 project(yio
 	VERSION "${YIO_PROJECT_VERSION}"
 	LANGUAGES C
-	DESCRIPTION "Yio Input Output C Library that aims in type-safe printf replacement"
+	DESCRIPTION "YIO Iconic Output C Library that aims in type-safe printf replacement"
 	HOMEPAGE_URL "https://gitlab.com/kamcuk/yio"
 )
 
@@ -37,6 +38,9 @@ find_library(UNISTRING_LIB
 ###############################################################################
 
 # YIO_DEV is internal variable set if the developer of this library is building it
+if(NOT DEFINED YIO_DEV)
+	set(YIO_DEV 0)
+endif()
 if(YIO_DEV)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
@@ -149,20 +153,14 @@ if(YIO_DEV)
 		add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
 		target_compile_definitions(${tgt} PRIVATE
 			__CDT_PARSER__=1
-			YIO_CDT_PARSER=1
-			YIO_REALLY_CDT_PARSER=1
 		)
 		target_include_directories(${tgt} PRIVATE
 			${SRCDIR}
 			${GENDIR}
-			${GENDIR}/yio
 		)
 		target_link_libraries(${tgt} PRIVATE library_that_does_not_exists)
 	endfunction()
 
-	get_directory_property(dir_prop_COMPILE_OPTIONS COMPILE_OPTIONS)
-	get_directory_property(dir_prop_COMPILE_DEFINITIONS COMPILE_DEFINITIONS)
-	get_directory_property(dir_prop_LINK_OPTIONS LINK_OPTIONS)
 	yio_debug_variables(
 		BUILD_TESTING
 		YIO_BUILD_TESTING
@@ -190,9 +188,10 @@ if(YIO_DEV)
 		CCACHE_FOUND
 		UNISTRING_LIB
 		CPPLINT_COMMAND
-		dir_prop_COMPILE_OPTIONS
-		dir_prop_COMPILE_DEFINITIONS
-		dir_prop_LINK_OPTIONS
+    DIRECTORY
+    COMPILE_OPTIONS
+    COMPILE_DEFINITIONS
+    LINK_OPTIONS
 	)
 	if(0)
 		yio_debug_variables(
@@ -254,21 +253,12 @@ add_custom_command(
 	DEPENDS "${SRCDIR}/preprocess.py"
 	VERBATIM
 )
-add_custom_target(yio_preprocess
+add_custom_target(yio_gen_prepare
 	DEPENDS "${JINJASCRIPT}"
 	COMMENT "jinja2: compiling preproces script target"
 )
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yio_gen_timestamp
-	COMMENT "yio: generated sources"
-	COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/yio_gen_timestamp
-)
-add_custom_target(yio_gen3
-	COMMENT "yio: generated sources target"
-	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/yio_gen_timestamp
-)
 
-set(YIO_GENERATED "" CACHE INTERNAL "")
+#!
 function(jinja_generate)
 	cmake_parse_arguments(A "" "SOURCE;OUTPUT" "" ${ARGN})
 	string(MD5 depfilename "${A_OUTPUT}")
@@ -284,16 +274,16 @@ function(jinja_generate)
 		message(FATAL_ERROR "Source file does not exist: ${A_SOURCE}")
 	endif()
 	set(debug)
-	if(CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG")
+	if(YIO_DEV)
 		set(debug --debug)
 	endif()
-
 	add_custom_command(
-		OUTPUT "${A_OUTPUT}"
+		OUTPUT
+			"${A_OUTPUT}"
 		COMMENT "jinja2: ${A_SOURCE} -> ${reloutputf}"
 		COMMAND
 			"${Python3_EXECUTABLE}"
-			"${SRCDIR}/preprocess.py"
+			"${JINJASCRIPT}"
 			-S "${JINJAPROJECTSRC}"
 			-S "${CMAKE_CURRENT_SOURCE_DIR}"
 			-D "j_MLVLS=${YIO_MLVLS}"
@@ -306,29 +296,18 @@ function(jinja_generate)
 			"${A_OUTPUT}"
 		DEPFILE "${depfile}"
 		DEPENDS
-			yio_preprocess
-			$<TARGET_PROPERTY:yio_preprocess,GENERATED_FILE>
-			"${SRCDIR}/preprocess.py"
-			"${JINJASCRIPT}"
+			yio_gen_prepare
 			"${A_SOURCE}"
 		VERBATIM
 	)
-	list(APPEND YIO_GENERATED "${A_OUTPUT}")
-	set(YIO_GENERATED "${YIO_GENERATED}" CACHE INTERNAL "")
 endfunction()
 
 ###############################################################################
 
 add_subdirectory(src)
-
-if(0 AND (YIO_DEV OR (YIO_BUILD_TESTING AND BUILD_TESTING)))
+if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
 	include(CTest)
 	add_subdirectory(test)
+	add_subdirectory(examples)
 endif()
-
-add_custom_command(
-	OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/yio_gen_timestamp
-	DEPENDS ${YIO_GENERATED}
-	APPEND
-)
 
