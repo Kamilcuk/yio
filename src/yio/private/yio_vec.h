@@ -8,7 +8,8 @@
  * Small output dynamic vector library implementation.
  * This library solely exists for yio_float_strfrom_stupid.c
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_VEC_H_
+#define _yIO_YIO_PRIVATE_YIO_VEC_H_
 #include "private.h"
 #include <stddef.h>
 #include <stdbool.h>
@@ -140,3 +141,4 @@ bool _yIO_vec_remove_trailing_zeros(_yIO_vec *t) {
 	return fractional_part_removed;
 }
 
+#endif /* _yIO_YIO_PRIVATE_YIO_VEC_H_ */

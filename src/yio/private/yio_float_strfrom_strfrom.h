@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_STRFROM_H_
+#define _yIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_STRFROM_H_
 #include "../yio_config.h"
 #include <stddef.h>
 
@@ -43,3 +44,4 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 #define _yIO_has_float_strfrom$1  1
 
 {% endcall %}
+#endif /* _yIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_STRFROM_H_ */

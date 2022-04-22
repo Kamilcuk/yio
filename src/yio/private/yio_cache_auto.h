@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_CACHE_AUTO_H_
+#define _yIO_YIO_PRIVATE_YIO_CACHE_AUTO_H_
 
 /**
  * The default buffer size allocated on stack
@@ -47,3 +48,4 @@
 #define _yIO_CACHE_AUTO_FREE(bufvar, resultvar, lengthvar)  \
 		do{}while(0)
 #endif
+#endif /* _yIO_YIO_PRIVATE_YIO_CACHE_AUTO_H_ */

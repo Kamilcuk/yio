@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
+#define _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
 
 #ifndef _yIO_HAS_WCHAR_H
 #error _yIO_HAS_WCHAR_H
@@ -38,3 +39,4 @@ int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
 #define _yΩIO_PRINT_FUNC_GENERIC_WCHARS()
 #define _yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
 #endif
+#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_ */

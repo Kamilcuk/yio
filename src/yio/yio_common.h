@@ -4,7 +4,8 @@
  * @author Kamil Cukrowski
  * @copyright SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#ifndef _yIO_YIO_YIO_COMMON_H_
+#define _yIO_YIO_YIO_COMMON_H_
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stddef.h>
@@ -86,3 +87,4 @@
 /**
  * @}
  */
+#endif /* _yIO_YIO_YIO_COMMON_H_ */

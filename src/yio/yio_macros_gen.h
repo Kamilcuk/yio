@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YIO_MACROS_GEN_H_
+#define _yIO_YIO_YIO_MACROS_GEN_H_
 
 /* --------------------------------------------------------------------------------------------- */
 
@@ -157,3 +158,4 @@
  * @c _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA for the rest of arguments.
  */
 #define _yIO_I1FSDPC_XF2(_1, ...)  _yIO_IGNORE1FOREACHSIZEOFDECAYPOSTCOMMA(__VA_ARGS__)
+#endif /* _yIO_YIO_YIO_MACROS_GEN_H_ */

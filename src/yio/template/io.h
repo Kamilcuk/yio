@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_IO_H_
+#define _yIO_YIO_YΩIO_IO_H_
 #include "ctx.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -192,3 +193,4 @@ int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...
 #define YΩIO_PRINT_ARGUMENTS(...)  \
 		_yΩIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})(_yΩIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
 
+#endif /* _yIO_YIO_YΩIO_IO_H_ */

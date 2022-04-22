@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_YIO_MACROS_GNU_H_
+#define _yIO_YIO_YΩIO_YIO_MACROS_GNU_H_
 
 {% from "yio/template/yio_macros.h" import j_yio_macros_funcs, j_yio_macros_fmt_and_args %}
 #line
@@ -28,3 +29,4 @@
 		{{ j_yio_macros_fmt_and_args(I) }}
 {% endcall %}{% endfor %}
 
+#endif /* _yIO_YIO_YΩIO_YIO_MACROS_GNU_H_ */

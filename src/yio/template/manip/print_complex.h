@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_
+#define _yIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_
 #if _yIO_HAS_COMPLEX
 
 {% set j_complex_types = [
@@ -54,3 +55,4 @@ int _yΩIO_print_imaginary_$1(yπio_printctx_t *t);
 #define _yΩIO_PRINT_COMPLEX()
 #endif
 
+#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_ */

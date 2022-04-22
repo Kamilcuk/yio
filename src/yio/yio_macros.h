@@ -6,7 +6,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YIO_MACROS_H_
+#define _yIO_YIO_YIO_MACROS_H_
 
 #include "yio_macros_gen.h"
 
+#endif /* _yIO_YIO_YIO_MACROS_H_ */

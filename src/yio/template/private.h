@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_PRIVATE_H_
+#define _yIO_YIO_YΩIO_PRIVATE_H_
 #define _yΩIO_PRIVATE  1
 #include "public.h"
 #include "io.h"
@@ -25,3 +26,4 @@
 #include <uniwidth.h>
 #include <unistdio.h>
 {% endif %}
+#endif /* _yIO_YIO_YΩIO_PRIVATE_H_ */

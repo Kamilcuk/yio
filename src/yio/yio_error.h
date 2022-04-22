@@ -5,7 +5,8 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#ifndef _yIO_YIO_YIO_ERROR_H_
+#define _yIO_YIO_YIO_ERROR_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -77,3 +78,4 @@ const char *yio_strerror(int error);
 #ifdef __cplusplus
 }
 #endif
+#endif /* _yIO_YIO_YIO_ERROR_H_ */

@@ -5,7 +5,8 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_CTX_PRIVATE_H_
+#define _yIO_YIO_YΩIO_CTX_PRIVATE_H_
 #include "yio/yio_common.h"
 #include "ctx.h"
 #include "fmt.h"
@@ -60,3 +61,4 @@ void _yΩIO_printctx_init(yπio_printctx_t *t,
 	};
 	*t = _yΩIO_printctx;
 }
+#endif /* _yIO_YIO_YΩIO_CTX_PRIVATE_H_ */

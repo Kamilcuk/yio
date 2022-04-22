@@ -26,7 +26,8 @@
  * The API here is written in a "self-cleaning" fashion - if any of the functions
  * return with error, then there is no need for cleanup, it is called automatically.
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_RES_H_
+#define _yIO_YIO_PRIVATE_YIO_RES_H_
 #include "../yio_common.h"
 #include "../yio.h"
 #include <assert.h>
@@ -170,3 +171,4 @@ int _yIO_res_resize2(_yIO_res *t, size_t newsize, size_t newused) {
 	return 0;
 }
 
+#endif /* _yIO_YIO_PRIVATE_YIO_RES_H_ */

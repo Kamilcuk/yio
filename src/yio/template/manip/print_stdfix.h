@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_STDFIX_H_
+#define _yIO_YIO_YΩIO_MANIP_PRINT_STDFIX_H_
 #if _yIO_HAS_STDFIX_TYPES
 
 {% from "yio/private/yio_stdfix.h" import j_STDFIX %}
@@ -26,3 +27,4 @@ int _yΩIO_print_$3(yπio_printctx_t *t);
 #define _yΩIO_PRINT_STDFIX()
 #endif // _yIO_HAS_STDFIX_TYPES
 
+#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_STDFIX_H_ */

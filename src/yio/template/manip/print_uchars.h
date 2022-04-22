@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_UCHARS_H_
+#define _yIO_YIO_YΩIO_MANIP_PRINT_UCHARS_H_
 
 #if _yIO_HAS_UCHAR_H
 #include <uchar.h>
@@ -21,3 +22,4 @@ int _yΩIO_print_constchar32pnt(yπio_printctx_t *t);
 #define _yΩIO_PRINT_FUNC_GENERIC_UCHARS()
 #endif
 
+#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_UCHARS_H_ */

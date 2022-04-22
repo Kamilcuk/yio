@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_CTX_H_
+#define _yIO_YIO_YΩIO_CTX_H_
 #include "../yio_common.h"
 #include <stdarg.h>
 #include <stddef.h>
@@ -189,3 +190,4 @@ va_list *_yΩIO_printctx_get_va(yπio_printctx_t *t);
  * @}
  */
 
+#endif /* _yIO_YIO_YΩIO_CTX_H_ */

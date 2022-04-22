@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_MANIP_H_
+#define _yIO_YIO_YΩIO_MANIP_MANIP_H_
 #include "../ctx.h"
 #include "../../yio_config.h"
 #include "slots.h"
@@ -85,3 +86,4 @@ int _yΩIO_print_voidp(yπio_printctx_t *t);
 			_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
 		default: _yΩIO_print_unhandled_type \
 		)))
+#endif /* _yIO_YIO_YΩIO_MANIP_MANIP_H_ */

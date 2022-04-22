@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_FLOAT_H_
+#define _yIO_YIO_YΩIO_MANIP_PRINT_FLOAT_H_
 #include "../../private/yio_float.h"
 #include "../../private/yio_float_strfrom_custom.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
@@ -101,3 +102,4 @@ int _yΩIO_print_float_ryu$1(yπio_printctx_t *t);
 		{% endcall %}
 		/**/
 
+#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_FLOAT_H_ */

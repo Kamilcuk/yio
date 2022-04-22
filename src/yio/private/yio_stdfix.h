@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_STDFIX_H_
+#define _yIO_YIO_PRIVATE_YIO_STDFIX_H_
 #if _yIO_HAS_STDFIX_TYPES
 #include "private.h"
 #if _yIO_HAS_STDFIX_H
@@ -76,3 +77,4 @@
 {% endcall %}
 
 #endif // _yIO_HAS_STDFIX_TYPES
+#endif /* _yIO_YIO_PRIVATE_YIO_STDFIX_H_ */

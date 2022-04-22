@@ -127,6 +127,7 @@ testone_%:
 
 HELP +=~ lint - run linters
 lint:
+	@mkdir -p _build
 	$(MAKE) build CMAKE_BUILD_TYPE=RelWithDebInfo PRESET=lint 2>&1 > >(tee _build/lint.txt)
 	grep -v '^Warning: cpplint diagnostics:\|^Done processing ' _build/lint.txt > _build/lint2.txt
 	! grep -i 'warning: \|error: ' _build/lint2.txt

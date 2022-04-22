@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_TIME_H_
+#define _yIO_YIO_PRIVATE_YIO_TIME_H_
 #include <stddef.h>
 #include <time.h>
 
@@ -22,3 +23,4 @@
  */
 int _yIO_astrftime_nonzero(char **strp, const size_t initialsize, const char *fmt, const struct tm *tm);
 
+#endif /* _yIO_YIO_PRIVATE_YIO_TIME_H_ */

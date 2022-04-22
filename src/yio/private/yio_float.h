@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_FLOAT_H_
+#define _yIO_YIO_PRIVATE_YIO_FLOAT_H_
 #include "../yio_config.h"
 
 // {#
@@ -174,3 +175,4 @@ _yIO_FLOAT$1 _yIO_exp10$1(_yIO_FLOAT$1 x) {
 
 /* ------------------------------------------------------------------------- */
 
+#endif /* _yIO_YIO_PRIVATE_YIO_FLOAT_H_ */

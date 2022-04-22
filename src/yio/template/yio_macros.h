@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_YIO_MACROS_H_
+#define _yIO_YIO_YΩIO_YIO_MACROS_H_
 
 /**
  * @defgroup yio_macros
@@ -96,3 +97,4 @@
 #define _yΩIO_print_arguments_N({{j_seqdashcomma(j_MLVLS)}}, N, ...)  \
 		_yΩIO_print_arguments_##N
 
+#endif /* _yIO_YIO_YΩIO_YIO_MACROS_H_ */

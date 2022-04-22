@@ -1,5 +1,6 @@
 
-#pragma once
+#ifndef _yIO_YIO_TEST_H_
+#define _yIO_YIO_TEST_H_
 #include <yio.h>
 #ifndef _yIO_HAS_WCHAR_H
 #error _yIO_HAS_WCHAR_H
@@ -132,8 +133,5 @@ bool _yIO_test_is_in_valgrind(void);
 		_yIO_TEST(err < 0, "fmt=`%s` err=%s", fmt, yio_strerror(err)); \
 	} while(0)
 
-
-
-
-
+#endif // _yIO_YIO_TEST_H_
 

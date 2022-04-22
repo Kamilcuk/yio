@@ -5,7 +5,8 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#ifndef _yIO_YIO_YIO_CONFIG_H_
+#define _yIO_YIO_YIO_CONFIG_H_
 #include "yio_config_gen.h"
 
 /**
@@ -32,3 +33,4 @@
 #endif
 
 
+#endif /* _yIO_YIO_YIO_CONFIG_H_ */

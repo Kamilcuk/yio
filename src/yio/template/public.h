@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_PUBLIC_H_
+#define _yIO_YIO_YΩIO_PUBLIC_H_
 {% if MODEX == 2 %}
 #include <wchar.h>
 {% elif MODEX == 3 %}
@@ -21,3 +22,4 @@
 #include "io.h"
 #include "manip/manip.h"
 #include "yio_macros.h"
+#endif /* _yIO_YIO_YΩIO_PUBLIC_H_ */

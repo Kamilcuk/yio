@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_PFMT_H_
+#define _yIO_YIO_YΩIO_MANIP_PRINT_PFMT_H_
 
 /**
  * @defgroup yp__mod
@@ -35,3 +36,4 @@ int _yΩIO_print_width_size_t(yπio_printctx_t *t);
 /**
  * @}
  */
+#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_PFMT_H_ */

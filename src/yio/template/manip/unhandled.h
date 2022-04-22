@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_UNHANDLED_H_
+#define _yIO_YIO_YΩIO_MANIP_UNHANDLED_H_
 
 // From https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#Common-Function-Attributes
 // ... is used on a function declaration and a **call** to such a function is ...
@@ -16,3 +17,4 @@ _yIO_error("Type is not handled")
 // _yIO_deprecated("Type is not handled")
 int (*_yΩIO_print_unhandled_type(void))(yπio_printctx_t *t);
 #define _yΩIO_print_unhandled_type  (_yΩIO_print_unhandled_type())
+#endif /* _yIO_YIO_YΩIO_MANIP_UNHANDLED_H_ */

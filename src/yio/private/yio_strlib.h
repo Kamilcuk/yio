@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_PRIVATE_YIO_STRLIB_H_
+#define _yIO_YIO_PRIVATE_YIO_STRLIB_H_
 #include "private.h"
 #include <assert.h>
 #if _yIO_HAS_WCHAR_H
@@ -145,3 +146,4 @@ _yIO_STRCONV_DECLARE_TO_ITSELF((u))
 #endif
 
 /* -------------------------------------------------------------- */
+#endif /* _yIO_YIO_PRIVATE_YIO_STRLIB_H_ */

@@ -5,7 +5,8 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#ifndef _yIO_YIO_YIO_PRIVATE_H_
+#define _yIO_YIO_YIO_PRIVATE_H_
 #include "yio_public.h"
 #include "intprops.h"
 #include "yio_common.h"
@@ -110,3 +111,4 @@ const char *_yIO_char_to_printstr_in(char dest[5], unsigned char c);
 
 
 
+#endif /* _yIO_YIO_YIO_PRIVATE_H_ */

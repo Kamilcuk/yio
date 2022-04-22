@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_FMT_H_
+#define _yIO_YIO_YΩIO_FMT_H_
 #include <stdbool.h>
 {% if MODEX == 2 %}
 #include <wchar.h>
@@ -79,3 +80,4 @@ struct yπio_printfmt_s {
  * @}
  */
 
+#endif /* _yIO_YIO_YΩIO_FMT_H_ */

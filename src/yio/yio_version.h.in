@@ -5,7 +5,8 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#ifndef _yIO_YIO_YIO_VERSION_H_IN_
+#define _yIO_YIO_YIO_VERSION_H_IN_
 
 #include "yio_common.h"
 #include <stdio.h>
@@ -52,3 +53,4 @@ const char *yio_get_version_string(void);
 _yIO_nn()
 int yio_print_version_banner(FILE *f);
 
+#endif /* _yIO_YIO_YIO_VERSION_H_IN_ */

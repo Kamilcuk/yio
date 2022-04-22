@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
+#define _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
 #include <time.h>
 #ifndef _yIO_HAS_timespec
 #error
@@ -67,3 +68,4 @@ int _yΩIO_print_timeval(yπio_printctx_t *t);
 		_yΩIO_PRINT_GENERIC_TIMESPEC() \
 		_yΩIO_PRINT_GENERIC_TIMEVAL()
 
+#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_ */

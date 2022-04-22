@@ -5,7 +5,8 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#pragma once
+#ifndef _yIO_YIO_YΩIO_FMT_PRIVATE_H_
+#define _yIO_YIO_YΩIO_FMT_PRIVATE_H_
 #include "../yio_common.h"
 
 /**
@@ -49,3 +50,4 @@ int _yΩIO_printformat_string(yπio_printctx_t *t, const TCHAR str[]);
 int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
 		const TCHAR *ptr, const TCHAR **endptr, int *res);
 bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c);
+#endif /* _yIO_YIO_YΩIO_FMT_PRIVATE_H_ */
