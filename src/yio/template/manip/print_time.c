@@ -133,7 +133,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	char *buf = _buf_mem;
 	const int length = _yIO_astrftime_nonzero(&buf, sizeof(_buf_mem), format, tm);
 	if (length < 0) {
-		ret = ret;
+		ret = length;
 		goto STRFTIME_ERROR;
 	}
 

@@ -46,6 +46,10 @@ if(YIO_DEV)
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
+	if(NOT CMAKE_BUILD_TYPE MATCHES "^Debug$|^Release$|^RelWithDebInfo$")
+		message(FATAL_ERROR "You mixed up CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
+	endif()
+
 	# Use ccache if available
 	find_program(CCACHE_COMMAND "ccache")
 	if(CCACHE_COMMAND)
@@ -174,7 +178,7 @@ if(YIO_DEV)
 		CMAKE_GENERATOR
 		CMAKE_VERBOSE_MAKEFILE
 		CMAKE_EXPORT_COMPILE_COMMANDS
-		CCACHE_FOUND
+		CCACHE_COMMAND
 		UNISTRING_LIB
 		CPPLINT_COMMAND
 		DIRECTORY
@@ -228,6 +232,18 @@ function(yio_cdt_parser tgt)
 	add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
 	target_compile_definitions(${tgt} PRIVATE
 		__CDT_PARSER__=1
+		_yIO_HAS_FLOATf32=0
+		_yIO_HAS_FLOATf64=0
+		_yIO_HAS_FLOATf32x=0
+		_yIO_HAS_FLOATf64x=0
+		_yIO_HAS_FLOATf128=0
+		_yIO_HAS_FLOATf128x=0
+		_yIO_HAS_FLOATd32=0
+		_yIO_HAS_FLOATd64=0
+		_yIO_HAS_FLOATd128=0
+		_yIO_HAS_FLOATd32x=0
+		_yIO_HAS_FLOATd64x=0
+		_yIO_HAS_FLOATd128x=0
 	)
 	target_include_directories(${tgt} PRIVATE
 		${SRCDIR}
@@ -265,7 +281,10 @@ set_from_env(YIO_LINE) # Use to disable adding #line in source files
 
 #!
 function(jinja_generate)
-	cmake_parse_arguments(A "" "SOURCE;OUTPUT" "" ${ARGN})
+	cmake_parse_arguments(A "" "SOURCE;OUTPUT;TARGET" "" ${ARGN})
+	if(NOT A_TARGET)
+		message(FATAL_ERROR "jinja_generate: You have to give a target to append source into")
+	endif()
 	string(MD5 depfilename "${A_OUTPUT}")
 	set(depfile "${CMAKE_CURRENT_BINARY_DIR}/jinjadepfiles/${depfilename}.depfile")
 	file(RELATIVE_PATH reloutputf ${CMAKE_CURRENT_BINARY_DIR} ${A_OUTPUT})
@@ -279,7 +298,8 @@ function(jinja_generate)
 		message(FATAL_ERROR "Source file does not exist: ${A_SOURCE}")
 	endif()
 	set(debug)
-	if((DEFINED YIO_LINE AND YIO_LINE) OR (NOT DEFINED YIO_LINE AND YIO_DEV))
+	if((DEFINED YIO_LINE AND YIO_LINE) OR
+			(NOT DEFINED YIO_LINE AND YIO_DEV AND CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG"))
 		set(debug --debug)
 	endif()
 	add_custom_command(
@@ -306,6 +326,7 @@ function(jinja_generate)
 			"${A_SOURCE}"
 		VERBATIM
 	)
+	set_property(TARGET "${A_TARGET}" APPEND PROPERTY SOURCES "${A_OUTPUT}")
 endfunction()
 
 ###############################################################################

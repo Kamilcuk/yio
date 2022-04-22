@@ -24,8 +24,6 @@ CMAKE_BUILD_TYPE ?= Debug
 HELP_VAR +=~ CMAKE_C_FLAGS
 CMAKE_C_FLAGS ?=
 
-HELP_VAR +=~ BUILD_TESTING
-
 HELP_VAR +=~ CTESTFLAGS
 CTESTFLAGS ?=
 
@@ -44,40 +42,41 @@ R ?=
 
 ###############################################################################
 
-# Build dir name
-_BCCNAME =
+# Build dir name, matches .gitlab-ci
 ifdef CC
-ifeq ($(findstring .$(CC).,.clang.icc.),.$(CC).)
+ifneq ($(filter clang icc,$(CC)),)
 _BCCNAME = $(CC)
 endif
 endif
-ISALPINE ?= $(shell grep -q alpine /etc/os-release 2>/dev/null && echo 1)
-ifeq ($(ISALPINE),1)
-_BCCNAME = alpine
+_BCCNAME ?=
+# OS IDentification, matches .gitlab-ci
+OSID ?= $(shell test -r /etc/os-release && . /etc/os-release && echo $$ID)
+ifneq ($(filter centos alpine,$(OSID)),)
+_BOSNAME = $(OSID)
 endif
-_BNAME = $(_BCCNAME)$(CMAKE_BUILD_TYPE)$(shell PRESET=$(PRESET) && echo $${PRESET^})
+_BOSNAME ?=
+# PascalCase it
+_BNAME ?= $(subst $(value 0) ,,\
+		  $(foreach X,$(_BCCNAME) $(_BOSNAME) $(PRESET) $(CMAKE_BUILD_TYPE),$(shell V=$(X) ; V=$${V,,} ; echo $${V^})))
+#
 HELP_VAR +=~ B - Build directory location
 B ?= _build/$(_BNAME)
 
 # Default cmake and other flags
 CMAKE = $(NICE) cmake
 CTEST = $(NICE) ctest
-CMAKEFLAGS += -S.
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += $(if $(value CMAKE_C_FLAGS),-DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)")
-ifneq ($(value BUILD_TESTING),)
-CMAKEFLAGS += -DBUILD_TESTING=$(BUILD_TESTING)
-endif
 CMAKEFLAGS += --log-level=TRACE
 
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))
 
 BUILDFLAGS ?=
-VERBOSE ?=
-V ?=
 
-ifeq ($(VERBOSE)$(V),1)
+HELP_VAR +=~ V - set V=1 for verbose
+V ?=
+ifeq ($(V),1)
 BUILDFLAGS += --verbose
 CTESTFLAGS += -V
 endif
@@ -94,7 +93,7 @@ all: help
 
 HELP +=~ configure - Configure the project
 configure:
-	$(CMAKE) --preset=$(PRESET) -B$(B) $(CMAKEFLAGS)
+	$(CMAKE) --preset=$(PRESET) -B$(B) -S. $(CMAKEFLAGS)
 
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
@@ -128,7 +127,9 @@ testone_%:
 
 HELP +=~ lint - run linters
 lint:
-	$(MAKE) build PRESET=lint
+	$(MAKE) build CMAKE_BUILD_TYPE=RelWithDebInfo PRESET=lint 2>&1 > >(tee _build/lint.txt)
+	grep -v '^Warning: cpplint diagnostics:\|^Done processing ' _build/lint.txt > _build/lint2.txt
+	! grep -i 'warning: \|error: ' _build/lint2.txt
 
 HELP +=~ clang
 clang:
@@ -137,7 +138,7 @@ clang:
 ###############################################################################
 
 HELP +=~ cicd - Run all tests before commit to be sure it works
-cicd: export CMAKE_BUILD_TYPE=Release
+cicd: export CMAKE_BUILD_TYPE=RelWithDebInfo
 cicd:
 	$(MAKE) valgrind
 	$(MAKE) test_project
@@ -145,21 +146,6 @@ cicd:
 	$(MAKE) clang
 	$(MAKE) arm
 	$(MAKE) gitlab_pages
-
-HELP +=~ debug - Build the project in debug mode
-debug: export CMAKE_BUILD_TYPE=Debug
-debug:
-	@+$(MAKE) build
-
-HELP +=~ release - Build the project in release mode
-release: export CMAKE_BUILD_TYPE=Release
-release:
-	@+$(MAKE) build
-
-HELP +=~ release_test - Build and test the project in release mode
-release_test: export CMAKE_BUILD_TYPE=Release
-release_test:
-	@+$(MAKE) test
 
 # Exotic Targets ##################################################
 
@@ -193,8 +179,7 @@ coverage_gen:
 # cppcheck
 
 CPPCHECK_FLAGS_INIT = \
-	--project=_build/Release/compile_commands.json \
-	-j $(shell nproc) \
+	--project=./compile_commands.json \
 	-U__DOXYGEN__ \
 	-U__CDT_PARSER__ \
 	-UNDEBUG \
@@ -206,19 +191,22 @@ CPPCHECK_FLAGS_INIT = \
 	--suppress=unmatchedSuppression \
 	--suppress=unreadVariable \
 	--suppress=unusedFunction \
-	--suppress="*:$(PWD)/src*" \
-	--suppress="*:src*" \
-	--suppress="*:$(PWD)/test/templated*" \
-	--suppress="*:test/templated*" \
-	--suppress="*:$(PWD)/test/reprocessed*" \
-	--suppress="*:test/reprocessed*" \
+	--suppress="*:$(PWD)/src/*" \
+	--suppress="*:src/*" \
+	--suppress="*:$(PWD)/test/templated/*" \
+	--suppress="*:test/templated/*" \
+	--suppress="*:$(PWD)/test/reprocessed/*" \
+	--suppress="*:test/reprocessed/*" \
 	--library=posix \
 	--report-progress  \
 	-x c
 CPPCHECK_FLAGS = --quiet --enable=all
 HELP +=~ cppcheck Run cppcheck
-cppcheck: linuxincdir = $(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
-cppcheck: release
+cppcheck: export linuxincdir=$(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
+cppcheck: export CMAKE_BUILD_TYPE=Release
+cppcheck:
+	$(MAKE) configure .cppcheck
+.cppcheck:
 	$(NICE) cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
 
 ###############################################################################

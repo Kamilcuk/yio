@@ -129,6 +129,8 @@ _yIO_FLOAT$1 _yIO_exp10$1(_yIO_FLOAT$1 x) {
 #define _yIO_FLOAT_MANT_DIG$1  $3_MANT_DIG
 #elif defined(__$3_MANT_DIG__)
 #define _yIO_FLOAT_MANT_DIG$1  __$3_MANT_DIG__
+#else
+#error Can not define _yIO_FLOAT_MANT_DIG$1
 #endif
 #endif
 

@@ -46,6 +46,10 @@ list(APPEND _gensrcs yio/yio_version.h)
 
 ###########################################################################################
 
+add_custom_target(yio_gen
+	COMMENT "yio sources generated"
+)
+
 file(GLOB_RECURSE _srcs *.c *.h)
 foreach(source IN LISTS _srcs)
 	file(RELATIVE_PATH _output ${SRCDIR} ${source})
@@ -53,6 +57,7 @@ foreach(source IN LISTS _srcs)
 		foreach(mode IN ITEMS yio ywio yuio yc16io)
 			string(REGEX REPLACE "template" "${mode}" "_tmp" "${_output}")
 			jinja_generate(
+				TARGET yio_gen
 				SOURCE ${source}
 				OUTPUT ${GENDIR}/${_tmp}
 				--mode ${mode}
@@ -62,6 +67,7 @@ foreach(source IN LISTS _srcs)
 		endforeach()
 	else()
 		jinja_generate(
+			TARGET yio_gen
 			SOURCE ${source}
 			OUTPUT ${GENDIR}/${_output}
 		)
@@ -98,31 +104,10 @@ function(gen_list_exclude result listin listexclude)
 endfunction()
 file(GLOB_RECURSE files RELATIVE ${GENDIR} ${GENDIR}/*.c ${GENDIR}/*.h)
 gen_list_exclude(files_not_in_gensrcs files _gensrcs)
-if(files_not_in_gensrcs)
-	foreach(ii IN LISTS files_not_in_gensrcs)
-		message(STATUS "yio: Removing: ${GENDIR}/${ii}")
-		file(REMOVE "${GENDIR}/${ii}")
-	endforeach()
-endif()
-
-# Sources are relative to gendir, so make them absolute
-set(_genabssrcs)
-foreach(ii IN LISTS _gensrcs)
-	list(APPEND _genabssrcs "${GENDIR}/${ii}")
+foreach(ii IN LISTS files_not_in_gensrcs)
+	message(STATUS "yio: Removing: ${GENDIR}/${ii}")
+	file(REMOVE "${GENDIR}/${ii}")
 endforeach()
-
-#set(_YIO_GEN_FILE ${CMAKE_CURRENT_BINARY_DIR}/yio_generated.stamp CACHE INTERNAL "")
-#add_custom_command(
-	#OUTPUT ${_YIO_GEN_FILE}
-	#COMMAND ${CMAKE_COMMAND} -E touch ${_YIO_GEN_FILE}
-	#COMMENT "yio: Generated source files (dependency)"
-	#DEPENDS ${_genabssrcs}
-#)
-## Generate all files target
-#add_custom_target(yio_gen2
-	#DEPENDS ${_YIO_GEN_FILE}
-	#COMMENT "yio: Generated source files"
-#)
 
 ################################################################################################
 # Installation configuration
@@ -285,8 +270,6 @@ endfunction()
 
 ##################################################################################
 # Add libraries
-
-add_custom_target(yio_gen DEPENDS ${_genabssrcs})
 
 file_glob_srcs_relative_to_srcdir(GLOB _auto_generic_srcs yio)
 file_glob_srcs_relative_to_srcdir(GLOB _auto_yio_private_srcs yio/private)

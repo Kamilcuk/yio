@@ -42,7 +42,8 @@ int _yIO_astrftime_nonzero(char **strp, size_t bufsize, const char *fmt, const s
 			if (count != 0) {
 				break;
 			} else if (errno != 0) {
-				return YIO_ERROR_STRFROM;
+				free(buf);
+				return YIO_ERROR_STRFTIME;
 			}
 		}
 	}

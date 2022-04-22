@@ -1,8 +1,8 @@
 {
-  "version": 3,
+  "version": 2,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 11,
+    "minor": 20,
     "patch": 0
   },
   "configurePresets": [
@@ -40,10 +40,17 @@
       }
     },
     {
+      "name": "icc",
+      "inherits": "default",
+      "cacheVariables": {
+        "_yIO_HAS_FLOATf64x": "0"
+      }
+    },
+    {
       "name": "arm",
       "inherits": "default",
-      "toolchainFile": "${sourceDir}/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake",
       "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake",
         "ARM_NONE_EABI_GCC_NO_NEWLIB_NANO": "1"
       }
     },
@@ -57,8 +64,8 @@
     {
       "name": "sdcc",
       "inherits": "default",
-      "toolchainFile": "${sourceDir}/kcmakelib/cmake/Toolchain/sdcc.cmake",
       "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/kcmakelib/cmake/Toolchain/sdcc.cmake",
         "CMAKE_C_FLAGS": " --include malloc.h ",
         "_yIO_USE_STRFROM_PRINTF": "0",
         "_yIO_USE_STRFROM_RYU": "0",
@@ -80,8 +87,8 @@
         "_yIO_HAS_FLOATd64": "0",
         "_yIO_HAS_FLOATd128": "0",
         "_yIO_HAS_FLOATf128": "0",
-				"YIO_CPPLINT": "1",
-				"YIO_CLANG_TIDY": "1"
+        "YIO_CPPLINT": "1",
+        "YIO_CLANG_TIDY": "1"
       }
     }
   ],

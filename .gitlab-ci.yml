@@ -1,10 +1,16 @@
 # .gitlab-ci.yml
 ---
 
+include:
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+
 image: registry.gitlab.com/kamcuk/builder
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
-  CMAKE_BUILD_TYPE: Release
+  CMAKE_BUILD_TYPE: RelWithDebInfo
 
 ###############################################################################
 
@@ -13,21 +19,26 @@ icc_test:
     - perun
   image:
     name: intel/oneapi-hpckit
-    entrypoint: []
   variables:
     CC: icc
+    PRESET: icc
   script:
-    - . /root/.oneapi_env_vars
     - apt update
-    - apt install -y git libunistring-dev python-jinja2
+    - apt install -y git libunistring-dev ninja-build
+    - pip3 install jinja2
     - make test
 
-gcc_test:
+valgrind_project_test:
   variables:
     CC: gcc
   script:
     - make valgrind
     - make test_project
+
+lint_test:
+  script:
+    - pacman -Sy --noconfirm cpplint clang
+    - make lint
 
 gcc_sanitize_test:
   variables:
@@ -55,6 +66,17 @@ alpine_test:
     - apk add build-base make cmake ninja bash gcc py3-jinja2 libunistring-dev git
     - make test
 
+centos8_test:
+  image: centos:8
+  script:
+    # https://stackoverflow.com/questions/70926799/centos-through-a-vm-no-urls-in-mirrorlist
+    - sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-*
+    # https://www.linode.com/community/questions/19087/how-do-i-install-libunistring-devel-on-centos-8
+    - yum -y install dnf-plugins-core
+    - yum config-manager --set-enabled powertools
+    - yum -y install gcc cmake python3 python3-jinja2 git ninja-build libunistring-devel
+    - make test
+
 pages_build:
   script:
     - make gitlab_pages
@@ -62,16 +84,6 @@ pages_build:
     paths:
       - public/
     expire_in: 1 week
-
-centos8:
-  image: centos:8
-  script:
-    # https://stackoverflow.com/questions/70926799/centos-through-a-vm-no-urls-in-mirrorlist
-    - sed -i -e "s|mirrorlist=|#mirrorlist=|g" -e "s|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g" /etc/yum.repos.d/CentOS-Linux-*
-    # https://www.linode.com/community/questions/19087/how-do-i-install-libunistring-devel-on-centos-8
-    - yum install dnf-plugins-core
-    - yum -y install gcc cmake python3 python3-jinja2 git
-    - make test
 
 ###############################################################################
 
