@@ -33,7 +33,7 @@ int _yIO_astrftime_nonzero(char **strp, size_t bufsize, const char *fmt, const s
 			void *p = realloc(buf, bufsize);
 			if (p == NULL) {
 				free(buf);
-				return YIO_ERROR_ENOMEM;
+				return _yIO_ERROR(STRFTIME_ENOMEM, "could not allocate memory for strftime");
 			}
 			buf = p;
 

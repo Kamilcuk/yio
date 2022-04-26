@@ -50,4 +50,6 @@ int _yΩIO_printformat_string(yπio_printctx_t *t, const TCHAR str[]);
 int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
 		const TCHAR *ptr, const TCHAR **endptr, int *res);
 bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c);
+int _yΩIO_printctx_strtoi_noerr(const TCHAR **ptr);
+
 #endif /* _yIO_YIO_YΩIO_FMT_PRIVATE_H_ */

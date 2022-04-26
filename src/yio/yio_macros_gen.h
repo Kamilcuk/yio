@@ -16,13 +16,6 @@
  */
 #define _yIO_ESC(...)  __VA_ARGS__
 
-/**
- * @def _yIO_IGNORE1
- * Ignore first argument
- */
-#define _yIO_IGNORE1_IN(_1,...)  __VA_ARGS__
-#define _yIO_IGNORE1(...)        _yIO_IGNORE1_IN(__VA_ARGS__,0)
-
 
 /**
  * Only first argument

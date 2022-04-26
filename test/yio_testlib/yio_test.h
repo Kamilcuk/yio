@@ -34,6 +34,8 @@ enum {
 	_yIO_TEST_FLAG_ASSERT = 2,
 };
 
+bool _yIO_tty(void);
+
 _yIO_nn()
 int _yIO__testing(bool verbose, const char *expr, const char *file, int line);
 
@@ -121,16 +123,19 @@ bool _yIO_test_is_in_valgrind(void);
 	do { \
 		char buf[100]; \
 		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
-		_yIO_TEST(err > 0, "fmt=`%s` err=%s", fmt, yio_strerror(err)); \
-		_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=`%s` buf=`%s`", shouldbe, buf); \
-		printf("%d: `%s`\n", __LINE__, buf); \
+		if (err > 0 || strcmp(shouldbe, buf) != 0) { \
+			_yIO_TEST(err > 0, "fmt=`%s` err=%d`%s` errno=%d", fmt, err, yio_strerror(err), errno); \
+			_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=\n`%s` buf=\n`%s`", shouldbe, buf); \
+		} else { \
+			printf("GOOD: %d: `%s`\n", __LINE__, buf); \
+		} \
 	} while(0)
 
 #define YIO_TEST_FAIL(fmt, ...)  \
 	do { \
 		char buf[100]; \
 		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
-		_yIO_TEST(err < 0, "fmt=`%s` err=%s", fmt, yio_strerror(err)); \
+		_yIO_TEST(err < 0, "fmt=`%s` err=%d`%s` buf=`%s`", fmt, err, yio_strerror(err), buf); \
 	} while(0)
 
 #endif // _yIO_YIO_TEST_H_

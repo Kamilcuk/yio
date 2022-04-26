@@ -12,6 +12,9 @@ int _yΩIO_print_constornot_charpnt(yπio_printctx_t *t, const char *str) {
 	const int err = yπio_printctx_init(t);
 	if (err) return err;
 	const struct yπio_printfmt_s *pf = yπio_printctx_get_fmt(t);
+	if (pf->type != TC('\0') && pf->type != TC('s')) {
+		return YIO_ERROR_INVALID_TYPE;
+	}
 	const size_t len = pf->precision >= 0 ? _yIO_strnlen(str, pf->precision) : strlen(str);
 	return yπio_printctx_put(t, str, len);
 }

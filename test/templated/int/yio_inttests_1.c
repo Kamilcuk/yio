@@ -32,7 +32,7 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ TC("A{:010d}"), 5, TC("A0000000005"), },
 
 		{ TC("B{:>10d}"),  5, TC("B         5"), },
-		{ TC("B{:^10d}"),  5, TC("B     5    "), },
+		{ TC("B{:^10d}"),  5, TC("B    5     "), },
 		{ TC("B{:<10d}"),  5, TC("B5         "), },
 		{ TC("B{:=10d}"),  5, TC("B         5"), },
 
@@ -42,7 +42,7 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ TC("B{:=+10d}"), 5, TC("B+        5"), },
 
 		{ TC("B{:>-10d}"), 5, TC("B         5"), },
-		{ TC("B{:^-10d}"), 5, TC("B     5    "), },
+		{ TC("B{:^-10d}"), 5, TC("B    5     "), },
 		{ TC("B{:<-10d}"), 5, TC("B5         "), },
 		{ TC("B{:=-10d}"), 5, TC("B         5"), },
 
@@ -82,7 +82,7 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ TC("D{:=-10x}"), -5, TC("D-        5"), },
 
 		{ TC("E{:>10}"),  5, TC("E         5"), },
-		{ TC("E{:^10}"),  5, TC("E     5    "), },
+		{ TC("E{:^10}"),  5, TC("E    5     "), },
 		{ TC("E{:<10}"),  5, TC("E5         "), },
 		{ TC("E{:=10}"),  5, TC("E         5"), },
 
@@ -92,7 +92,7 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ TC("E{:=+10}"), 5, TC("E+        5"), },
 
 		{ TC("E{:>-10}"), 5, TC("E         5"), },
-		{ TC("E{:^-10}"), 5, TC("E     5    "), },
+		{ TC("E{:^-10}"), 5, TC("E    5     "), },
 		{ TC("E{:<-10}"), 5, TC("E5         "), },
 		{ TC("E{:=-10}"), 5, TC("E         5"), },
 
@@ -122,7 +122,7 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ TC("F{:= #10x}"), -5, TC("F-0x      5"), },
 
 		{ TC("G{:>#10x}"), 5, TC("G       0x5"), },
-		{ TC("G{:^#10x}"), 5, TC("G    0x5   "), },
+		{ TC("G{:^#10x}"), 5, TC("G   0x5    "), },
 		{ TC("G{:<#10x}"), 5, TC("G0x5       "), },
 		{ TC("G{:=#10x}"), 5, TC("G0x       5"), },
 
@@ -132,7 +132,7 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ TC("G{:=+#10x}"), 5, TC("G+0x      5"), },
 
 		{ TC("G{:>-#10x}"), 5, TC("G       0x5"), },
-		{ TC("G{:^-#10x}"), 5, TC("G    0x5   "), },
+		{ TC("G{:^-#10x}"), 5, TC("G   0x5    "), },
 		{ TC("G{:<-#10x}"), 5, TC("G0x5       "), },
 		{ TC("G{:=-#10x}"), 5, TC("G0x       5"), },
 
@@ -161,12 +161,12 @@ static const struct _yIO_inttests_s _yIO_inttests[] = {
 		{ TC("H{:\x02= #10x}"), 5, TC("H 0x\x02\x02\x02\x02\x02\x02""5"), },
 
 		{ TC("I{:@> #10x}"), 254, TC("I@@@@@ 0xfe"), },
-		{ TC("I{:@^ #10x}"), 254, TC("I@@@ 0xfe@@"), },
+		{ TC("I{:@^ #10x}"), 254, TC("I@@ 0xfe@@@"), },
 		{ TC("I{:@< #10x}"), 254, TC("I 0xfe@@@@@"), },
 		{ TC("I{:@= #10x}"), 254, TC("I 0x@@@@@fe"), },
 
 		{ TC("I{:@> #10X}"), 254, TC("I@@@@@ 0XFE"), },
-		{ TC("I{:@^ #10X}"), 254, TC("I@@@ 0XFE@@"), },
+		{ TC("I{:@^ #10X}"), 254, TC("I@@ 0XFE@@@"), },
 		{ TC("I{:@< #10X}"), 254, TC("I 0XFE@@@@@"), },
 		{ TC("I{:@= #10X}"), 254, TC("I 0X@@@@@FE"), },
 

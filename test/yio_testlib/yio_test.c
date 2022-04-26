@@ -97,9 +97,43 @@ bool _yIO_test_is_in_valgrind(void) {
 }
 
 #if __linux__ && __GLIBC__ && __GNUC__
+#include <execinfo.h>
+#include <unistd.h>
+#include <signal.h>
+#include <unistd.h>
+
+// https://stackoverflow.com/questions/77005/how-to-automatically-generate-a-stacktrace-when-my-program-crashes
+static void sighandler(int sig) {
+	void *array[50];
+	const size_t size = backtrace(array, sizeof(array)/sizeof(*array));
+	fprintf(stderr, "Error: signal %d:%s\n", sig, strsignal(sig));
+	char **ss = backtrace_symbols(array, size);
+	for (size_t i = 0; i < size; ++i) {
+		char exe[2048], addr[20];
+		if (sscanf(ss[i], "%2047[^(](+%19[^)]", exe, addr) == 2) {
+			char cmd[4096];
+			snprintf(cmd, sizeof(cmd), "addr2line -Cfip -e %s %s", exe, addr);
+			const int r = system(cmd);
+			(void)r;
+		} else {
+			printf("%s\n", ss[i]);
+		}
+	}
+}
+
 __attribute__((__constructor__))
 static void disable_buffering(void) {
 	setvbuf(stdout, 0, _IOLBF, 0);
 	setvbuf(stderr, 0, _IOLBF, 0);
+	signal(SIGSEGV, sighandler);
+	signal(SIGABRT, sighandler);
+}
+
+bool _yIO_tty(void) {
+	return isatty(STDOUT_FILENO);
+}
+#else
+bool _yIO_tty(void) {
+	return 0;
 }
 #endif

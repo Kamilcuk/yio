@@ -11,4 +11,6 @@
 
 #include "yio_macros_gen.h"
 
+#define _yIO_ERROR(a, b)  YIO_ERROR_##a
+
 #endif /* _yIO_YIO_YIO_MACROS_H_ */

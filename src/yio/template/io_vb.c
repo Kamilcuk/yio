@@ -7,8 +7,10 @@
  * @brief
  */
 #include "private.h"
+#include "ctx_private.h"
 #include <stdlib.h>
 #include <assert.h>
+#include <ctype.h>
 
 /* yvbprintf helpers ------------------------------------------------------ */
 
@@ -63,6 +65,27 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR *fmt
 
 /* yvbprintf ----------------------------------------------------------- */
 
+void _yΩIO_skip_arm(yπio_printctx_t *t, unsigned count) {
+	va_end(*t->va);
+	va_copy(*t->va, *t->startva);
+	t->ifunc = t->startifunc;
+	t->skip = count;
+}
+
+int _yΩIO_skip_do(yπio_printctx_t *t) {
+	for (; t->skip != 0; --t->skip) {
+		if (t->ifunc == NULL || *t->ifunc == NULL) {
+			return YIO_ERROR_TOO_MANY_FMT;
+		}
+		const int ifuncret = (*t->ifunc++)(t);
+		assert(ifuncret != 0); // this is not possible
+		if (ifuncret != YIO_ERROR_SKIPPING) {
+			return ifuncret;
+		}
+	}
+	return 0;
+}
+
 static inline
 int yπvbprintf_in(yπio_printctx_t *t) {
 	if (t->fmt == NULL) {
@@ -78,19 +101,21 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 		}
 		return 0;
 	}
-
 	while (1) {
 		int err = _yΩIO_yvbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
 		if (err) return err;
 		if (t->fmt[0] == TC('\0')) break;
 		assert(t->fmt[0] == TC('{'));
 		t->fmt++;
-
+		//
 		t->pf = _yΩIO_printfmt_default;
-		// Handle conversion specifier.
+		if (TISDIGIT(t->fmt[0])) {
+			_yΩIO_skip_arm(t, _yΩIO_printctx_strtoi_noerr(&t->fmt));
+		}
 		if (t->fmt[0] == TC('!')) {
+			// Handle conversion specifier.
 			t->fmt++;
-			if (t->fmt[0] != TC('s')) {
+			if (t->fmt[0] != TC('a')) {
 				return YIO_ERROR_UNKNOWN_CONVERSION;
 			}
 			t->pf.conversion = t->fmt[0];
@@ -101,17 +126,14 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 		} else if (t->fmt[0] != TC('}')) {
 			return YIO_ERROR_PYFMT_INVALID;
 		}
-
+		const int skipret = _yΩIO_skip_do(t);
+		if (skipret) return skipret;
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
 			return YIO_ERROR_TOO_MANY_FMT;
 		}
-		const int ifuncret = (*t->ifunc)(t);
-		if (ifuncret) {
-			return ifuncret;
-		}
-		t->ifunc++;
+		const int ifuncret = (*t->ifunc++)(t);
+		if (ifuncret) return ifuncret;
 	}
-
 	return 0;
 }
 
@@ -121,12 +143,15 @@ int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const
 	assert(va != NULL);
 	yπio_printctx_t _ctx;
 	yπio_printctx_t * const t = &_ctx;
-	_yΩIO_printctx_init(t, out, arg, data, fmt, va);
+	va_list startva;
+	va_copy(startva, *va);
+	_yΩIO_printctx_init(t, out, arg, data, fmt, va, &startva);
 	const int err = yπvbprintf_in(t);
+	va_end(startva);
 	if (err) {
 		return -abs(err);
 	}
-	assert(t->writtencnt < (size_t)INT_MAX);
+	assert(t->writtencnt <= (unsigned)INT_MAX);
 	return t->writtencnt;
 }
 

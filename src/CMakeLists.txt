@@ -44,6 +44,31 @@ include(version.cmake)
 configure_file(${SRCDIR}/yio/yio_version.h.in ${GENDIR}/yio/yio_version.h)
 list(APPEND _gensrcs yio/yio_version.h)
 
+# Generate errors
+file(GLOB_RECURSE csrcs src/yio/*.c)
+add_custom_command(
+  OUTPUT
+    ${GENDIR}/yio/yio_error_genenum.h
+    ${GENDIR}/yio/yio_error_genmsg.h
+  COMMAND
+    ${Python3_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
+    ${GENDIR}/yio/yio_error_genenum.h
+    ${GENDIR}/yio/yio_error_genmsg.h
+  COMMENT "Generate errors list from source files"
+  DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
+    ${csrcs}
+)
+list(APPEND _gensrcs
+  yio/yio_error_genenum.h
+  yio/yio_error_genmsg.h
+)
+list(APPEND _yio_gensrcs
+  yio/yio_error_genenum.h
+  yio/yio_error_genmsg.h
+)
+
 ###########################################################################################
 
 add_custom_target(yio_gen

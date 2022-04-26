@@ -18,6 +18,9 @@
 /* printctx ---------------------------------------------------- */
 
 int yπio_printctx_init(yπio_printctx_t *t) {
+	if (t->skip != 0) {
+		return YIO_ERROR_SKIPPING;
+	}
 	if (t->fmt) {
 		const int err = _yΩIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
 		if (err) return err;
@@ -31,7 +34,6 @@ int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *ptr, size_t size)
 	assert(ptr != NULL);
 	const int ret = t->out(t->outarg, ptr, size);
 	if (ret) return ret;
-	assert(SIZE_MAX - size > t->writtencnt);
 	t->writtencnt += size;
 	return 0;
 }
@@ -65,7 +67,6 @@ int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const TC
 	if (ret < 0) {
 		return ret;
 	}
-	assert(t->writtencnt < (size_t)INT_MAX - ret);
 	t->writtencnt += ret;
 	return 0;
 }
@@ -170,7 +171,7 @@ int _yΩIO_printformat_prefix(_yΩIO_printformat_t *pf) {
 			f->align == YΩIO_ALIGN_RIGHT ||
 			f->align == YΩIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = width - alllen;
-		size_t diff = f->align == YΩIO_ALIGN_CENTER ? tmp / 2 + !!(tmp % 2) : tmp;
+		size_t diff = f->align == YΩIO_ALIGN_CENTER ? tmp / 2 : tmp;
 		while (diff--) {
 			const int err = yπio_printctx_raw_write(t, &f->fill, 1);
 			if (err) return err;
@@ -195,7 +196,7 @@ int _yΩIO_printformat_suffix(_yΩIO_printformat_t *pf) {
 	const size_t width = f->width > 0 ? f->width : 0;
 	if ((f->align == YΩIO_ALIGN_LEFT || f->align == YΩIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
-		size_t diff = f->align == YΩIO_ALIGN_CENTER ? tmp / 2: tmp;
+		size_t diff = f->align == YΩIO_ALIGN_CENTER ? tmp / 2 + !!(tmp % 2) : tmp;
 		while (diff--) {
 			const int err = yπio_printctx_raw_write(t, &f->fill, 1);
 			if (err) return err;

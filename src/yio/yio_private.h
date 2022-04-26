@@ -109,6 +109,4 @@
 const char *_yIO_char_to_printstr_in(char dest[5], unsigned char c);
 #define _yIO_printc(c)  _yIO_char_to_printstr_in((char[5]){0}, c)
 
-
-
 #endif /* _yIO_YIO_YIO_PRIVATE_H_ */

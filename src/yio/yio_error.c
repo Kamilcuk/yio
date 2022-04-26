@@ -18,8 +18,9 @@ static const char *const _yIO_error_messages[] = {
 {% from "yio/yio_error.h" import j_ERRORS %}
 {% for v, k in j_ERRORS %}
 #line
-	"{{ k }}",
+	"{{ k }}",  // {{ v }}
 {% endfor %}
+#include "yio_error_genmsg.h"
 };
 
 static const char unknown_error[] = "unknown error";

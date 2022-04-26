@@ -17,22 +17,17 @@
 #include <ctype.h>
 
 static inline
-int _yΩIO_printctx_get_va_arg_int(yπio_printctx_t *t) {
-	++t->ifunc;
-	return yπio_printctx_va_arg(t, int);
-}
-
-static inline
 int _yΩIO_digit_to_number(TCHAR d) {
+	assert(TISDIGIT(d));
 {% if MODEX == 1 %}
 	return d - '0';
 {% else %}
 	const TCHAR table[] = TC("0123456789");
 	return TSTRCHR(table, d) - table;
 {% endif %}
+#line
 }
 
-static inline
 int _yΩIO_printctx_strtoi_noerr(const TCHAR **ptr) {
 	const TCHAR *pnt = *ptr;
 	int num = 0;
@@ -55,13 +50,28 @@ int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
 	if (ptr[0] == TC('{')) {
 		ptr++;
 		if (TISDIGIT(ptr[0])) {
-			return -ENOSYS;
+#if 1 || _yIO_USE_POSITIONAL
+			_yΩIO_skip_arm(t, _yΩIO_printctx_strtoi_noerr(&ptr));
+			const int skiperr = _yΩIO_skip_do(t);
+			if (skiperr) return skiperr;
+#else
+			return YIO_ERROR_POSITIONAL_DISABLED;
+#endif
 		}
+		const _yΩIO_printfunc_t ifunc = *t->ifunc++;
+		if (ifunc == &_yΩIO_print_short)       { num = yπio_printctx_va_arg_num(t, short); }
+		else if (ifunc == &_yΩIO_print_ushort) { num = yπio_printctx_va_arg_num(t, unsigned short); }
+		else if (ifunc == &_yΩIO_print_int)    { num = yπio_printctx_va_arg(t, int); }
+		else if (ifunc == &_yΩIO_print_uint)   { num = yπio_printctx_va_arg(t, unsigned int); }
+		else if (ifunc == &_yΩIO_print_long)   { num = yπio_printctx_va_arg(t, long); }
+		else if (ifunc == &_yΩIO_print_ulong)  { num = yπio_printctx_va_arg(t, unsigned long); }
+		else if (ifunc == &_yΩIO_print_llong)  { num = yπio_printctx_va_arg(t, long long); }
+		else if (ifunc == &_yΩIO_print_ullong) { num = yπio_printctx_va_arg(t, unsigned long long); }
+		else { return YIO_ERROR_NOT_NUMBER; }
 		if (ptr++[0] != TC('}')) {
 			ret = YIO_ERROR_MISSING_RIGHT_BRACE;
 			goto EXIT;
 		}
-		num = _yΩIO_printctx_get_va_arg_int(t);
 	} else if (TISDIGIT(ptr[0])) {
 		num = _yΩIO_printctx_strtoi_noerr(&ptr);
 	}

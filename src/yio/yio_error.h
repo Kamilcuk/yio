@@ -42,6 +42,11 @@ extern "C" {
 		[ "YIO_ERROR_MBTOC32", "c32rtomb returned -1", ],
 		[ "YIO_ERROR_MBTOC16", "c16rtomb returned -1", ],
 		[ "YIO_ERROR_STRFROM", "strfrom returned -1", ],
+		[ "YIO_ERROR_STRFMON", "strfmon returned -1 with errno different than 0 or E2BIG", ],
+		[ "YIO_ERROR_SKIPPING", "error part of skipping positional arguments when iterating over them", ],
+		[ "YIO_ERROR_POSITIONAL_DISABLED", "positional support is disabled, but used in format string", ],
+		[ "YIO_ERROR_NOT_NUMBER", "width or precision positional parameter is not a number", ],
+		[ "YIO_ERROR_INVALID_TYPE", "type specifier was invalid for given type", ],
 	]
 %}
 #line
@@ -57,8 +62,9 @@ enum _yIO_errors_e {
 	_yIO_ERROR_START = -12300,     /// Start of custom errors
 {% for v, k in j_ERRORS %}
 #line
-	{{ v }},
+	{{ v }},  /// {{ k }}
 {% endfor %}
+#include "yio_error_genenum.h"
 	_yIO_ERROR_STOP,               /// End of custom errors
 };
 
