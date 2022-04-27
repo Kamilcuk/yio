@@ -35,18 +35,6 @@ int _yΩIO_print_time_in_extract_format_add_space(TCHAR *dest, const TCHAR *fmt,
 
 int _yΩIO_print_tm(yπio_printctx_t *t);
 
-int _yΩIO_print_time_gmtime(yπio_printctx_t *t);
-#define yπptgmtime(time_t_variable) \
-		yiocb(_Generic((time_t_variable), \
-		time_t: _yΩIO_print_time_gmtime \
-		),(time_t_variable))
-
-int _yΩIO_print_time_localtime(yπio_printctx_t *t);
-#define yπptlocaltime(time_t_variable) \
-		yiocb(_Generic((time_t_variable), \
-		time_t: _yΩIO_print_time_localtime \
-		),(time_t_variable))
-
 #if _yIO_HAS_timespec
 int _yΩIO_print_timespec(yπio_printctx_t *t);
 #define _yΩIO_PRINT_GENERIC_TIMESPEC() \

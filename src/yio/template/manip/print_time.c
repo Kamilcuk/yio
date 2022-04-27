@@ -9,6 +9,7 @@
 #define _POSIX_C_SOURCE  1
 #include "private.h"
 #include "yio/private/yio_time.h"
+#include <assert.h>
 #include <time.h>
 #if _yIO_HAS_UNISTD_H
 #include <sys/time.h>
@@ -44,7 +45,7 @@ int _yΩIO_print_time_parse_format(yπio_printctx_t *t, const TCHAR **beginptr, 
 			// guess precision
 			fmt++;
 			if (fmt[0] == TC('\0')) {
-				return YIO_ERROR_MISSING_PRECISION;
+				return _yIO_ERROR(YIO_ERROR_TIME_MISSING_PRECISION, "Missing precision when parsing time format specifier");
 			}
 			const int err = _yΩIO_printctx_stdintparam(t, fmt, &fmt, &pf->precision);
 			if (err) return err;
@@ -55,7 +56,7 @@ int _yΩIO_print_time_parse_format(yπio_printctx_t *t, const TCHAR **beginptr, 
 			fmt++;
 		}
 		if (fmt[0] != TC('}')) {
-			return YIO_ERROR_MISSING_RIGHT_BRACE;
+			return _yIO_ERROR(YIO_ERROR_TIME_MISSING_RIGHT_BRACE, "Missing '}' when parsing time format specifier");
 		}
 	}
 	*beginptr = chrono_specs;
@@ -65,22 +66,19 @@ int _yΩIO_print_time_parse_format(yπio_printctx_t *t, const TCHAR **beginptr, 
 
 static inline
 int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
-	int ret = 0;
 	//
-	const TCHAR *fmtbegin;
-	const TCHAR *fmtend;
-	ret = _yΩIO_print_time_parse_format(t, &fmtbegin, &fmtend);
-	if (ret) {
-		goto FORMAT_EXTRACT_ERROR;
-	}
+	const TCHAR *fmtbegin = NULL;
+	const TCHAR *fmtend = NULL;
+	int ret = _yΩIO_print_time_parse_format(t, &fmtbegin, &fmtend);
+	if (ret) goto FORMAT_EXTRACT_ERROR;
 	// Advance global fmt.
 	if (t->fmt) {
 		assert(fmtend[0] == TC('}'));
 		t->fmt = fmtend;
 	}
 	// Initialize printctx - after erading format string.
-	int err = yπio_printctx_init(t);
-	if (err) return err;
+	ret = yπio_printctx_init(t);
+	if (ret) return ret;
 	//
 	const ptrdiff_t realfmtlen = fmtend - fmtbegin;
 
@@ -95,8 +93,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 		// Add additional space.
 		const ptrdiff_t fmtlen = realfmtlen + 2;
 		char *formatbuf = NULL;
-{% if MODEX == 1 %}
-#line
+#if TMODE == 1
 		formatbuf = malloc(sizeof(*formatbuf) * fmtlen);
 		if (formatbuf == NULL) {
 			ret = YIO_ERROR_ENOMEM;
@@ -104,8 +101,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 		}
 		memcpy(formatbuf, fmtbegin, sizeof(*formatbuf) * realfmtlen);
 		if (0) goto FORMAT_STRCONV_ERROR;
-{% else %}
-#line
+#else
 		if (0) goto FORMAT_MALLOC_ERROR;
 		ret = _yIO_strconv_πstr_to_str(fmtbegin, realfmtlen, (const char **)&formatbuf, NULL);
 		if (ret) {
@@ -117,9 +113,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 			goto FORMAT_STRCONV_ERROR;
 		}
 		formatbuf = pnt;
-		//
-{% endif %}
-#line
+#endif
 		formatbuf[fmtlen - 2] = ' ';
 		formatbuf[fmtlen - 1] = '\0';
 		format = formatbuf;
@@ -175,20 +169,6 @@ struct tm _yIO_gmtime(const time_t *sec) {
 	tm = *gmtime(sec); // NOLINT(runtime/threadsafe_fn)
 #endif
 	return tm;
-}
-
-/* ------------------------------------------------------------------------- */
-
-int _yΩIO_print_time_localtime(yπio_printctx_t *t) {
-	const time_t ts = yπio_printctx_va_arg(t, time_t);
-	const struct tm tm = _yIO_localtime(&ts);
-	return _yΩIO_print_time_strftime(t, &tm);
-}
-
-int _yΩIO_print_time_gmtime(yπio_printctx_t *t) {
-	const time_t ts = yπio_printctx_va_arg(t, time_t);
-	const struct tm tm = _yIO_gmtime(&ts);
-	return _yΩIO_print_time_strftime(t, &tm);
 }
 
 int _yΩIO_print_tm(yπio_printctx_t *t) {

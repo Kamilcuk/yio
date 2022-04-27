@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "yio_error.h"
-#include "yio_static_assert.h"
+#include <assert.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -16,10 +16,9 @@
  */
 static const char *const _yIO_error_messages[] = {
 {% from "yio/yio_error.h" import j_ERRORS %}
-{% for v, k in j_ERRORS %}
-#line
+{% for v, k in j_ERRORS %} #line
 	"{{ k }}",  // {{ v }}
-{% endfor %}
+{% endfor %} #line
 #include "yio_error_genmsg.h"
 };
 

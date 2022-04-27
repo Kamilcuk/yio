@@ -6,14 +6,217 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #define _XOPEN_SOURCE  1 // wcswidth
+#include "ctx.h"
 #include "private.h"
+#ifndef _yIO_HAS_UNISTRING
+#error
+#endif
 #if _yIO_HAS_UNISTRING
 #include <uniwidth.h>
 #endif
+#include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <ctype.h>
 #include <limits.h>
+
+static const TCHAR YΩIO_ALIGN_LEFT = TC('<');
+static const TCHAR YΩIO_ALIGN_RIGHT = TC('>');
+static const TCHAR YΩIO_ALIGN_PADSIGN = TC('=');
+static const TCHAR YΩIO_ALIGN_CENTER = TC('^');
+
+static const TCHAR YΩIO_SIGN_ALWAYS = TC('+');
+static const TCHAR YΩIO_SIGN_NEGATIVE = TC('-');
+static const TCHAR YΩIO_SIGN_ALWAYSSPACE = TC(' ');
+
+static const TCHAR YΩIO_GROUPING_COMMA = TC(',');
+static const TCHAR YΩIO_GROUPING_UNDERSCORE = TC('_');
+static const TCHAR YΩIO_GROUPING_NONE = TC('\0');
+
+/* ------------------------------------------------------------------------- */
+
+void _yΩIO_skip_arm(yπio_printctx_t *t, unsigned count) {
+	va_end(*t->va);
+	va_copy(*t->va, *t->startva);
+	t->ifunc = t->startifunc;
+	t->skip = count;
+}
+
+int _yΩIO_skip_do(yπio_printctx_t *t) {
+	for (; t->skip != 0; --t->skip) {
+		if (*t->ifunc == NULL) {
+			return YIO_ERROR_TOO_MANY_FMT;
+		}
+		const int ifuncret = (*t->ifunc++)(t);
+		assert(ifuncret != 0); // this is not possible
+		if (ifuncret != YIO_ERROR_SKIPPING) {
+			return ifuncret;
+		}
+	}
+	return 0;
+}
+static inline
+int _yΩIO_digit_to_number(TCHAR d) {
+	assert(TISDIGIT(d));
+#if TMODEX == 1
+	return d - '0';
+#else
+	const TCHAR table[] = TC("0123456789");
+	return TSTRCHR(table, d) - table;
+#endif
+}
+
+int _yΩIO_printctx_strtoi_noerr(const TCHAR **ptr) {
+	const TCHAR *pnt = *ptr;
+	assert(TISDIGIT(pnt[0]));
+	int num = 0;
+	do {
+		assert(num < INT_MAX / 10);
+		num *= 10;
+		const int c = _yΩIO_digit_to_number(pnt[0]);
+		assert(num < INT_MAX - c);
+		num += c;
+		++pnt;
+	} while (TISDIGIT(pnt[0]));
+	*ptr = pnt;
+	return num;
+}
+
+int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
+		const TCHAR *ptr, const TCHAR **endptr, int *res) {
+	int num = -1;
+	int ret = 0;
+	if (ptr[0] == TC('{')) {
+		ptr++;
+		if (TISDIGIT(ptr[0])) {
+			_yΩIO_skip_arm(t, _yΩIO_printctx_strtoi_noerr(&ptr));
+			const int skiperr = _yΩIO_skip_do(t);
+			if (skiperr) return skiperr;
+		}
+		if (t->ifunc == NULL) {
+			return _yIO_ERROR(YIO_ERROR_POSITIONAL_NO_ARGS, "no arguments for positional width or precision");
+		}
+		const _yΩIO_printfunc_t ifunc = *t->ifunc++;
+		if (ifunc == &_yΩIO_print_short)       { num = yπio_printctx_va_arg_num(t, short); }
+		else if (ifunc == &_yΩIO_print_ushort) { num = yπio_printctx_va_arg_num(t, unsigned short); }
+		else if (ifunc == &_yΩIO_print_int)    { num = yπio_printctx_va_arg(t, int); }
+		else if (ifunc == &_yΩIO_print_uint)   { num = yπio_printctx_va_arg(t, unsigned int); }
+		else if (ifunc == &_yΩIO_print_long)   { num = yπio_printctx_va_arg(t, long); }
+		else if (ifunc == &_yΩIO_print_ulong)  { num = yπio_printctx_va_arg(t, unsigned long); }
+		else if (ifunc == &_yΩIO_print_llong)  { num = yπio_printctx_va_arg(t, long long); }
+		else if (ifunc == &_yΩIO_print_ullong) { num = yπio_printctx_va_arg(t, unsigned long long); }
+		else { return _yIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number"); }
+		if (ptr++[0] != TC('}')) {
+			ret = _yIO_ERROR(YIO_ERROR_POSITIONAL_MISSING_RIGHT_BRACE, "missing '}' when parsing positional width or precision specifier");
+			goto EXIT;
+		}
+	} else if (TISDIGIT(ptr[0])) {
+		num = _yΩIO_printctx_strtoi_noerr(&ptr);
+	}
+	EXIT:
+	*endptr = ptr;
+	*res = num;
+	return ret;
+}
+
+const struct yπio_printfmt_s _yΩIO_printfmt_default = {
+		.width = -1,
+		.precision = -1,
+		.fill = TC(' '),
+		.align = TC('>'),
+		.sign = TC('-'),
+};
+
+bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c) {
+	return c != TC('\0') && TSTRCHR(s, c) != NULL;
+}
+
+int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
+		const TCHAR *fmt, const TCHAR **endptr) {
+	/*
+	https://fmt.dev/latest/syntax.html#format-specification-mini-language
+	format_spec     ::=  [[fill]align][sign][#][0][width][grouping_option][.precision][type]
+	fill            ::=  <any character>
+	align           ::=  "<" | ">" | "=" | "^"
+	sign            ::=  "+" | "-" | " "
+	width           ::=  digit+
+	grouping_option ::=  "_" | ","
+	precision       ::=  digit+
+	type            ::=  "b" | "c" | "d" | "e" | "E" | "f" | "F" | "g" | "G" | "n" | "o" | "s" | "x" | "X" | "%"
+	 */
+	int ret = 0;
+
+	if (fmt[0] == TC('}')) {
+		fmt++;
+		goto EXIT;
+	}
+	if (fmt[0] == TC('\0')) {
+		ret = _yIO_ERROR(YIO_ERROR_EOF_IN_FMT, "end of string while looking for conversion specifier");
+		goto EXIT;
+	}
+	if (fmt[0] != TC('\0') && _yΩIO_strnulchrbool(TC("<>=^"), fmt[1])) {
+		pf->fill = fmt++[0];
+		pf->align = fmt++[0];
+	} else if (_yΩIO_strnulchrbool(TC("<>=^"), fmt[0])) {
+		pf->align = fmt++[0];
+	}
+	if (_yΩIO_strnulchrbool(TC("+- "), fmt[0])) {
+		pf->sign = fmt++[0];
+	}
+	if (fmt[0] == TC('#')) {
+		pf->hash = true;
+		fmt++;
+	}
+	if (fmt[0] == TC('0')) {
+		fmt++;
+		pf->fill = TC('0');
+		pf->align = TC('=');
+	}
+
+	int err = _yΩIO_printctx_stdintparam(c, fmt, &fmt, &pf->width);
+	if (err) {
+		ret = err;
+		goto EXIT;
+	}
+
+	pf->grouping = _yΩIO_strnulchrbool(TC("_,"), fmt[0]) ? fmt++[0] : 0;
+	if (fmt[0] == '.') {
+		++fmt;
+		const TCHAR *endparamptr;
+		err = _yΩIO_printctx_stdintparam(c, fmt, &endparamptr, &pf->precision);
+		if (err) {
+			ret = err;
+			goto EXIT;
+		}
+		// If there is a dot, there must be precision.
+		if (endparamptr == fmt) {
+			ret = _yIO_ERROR(YIO_ERROR_MISSING_PRECISION, "Format specifier missing precision");
+			goto EXIT;
+		}
+		fmt = endparamptr;
+	} else {
+		pf->precision = -1;
+	}
+
+	if (_yΩIO_strnulchrbool(TC("bcdeEfFaAgGnosxXp%"), fmt[0])) {
+		pf->type = fmt++[0];
+	}
+
+	if (fmt[0] == TC('\0')) {
+		ret = _yIO_ERROR(YIO_ERROR_MISSING_RIGHT_BRACE, "missing '}' when parsing common format specification");
+		goto EXIT;
+	}
+	if (fmt[0] != TC('}')) {
+		ret = _yIO_ERROR(YIO_ERROR_ERRONEUS_FORMAT, "erroneus format string");
+		goto EXIT;
+	}
+	++fmt;
+
+	EXIT:
+	*endptr = fmt;
+	return ret;
+}
+
 
 /* printctx ---------------------------------------------------- */
 
@@ -75,14 +278,14 @@ int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const TC
 
 static inline
 size_t _yΩIO_width(const TCHAR *str, size_t str_len) {
-#if {{(MODE == 1)|int}} && _yIO_HAS_UNISTRING
+#if TMODE == 1 && _yIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
-#elif {{(MODE == 2)|int}} && _yIO_HAS_wcswidth
+#elif TMODE == 2 && _yIO_HAS_wcswidth
 	const int width = wcswidth(str, str_len);
 	return width < 0 ? str_len : (size_t)width;
-#elif {{(MODE == 3)|int}}
+#elif TMODE == 3
 	return u16_width(str, str_len, locale_charset());
-#elif {{(MODE == 4)|int}}
+#elif TMODE == 4
 	return u32_width(str, str_len, locale_charset());
 #else
 	return str_len;
@@ -315,7 +518,7 @@ int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
 	return 0;
 }
 
-{% if MODEX != 1 %}
+#if TMODEX != 1
 int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive) {
 	const TCHAR *dest;
@@ -326,4 +529,4 @@ int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 	_yIO_strconv_free_str_to_πstr(str, dest);
 	return ret;
 }
-{% endif %}
+#endif

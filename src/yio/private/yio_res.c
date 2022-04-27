@@ -119,8 +119,7 @@ int _yIO_res_yprintf_cb(void *ptr, const char *data, size_t count) {
 	return 0;
 }
 
-#undef _yIO_res_yprintf
-int _yIO_res_yprintf(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...) {
+int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int err = yvbprintf(_yIO_res_yprintf_cb, t, data, fmt, &va);

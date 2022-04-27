@@ -45,7 +45,7 @@ configure_file(${SRCDIR}/yio/yio_version.h.in ${GENDIR}/yio/yio_version.h)
 list(APPEND _gensrcs yio/yio_version.h)
 
 # Generate errors
-file(GLOB_RECURSE csrcs src/yio/*.c)
+file(GLOB_RECURSE csrcs yio/*.c)
 add_custom_command(
   OUTPUT
     ${GENDIR}/yio/yio_error_genenum.h
@@ -251,6 +251,9 @@ function(yio_add_library name)
 		VERSION "${YIO_PROJECT_VERSION}"
 		SOVERSION "${YIO_PROJECT_SOVERSION}"
 	)
+	target_compile_definitions(${name} PRIVATE
+		_yIO_PRIVATE=1
+	)
 	target_include_directories(${name} PUBLIC
 		$<BUILD_INTERFACE:${GENDIR}>
 	)
@@ -269,7 +272,7 @@ function(yio_add_library name)
 		endif()
 	endif()
 
-
+	add_dependencies(${name} yio_gen)
 	add_dependencies(yio_targets ${name})
 
 	# Extract list of headers.

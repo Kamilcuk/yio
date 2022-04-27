@@ -8,9 +8,11 @@
  */
 #include <yio.h>
 
-#ifdef _yIO_PRIVATE
+#if defined(_yIO_PRIVATE) || defined(dbgln) || defined(_yIO_ERROR)
 #error PRIVATE HEADERS LEAKED TO USERS
 #error Regenerate doxygen and see the include graph there
 #endif
 
-int main() {}
+int main() {
+	return 0;
+}

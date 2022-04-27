@@ -17,7 +17,8 @@ int main() {
 	YIO_TEST("BAB", "{:B^3.3A}", tm);
 
 	int count;
-	yprintf("Hello\n{}", ypcount(&count));
+	int count2 = yprintf("Hello\n{}", ypcount(&count));
+	_yIO_TEST(count2 == 6);
 	_yIO_TEST(count == 6);
 
 	//YIO_TEST("\\x02", "{!a}", "\x02");

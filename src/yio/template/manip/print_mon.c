@@ -32,7 +32,7 @@ int _yIO_alloc_strfmon(char **strp, size_t bufsize, const char *fmt, double v) {
 			if (buf != *strp) {
 				free(buf);
 			}
-			return YIO_ERROR_STRFTIME;
+			return _yIO_ERROR(YIO_ERROR_STRFMON, "strfmon returned with -1 and errno is not E2BIG";
 		}
 
 		// Golden ratio resize
@@ -65,7 +65,7 @@ int print_mon(yπio_printctx_t *t) {
 	const YCHAR *const fmtbegin = t->fmt;
 	while (t->fmt != Yc('}') && t->fmt != Yc('\0')) t->fmt++;
 	if (t->fmt != Yc('\0')) {
-		return YIO_ERROR_MISSING_RIGHT_BRACE;
+		return _yIO_ERROR(YIO_ERROR_MON_MISSING_RIGHT_BRACE, "missing '}' when parsing monetary format specifier");
 	}
 	const YCHAR *const fmt end = t->fmt;
 	const size_t realfmtlen = fmtend - fntbegin;

@@ -28,12 +28,13 @@
  */
 #ifndef _yIO_YIO_PRIVATE_YIO_RES_H_
 #define _yIO_YIO_PRIVATE_YIO_RES_H_
-#include "../yio_common.h"
+#include "../yio_config.h"
 #include "../yio.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdlib.h>
 
 typedef struct _yIO_res {
 	char *beg;
@@ -97,10 +98,10 @@ int _yIO_res_reserve(_yIO_res *t, size_t newsize);
 
 /// Print into the container
 _yIO_wur _yIO_nn() _yIO_access_rw(1) _yIO_access_r(2) _yIO_access_r(3)
-int _yIO_res_yprintf(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...);
+int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...);
 
 /// Print into the container
-#define _yIO_res_yprintf(t, ...)  _yIO_res_yprintf(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define _yIO_res_yprintf(t, ...)  _yIO_res_yprintf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
  * Removes trailing zeros. There _has to_ be a dot in the string.

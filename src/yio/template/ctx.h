@@ -8,19 +8,64 @@
  */
 #ifndef _yIO_YIO_YΩIO_CTX_H_
 #define _yIO_YIO_YΩIO_CTX_H_
-#include "../yio_common.h"
+#include "../yio_config.h"
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-/* printctx ---------------------------------------------------------------------------- */
 
 /**
  * @defgroup printctx Yio print context
  * @{
  */
+
+/**
+ * Printing formatting options.
+ */
+struct yπio_printfmt_s {
+	/**
+	 * The field width. -1 when unset.
+	 */
+	int width;
+	/**
+	 * The field precision. -1 when unset.
+	 */
+	int precision;
+	/**
+	 * Filling character.
+	 */
+	TCHAR fill;
+	/**
+	 * May be one of '<' '>' '^' '=' characters or 0 when unset.
+	 */
+	TCHAR align;
+	/**
+	 * May be on of '+' '-' ' ' character or 0 when unset.
+	 */
+	TCHAR sign;
+	/**
+	 * May be set to '_' ',' or 0 when unset.
+	 */
+	TCHAR grouping;
+	/**
+	 * The printing type character. The standard valid characters are "bcdeEfFgGnosxX%".
+	 */
+	TCHAR type;
+	/**
+	 * The conversion specifier.
+	 */
+	TCHAR conversion;
+	/**
+	 * Use of alternate form.
+	 */
+	bool hash;
+};
+
+/**
+ * The default values of printfmt
+ */
+extern const struct yπio_printfmt_s _yΩIO_printfmt_default;
+
 /**
  * Print context.
  */
@@ -53,6 +98,56 @@ typedef int (*_yΩIO_printfunc_t)(yπio_printctx_t *t);
  */
 typedef const _yΩIO_printfunc_t yπio_printdata_t;
 
+/**
+ * The structure that allows for printing context manipulation.
+ */
+struct _yΩIO_printctx_s {
+	/// Current iterator in the format string.
+	const TCHAR *fmt;
+	/// va_list of current argument.
+	va_list *va;
+	/// Copy of va_list when iterating
+	va_list *startva;
+	/// Iterator in callback functions.
+	const _yΩIO_printfunc_t *ifunc;
+	/// The pointer to the data.
+	const yπio_printdata_t *startifunc;
+	/// The outputting function.
+	_yΩIO_printcb_t *out;
+	/// User argument for outputting functions.
+	void *outarg;
+	/// The count of characters written.
+	unsigned writtencnt;
+	/// Description of print formatting.
+	struct yπio_printfmt_s pf;
+	/// How many arguments to skip when outputting current argument.
+	unsigned char skip;
+};
+
+void _yΩIO_skip_arm(yπio_printctx_t *t, unsigned count);
+
+int _yΩIO_skip_do(yπio_printctx_t *t);
+
+/**
+ * Parse pythong formatting string
+ * @param c
+ * @param pf
+ * @param fmt Python formatting string like "{: < -0#123_.456}"
+ * @param endptr Will be set to the last character parsed in fmt
+ * @return 0 on success, otherwise error
+ */
+_yIO_wur _yIO_nn()
+int _yΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
+		const TCHAR *fmt, const TCHAR **endptr);
+
+
+int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
+		const TCHAR *ptr, const TCHAR **endptr, int *res);
+
+bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c);
+
+int _yΩIO_printctx_strtoi_noerr(const TCHAR **ptr);
+
 _yIO_wur _yIO_nn()
 int yπio_printctx_init(yπio_printctx_t *t);
 
@@ -63,7 +158,7 @@ int yπio_printctx_init(yπio_printctx_t *t);
  * @param size
  * @return 0 on success, anything else on error.
  */
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn() _yIO_access_r(2, 3)
 int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *ptr, size_t size);
 
 /**
@@ -104,7 +199,7 @@ int yπio_printctx_putπ(yπio_printctx_t *t, const TCHAR str[], size_t str_len)
 	return _yΩIO_printformat_generic(t, str, str_len, false, false);
 }
 
-{% if MODEX != 1 %}
+#if TMODE != 1
 _yIO_wur _yIO_nn()
 int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive);
@@ -118,7 +213,7 @@ _yIO_wur _yIO_nn() static inline
 int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
 	return _yΩIO_printformat_generic_char(t, str, str_len, true, is_positive);
 }
-{% endif %}
+#endif
 
 _yIO_wur _yIO_nn() static inline
 int yπio_printctx_putπ_number(yπio_printctx_t *t, const TCHAR str[], size_t str_len, bool is_positive) {

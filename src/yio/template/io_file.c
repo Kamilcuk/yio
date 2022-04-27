@@ -8,22 +8,18 @@
  */
 #include "private.h"
 
-
 static inline _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
 size_t _yΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
-	{% if MODEX == 1 %}
-	#line
+#if TMODE == 1
 	return fwrite(str, 1, size, file);
-	{% elif MODEX == 2 %}
-	#line
+#elif TMODE == 2
 	for (size_t n = 0; n < size; n++) {
 		if (fputwc(str[n], file) == TEOF) {
 			return n;
 		}
 	}
 	return size;
-	{% else %}
-	#line
+#else
 	const bool isnormal = fwide(file, 0) <= 0;
 	if (isnormal) {
 		const char *mb; size_t mb_len;
@@ -45,7 +41,7 @@ size_t _yΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
 		_yIO_strconv_free_πstr_to_wstr(str, wc);
 	}
 	return size;
-	{% endif %}
+#endif
 }
 
 static _yIO_access_r(2, 3) _yIO_wur _yIO_nn()

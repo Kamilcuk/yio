@@ -7,9 +7,9 @@
  * @brief
  */
 #include "private.h"
-#include "ctx_private.h"
-#include <stdlib.h>
+#include "ctx.h"
 #include <assert.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 /* yvbprintf helpers ------------------------------------------------------ */
@@ -45,7 +45,7 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR *fmt
 				}
 			} else {
 				if (fmt[0] == TC('}')) {
-					return YIO_ERROR_SINGLE_RIGHT_BRACE;
+					return _yIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
 				}
 				// {} or {:stuff} found
 				break;
@@ -64,27 +64,6 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR *fmt
 }
 
 /* yvbprintf ----------------------------------------------------------- */
-
-void _yΩIO_skip_arm(yπio_printctx_t *t, unsigned count) {
-	va_end(*t->va);
-	va_copy(*t->va, *t->startva);
-	t->ifunc = t->startifunc;
-	t->skip = count;
-}
-
-int _yΩIO_skip_do(yπio_printctx_t *t) {
-	for (; t->skip != 0; --t->skip) {
-		if (t->ifunc == NULL || *t->ifunc == NULL) {
-			return YIO_ERROR_TOO_MANY_FMT;
-		}
-		const int ifuncret = (*t->ifunc++)(t);
-		assert(ifuncret != 0); // this is not possible
-		if (ifuncret != YIO_ERROR_SKIPPING) {
-			return ifuncret;
-		}
-	}
-	return 0;
-}
 
 static inline
 int yπvbprintf_in(yπio_printctx_t *t) {
@@ -141,11 +120,18 @@ int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
-	yπio_printctx_t _ctx;
-	yπio_printctx_t * const t = &_ctx;
 	va_list startva;
 	va_copy(startva, *va);
-	_yΩIO_printctx_init(t, out, arg, data, fmt, va, &startva);
+	yπio_printctx_t _ctx = {
+		.va = va,
+		.startva = &startva,
+		.fmt = fmt,
+		.ifunc = data,
+		.startifunc = data,
+		.out = out,
+		.outarg = arg,
+	};
+	yπio_printctx_t * const t = &_ctx;
 	const int err = yπvbprintf_in(t);
 	va_end(startva);
 	if (err) {

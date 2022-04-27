@@ -8,6 +8,13 @@
  */
 #ifndef _yIO_YIO_PRIVATE_YIO_STDFIX_H_
 #define _yIO_YIO_PRIVATE_YIO_STDFIX_H_
+#include "../yio_config.h"
+#ifndef _yIO_HAS_STDFIX_TYPES
+#error
+#endif
+#ifndef _yIO_HAS_STDFIX_H
+#error
+#endif
 #if _yIO_HAS_STDFIX_TYPES
 #include "private.h"
 #if _yIO_HAS_STDFIX_H

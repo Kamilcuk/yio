@@ -8,9 +8,7 @@
  */
 #ifndef SRC_YIO_PRIVATE_PRIVATE_H_
 #define SRC_YIO_PRIVATE_PRIVATE_H_
-
 #include "../yio_config.h"
-#include "../intprops.h"
+#include "../yio_private.h"
 #include "../../yio.h"
-
 #endif /* SRC_YIO_PRIVATE_PRIVATE_H_ */

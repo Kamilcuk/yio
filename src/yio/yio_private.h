@@ -8,11 +8,9 @@
 #ifndef _yIO_YIO_YIO_PRIVATE_H_
 #define _yIO_YIO_YIO_PRIVATE_H_
 #include "yio_public.h"
-#include "intprops.h"
-#include "yio_common.h"
 #include <string.h>
 
-#define _yIO_STATIC_ASSERT(x)  ((void)sizeof(struct _yIO_sTaTiS_aSsErT{int _yIO_sTaTiS_aSsErT : (x)?1:-1;}))
+#define _yIO_PRIVATE  1
 
 // https://www.wolframalpha.com/input/?i=ceiling%28log_10%282%5Ex%29%29+for+x+%3D+1+to+256
 #define _yIO_LOG10_POW2(x) ( \
@@ -70,43 +68,31 @@
 		(x) == 256 ? 78 : 				\
 		-1)
 
-#define _yIO_MAXDIGITS_IN(type)     _yIO_LOG10_POW2(sizeof(type) * CHAR_BIT)
-
-#define _yIO_MAXHEXDIGITS_IN(type)  (sizeof(type) * CHAR_BIT / 4)
-
-#if _yIO_HAS_INT128
-#define _yIO_INTEGERS_APPEND_LIST_INT128() \
-		, \
-		(__int128, __int128), \
-		(u__int128, unsigned __int128)
-#else
-#define _yIO_INTEGERS_APPEND_LIST_INT128()
-#endif
-
-#define _yIO_INTEGERS_LIST2() \
-		(short, short), \
-		(ushort, unsigned short), \
-		(int, int), \
-		(uint, unsigned int), \
-		(long, long), \
-		(ulong, unsigned long), \
-		(llong, long long), \
-		(ullong, unsigned long long) \
-		_yIO_INTEGERS_APPEND_LIST_INT128()
+/**
+ * @def _yIO_INT_STRLEN_BOUND
+ * The number of digits needed to represent an int in base10 _without_ sign.
+ */
+#define _yIO_INT_STRLEN_BOUND()   _yIO_LOG10_POW2(sizeof(int) * CHAR_BIT - 1)
 
 
-#define _yIO_TYPES_LIST2() \
-		(schar, signed char), \
-		(uchar, unsigned char), \
-		_yIO_INTEGERS_LIST2()
-
-
-#define _yIO_dbgln(str, ...)  do{ \
-		fflush(stdout); \
+/**
+ * @def dbgln
+ * small debugging utility
+ */
+#define dbgln(str, ...)  do{ \
+		fflush(0); \
 		fprintf(stderr, "%s:%d: " str "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
 } while(0)
 
 const char *_yIO_char_to_printstr_in(char dest[5], unsigned char c);
 #define _yIO_printc(c)  _yIO_char_to_printstr_in((char[5]){0}, c)
+
+/**
+ * @def _yIO_ERROR(ENUM, DESC)
+ * @param ENUM The suffix to YIO_ERROR_* enum name.
+ * @param DESC The description of the errors
+ * @short Is used to automatically parse and register an error code with description.
+ */
+#define _yIO_ERROR(ENUM, DESC)  ENUM
 
 #endif /* _yIO_YIO_YIO_PRIVATE_H_ */

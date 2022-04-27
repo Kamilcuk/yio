@@ -9,17 +9,19 @@
 #include <yπio.h>
 #include <string.h>
 #include <assert.h>
+#include <limits.h>
 
-{% if MODE == 1 %}
+#if TMODE == 1
 #define shouldbe_snprintf snprintf
-{% elif MODE == 2 %}
+#elif TMODE == 2
 #define shouldbe_snprintf swprintf
-{% elif MODE == 3 %}
+#elif TMODE == 3
 #define shouldbe_snprintf u16_u16_snprintf
-{% elif MODE == 4 %}
+#elif TMODE == 4
 #define shouldbe_snprintf u32_u32_snprintf
-{% else %}{{ j_fatal() }}{% endif %}
-#line
+#else
+#error
+#endif
 
 #define _yio_inttest2(SUFFIX, TYPE) \
 static inline \

@@ -7,6 +7,7 @@
  * @brief
  */
 #include <yπio.h>
+#include <string.h>
 int main() {
 #if _yIO_HAS_timeval
 	struct timeval t = {

@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_YΩIO_YIO_MACROS_GNU_H_
-#define _yIO_YIO_YΩIO_YIO_MACROS_GNU_H_
+#ifndef _yIO_YIO_YΩIO_YIO_PRINT_ARGUMENTS_GNU_H_
+#define _yIO_YIO_YΩIO_YIO_PRINT_ARGUMENTS_GNU_H_
 
-{% from "yio/template/yio_macros.h" import j_yio_macros_funcs, j_yio_macros_fmt_and_args %}
+{% from "yio/template/yio_print_arguments.h" import j_yio_macros_funcs, j_yio_macros_fmt_and_args %}
 #line
 #define _yΩIO_print_arguments_1(func_gen, fmt) \
 		__extension__({ static const _yΩIO_printfunc_t _yΩIO_printfuncs[] = { \
@@ -29,4 +29,4 @@
 		{{ j_yio_macros_fmt_and_args(I) }}
 {% endcall %}{% endfor %}
 
-#endif /* _yIO_YIO_YΩIO_YIO_MACROS_GNU_H_ */
+#endif /* _yIO_YIO_YΩIO_YIO_PRINT_ARGUMENTS_GNU_H_ */

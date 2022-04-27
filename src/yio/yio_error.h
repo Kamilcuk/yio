@@ -11,8 +11,7 @@
 extern "C" {
 #endif
 
-#include "yio_common.h"
-#include <errno.h>
+#include "yio_config.h"
 
 {% set j_ERRORS = [
 		[ "YIO_ERROR_ENOMEM", "Not enough memory", ],
@@ -20,17 +19,11 @@ extern "C" {
 		[ "YIO_ERROR_EIO", "Input/output error", ],
 		[ "YIO_ERROR_ENOBUFS", "No buffer space available", ],
 		[ "YIO_ERROR_FMT_INVALID", "Invalid format specifier", ],
-		[ "YIO_ERROR_SINGLE_RIGHT_BRACE", "Single '}' encountered in format string", ],
-		[ "YIO_ERROR_SINGLE_LEFT_BRACE", "Single '{' encountered in format string", ],
-		[ "YIO_ERROR_EOF_IN_FMT", "end of string while looking for conversion specifier", ],
 		[ "YIO_ERROR_PYFMT_INVALID", "Invalid python format specifier", ],
 		[ "YIO_ERROR_CFMT_INVALID", "Invalid C format specifier", ],
 		[ "YIO_ERROR_TOO_MANY_FMT", "Too many format strings for arguments", ],
 		[ "YIO_ERROR_UNKNOWN_CONVERSION", "Unknown conversion specifier", ],
 		[ "YIO_ERROR_UNKNOWN_FMT", "Unknown format code specifier for given type", ],
-		[ "YIO_ERROR_STRFTIME", "strftime returned 0 and set errno", ],
-		[ "YIO_ERROR_MISSING_PRECISION", "Format specifier missing precision", ],
-		[ "YIO_ERROR_MISSING_RIGHT_BRACE", "expected '}' before end of string", ],
 		[ "YIO_ERROR_WCTOMB", "wctomb returned -1", ],
 		[ "YIO_ERROR_MBTOWC", "mbtowc returned -1", ],
 		[ "YIO_ERROR_U32_CONV_TO_ENCODING", "u32_conv_to_encoding returned NULL", ],
@@ -41,8 +34,6 @@ extern "C" {
 		[ "YIO_ERROR_C16TOMB", "c16rtomb returned -1", ],
 		[ "YIO_ERROR_MBTOC32", "c32rtomb returned -1", ],
 		[ "YIO_ERROR_MBTOC16", "c16rtomb returned -1", ],
-		[ "YIO_ERROR_STRFROM", "strfrom returned -1", ],
-		[ "YIO_ERROR_STRFMON", "strfmon returned -1 with errno different than 0 or E2BIG", ],
 		[ "YIO_ERROR_SKIPPING", "error part of skipping positional arguments when iterating over them", ],
 		[ "YIO_ERROR_POSITIONAL_DISABLED", "positional support is disabled, but used in format string", ],
 		[ "YIO_ERROR_NOT_NUMBER", "width or precision positional parameter is not a number", ],
@@ -60,10 +51,9 @@ extern "C" {
 enum _yIO_errors_e {
 	YIO_ERROR_OK = 0,              /// "Success"
 	_yIO_ERROR_START = -12300,     /// Start of custom errors
-{% for v, k in j_ERRORS %}
-#line
+{% for v, k in j_ERRORS %} #line
 	{{ v }},  /// {{ k }}
-{% endfor %}
+{% endfor %} #line
 #include "yio_error_genenum.h"
 	_yIO_ERROR_STOP,               /// End of custom errors
 };

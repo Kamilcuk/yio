@@ -24,6 +24,9 @@
 #include <unistdio.h>
 #endif
 #include <stdbool.h>
+#include <string.h>
+#include <errno.h>
+#include <stdlib.h>
 
 #ifndef _yIO_VERBOSE
 #define _yIO_VERBOSE 0
@@ -125,7 +128,7 @@ bool _yIO_test_is_in_valgrind(void);
 		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
 		if (err > 0 || strcmp(shouldbe, buf) != 0) { \
 			_yIO_TEST(err > 0, "fmt=`%s` err=%d`%s` errno=%d", fmt, err, yio_strerror(err), errno); \
-			_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=\n`%s` buf=\n`%s`", shouldbe, buf); \
+			_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=`%s` buf=`%s`", shouldbe, buf); \
 		} else { \
 			printf("GOOD: %d: `%s`\n", __LINE__, buf); \
 		} \

@@ -11,7 +11,7 @@
 #include "../yio_config.h"
 
 // {#
-#ifdef __CDT_PARSER__
+#ifdef _yIO_CDT_PARSER
 #define _yIO_HAS_FLOAT$1  1
 #define _yIO_FLOAT$1      float
 #define _yIO_FLOAT_PRI$1  ""

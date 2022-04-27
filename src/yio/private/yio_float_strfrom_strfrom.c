@@ -26,7 +26,7 @@
 		\
 		sizeof("%") - 1 + \
 		sizeof(".") - 1 + \
-		INT_STRLEN_BOUND(int) + \
+		_yIO_INT_STRLEN_BOUND() + \
 		sizeof(char) + \
 		1 \
 )
@@ -80,7 +80,7 @@ int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
 	const int len = strfrom$1(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 	if (len <= 0) {
 		// this is not possible
-		return -YIO_ERROR_STRFROM;
+		return _yIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned -1");
 	}
 	if ((size_t)len < _yIO_res_size(v)) {
 		_yIO_set_used(v, len);

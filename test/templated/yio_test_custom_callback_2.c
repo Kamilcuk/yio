@@ -6,6 +6,7 @@
  */
 #include <yio.h>
 #include <yπio.h>
+#include <stdlib.h>
 
 static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	yprintf("{}:{}:{}: ", file, line, func);

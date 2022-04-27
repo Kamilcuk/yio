@@ -57,7 +57,7 @@ void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
 		\
 		sizeof("%") - 1 + \
 		sizeof(".") - 1 + \
-		INT_STRLEN_BOUND(int) + \
+		_yIO_INT_STRLEN_BOUND() + \
 		sizeof(_yIO_FLOAT_PRI$1) - 1 + \
 		sizeof(char) + \
 		1 \

@@ -8,10 +8,10 @@
 #ifndef _yIO_YIO_YIO_VERSION_H_IN_
 #define _yIO_YIO_YIO_VERSION_H_IN_
 
-#include "yio_common.h"
-#include <stdio.h>
+#include "yio_config.h"
 
 /**
+ * @def YIO_VERSION
  * The unsigned long integer constnat that symbolizes the version number.
  * The number is composed from 4 numbers each taking two places in hexadecimal
  * representation. First most significant two digits of hexadecimal
@@ -28,10 +28,10 @@
 #define YIO_VERSION         @YIO_VERSION@UL
 
 /**
+ * @def YIO_VERSION_STRING
  * The version string as returned by git describe.
  */
 #define YIO_VERSION_STRING  "@YIO_VERSION_STRING@"
-
 
 /**
  * Returns YIO_VERSION number.
@@ -46,11 +46,9 @@ _yIO_rnn _yIO_const
 const char *yio_get_version_string(void);
 
 /**
- * Prints a banner with version to the stream.
- * @param f Stream to print the banner to
- * @return 0 on success, -1 on error
+ * Returns a pointer to statically allocated library banner.
  */
-_yIO_nn()
-int yio_print_version_banner(FILE *f);
+_yIO_rnn _yIO_const
+const char *yio_get_version_banner(void);
 
 #endif /* _yIO_YIO_YIO_VERSION_H_IN_ */

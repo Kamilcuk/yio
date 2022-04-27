@@ -14,13 +14,14 @@
 #include <uniconv.h>
 #include <unistr.h>
 #endif
+#include <string.h>
 
 #ifndef _yIO_HAS_UNISTRING
 #error
 #endif
 
 // {#
-#ifdef __CDT_PARSER__
+#ifdef _yIO_CDT_PARSER
 #define _yIO_strconv_str_to_πstr
 #define _yIO_strconv_wstr_to_πstr
 #define _yIO_strconv_c16str_to_πstr

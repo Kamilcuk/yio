@@ -14,12 +14,16 @@
 #include "unhandled.h"
 #include "print_float.h"
 #include "print_wchars.h"
-#include "print_uchars.h"
 #include "print_time.h"
 #include "print_stdfix.h"
 #include "print_complex.h"
 #include "print_pfmt.h"
-#include "print_count.h"
+#ifndef _yIO_HAS_UCHAR_H
+#error _yIO_HAS_UCHAR_H
+#endif
+#if _yIO_HAS_UCHAR_H
+#include <uchar.h>
+#endif
 
 int _yΩIO_print_bool(yπio_printctx_t *t);
 
@@ -36,6 +40,7 @@ int _yΩIO_print_long(yπio_printctx_t *t);
 int _yΩIO_print_ulong(yπio_printctx_t *t);
 int _yΩIO_print_llong(yπio_printctx_t *t);
 int _yΩIO_print_ullong(yπio_printctx_t *t);
+
 #ifndef _yIO_HAS_INT128
 #error
 #endif
@@ -49,7 +54,32 @@ int _yΩIO_print_u__int128(yπio_printctx_t *t);
 #define _yΩIO_PRINT_FUNC_GENERIC_INTS_INT128()
 #endif
 
+#if _yIO_HAS_UCHAR_H
+int _yΩIO_print_constchar16pnt(yπio_printctx_t *t);
+int _yΩIO_print_constchar32pnt(yπio_printctx_t *t);
+#define _yΩIO_PRINT_FUNC_GENERIC_UCHARS() \
+		char16_t*: _yΩIO_print_constchar16pnt, \
+		const char16_t*: _yΩIO_print_constchar16pnt, \
+		char32_t*: _yΩIO_print_constchar32pnt, \
+		const char32_t*: _yΩIO_print_constchar32pnt,
+#else
+#define _yΩIO_PRINT_FUNC_GENERIC_UCHARS()
+#endif
+
 int _yΩIO_print_voidp(yπio_printctx_t *t);
+
+int _yΩIO_print_count(yπio_printctx_t *t);
+
+/**
+ * @define yπpcount(v)
+ * @param v A pointer to an int.
+ * This callback functions sets the pointed to integer by @c v to the
+ * count of codepoints written by the function.
+ */
+#define yπpcount(v)  yiocb(_yΩIO_print_count, _Generic((v),int *:(v)))
+
+#define _yΩIO_PRINT_FUNC_GENERIC_COUNT() \
+		int *: _yΩIO_print_count,
 
 /**
  * @def _yΩIO_PRINT_FUNC_GENERIC

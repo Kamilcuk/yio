@@ -7,9 +7,10 @@ import jinja2.meta
 import logging
 import os
 import re
-import sys
 
-###############################################################################
+logging.basicConfig(format="%(funcName)s:%(lineno)s:\t%(message)s")
+LL = logging.getLogger(os.path.basename(__file__))
+LL.setLevel(logging.DEBUG)
 
 # fmt: off
 template_data = {
@@ -17,10 +18,12 @@ template_data = {
         "omega": ["",    "W",    "C16",    "U", ],
         "pi":    ["",    "w",    "c16",    "u", ],
         "names": {
-            "TCHAR": ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
-            "TINT":  ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
-            "TEOF":  ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
-            "TPRI":  ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
+            "TMODEX": [1,       2,         3,            3, ],
+            "TMODE":  [1,       2,         3,            4, ],
+            "TCHAR":  ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
+            "TINT":   ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
+            "TEOF":   ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
+            "TPRI":   ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
             },
         "funcs": {
             "TC":       ["{}",                         "L{}",          "u{}",                    "U{}", ],
@@ -31,8 +34,6 @@ template_data = {
             "TSTRLEN":  ["strlen({})",                 "wcslen({})",   "u16_strlen({})",         "u32_strlen({})", ],
             },
         }
-
-
 # fmt: on
 
 j_FLOATS = [
@@ -203,23 +204,28 @@ def postprocess(output, infilename, mode):
     return output
 
 
-def save_if_changed(output, infilename, outfilename):
+def save_if_changed(output, outfilename, msg):
+    """Output output to outfilename only if changed. Print msg for logs"""
+    global LL
     if os.path.exists(outfilename):
         if open(outfilename, "r").read() == output:
-            LL.debug("NOCHANGE: " + infilename + "\t->\t" + outfilename)
+            LL.debug("NOCHANGE: " + msg)
             return
         os.chmod(outfilename, 0o644)
     else:
         os.makedirs(os.path.dirname(os.path.realpath(outfilename)), exist_ok=True)
     with open(outfilename, "w") as outfile:
         os.chmod(outfilename, 0o444)
-        LL.debug(infilename + "\t->\t" + outfilename)
+        LL.debug("GENERATED: " + msg)
         outfile.write(output)
 
 
 def invert_template_data():
-    # Invert template_data
+    """Invert template_data"""
     global TDATA, template_data
+    # Add /*TMODE*/ and /*TMODEX*/ to template_data
+    for k in ['TMODE', 'TMODEX']:
+        template_data['names'][k] = [str(i) + '/*'+k+'*/' for i in template_data['names'][k]]
     TDATA = []
     for i in range(4):
         tmp = {}
@@ -246,9 +252,6 @@ def find_dependencies():
 def parse_arguments():
     global LL, DIR, SRCDIR, DEBUG
     # Some globals assignment
-    logging.basicConfig(format="%(funcName)s:%(lineno)s:\t%(message)s")
-    LL = logging.getLogger(os.path.basename(__file__))
-    LL.setLevel(logging.DEBUG)
     DIR = os.path.dirname(__file__)
 
     # Parse arguments
@@ -296,10 +299,10 @@ def prepare_environment(args):
     defglobals = {
         "j_MLVLS": 5,
         "j_SLOTS_END": 105,
+        "j_FLOATS": j_FLOATS,
         "j_range": j_range,
         "j_match": j_match,
         "j_fatal": j_fatal,
-        "j_FLOATS": j_FLOATS,
         "j_lineno": j_lineno,
     }
     for ii in args.define:
@@ -327,22 +330,15 @@ def generate_depfile(depfile, env, infilename, outfilename):
     )
 
 
-###############################################################################
-
-args = parse_arguments()
-invert_template_data()
-env = prepare_environment(args)
-
-mode = args.mode
-ttemplate = env.get_template(args.source)
-infilename = ttemplate.filename
-output = ttemplate.render(
-    {
-        "MODE": dict({"none": -1, "yio": 1, "ywio": 2, "yc16io": 3, "yuio": 4})[mode],
-        "MODEX": dict({"none": -1, "yio": 1, "ywio": 2}).get(mode, 3),
-    }
-)
-output = postprocess(output, infilename, mode)
-outfilename = args.output
-save_if_changed(output, infilename, outfilename)
-generate_depfile(args.depfile, env, infilename, outfilename)
+if __name__ == "__main__":
+    args = parse_arguments()
+    invert_template_data()
+    env = prepare_environment(args)
+    mode = args.mode
+    ttemplate = env.get_template(args.source)
+    infilename = ttemplate.filename
+    output = ttemplate.render()
+    output = postprocess(output, infilename, mode)
+    outfilename = args.output
+    save_if_changed(output, outfilename, infilename + "\t->\t" + outfilename)
+    generate_depfile(args.depfile, env, infilename, outfilename)

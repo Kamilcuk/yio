@@ -7,7 +7,17 @@
  * @brief
  */
 #include "yio_config.h"
-#include "yio_common.h"
+// {#+
+#include <yio/yio_error.h>
+#include <yio/yio_version.h>
+#include <yio/yio_macros.h>
+#ifndef _yIO_CDT_PARSER
+// +#}
 #include "yio_error.h"
 #include "yio_version.h"
 #include "yio_macros.h"
+// {#+
+#endif
+// +#}
+
+

@@ -25,9 +25,7 @@ int main() {
 	free(buf);
 	buf = yπformatf(TC("{:+0.{}}"), TC("12345678901234567890"), 10);
 	_yIO_TEST(buf != NULL);
-	_yIO_TEST(TSTRCMP(buf, TC("1234567890")) == 0
-			{% if MODEX == 1 %}, "%s", buf{%endif %}
-	);
+	_yIO_TEST(TSTRCMP(buf, TC("1234567890")) == 0);
 	free(buf);
 	return 0;
 }

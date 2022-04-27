@@ -183,6 +183,7 @@ CPPCHECK_FLAGS_INIT = \
 	--project=./compile_commands.json \
 	-U__DOXYGEN__ \
 	-U__CDT_PARSER__ \
+	-U_yIO_CDT_PARSER \
 	-UNDEBUG \
 	-I${linuxincdir}/include \
 	-I/usr/local/include \

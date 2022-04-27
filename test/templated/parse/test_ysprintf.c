@@ -19,7 +19,7 @@ int main() {
 
 	err = yπsprintf(buf, SIZE_MAX, TC("123"));
 	_yIO_TEST(err > 0);
-	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0  {% if MODEX == 1 %}, "%s", buf{% endif %}  );
+	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0);
 
 	err = yπsprintf(buf, 2, TC("123"));
 	_yIO_TEST(err < 0);

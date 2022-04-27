@@ -6,6 +6,7 @@
  */
 #include <yio.h>
 #include <yπio.h>
+#include <stdlib.h>
 
 static TCHAR *(* const f_vpnt)(yπio_printdata_t *, const TCHAR *fmt, va_list *va) = yπvformatf;
 static int (* const f_pnt)(yπio_printdata_t *, const TCHAR *fmt, ...) = _yΩIO_yprintf;

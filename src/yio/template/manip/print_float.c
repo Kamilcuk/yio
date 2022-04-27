@@ -10,7 +10,7 @@
 #include "print_float.h"
 #include <ctype.h>
 
-#if __CDT_PARSER__
+#if _yIO_CDT_PARSER
 #define _yIO_float_astrfrom_$2$1  _yIO_float_astrfrom_customd
 #define _yIO_FLOAT$3  double
 #endif
