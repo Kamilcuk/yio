@@ -230,6 +230,9 @@ test_alpine:
 	docker run -ti --rm -v $(CURDIR):/mnt -w /mnt -u ${USER}:${GROUP} \
 		yio_alpine_builder make test B=_build/alpine
 
+cmake-gui:
+	cmake-gui -B_build/DefaultDebug -S.
+
 ###############################################################################
 # Gitlab
 

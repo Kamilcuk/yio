@@ -23,7 +23,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio
 	m
 )
-find_library(DFP dfp)
+find_library(DFP
+	NAMES dfp
+	DOC "Path to decimal floating point library"
+)
 if(DFP)
 	target_link_libraries(${PROJECT_NAME} PUBLIC
 		${DFP}

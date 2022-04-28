@@ -34,7 +34,7 @@ set(YIO_PRINT_FLOATS_WITH 0 CACHE STRING "${YIO_PRINT_FLOATS_WITH_COMMENT}")
 yio_config_gen_add(YIO_PRINT_FLOATS_WITH ADDIFNDEF)
 
 set(YIO_USE_OUTPUT_FD_COMMENT [=[
-When set to true, yprint will read from file descriptor 1 instead of using FILE * stdout.
+When set to true, yprint will write from file descriptor 1 instead of using FILE * stdout.
 ]=])
 set(YIO_USE_OUTPUT_FD 1 CACHE BOOL "${YIO_USE_OUTPUT_FD_COMMENT}")
 yio_config_gen_add(YIO_USE_OUTPUT_FD)
@@ -51,5 +51,5 @@ yio_config_gen_add_value(YIO_CACHE_STACK_SIZE "${YIO_CACHE_STACK_SIZE}")
 set(YIO_NO_MALLOC_COMMENT [=[
 Do not use malloc at all. Will just fail with ENOMEM. TODO
 ]=])
-set(YIO_NO_MALLOC 32 CACHE STRING "${YIO_NO_MALLOC_COMMENT}")
+set(YIO_NO_MALLOC 0 CACHE BOOL "${YIO_NO_MALLOC_COMMENT}")
 yio_config_gen_add(YIO_NO_MALLOC)
