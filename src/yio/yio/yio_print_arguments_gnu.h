@@ -9,7 +9,7 @@
 #ifndef _yIO_YIO_YΩIO_YIO_PRINT_ARGUMENTS_GNU_H_
 #define _yIO_YIO_YΩIO_YIO_PRINT_ARGUMENTS_GNU_H_
 
-{% from "yio/template/yio_print_arguments.h" import j_yio_macros_funcs, j_yio_macros_fmt_and_args %}
+{% from "yio/yio/yio_print_arguments.h" import j_yio_macros_funcs, j_yio_macros_fmt_and_args %}
 #line
 #define _yΩIO_print_arguments_1(func_gen, fmt) \
 		__extension__({ static const yπio_printdata_t _yΩIO_printfuncs[] = { \

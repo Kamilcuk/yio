@@ -78,9 +78,9 @@ add_custom_target(yio_gen
 file(GLOB_RECURSE _srcs *.c *.h)
 foreach(source IN LISTS _srcs)
 	file(RELATIVE_PATH _output ${SRCDIR} ${source})
-	if(source MATCHES "yio/template/.*")
+	if(source MATCHES "yio/yio/.*")
 		foreach(mode IN ITEMS yio ywio yuio yc16io)
-			string(REGEX REPLACE "template" "${mode}" "_tmp" "${_output}")
+			string(REGEX REPLACE "yio/yio/" "yio/${mode}/" "_tmp" "${_output}")
 			jinja_generate(
 				TARGET yio_gen
 				SOURCE ${source}

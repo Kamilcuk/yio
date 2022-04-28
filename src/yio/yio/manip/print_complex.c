@@ -16,7 +16,7 @@
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 
-{% from "yio/template/manip/print_complex.h" import j_complex_types, j_imaginary_types %}
+{% from "yio/yio/manip/print_complex.h" import j_complex_types, j_imaginary_types %}
 
 {% call j_FOREACHAPPLY(j_complex_types) %}
 #line
