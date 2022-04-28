@@ -246,10 +246,12 @@ gitlab_metrics:
 
 HELP +=~ doxygen - Generates doxygen html documentation in pages/doxygen
 .PHONY: doxygen
-doxygen: build_gen
+doxygen:
+	$(MAKE) .doxygen.in CMAKE_BUILD_TYPE=RelWithDebInfo
+.doxygen.in: build_gen
 	mkdir -vp _build/doxygen/output _build/doxygen/input
 	rsync --delete -a ./gen/ _build/doxygen/input/
-	doxygen _build/DefaultDebug/Doxyfile
+	doxygen $(B)/Doxyfile
 	rsync --delete -a _build/doxygen/output/html/ public/doxygen/
 .PHONY: doxygen_open
 doxygen_open:
