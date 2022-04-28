@@ -53,7 +53,7 @@ int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 int _yΩIO_print_float_$2$1(yπio_printctx_t *t) {
 #line
 	// Not float.
-	const _yIO_FLOAT$1 var = yπio_printctx_va_arg_num(t, _yIO_FLOAT$1);
+	const _yIO_FLOAT$1 var = yπio_printctx_va_arg_promote(t, _yIO_FLOAT$1);
 	return _yΩIO_print_float_$2$1_in(t, var);
 }
 
@@ -61,7 +61,7 @@ int _yΩIO_print_float_$2$1(yπio_printctx_t *t) {
 #line
 int _yΩIO_print_float_$2$1(yπio_printctx_t *t) {
 	// Float calls double
-	const double var = yπio_printctx_va_arg_num(t, _yIO_FLOAT$1);
+	const double var = yπio_printctx_va_arg_promote(t, _yIO_FLOAT$1);
 	int _yΩIO_print_float_$2d_in(yπio_printctx_t *t, _yIO_FLOATd var);
 	return _yΩIO_print_float_$2d_in(t, var);
 }

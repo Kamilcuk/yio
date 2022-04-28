@@ -28,17 +28,17 @@ int _yΩIO_print_generic_char(yπio_printctx_t *t, int arg) {
 /* ------------------------------------------------------ */
 
 int _yΩIO_print_char(yπio_printctx_t *t) {
-	const int arg = yπio_printctx_va_arg_num(t, char);
+	const int arg = yπio_printctx_va_arg_promote(t, char);
 	return _yΩIO_print_generic_char(t, arg);
 }
 
 int _yΩIO_print_schar(yπio_printctx_t *t) {
-	const int arg = yπio_printctx_va_arg_num(t, signed char);
+	const int arg = yπio_printctx_va_arg_promote(t, signed char);
 	return _yΩIO_print_generic_char(t, arg);
 }
 
 int _yΩIO_print_uchar(yπio_printctx_t *t) {
-	const int arg = yπio_printctx_va_arg_num(t, unsigned char);
+	const int arg = yπio_printctx_va_arg_promote(t, unsigned char);
 	return _yΩIO_print_generic_char(t, arg);
 }
 

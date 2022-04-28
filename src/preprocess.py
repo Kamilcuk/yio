@@ -20,6 +20,7 @@ template_data = {
         "names": {
             "TMODEX": [1,       2,         3,            3, ],
             "TMODE":  [1,       2,         3,            4, ],
+            "TMODEN": [1,       2,         3,            4, ],
             "TCHAR":  ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
             "TINT":   ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
             "TEOF":   ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
@@ -209,7 +210,7 @@ def save_if_changed(output, outfilename, msg):
     global LL
     if os.path.exists(outfilename):
         if open(outfilename, "r").read() == output:
-            LL.debug("NOCHANGE: " + msg)
+            # LL.debug("NOCHANGE: " + msg)
             return
         os.chmod(outfilename, 0o644)
     else:
@@ -231,11 +232,11 @@ def invert_template_data():
         tmp = {}
         for k in template_data.keys():
             if isinstance(template_data[k], list):
-                tmp[k] = template_data[k][i]
+                tmp[k] = str(template_data[k][i])
             else:
                 tmp[k] = []
                 for k2 in template_data[k]:
-                    tmp[k] += [(k2, template_data[k][k2][i])]
+                    tmp[k] += [(k2, str(template_data[k][k2][i]))]
         TDATA += [tmp]
 
 

@@ -15,7 +15,9 @@
 /* Exported Print Symbols --------------------------------------------------- */
 
 /**
- * @defgroup yv__print Printing functions with va_list.
+ * @defgroup yπv__print TMODEN yπv__print
+ * @ingroup yπio
+ * @brief Printing functions with va_list.
  * @{
  */
 /**
@@ -99,11 +101,9 @@ int yπvdprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, va_list
  */
 
 /**
- * @defgroup y__yIO_printf Printing macro callbacks.
- * @{
- * @}
- * @ingroup y__yIO_printf
- * @brief
+ * @defgroup _yΩIO_printf TMODEN _yΩIO_printf
+ * @ingroup yπio
+ * @brief Printing macro callbacks.
  * @see yvbprintf
  * @{
  */
@@ -130,10 +130,8 @@ int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...
  */
 
 /**
- * @defgroup y__printf Print formatted output.
- * @{
- * @}
- * @ingroup y__printf
+ * @defgroup yπ__printf TMODEN yπ__printf
+ * @ingroup yπio
  * @brief Constructs yio printing data and calls internal Yio operation function.
  * @see yvbprintf
  * @{
@@ -152,10 +150,8 @@ int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...
  */
 
 /**
- * @defgroup y__print Print stream-like functions.
- * @{
- * @}
- * @ingroup y__print
+ * @defgroup yπ__print TMODEN yπ__print
+ * @ingroup yπio
  * @brief Constructs yio printing data and calls internal Yio operation function.
  * @see yvbprintf
  * @{
@@ -174,10 +170,12 @@ int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...
  */
 
 /**
- * YΩIO_PRINT_ARGUMENTS
+ * @def YΩIO_PRINT_ARGUMENTS
+ * @ingroup yπio
+ *
  * Create argument list for yprint functions
  * If an argument doesn't has 62 commas, then the function for it is chosen
- *    using _Generic expression with _yIO_PRINT_FUNC_GENERIC.
+ *    using _Generic expression with @c _yIO_PRINT_FUNC_GENERIC.
  * If an argument does has 62 commas, then the first argument that should be inside braces is extracted
  *   and the first argument from inside the braces is the function to handle the arguments.
  * The arguments are appended to the end of the function.

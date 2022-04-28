@@ -9,11 +9,41 @@
 // Type your code here.
 #define _GNU_SOURCE
 #include <yio_test.h>
-#include <yio/intprops.h>
 #include <yπio.h>
 #include <time.h>
 #include <signal.h>
 #include <stdint.h>
+#include <limits.h>
+
+/* ------------------------------------------------------------------------- */
+
+/* intprops.h -- properties of integer types
+   Copyright (C) 2001-2019 Free Software Foundation, Inc.
+   This program is free software: you can redistribute it and/or modify it
+   under the terms of the GNU Lesser General Public License as published
+   by the Free Software Foundation; either version 2.1 of the License, or
+   (at your option) any later version.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU Lesser General Public License for more details.
+   You should have received a copy of the GNU Lesser General Public License
+   along with this program.  If not, see <https://www.gnu.org/licenses/>.  */
+/* True if the real type T is signed.  */
+#define TYPE_SIGNED(t) (! ((t) 0 < (t) -1))
+/* Minimum and maximum values for integer types and expressions.  */
+/* The width in bits of the integer type or expression T.
+   Do not evaluate T.
+   Padding bits are not supported; this is checked at compile-time below.  */
+#define TYPE_WIDTH(t) (sizeof (t) * CHAR_BIT)
+/* The maximum and minimum values for the integer type T.  */
+#define TYPE_MINIMUM(t) ((t) ~ TYPE_MAXIMUM (t))
+#define TYPE_MAXIMUM(t)                                                 \
+  ((t) (! TYPE_SIGNED (t)                                               \
+        ? (t) -1                                                        \
+        : ((((t) 1 << (TYPE_WIDTH (t) - 2)) - 1) * 2 + 1)))
+
+/* ------------------------------------------------------------------------- */
 
 #define TEST_in(type, value) \
     do { \

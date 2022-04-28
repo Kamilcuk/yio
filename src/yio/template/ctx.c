@@ -20,18 +20,28 @@
 #include <ctype.h>
 #include <limits.h>
 
+/* ------------------------------------------------------------------------- */
+
 static const TCHAR YΩIO_ALIGN_LEFT = TC('<');
 static const TCHAR YΩIO_ALIGN_RIGHT = TC('>');
 static const TCHAR YΩIO_ALIGN_PADSIGN = TC('=');
 static const TCHAR YΩIO_ALIGN_CENTER = TC('^');
 
 static const TCHAR YΩIO_SIGN_ALWAYS = TC('+');
-static const TCHAR YΩIO_SIGN_NEGATIVE = TC('-');
+//static const TCHAR YΩIO_SIGN_NEGATIVE = TC('-');
 static const TCHAR YΩIO_SIGN_ALWAYSSPACE = TC(' ');
 
-static const TCHAR YΩIO_GROUPING_COMMA = TC(',');
-static const TCHAR YΩIO_GROUPING_UNDERSCORE = TC('_');
+//static const TCHAR YΩIO_GROUPING_COMMA = TC(',');
+//static const TCHAR YΩIO_GROUPING_UNDERSCORE = TC('_');
 static const TCHAR YΩIO_GROUPING_NONE = TC('\0');
+
+const struct yπio_printfmt_s _yΩIO_printfmt_default = {
+		.width = -1,
+		.precision = -1,
+		.fill = TC(' '),
+		.align = TC('>'),
+		.sign = TC('-'),
+};
 
 /* ------------------------------------------------------------------------- */
 
@@ -55,6 +65,7 @@ int _yΩIO_skip_do(yπio_printctx_t *t) {
 	}
 	return 0;
 }
+
 static inline
 int _yΩIO_digit_to_number(TCHAR d) {
 	assert(TISDIGIT(d));
@@ -96,16 +107,16 @@ int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
 		if (t->ifunc == NULL) {
 			return _yIO_ERROR(YIO_ERROR_POSITIONAL_NO_ARGS, "no arguments for positional width or precision");
 		}
-		const _yΩIO_printfunc_t ifunc = *t->ifunc++;
-		if (ifunc == &_yΩIO_print_short)       { num = yπio_printctx_va_arg_num(t, short); }
-		else if (ifunc == &_yΩIO_print_ushort) { num = yπio_printctx_va_arg_num(t, unsigned short); }
-		else if (ifunc == &_yΩIO_print_int)    { num = yπio_printctx_va_arg(t, int); }
-		else if (ifunc == &_yΩIO_print_uint)   { num = yπio_printctx_va_arg(t, unsigned int); }
-		else if (ifunc == &_yΩIO_print_long)   { num = yπio_printctx_va_arg(t, long); }
-		else if (ifunc == &_yΩIO_print_ulong)  { num = yπio_printctx_va_arg(t, unsigned long); }
-		else if (ifunc == &_yΩIO_print_llong)  { num = yπio_printctx_va_arg(t, long long); }
-		else if (ifunc == &_yΩIO_print_ullong) { num = yπio_printctx_va_arg(t, unsigned long long); }
-		else { return _yIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number"); }
+		const yπio_printdata_t ifunc = *t->ifunc++;
+		if (ifunc == &_yΩIO_print_short)       num = yπio_printctx_va_arg_promote(t, short);
+		else if (ifunc == &_yΩIO_print_ushort) num = yπio_printctx_va_arg_promote(t, unsigned short);
+		else if (ifunc == &_yΩIO_print_int)    num = yπio_printctx_va_arg(t, int);
+		else if (ifunc == &_yΩIO_print_uint)   num = yπio_printctx_va_arg(t, unsigned int);
+		else if (ifunc == &_yΩIO_print_long)   num = yπio_printctx_va_arg(t, long);
+		else if (ifunc == &_yΩIO_print_ulong)  num = yπio_printctx_va_arg(t, unsigned long);
+		else if (ifunc == &_yΩIO_print_llong)  num = yπio_printctx_va_arg(t, long long);
+		else if (ifunc == &_yΩIO_print_ullong) num = yπio_printctx_va_arg(t, unsigned long long);
+		else return _yIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number");
 		if (ptr++[0] != TC('}')) {
 			ret = _yIO_ERROR(YIO_ERROR_POSITIONAL_MISSING_RIGHT_BRACE, "missing '}' when parsing positional width or precision specifier");
 			goto EXIT;
@@ -118,14 +129,6 @@ int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
 	*res = num;
 	return ret;
 }
-
-const struct yπio_printfmt_s _yΩIO_printfmt_default = {
-		.width = -1,
-		.precision = -1,
-		.fill = TC(' '),
-		.align = TC('>'),
-		.sign = TC('-'),
-};
 
 bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c) {
 	return c != TC('\0') && TSTRCHR(s, c) != NULL;
@@ -217,7 +220,6 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 	return ret;
 }
 
-
 /* printctx ---------------------------------------------------- */
 
 int yπio_printctx_init(yπio_printctx_t *t) {
@@ -232,37 +234,25 @@ int yπio_printctx_init(yπio_printctx_t *t) {
 }
 
 int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *ptr, size_t size) {
-	assert(t != NULL);
 	assert(t->out != NULL);
 	assert(ptr != NULL);
-	const int ret = t->out(t->outarg, ptr, size);
+	const int ret = (*t->out)(t->outarg, ptr, size);
 	if (ret) return ret;
 	t->writtencnt += size;
 	return 0;
 }
 
 int yπio_printctx_next(yπio_printctx_t *t) {
-	assert(t != NULL);
 	assert(t->ifunc != NULL);
 	assert(*t->ifunc != NULL);
 	++t->ifunc;
-	assert(*t->ifunc != NULL);
+	if (*t->ifunc == NULL) {
+		return _yIO_ERROR(YIO_ERROR_NO_NEXT, "formatting modifier is not followed by an argument");
+	}
 	return (*t->ifunc)(t);
 }
 
-struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t) {
-	return &t->pf;
-}
-
-const TCHAR *yπio_printctx_get_fmtstrpnt(yπio_printctx_t *t) {
-	return t->fmt;
-}
-
-va_list *_yΩIO_printctx_get_va(yπio_printctx_t *t) {
-	return t->va;
-}
-
-int _yΩIO_printctx_print(yπio_printctx_t *t, yπio_printdata_t *data, const TCHAR *fmt, ...) {
+int _yΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvbprintf(t->out, t->outarg, data, fmt, &va);

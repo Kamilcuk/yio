@@ -67,7 +67,7 @@ const TCHAR *_yΩIO_printint_to_fmt(TCHAR type) {
 #line
 
 int _yΩIO_print_$1(yπio_printctx_t *t) {
-	$2 arg = yπio_printctx_va_arg_num(t, $2);
+	$2 arg = yπio_printctx_va_arg_promote(t, $2);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
 	const TCHAR type = yπio_printctx_get_fmt(t)->type;

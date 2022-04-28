@@ -17,7 +17,8 @@ int _yΩIO_print_wchar(yπio_printctx_t *t);
 int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
 
 /**
- * @defgroup ypw
+ * @defgroup yπpw TMODEN yπpw
+ * @ingroup yπio
  * @brief Wide characters printers.
  * @{
  */

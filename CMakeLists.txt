@@ -332,6 +332,8 @@ endfunction()
 
 ###############################################################################
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+
 add_subdirectory(src)
 if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
 	include(CTest)

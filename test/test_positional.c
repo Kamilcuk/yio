@@ -16,5 +16,10 @@ int main() {
 			"16",
 			L"17",
 			(struct tm){.tm_sec=18} );
-
+	YIO_TEST("a, b, c", "{0}, {1}, {2}", "a", "b", "c");
+	YIO_TEST("a, b, c", "{}, {}, {}", "a", "b", "c");
+	YIO_TEST("c, b, a", "{2}, {1}, {0}", "a", "b", "c");
+	YIO_TEST("abracadabra", "{0}{1}{0}", "abra", "cad");
+	YIO_TEST("left<<<<<<<<<<<<", "{0:<<{1}}", "left", 16);
+	YIO_TEST("str___ ___abc", "{1:_<{0}.{2}} {3:_>{0}.{2}}", 6, "str", 3, "abc");
 }

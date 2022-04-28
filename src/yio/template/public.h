@@ -8,6 +8,7 @@
  */
 #ifndef _yIO_YIO_YΩIO_PUBLIC_H_
 #define _yIO_YIO_YΩIO_PUBLIC_H_
+
 #include "../yio_public.h"
 #if TMODEX == 2
 #include <wchar.h>
@@ -18,4 +19,11 @@
 #include "io.h"
 #include "manip/manip.h"
 #include "yio_print_arguments.h"
+/**
+ * @defgroup yπio TMODEN yπio
+ * @brief All stuff related to TMODEN / π / Ω mode.
+ * @{
+ * @}
+ */
+
 #endif /* _yIO_YIO_YΩIO_PUBLIC_H_ */
