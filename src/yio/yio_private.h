@@ -10,7 +10,9 @@
 #include "yio_public.h"
 #include <string.h>
 
-#define _yIO_PRIVATE  1
+#ifndef _yIO_PRIVATE
+#error _yIO_PRIVATE
+#endif
 
 // https://www.wolframalpha.com/input/?i=ceiling%28log_10%282%5Ex%29%29+for+x+%3D+1+to+256
 #define _yIO_LOG10_POW2(x) ( \

@@ -70,7 +70,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	const TCHAR *fmtbegin = NULL;
 	const TCHAR *fmtend = NULL;
 	int ret = _yΩIO_print_time_parse_format(t, &fmtbegin, &fmtend);
-	if (ret) goto FORMAT_EXTRACT_ERROR;
+	if (ret) return ret;
 	// Advance global fmt.
 	if (t->fmt) {
 		assert(fmtend[0] == TC('}'));
@@ -96,21 +96,16 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 #if TMODE == 1
 		formatbuf = malloc(sizeof(*formatbuf) * fmtlen);
 		if (formatbuf == NULL) {
-			ret = YIO_ERROR_ENOMEM;
-			goto FORMAT_MALLOC_ERROR;
+			return YIO_ERROR_ENOMEM;
 		}
 		memcpy(formatbuf, fmtbegin, sizeof(*formatbuf) * realfmtlen);
-		if (0) goto FORMAT_STRCONV_ERROR;
 #else
-		if (0) goto FORMAT_MALLOC_ERROR;
 		ret = _yIO_strconv_πstr_to_str(fmtbegin, realfmtlen, (const char **)&formatbuf, NULL);
-		if (ret) {
-			goto FORMAT_STRCONV_ERROR;
-		}
+		if (ret) return ret;
 		void *pnt = realloc((void *)formatbuf, sizeof(*formatbuf) * fmtlen);
 		if (pnt == NULL) {
-			ret = YIO_ERROR_ENOMEM;
-			goto FORMAT_STRCONV_ERROR;
+			free(formatbuf);
+			return YIO_ERROR_ENOMEM;
 		}
 		formatbuf = pnt;
 #endif
@@ -122,30 +117,16 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	assert(strlen(format) >= 1);
 	assert(format[strlen(format) - 1] == ' ');
 
-	// 80 is somewhat a psuedo standard here
-	char _buf_mem[80];
-	char *buf = _buf_mem;
-	const int length = _yIO_astrftime_nonzero(&buf, sizeof(_buf_mem), format, tm);
-	if (length < 0) {
-		ret = length;
-		goto STRFTIME_ERROR;
-	}
-
-	// We pass length - 1 cause without extra space we allocated in format string.
-	// Note that this _can_ result in an empty string here.
-	ret = yπio_printctx_put(t, buf, length - 1);
-
-	// exit
-	if (buf != _buf_mem) {
-		free(buf);
-	}
-	STRFTIME_ERROR:
-	FORMAT_STRCONV_ERROR:
+	_yIO_RES_AUTO_DECL(res);
+	ret = _yIO_astrftime_nonzero(&res, format, tm);
 	if (format != emptyformat) {
 		free((void *)format);
 	}
-	FORMAT_MALLOC_ERROR:
-	FORMAT_EXTRACT_ERROR:
+	if (ret == 0) {
+		assert(_yIO_res_used(&res) > 1);
+		ret = yπio_printctx_put(t, _yIO_res_begin(&res), _yIO_res_used(&res) - 1);
+	}
+	_yIO_res_end(&res);
 	return ret;
 }
 

@@ -124,11 +124,11 @@ bool _yIO_test_is_in_valgrind(void);
 
 #define YIO_TEST(shouldbe, fmt, ...)  \
 	do { \
-		char buf[100]; \
+		char buf[1024]; \
 		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
 		if (err > 0 || strcmp(shouldbe, buf) != 0) { \
 			_yIO_TEST(err > 0, "fmt=`%s` err=%d`%s` errno=%d", fmt, err, yio_strerror(err), errno); \
-			_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=`%s` buf=`%s`", shouldbe, buf); \
+			_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=\n\t`%s` buf=\n\t`%s`", shouldbe, buf); \
 		} else { \
 			printf("GOOD: %d: `%s`\n", __LINE__, buf); \
 		} \

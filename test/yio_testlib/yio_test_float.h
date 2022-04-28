@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#include <yio_test_private.h>
 #include <yio/private/yio_float.h>
 #include <yio/private/yio_float_strfrom_printf.h>
 #include <yio/private/yio_float_strfrom_strfrom.h>
@@ -195,7 +196,7 @@ static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
 };
 
 struct _yIO_astrfroms$1_s {
-	int (*astrfrom)(char **resultp, size_t *lengthp, int precision, char type, _yIO_FLOAT$1 val);
+	int (*astrfrom)(_yIO_res *res, int precision, char type, _yIO_FLOAT$1 val);
 	const char *astrfrom_str;
 };
 

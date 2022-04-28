@@ -31,9 +31,25 @@ YIO_PRINT_FLOATS_WITH_PRINTF YIO_PRINT_FLOATS_WITH_CUSTOM
 or alternatively in order equivalent 0, 1, 2 or 3.
 ]=])
 set(YIO_PRINT_FLOATS_WITH 0 CACHE STRING "${YIO_PRINT_FLOATS_WITH_COMMENT}")
+yio_config_gen_add(YIO_PRINT_FLOATS_WITH ADDIFNDEF)
 
 set(YIO_USE_OUTPUT_FD_COMMENT [=[
 When set to true, yprint will read from file descriptor 1 instead of using FILE * stdout.
 ]=])
 set(YIO_USE_OUTPUT_FD 1 CACHE BOOL "${YIO_USE_OUTPUT_FD_COMMENT}")
+yio_config_gen_add(YIO_USE_OUTPUT_FD)
 
+set(YIO_CACHE_STACK_SIZE_COMMENT [=[
+When using functions that can potentially use dynamic allocatin, this is the count
+of memory that is allocated statically. If the number of bytes needed is greater than
+this number, only than the memory is allocated dynamically. This is to reduce the number
+of malloc calls for small allocations
+]=])
+set(YIO_CACHE_STACK_SIZE 32 CACHE STRING "${YIO_CACHE_STACK_SIZE_COMMENT}")
+yio_config_gen_add_value(YIO_CACHE_STACK_SIZE "${YIO_CACHE_STACK_SIZE}")
+
+set(YIO_NO_MALLOC_COMMENT [=[
+Do not use malloc at all. Will just fail with ENOMEM. TODO
+]=])
+set(YIO_NO_MALLOC 32 CACHE STRING "${YIO_NO_MALLOC_COMMENT}")
+yio_config_gen_add(YIO_NO_MALLOC)

@@ -52,36 +52,6 @@ if(NOT _yIO_HAS__Generic)
 	message(SEND_ERROR "Selected compiler has no C11 _Generic() support, compilation WILL fail")
 endif()
 
-
-#########################################################################
-# Add configuration
-
-foreach(ii IN ITEMS
-	YIO_PRINT_FLOATS_WITH
-)
-	if(NOT DEFINED "${ii}")
-		message(FATAL_ERROR "YIO Internal error: ${ii} is not defined")
-	endif()
-	if(NOT DEFINED "${ii}_COMMENT")
-		message(FATAL_ERROR "YIO Internal error: ${ii}_COMMENT is not defined")
-	endif()
-	yio_config_gen_add_value("${ii}" "${${ii}}")
-endforeach()
-
-if(_yIO_HAS_UNISTD_H)
-	foreach(ii IN ITEMS
-		YIO_USE_OUTPUT_FD
-	)
-		if(NOT DEFINED "${ii}")
-			message(FATAL_ERROR "YIO Internal error: ${ii} is not defined")
-		endif()
-		if(NOT DEFINED "${ii}_COMMENT")
-			message(FATAL_ERROR "YIO Internal error: ${ii}_COMMENT is not defined")
-		endif()
-		yio_config_gen_add("${ii}")
-	endforeach()
-endif()
-
 #########################################################################
 # some generic checks
 

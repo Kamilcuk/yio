@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#include "yio_stdfix_strfrom.h"
 #include "private.h"
 #include "yio_res.h"
 #include "yio_stdfix.h"
-#include "yio_stdfix_strfrom.h"
 #include <stdint.h>
 #include <limits.h>
 #include <assert.h>
@@ -132,7 +132,6 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 		err = _yIO_res_yprintf(o, "{:+d}", exponent + 0);
 		if (err) return err;
 	} else {
-		_yIO_res_end_err(o);
 		return YIO_ERROR_ENOSYS;
 	}
 
@@ -149,7 +148,7 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 #define TYPEUINT  _yIO_UINT_$3
 
 // Many things are missing here
-int _yIO_astrfrom$1(char **resultp, size_t *lengthp, int precision0, char spec0, TYPE val) {
+int _yIO_astrfrom$1(_yIO_res *o, int precision0, char spec0, TYPE val) {
 	_Static_assert(sizeof(val) <= sizeof(TYPEUINT), "");
 
 	int err = 0;
@@ -157,10 +156,6 @@ int _yIO_astrfrom$1(char **resultp, size_t *lengthp, int precision0, char spec0,
 
 	const char spec = spec0 ? tolower(spec0) : 'f';
 	const bool spec_is_upper = isupper(spec0);
-
-	_yIO_res _mem;
-	_yIO_res *o = &_mem;
-	_yIO_res_init(o, resultp, lengthp);
 
 	{% if not j_match(V.1, "unsigned") %}
 	#line
@@ -208,7 +203,6 @@ int _yIO_astrfrom$1(char **resultp, size_t *lengthp, int precision0, char spec0,
 #undef _yIO_stdfix_strfrom_intX
 	if (err) return err;
 
-	_yIO_res_end(o, resultp, lengthp);
 	return 0;
 }
 

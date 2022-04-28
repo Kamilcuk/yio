@@ -6,9 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_YΩIO_PUBLIC_H_
-#define _yIO_YIO_YΩIO_PUBLIC_H_
-
 #include "../yio_public.h"
 #if TMODEX == 2
 #include <wchar.h>
@@ -25,5 +22,3 @@
  * @{
  * @}
  */
-
-#endif /* _yIO_YIO_YΩIO_PUBLIC_H_ */

@@ -7,6 +7,7 @@
  * @brief
  */
 #define YIO_PRINT_FLOATS_WITH  YIO_PRINT_FLOATS_WITH_PRINTF
+#include <yio_test_private.h>
 #include <assert.h>
 #include <yio/yio_config.h>
 #include "test_print_float_on_strto.c"

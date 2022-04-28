@@ -17,38 +17,19 @@
 #include <stdint.h>
 #include <assert.h>
 
-_yIO_res *_yIO_res_init(_yIO_res *t, char **resultp, size_t *lengthp) {
-	assert(resultp != NULL);
-	assert(lengthp != NULL);
-	const bool is_dynamic = *resultp == NULL || *lengthp == 0;
+_yIO_res *_yIO_res_init(_yIO_res *t, char *resultp, size_t lengthp) {
+	const bool is_dynamic = resultp == NULL || lengthp == 0;
 	_yIO_res ret;
-	ret.beg = is_dynamic ? NULL : *resultp;
+	ret.beg = is_dynamic ? NULL : resultp;
 	ret.pos = ret.beg;
-	ret.end = is_dynamic ? NULL : (*resultp + *lengthp);
+	ret.end = is_dynamic ? NULL : (resultp + lengthp);
 	ret.is_dynamic = is_dynamic;
 	*t = ret;
 	return t;
 }
 
-/// End the object in case of success.
-size_t _yIO_res_end(_yIO_res *t, char **resultp, size_t *lengthp) {
-	assert(resultp != NULL);
-	if (t->is_dynamic) {
-		*resultp = t->beg;
-	} else {
-		assert(*resultp == t->beg);
-	}
-	const size_t used = _yIO_res_used(t);
-	*lengthp = used;
-	assert(*resultp + used == t->pos);
-#ifndef NDEBUG
-	t->beg = t->pos = t->end = NULL;
-#endif
-	return used;
-}
-
 /// End the object in case of error.
-void _yIO_res_end_err(_yIO_res *t) {
+void _yIO_res_end(_yIO_res *t) {
 	if (t->is_dynamic) {
 		free(t->beg);
 	}
@@ -60,12 +41,11 @@ void _yIO_res_end_err(_yIO_res *t) {
 int _yIO_res_reserve(_yIO_res *t, size_t newsize) {
 	const size_t pos = _yIO_res_used(t);
 	const size_t size = _yIO_res_size(t);
-	assert(newsize > size);
-	void * const p = realloc(t->is_dynamic ? t->beg : NULL, newsize * sizeof(*t->beg));
+	if (newsize <= size) {
+		return 0;
+	}
+	void *const p = realloc(t->is_dynamic ? t->beg : NULL, newsize * sizeof(*t->beg));
 	if (p == NULL) {
-		// NOTE! in case of allocation error
-		// all resources are freed
-		_yIO_res_end_err(t);
 		return YIO_ERROR_ENOMEM;
 	}
 	if (!t->is_dynamic) {
@@ -78,20 +58,20 @@ int _yIO_res_reserve(_yIO_res *t, size_t newsize) {
 	return 0;
 }
 
-static inline
-int _yIO_res_allocate_more(_yIO_res *t) {
+int _yIO_res_reserve_more(_yIO_res *t) {
 	const size_t size = _yIO_res_size(t);
 	const size_t _yIO_res_init_chunk = 32;
 	assert(size < SIZE_MAX / 52);
 	// golden ratio
-	const size_t newsize = size ? size * 52 / 32 : _yIO_res_init_chunk;
+	const size_t newsizecalc = size * 52 / 32;
+	const size_t newsize = newsizecalc > _yIO_res_init_chunk ? newsizecalc : _yIO_res_init_chunk;
 	return _yIO_res_reserve(t, newsize);
 }
 
 int _yIO_res_putc(_yIO_res *t, char c) {
 	assert(t->beg <= t->pos && t->pos <= t->end);
 	if (t->pos == t->end) {
-		const int err = _yIO_res_allocate_more(t);
+		const int err = _yIO_res_reserve_more(t);
 		if (err) return err;
 	}
 	*t->pos++ = c;
@@ -100,7 +80,7 @@ int _yIO_res_putc(_yIO_res *t, char c) {
 
 int _yIO_res_putsn(_yIO_res *t, const char *ptr, size_t size) {
 	while (_yIO_res_free_size(t) < size) {
-		const int err = _yIO_res_allocate_more(t);
+		const int err = _yIO_res_reserve_more(t);
 		if (err) return err;
 	}
 	memcpy(t->pos, ptr, size * sizeof(*t->pos));
@@ -125,7 +105,6 @@ int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...
 	const int err = yvbprintf(_yIO_res_yprintf_cb, t, data, fmt, &va);
 	va_end(va);
 	if (err < 0) {
-		_yIO_res_end_err(t);
 		return err;
 	}
 	return 0;

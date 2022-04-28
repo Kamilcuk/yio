@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include <yio_test.h>
+#include <yio_test_private.h>
 #include <math.h>
 #include <assert.h>
 #include <yio_test_float.h>

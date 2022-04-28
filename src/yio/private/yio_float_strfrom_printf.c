@@ -69,20 +69,14 @@ void _yIO_create_format_string$1(char fmt[FMT_SIZE$1], int precision, char spec)
 			precision, spec, _yIO_FLOAT_PRI$1, sizeof(_yIO_FLOAT_PRI$1) - 1);
 }
 
-int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
-		int precision, char spec, _yIO_FLOAT$1 val) {
+int _yIO_float_astrfrom_printf$1(_yIO_res *v, int precision, char spec, _yIO_FLOAT$1 val) {
 	char fmt[FMT_SIZE$1];
 	_yIO_create_format_string$1(fmt, precision, spec);
-
-	_yIO_res _res;
-	_yIO_res *v = &_res;
-	_yIO_res_init(v, resultp, lengthp);
-
 	assert(_yIO_res_size(v) < INT_MAX);
 	const int len = snprintf(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 	assert(len >= 0);
 	if ((size_t)len < _yIO_res_size(v)) {
-		_yIO_set_used(v, len);
+		_yIO_res_set_used(v, len);
 	} else {
 		int err = _yIO_res_resize2(v, len + 1, len);
 		if (err) return err;
@@ -93,8 +87,6 @@ int _yIO_float_astrfrom_printf$1(char **resultp, size_t *lengthp,
 		assert(len2 == len);
 		assert((size_t)len2 == _yIO_res_used(v));
 	}
-
-	_yIO_res_end(v, resultp, lengthp);
 	return 0;
 }
 

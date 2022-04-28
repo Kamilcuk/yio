@@ -29,7 +29,7 @@
 #ifndef _yIO_YIO_PRIVATE_YIO_RES_H_
 #define _yIO_YIO_PRIVATE_YIO_RES_H_
 #include "../yio_config.h"
-#include "../yio.h"
+#include "../yio/io.h"
 #include <assert.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -47,29 +47,21 @@ typedef struct _yIO_res {
  * Initialized the res object.
  * Note that pointers are not needed here - only on the end.
  * @param t A pointer to _yIO_res to initialize.
- * @param resultp A valie pointer to the result, see file comment above.
- * @param lengthp NULL or a pointer to size, see file comment above.
+ * @param resultp The statically allocated buffer or @c NULL.
+ * @param lengthp The length of statically allocated buffer or 0.
  * @return Returns @c t.
  */
-_yIO_rnn _yIO_nn(1, 2) _yIO_access_w(1) _yIO_access_r(2) _yIO_access_r(3)
-_yIO_res *_yIO_res_init(_yIO_res *t, char **resultp, size_t *lengthp);
-
-#define _yIO_RES_INIT_ON_STACK(resultp, lengthp, size) \
-		_yIO_res_init((_yIO_res){0}, (*resultp = (char[size]){0}, resultp), (*lengthp = size, lengthp))
+_yIO_rnn _yIO_access_w(1)
+_yIO_res *_yIO_res_init(_yIO_res *t, char *resultp, size_t lengthp);
 
 /**
- * End the object in case of success.
- * Must be passed the same arguments as to _yIO_res_init!
- * @param t Same as _yIO_res_init.
- * @param resultp Same as _yIO_res_init.
- * @param lengthp Same as _yIO_res_init.
- * @return The count of characters written to *resultp.
+ * End the object, free the memory.
  */
-_yIO_nn(1, 2) _yIO_access_rw(1) _yIO_access_w(2) _yIO_access_w(3)
-size_t _yIO_res_end(_yIO_res *t, char **resultp, size_t *lengthp);
+_yIO_access_rw(1)
+void _yIO_res_end(_yIO_res *t);
+
 
 /// End the object in case of error.
-_yIO_access_rw(1)
 void _yIO_res_end_err(_yIO_res *t);
 
 /// Add a character
@@ -95,6 +87,13 @@ int _yIO_res_puts(_yIO_res *t, const char *str) {
  */
 _yIO_wur _yIO_nn()
 int _yIO_res_reserve(_yIO_res *t, size_t newsize);
+
+/**
+ * Allocate golden ratio more memory.
+ * @see _yIO_res_reserve
+ */
+_yIO_wur _yIO_nn()
+int _yIO_res_reserve_more(_yIO_res *t);
 
 /// Print into the container
 _yIO_wur _yIO_nn() _yIO_access_rw(1) _yIO_access_r(2) _yIO_access_r(3)
@@ -150,7 +149,7 @@ size_t _yIO_res_free_size(const _yIO_res *t) {
 
 /// Set the count of used bytes in container.
 static inline _yIO_nn()
-void _yIO_set_used(_yIO_res *t, size_t newused) {
+void _yIO_res_set_used(_yIO_res *t, size_t newused) {
 	assert(newused < _yIO_res_size(t));
 	t->pos = t->beg + newused;
 }
@@ -168,8 +167,31 @@ int _yIO_res_resize2(_yIO_res *t, size_t newsize, size_t newused) {
 	assert(newused <= newsize);
 	const int err = _yIO_res_reserve(t, newsize);
 	if (err) return err;
-	_yIO_set_used(t, newused);
+	_yIO_res_set_used(t, newused);
 	return 0;
 }
+
+#ifndef YIO_CACHE_STACK_SIZE
+#error "YIO_CACHE_STACK_SIZE not defined"
+#define YIO_CACHE_STACK_SIZE 32
+#endif
+
+/**
+ * @def _yIO_RES_AUTO_DECL(var)
+ * @param var Name of the variable.
+ * @brief Create a _yIO_res variable with YIO_CACHE_STACK_SIZE size bytes allocated on stack.
+ */
+#if YIO_CACHE_STACK_SIZE > 0
+#define _yIO_RES_CONCAT(a, b)   a##b
+#define _yIO_RES_XCONCAT(a, b)  _yIO_RES_CONCAT(a, b)
+#define _yIO_RES_AUTO_DECL(var)  \
+		char _yIO_RES_CONCAT(_buf_##var, __LINE__)[YIO_CACHE_STACK_SIZE]; \
+		_yIO_res var; \
+		_yIO_res_init(&var, _yIO_RES_CONCAT(_buf_##var, __LINE__), YIO_CACHE_STACK_SIZE)
+#else
+#define _yIO_RES_AUTO_DECL(var)  \
+		_yIO_res var; \
+		_yIO_res_init(&var, NULL, 0)
+#endif
 
 #endif /* _yIO_YIO_PRIVATE_YIO_RES_H_ */

@@ -112,7 +112,6 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 			digit, dec, is_last, (float)*val
 	);
 	if (!(0 <= digit && digit <= baseint)) {
-		_yIO_res_end_err(v);
 		return YIO_ERROR_ENOSYS;
 	}
 
@@ -125,8 +124,7 @@ int get_next_digit$1(_yIO_res *v, TYPE *val,
 	return 0;
 }
 
-int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
-		const int precision0, const char spec0, TYPE val) {
+int _yIO_float_astrfrom_custom$1(_yIO_res *v, const int precision0, const char spec0, TYPE val) {
 	static const int a_max_precision =
 #if FLT_RADIX == 2
 // if the precision is missing and FLT_RADIX is a power of 2,
@@ -141,10 +139,6 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 #endif
 
 	int err = 0;
-
-	_yIO_res _r_mem;
-	_yIO_res * const v = &_r_mem;
-	_yIO_res_init(v, resultp, lengthp);
 
 	// take minus out of the way
 	const bool negative = signbit(val);
@@ -244,7 +238,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 			int exponent_tmp;
 			FREXP2(val, &exponent_tmp);
 			if (precision > INT_MAX / 4) {
-				goto ERROR_ENOSYS;
+				return YIO_ERROR_ENOSYS;
 			}
 			const int bitpos = -5 + -4 * precision + exponent_tmp;
 			_yIO_FLOAT$1 tmp = val + EXP2(bitpos);
@@ -261,7 +255,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 		val = val10;
 	} else {
 		assert(0);
-		goto ERROR_EINVAL;
+		return YIO_ERROR_FMT_INVALID;
 	}
 
 	// at this point, val should be after frexp
@@ -336,16 +330,7 @@ int _yIO_float_astrfrom_custom$1(char ** const resultp, size_t * const lengthp,
 	}
 
 	SUCCESS:
-	_yIO_res_end(v, resultp, lengthp);
 	return 0;
-
-	// in case of rounding, we may reach +INF
-	ERROR_ENOSYS:
-	_yIO_res_end_err(v);
-	return YIO_ERROR_ENOSYS;
-	ERROR_EINVAL:
-	_yIO_res_end_err(v);
-	return YIO_ERROR_FMT_INVALID;
 }
 
 #undef TYPE

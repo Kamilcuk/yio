@@ -81,8 +81,18 @@ BUILDFLAGS += --verbose
 CTESTFLAGS += -V
 endif
 
+ifdef ONE
+CTESTFLAGS += -j 1 -V
+R = ^$(ONE)$$
+T = $(ONE)
+endif
+
+ifdef VALGRIND
+CTESTFLAGS += -LE nomemcheck -D ExperimentalMemCheck
+endif
+
 TESTFLAGS ?=
-CTESTFLAGS += $(if $(value R),-j 0 -R "$(R)")
+CTESTFLAGS += $(if $(value R),-j 0 -R '$(R)')
 
 ###############################################################################
 
@@ -119,11 +129,7 @@ testonly:
 
 HELP +=~ valgrind - Run tests under valgrind
 valgrind:
-	$(MAKE) test CTESTFLAGS=" -LE nomemcheck -D ExperimentalMemCheck "
-
-HELP +=~ testone_% - Build and test one specific target
-testone_%:
-	$(MAKE) .build_$* testonly CTESTFLAGS="-j 1 -R '^$*\$$\$$' -V"
+	$(MAKE) test VALGRIND=1
 
 HELP +=~ lint - run linters
 lint:
@@ -139,14 +145,17 @@ clang:
 ###############################################################################
 
 HELP +=~ cicd - Run all tests before commit to be sure it works
-cicd: export CMAKE_BUILD_TYPE=RelWithDebInfo
-cicd:
-	$(MAKE) valgrind
-	$(MAKE) test_project
-	$(MAKE) sanitize
-	$(MAKE) clang
-	$(MAKE) arm
-	$(MAKE) gitlab_pages
+cicd: cicd.local cicd.gitlab
+cicd.local:
+	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo valgrind
+	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo test_project
+	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo sanitize
+	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo clang
+	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo arm
+	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo gitlab_pages
+cicd.gitlab:
+	,gitlab run-gitlabci --runasroot --inplace alpine_test <&-
+	,gitlab run-gitlabci --runasroot --inplace centos8_test <&-
 
 # Exotic Targets ##################################################
 
@@ -238,10 +247,10 @@ gitlab_metrics:
 HELP +=~ doxygen - Generates doxygen html documentation in pages/doxygen
 .PHONY: doxygen
 doxygen: build_gen
-	rsync --delete -at ./gen/ _build/doxygen/input/
-	mkdir -p _build/doxygen/output
+	mkdir -vp _build/doxygen/output _build/doxygen/input
+	rsync --delete -a ./gen/ _build/doxygen/input/
 	doxygen _build/DefaultDebug/Doxyfile
-	rsync --delete -at _build/doxygen/output/html/ public/doxygen/
+	rsync --delete -a _build/doxygen/output/html/ public/doxygen/
 .PHONY: doxygen_open
 doxygen_open:
 	xdg-open public/doxygen/index.html

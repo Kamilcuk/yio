@@ -107,5 +107,6 @@ if(UNIX)
 		NAME no_jinja2_error_inside_if
 		COMMAND grep -ER "#.*if.*(False|True)" "${GENDIR}"
 	)
+	set_property(TEST no_jinja2_error_inside_if APPEND PROPERTY LABELS nomemcheck)
 	set_tests_properties(no_jinja2_error_inside_if PROPERTIES WILL_FAIL 1)
 endif()

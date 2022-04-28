@@ -1,6 +1,6 @@
 #define _GNU_SOURCE  1
 #define _ISOC99_SOURCE  1
-#include <yio_test.h>
+#include <yio_test_private.h>
 #include <yio_test_float.h>
 #include <math.h>
 #include <float.h>
@@ -43,26 +43,19 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 
 static int _yIO_test_print_float_custom_in$1(int precision,
         char type, _yIO_FLOAT$1 val, const char *valstr0,
-		int (*astrfrom)(char **resultp, size_t *lengthp, int precision, char type, _yIO_FLOAT$1 val),
+		int (*astrfrom)(_yIO_res *res, int precision, char type, _yIO_FLOAT$1 val),
 		const char *astrfrom_str) {
-
-	char *result = NULL;
-	size_t length = 0;
-	int err = astrfrom(&result, &length, precision, type, val);
+	_yIO_res res;
+	_yIO_res_init(&res, 0, 0);
+	int err = astrfrom(&res, precision, type, val);
 	if (err) {
 		_yIO_TEST(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
 				__func__, precision, type, valstr0, astrfrom_str, err);
 		return err;
 	}
-
 	// zero terminate result
-	void *p = realloc(result, length + 1);
-	if (p == NULL) {
-		_yIO_TEST(p != NULL);
-		return ENOMEM;
-	}
-	result = p;
-	result[length] = '\0';
+	err = _yIO_res_putc(&res, '\0');
+	if (err) return err;
 
 	char *valstr = NULL;
 	if (precision < 0) {
@@ -81,6 +74,7 @@ static int _yIO_test_print_float_custom_in$1(int precision,
 		free(fmt);
 	}
 
+	const char *const result = _yIO_res_begin(&res);
 	const bool differ = strcmp(result, valstr) != 0;
 	if (differ) {
 		const bool only_last_char_differs = get_only_last_char_differs(result, valstr);
@@ -118,7 +112,7 @@ static int _yIO_test_print_float_custom_in$1(int precision,
 		}
 	}
 	free(valstr);
-	free(result);
+	_yIO_res_end(&res);
 
 	return err;
 }

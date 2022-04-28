@@ -45,18 +45,17 @@ int _yΩIO_print_mon(yπio_printctx_t *t) {
 #else
 #error
 #endif
-	//char *formatbuf = NULL;
-	//int ret = _yIO_strconv_πstr_to_str(fmtbegin, realfmtlen, (const char **)&formatbuf, NULL);
-	//if (ret) return ret;
-	char _buf[80];
-	char *buf = _buf;
-	int count = _yIO_astrfmon(&buf, sizeof(_buf), format, vv);
+	const struct _yIO_astrfmon_arg arg = {
+		.v.d = vv,
+		.isldbl = false,
+	};
+	_yIO_RES_AUTO_DECL(res);
+	err = _yIO_astrfmon(&res, format, arg);
 	free(format);
-	if (count < 0) return count;
-	err = yπio_printctx_put(t, buf, count);
-	if (buf != _buf) {
-		free(buf);
+	if (err == 0) {
+		err = yπio_printctx_put(t, _yIO_res_begin(&res), _yIO_res_used(&res));
 	}
+	_yIO_res_end(&res);
 	return err;
 }
 

@@ -5,7 +5,6 @@
  *      Author: Kamil
  */
 #include <yio_test.h>
-#include <yio/yio_private.h>
 #include <yπio.h>
 #include <string.h>
 #include <assert.h>

@@ -9,7 +9,9 @@
 #ifndef _yIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_CUSTOM_H_
 #define _yIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_CUSTOM_H_
 #include "../yio_config.h"
-#include <stddef.h>
+#ifdef _yIO_PRIVATE
+#include "yio_res.h"
+#endif
 
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 #line
@@ -23,6 +25,7 @@
 #line
 #if _yIO_HAS_FLOAT$1
 
+#ifdef _yIO_PRIVATE
 /**
  * Convert the floating number val according to specified precision
  * and specification using method written by myself.
@@ -33,8 +36,8 @@
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int _yIO_float_astrfrom_custom$1(char **resultp, size_t *lengthp,
-		int precision, char spec0, _yIO_FLOAT$1 val);
+int _yIO_float_astrfrom_custom$1(_yIO_res *v, int precision, char spec0, _yIO_FLOAT$1 val);
+#endif
 
 #define _yIO_has_float_custom$1  1
 #else

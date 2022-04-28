@@ -10,7 +10,7 @@
 
 // {#+
 #ifndef _yIO_CDT_PARSER
-// +#}
+// +#} //
 #include "yio_config_gen.h"
 // {#+
 #else // _yIO_CDT_PARSER
@@ -29,7 +29,7 @@
 #define TFPRINTF(...)  fprintf(__VA_ARGS__)
 #define TSTRLEN(x)     wcslen(x)
 #endif // _yIO_CDT_PARSER
-// +#}
+// +#} //
 
 #ifndef _yIO_HAS_UNISTD_H
 #error _yIO_HAS_UNISTD_H

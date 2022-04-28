@@ -34,9 +34,11 @@ int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 	if (err) return err;
 	const char type = t->pf.type ? t->pf.type : 'g';
 	const int precision =  t->pf.precision;
-	_yIO_CACHE_AUTO_DECL(_result, result, length);
-	err = _yIO_float_astrfrom_$2$1(&result, &length, precision, type, var);
+	_yIO_RES_AUTO_DECL(res);
+	err = _yIO_float_astrfrom_$2$1(&res, precision, type, var);
 	if (err) return err;
+	const char *const result = _yIO_res_begin(&res);
+	const size_t length = _yIO_res_used(&res);
 	const bool is_negative = result[0] == '-';
 	if (
 			isdigit((unsigned char)result[0]) ||
@@ -46,7 +48,7 @@ int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 	} else {
 		err = yπio_printctx_put(t, result, length);
 	}
-	_yIO_CACHE_AUTO_FREE(_result, result, length);
+	_yIO_res_end(&res);
 	return err;
 }
 

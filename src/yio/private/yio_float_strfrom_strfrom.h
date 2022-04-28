@@ -9,8 +9,9 @@
 #ifndef _yIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_STRFROM_H_
 #define _yIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_STRFROM_H_
 #include "../yio_config.h"
-#include <stddef.h>
-
+#ifdef _yIO_PRIVATE
+#include "yio_res.h"
+#endif
 
 {% call j_FOREACHAPPLY(j_FLOATS) %}
 
@@ -23,18 +24,18 @@
 #error
 #endif
 
+#ifdef _yIO_PRIVATE
 /**
  * Convert the floating number val according to specified precision
  * and specification using @c strfrom$1 function.
- * @param resultp @see _yIO_vec
- * @param lengthp @see _yIO_vec
+ * @param v
  * @param precision Negative if unset
  * @param spec a, A, e, E, f, F, g, or G
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int _yIO_float_astrfrom_strfrom$1(char **resultp, size_t *lengthp,
-		int precision, char spec, _yIO_FLOAT$1 val);
+int _yIO_float_astrfrom_strfrom$1(_yIO_res *v, int precision, char spec, _yIO_FLOAT$1 val);
+#endif
 
 #endif
 
