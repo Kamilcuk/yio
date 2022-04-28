@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 /**
- * @defgroup yπio_printctx TMODEN yπio_printcts
+ * @defgroup yπio_printctx TMODEN yπio_printctx
  * @ingroup yπio
  * @brief Printing context.
  * @{
@@ -165,7 +165,7 @@ int _yΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
  * @def yπio_printctx_va_arg(printctx, type)
  * @param printctx Printing context, pointer to yπio_printctx_t
  * @param type Type of argument passed to va_list.
- * @return A value from the printcts va_list of type type.
+ * @return A value from the printctx va_list of type type.
  * @see yπio_printctx_va_arg_promote
  */
 #define yπio_printctx_va_arg(printctx, type)   va_arg(*(printctx)->va, type)
@@ -176,7 +176,7 @@ int _yΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
  * @def yπio_printctx_va_arg_promote(printctx, numtype)
  * @param printctx Printing context, pointer to yπio_printctx_t
  * @param numtype Numericall type, that arithmetics can be done for.
- * @return A value from the printcts va_list of type promoted numtype.
+ * @return A value from the printctx va_list of type promoted numtype.
  * @see yπio_printctx_va_arg
  */
 #define yπio_printctx_va_arg_promote(printctx, numtype)  \

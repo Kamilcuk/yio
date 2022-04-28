@@ -11,6 +11,7 @@
 # dev
 
 [doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/index.html)
+[TEMPLATING.md](./doc/TEMPLATING.md]
 
 master: ![pipeline master status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
 devel: ![pipeline dev status badge](https://gitlab.com/kamcuk/yio/badges/devel/pipeline.svg)
@@ -161,7 +162,8 @@ Implemented:
         - require `math.h` functions or `strfrom*` support (depending on chosen backend), see https://github.com/libdfp/libdfp
         - the support in major compilers is not enough right now
 - `_Imaginary` and `_Complex` standard floating-point types
-    - formatting specifier is ignored and they are just printed as `[+-]<real>[+-]<imag>i`
+    - formatting specifier is ignored
+    - they are just printed as `[+-]<real>[+-]<imag>i`
 - `_Accum`, `_Fract`, `stdfix.h` fixed-point types
     - `x` `X` `f` `a` `A` specifiers
 - `void *`
@@ -169,17 +171,19 @@ Implemented:
     - the pointer is just converted to appropriate size integer type and printed as `{:#x}`
 - `struct tm` time formatting
     - the formatting string is straight passed to `strftime`
-- `struct tm` and `struct timespec`
-    - format string ignored
-    - just printed as `[+-]<sec>.<nano/milli-sec>`
 - `wchar_t *`
     - `s` specifier
+- `ypmon` for printing using `strfmon`
+    - formatting string is just passed to `strfmon`
+- Positional arguments `{1:{2}.{3}}` are implemented
+- `struct timeval` and `struct timespec`
+    - format string ignored
+    - just printed as `[+-]<sec>.<nano/milli-sec>`
 
 Not implemented:
 
 - `!a` conversion flag
 - `L` locale specific printing
-- Argument index specifying is not implemented.
 
 ### Namespaces
 

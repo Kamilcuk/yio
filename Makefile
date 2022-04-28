@@ -235,7 +235,6 @@ test_alpine:
 
 HELP +=~ gitlab_pages - Generate gitlab pages
 gitlab_pages: doxygen
-	mkdir -p public
 	./scripts/create_public_index.sh
 
 gitlab_metrics:
@@ -252,6 +251,7 @@ doxygen:
 	mkdir -vp _build/doxygen/output _build/doxygen/input
 	rsync --delete -a ./gen/ _build/doxygen/input/
 	doxygen $(B)/Doxyfile
+	mkdir -vp public/doxygen/
 	rsync --delete -a _build/doxygen/output/html/ public/doxygen/
 .PHONY: doxygen_open
 doxygen_open:
