@@ -15,8 +15,8 @@ void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
 	struct yio_printfmt_s pf = _yIO_printfmt_default;
 	const char *endptr = (const char *)-1;
 	const int err = _yIO_pfmt_parse((void*)1, &pf, str, &endptr);
-	_yIO_TEST(err == 0, "%s", str);
-	_yIO_TEST(endptr == str + strlen(str), "%s", str);
+	_yIO_TEST(err == 0, "%s", str ? str : "(NULL)");
+	_yIO_TEST(endptr == str + strlen(str), "%s", str ? str : "(NULL)");
 	(void)_yIO_test_compare_printformat(pf, shouldbe);
 }
 

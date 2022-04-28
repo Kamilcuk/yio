@@ -11,7 +11,7 @@ It is used as part of CMake scripts to generate error messages.
 import os
 import re
 import sys
-from preprocess import save_if_changed
+from preprocess import save_if_changed, LL
 
 
 def get_all_errors_from_sources():
@@ -57,9 +57,12 @@ def write_to_argv_on_change(idx, str):
     save_if_changed(str, file, file)
 
 
-errors = get_all_errors_from_sources()
-check_duplicates([k for k, v in errors], "enums")
-check_duplicates([v for k, v in errors], "messages")
-enumout, msgout = prepare_sources(errors)
-write_to_argv_on_change(1, enumout)
-write_to_argv_on_change(2, msgout)
+if __name__ == "__main__":
+    # LL.setLevel("DEBUG")
+    LL.setLevel("INFO")
+    errors = get_all_errors_from_sources()
+    check_duplicates([k for k, v in errors], "enums")
+    check_duplicates([v for k, v in errors], "messages")
+    enumout, msgout = prepare_sources(errors)
+    write_to_argv_on_change(1, enumout)
+    write_to_argv_on_change(2, msgout)

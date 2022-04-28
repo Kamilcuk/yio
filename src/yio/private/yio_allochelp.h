@@ -6,8 +6,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_PRIVATE_YIO_TIME_H_
-#define _yIO_YIO_PRIVATE_YIO_TIME_H_
+#ifndef _yIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
+#define _yIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
+#include "../yio_config.h"
 #include <stddef.h>
 #include <time.h>
 
@@ -23,4 +24,14 @@
  */
 int _yIO_astrftime_nonzero(char **strp, const size_t initialsize, const char *fmt, const struct tm *tm);
 
-#endif /* _yIO_YIO_PRIVATE_YIO_TIME_H_ */
+#ifndef _yIO_HAS_MONETARY_H
+#error
+#endif
+#if _yIO_HAS_MONETARY_H
+/**
+ * Dynamic allocation astrfmon.
+ */
+int _yIO_astrfmon(char **strp, size_t bufsize, const char *fmt, double dd);
+#endif
+
+#endif /* _yIO_YIO_PRIVATE_YIO_ALLOCHELP_H_ */

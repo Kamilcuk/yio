@@ -137,7 +137,7 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 
 #if _yIO_HAS_WCHAR_H
 int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
-	if (!mb_len) {
+	if (mb_len == 0) {
 		*wc = NULL;
 		if (wc_len) {
 			*wc_len = 0;

@@ -8,7 +8,7 @@
  */
 #define _POSIX_C_SOURCE  1
 #include "private.h"
-#include "yio/private/yio_time.h"
+#include "yio/private/yio_allochelp.h"
 #include <assert.h>
 #include <time.h>
 #if _yIO_HAS_UNISTD_H

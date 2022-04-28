@@ -18,6 +18,7 @@
 #include "print_stdfix.h"
 #include "print_complex.h"
 #include "print_pfmt.h"
+#include "print_mon.h"
 #ifndef _yIO_HAS_UCHAR_H
 #error _yIO_HAS_UCHAR_H
 #endif
