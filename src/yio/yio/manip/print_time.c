@@ -85,7 +85,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	// Extract the format string.
 	// Add additional space.
 	const char *const emptyformat = "%c ";
-	const char *format = NULL;
+	const char *format;
 	if (realfmtlen == 0) {
 		// Zero fmt length results in '%c'.
 		format = emptyformat;

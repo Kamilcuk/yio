@@ -64,7 +64,7 @@ void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
 )
 
 static inline
-void _yIO_create_format_string$1(char fmt[FMT_SIZE$1], int precision, char spec) {
+void _yIO_create_format_string$1(char *fmt, int precision, char spec) {
 	_yIO_create_format_string_generic(fmt, FMT_SIZE$1,
 			precision, spec, _yIO_FLOAT_PRI$1, sizeof(_yIO_FLOAT_PRI$1) - 1);
 }

@@ -1,0 +1,7 @@
+# .clang-tidy
+
+# clang-tidy bug, can't return pointer to va_list from a function.
+Checks: "-clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,-clang-analyzer-valist.Uninitialized"
+WarningsAsErrors: true
+HeaderFilterRegex: ''
+

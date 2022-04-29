@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #define _XOPEN_SOURCE  1 // wcswidth
+#define _POSIX_C_SOURCE  200112L  // nl_langinfo
+#define _GNU_SOURCE  1 // GROUPING (?)
 #include "ctx.h"
 #include "private.h"
 #ifndef _yIO_HAS_UNISTRING
@@ -19,6 +21,13 @@
 #include <stdint.h>
 #include <ctype.h>
 #include <limits.h>
+#include <stdlib.h>
+#ifndef YIO_USE_LOCALE
+#error YIO_USE_LOCALE
+#endif
+#if YIO_USE_LOCALE
+#include <langinfo.h>
+#endif
 
 /* ------------------------------------------------------------------------- */
 
@@ -30,10 +39,6 @@ static const TCHAR YΩIO_ALIGN_CENTER = TC('^');
 static const TCHAR YΩIO_SIGN_ALWAYS = TC('+');
 //static const TCHAR YΩIO_SIGN_NEGATIVE = TC('-');
 static const TCHAR YΩIO_SIGN_ALWAYSSPACE = TC(' ');
-
-//static const TCHAR YΩIO_GROUPING_COMMA = TC(',');
-//static const TCHAR YΩIO_GROUPING_UNDERSCORE = TC('_');
-static const TCHAR YΩIO_GROUPING_NONE = TC('\0');
 
 const struct yπio_printfmt_s _yΩIO_printfmt_default = {
 		.width = -1,
@@ -399,19 +404,25 @@ int _yΩIO_printformat_suffix(_yΩIO_printformat_t *pf) {
 }
 
 static inline
-const TCHAR *_yΩIO_str_comma_or_end(const TCHAR str[], size_t len) {
+const TCHAR *str_dot_or_end(const TCHAR str[], size_t len) {
 	for (; len-- && str[0] != TC('.'); ++str) {
 		continue;
 	}
 	return str;
 }
 
+#if YIO_USE_LOCALE
+static const char NOGROUP[1] = { CHAR_MAX };
+#endif
+static const char GROUP3[2] = "\x03";
+static const char GROUP4[2] = "\x04";
+
 static inline
 int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, TCHAR grouping,
 		const TCHAR str[], size_t str_len) {
 	int err = 0;
 	// Find end of string (integer) or comma (floating point)
-	const TCHAR * const str0 = str;
+	const TCHAR *const str0 = str;
 	const TCHAR *comma_or_end = _yΩIO_str_comma_or_end(str, str_len);
 	// Calculate size of first block.
 	const size_t blocksize = 3;
@@ -431,35 +442,156 @@ int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, TCHAR group
 			if (err) return err;
 		}
 	}
-	// if there are more characters to write
-	if (str != comma_or_end) {
-		while (1) {
-			// we get here either by writing first block and printing grouping
-			// or by printing nothing by far
-			// or by the loop
-			err = yπio_printctx_raw_write(t, str, blocksize);
-			str += blocksize;
-			if (err) return err;
-			// we check if the end is between grouping and end
-			assert(str <= comma_or_end);
-			if (str == comma_or_end) {
-				break;
+#endif
+	return TSTRCHR(TC("bBoO"), t->pf.conversion) != NULL ? GROUP3 : GROUP4;
+}
+
+struct numsep {
+	const TCHAR *sep;
+	size_t len;
+};
+
+static const TCHAR DEFAULT_THOUSEND_SEP[1] = { TC(',') };
+
+static inline
+int print_numsep(yπio_printctx_t *t, struct numsep *ns) {
+	if (ns->sep == NULL) {
+		if (t->pf.grouping == TC('L')) {
+#if YIO_USE_LOCALE
+			const char *sep = nl_langinfo(THOUSEP); // THOUSEND_SEP
+			if (sep == NULL) {
+				ns->sep = DEFAULT_THOUSEND_SEP;
+				ns->len = 0;
+			} else {
+#if TMODEX == 1
+				ns->sep = sep;
+				ns->len = strlen(ns->sep);
+#else
+				const int err = _yIO_strconv_str_to_πstr(sep, strlen(sep), &ns->sep, &ns->len);
+				if (err) return err;
+#endif
 			}
-			// print the grounping between
-			err = yπio_printctx_raw_write(t, &grouping, 1);
+#else
+			ns->sep = DEFAULT_THOUSEND_SEP;
+			ns->len = 1;
+#endif
+		} else {
+			ns->sep = &t->pf.grouping;
+			ns->len = 1;
+		}
+	}
+	if (ns->len == 0) return 0;
+	return yπio_printctx_raw_write(t, ns->sep, ns->len);
+}
+
+static inline
+void print_numsep_end(yπio_printctx_t *t, struct numsep *ns) {
+#if TMODEX != 1
+	if (ns->sep != &t->pf.grouping && ns->sep != DEFAULT_THOUSEND_SEP) {
+		free((void *)ns->sep);
+	}
+#endif
+}
+
+static inline
+int print_dot(yπio_printctx_t *t) {
+#if YIO_USE_LOCALE
+	if (t->pf.grouping == TC('L')) {
+		const char *dot = nl_langinfo(RADIXCHAR); // DECIMAL_POINT
+		if (dot == NULL) return 0;
+		const TCHAR *tmpstr = NULL;
+		size_t tmpstrlen = 0;
+		int err = _yIO_strconv_str_to_πstr(dot, strlen(dot), &tmpstr, &tmpstrlen);
+		if (err) return err;
+		err = yπio_printctx_raw_write(t, tmpstr, tmpstrlen);
+		_yIO_strconv_free_str_to_πstr(dot, tmpstr);
+		return err;
+	}
+#endif
+	const TCHAR DEFAULT_DOT[1] = { TC('.') };
+	return yπio_printctx_raw_write(t, DEFAULT_DOT, 1);
+}
+
+static inline
+int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR str[], size_t str_len) {
+	const TCHAR *num = str;
+	const TCHAR *const dotornul = str_dot_or_end(str, str_len);
+	size_t numlen = dotornul - str;
+	const char *group = get_group(t);
+	const char *gri = group;
+	unsigned groupsum = 0;
+	char c;
+	int err = 0;
+	struct numsep ns = { NULL };
+	for (; (c = *gri) != '\0' && c != CHAR_MAX; ++gri) {
+		groupsum += c;
+	}
+	if (numlen > groupsum) {
+		unsigned before = numlen - groupsum;
+		if (c == '\0') {
+			// get_group guarantees that we have at least 2 bytes
+			assert(gri != group);
+			const char lastgroup = *(gri - 1);
+			const unsigned odd = before % lastgroup;
+			if (odd) {
+				err = yπio_printctx_raw_write(t, num, odd);
+				if (err) goto NUMSEP_END;
+				num += odd;
+				before -= odd;
+				err = print_numsep(t, &ns);
+				if (err) goto NUMSEP_END;
+			}
+			for (const TCHAR *const endbefore = num + before; num != endbefore; num += lastgroup) {
+				err = yπio_printctx_raw_write(t, num, lastgroup);
+				if (err) goto NUMSEP_END;
+				err = print_numsep(t, &ns);
+				if (err) goto NUMSEP_END;
+			}
+		} else {
+			assert(c == CHAR_MAX);
+			err = yπio_printctx_raw_write(t, num, before);
+			if (err) goto NUMSEP_END;
+			num += before;
+			if (groupsum) {
+				err = print_numsep(t, &ns);
+				if (err) goto NUMSEP_END;
+			}
+		}
+		numlen = groupsum;
+	}
+	while (groupsum) {
+		groupsum -= *--gri;
+		if (numlen > groupsum) {
+			const unsigned left = numlen - groupsum;
+			err = yπio_printctx_raw_write(t, num, left);
+			if (err) goto NUMSEP_END;
+			while (groupsum) {
+				err = print_numsep(t, &ns);
+				if (err) goto NUMSEP_END;
+				c = *--gri;
+				groupsum -= c;
+				err = yπio_printctx_raw_write(t, num, c);
+				if (err) goto NUMSEP_END;
+			}
+			break;
+		}
+	}
+	assert(gri == group);
+	assert(num <= str + str_len);
+	print_numsep_end(t, &ns);
+	//
+	if (num != str + str_len) {
+		err = print_dot(t);
+		if (err) return err;
+		if (str_len > 1) {
+			err = yπio_printctx_raw_write(t, num, str_len - 1);
 			if (err) return err;
 		}
 	}
-
-	assert(str >= str0);
-	const size_t written_so_far = str - str0;
-	assert(str_len >= written_so_far);
-	const size_t left_to_write = str_len - written_so_far;
-	if (left_to_write) {
-		err = yπio_printctx_raw_write(t, str, left_to_write);
-		if (err) return err;
-	}
-
+	// SUCCESS
+	return err;
+NUMSEP_END:
+	print_numsep_end(t, &ns);
 	return err;
 }
 
@@ -468,16 +600,13 @@ int _yΩIO_printformat_print(_yΩIO_printformat_t *pf, const TCHAR str[], size_t
 	yπio_printctx_t * const t = pf->t;
 	struct yπio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
-	const TCHAR grouping = f->grouping;
-
-	if (is_number == true && grouping != YΩIO_GROUPING_NONE) {
-		const int err = _yΩIO_print_format_generic_number_grouping(t, grouping, str, str_len);
+	if (is_number == true && f->grouping != TC('\0')) {
+		const int err = _yΩIO_print_format_generic_number_grouping(t, str, str_len);
 		if (err) return err;
 	} else {
 		const int err = yπio_printctx_raw_write(t, str, str_len);
 		if (err) return err;
 	}
-
 	return 0;
 }
 
@@ -491,7 +620,7 @@ void _yΩIO_printformat_assert_valid(const struct yπio_printfmt_s *pf) {
 	assert(is_one_of_or_nul(pf->align, TC("<>=^")));
 	assert(is_one_of_or_nul(pf->sign, TC("+- ")));
 	assert(pf->fill != TC('{') && pf->fill != TC('}'));
-	assert(is_one_of_or_nul(pf->grouping, TC("_,")));
+	assert(is_one_of_or_nul(pf->grouping, TC("_,L")));
 }
 
 int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
@@ -511,8 +640,8 @@ int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
 #if TMODEX != 1
 int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive) {
-	const TCHAR *dest;
-	size_t dest_len;
+	const TCHAR *dest = NULL;
+	size_t dest_len = 0;
 	int ret = _yIO_strconv_str_to_πstr(str, str_len, &dest, &dest_len);
 	if (ret) return ret;
 	ret = _yΩIO_printformat_generic(t, dest, dest_len, is_number, is_positive);

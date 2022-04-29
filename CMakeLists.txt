@@ -58,32 +58,12 @@ if(YIO_DEV)
 
 	set_from_env(YIO_CPPLINT)
 	if(YIO_CPPLINT)
-		set(_filter
-			whitespace           # Yes, I use tabs.
-			legal/copyright
-			runtime/int
-			build/include_subdir
-			readability/casting  # This is C not C++.
-			build/include_order  # Too much preprocssor stuff.
-			readability/todo     # I'm programming alone.
-			build/include        # This is hevily templated system, sometimes files don't include.
-			readability/nolint   # I use clang-tidy too, don't complain.
-			build/c++11          # This is C not C++.
-		)
-		string(REGEX REPLACE ";" ",-" _filter "${_filter}")
-		set(CMAKE_C_CPPLINT "cpplint" "--filter=-${_filter}")
-		unset(_filter)
+		find_program(CMAKE_C_CPPLING cpplint)
 	endif()
 
 	set_from_env(YIO_CLANG_TIDY)
 	if(YIO_CLANG_TIDY)
-		set(_filter
-			clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
-			clang-analyzer-valist.Uninitialized  # clang-tidy bug, can't return pointer to va_list from a function.
-		)
-		string(REGEX REPLACE ";" ",-" _filter "${_filter}")
-		set(CMAKE_C_CLANG_TIDY "clang-tidy" "-checks=-${_filter}")
-		unset(_filter)
+		find_program(CMAKE_C_CLANG_TIDY clang-tidy)
 	endif()
 
 	# Create symlink from gen to GENDIR for development purpouses
@@ -99,30 +79,23 @@ if(YIO_DEV)
 	)
 
 	# Add compiler options.
-	if(
-			CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
-			CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
-			CMAKE_C_COMPILER_ID STREQUAL "Intel"
-	)
-		set(_tmp
-			-g
-			$<$<CONFIG:DEBUG>:-Og>
-			$<$<NOT:$<CONFIG:DEBUG>>:-O>
-		)
-		add_link_options(${_tmp})
+	if(CMAKE_C_COMPILER_ID IN_LIST "GNU;Clang;Intel")
 		add_compile_options(
-			${_tmp}
+			-g
 			-Wall
 			-Wextra
 			-Wwrite-strings
 			-Wno-unused-function
 			-Wno-unused-parameter
 		)
+		add_link_options(
+			-g
+		)
 	endif()
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 		if(NOT YIO_CLANG_TIDY)
-			check_c_compiler_flag(-fanalyzer _yIO_ANALYZER)
-			if(_yIO_ANALYZER)
+			check_c_compiler_flag(-fanalyzer HAS_ANALYZER)
+			if(HAS_ANALYZER)
 				add_compile_options(-fanalyzer)
 			endif()
 		endif()
@@ -130,15 +103,18 @@ if(YIO_DEV)
 		if(_yIO_ATTRIBUTE_WARNING)
 			add_compile_options(-Wattribute-warning)
 		endif()
-		add_compile_options(-Wmissing-prototypes)
 		add_compile_definitions(_FORTIFY_SOURCE=2)
+		add_compile_options(
+			-Wmissing-prototypes
+			-O  # _FORTIFY_SOURCE needs it
+		)
 	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-		check_c_compiler_flag(--analyze _yIO_ANALYZER)
-		if(_yIO_ANALYZER)
+		check_c_compiler_flag(--analyze HAS_ANALYZER)
+		if(HAS_ANALYZER)
 			#add_compile_options(--analyze)
 		endif()
-		check_c_compiler_flag(-ffixed-point _yIO_FIXED_POINT)
-		if(_yIO_FIXED_POINT)
+		check_c_compiler_flag(-ffixed-point HAS_FIXED_POINT)
+		if(HAS_FIXED_POINT)
 			add_compile_options(-ffixed-point)
 		endif()
 		add_compile_options(
@@ -181,10 +157,9 @@ if(YIO_DEV)
 		CCACHE_COMMAND
 		UNISTRING_LIB
 		CPPLINT_COMMAND
-		DIRECTORY
-		COMPILE_OPTIONS
-		COMPILE_DEFINITIONS
-		LINK_OPTIONS
+		DIRECTORY:COMPILE_OPTIONS
+		DIRECTORY:COMPILE_DEFINITIONS
+		DIRECTORY:LINK_OPTIONS
 	)
 	if(0)
 		yio_debug_variables(
@@ -328,6 +303,7 @@ function(jinja_generate)
 		VERBATIM
 	)
 	set_property(TARGET "${A_TARGET}" APPEND PROPERTY SOURCES "${A_OUTPUT}")
+	add_dependencies(yio_gen ${A_TARGET})
 endfunction()
 
 ###############################################################################

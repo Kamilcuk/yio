@@ -189,6 +189,7 @@ int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...
  * The rest of the arguments are unchanged and appended to ellipsis argument.
  */
 #define YΩIO_PRINT_ARGUMENTS(...)  \
-		_yΩIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})(_yΩIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
+		_yIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})( \
+				_yΩIO_PRINT_FUNC_GENERIC, yπio_printdata_t, __VA_ARGS__)
 
 #endif /* _yIO_YIO_YΩIO_IO_H_ */

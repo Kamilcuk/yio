@@ -91,9 +91,8 @@ int _yIO_res_putsn(_yIO_res *t, const char *ptr, size_t size) {
 static
 int _yIO_res_yprintf_cb(void *ptr, const char *data, size_t count) {
 	_yIO_res *o = ptr;
-	int err = 0;
 	while (count--) {
-		err = _yIO_res_putc(o, *data++);
+		const int err = _yIO_res_putc(o, *data++);
 		if (err) return err;
 	}
 	return 0;

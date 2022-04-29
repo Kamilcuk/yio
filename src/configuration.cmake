@@ -53,3 +53,10 @@ Do not use malloc at all. Will just fail with ENOMEM. TODO
 ]=])
 set(YIO_NO_MALLOC 0 CACHE BOOL "${YIO_NO_MALLOC_COMMENT}")
 yio_config_gen_add(YIO_NO_MALLOC)
+
+set(YIO_USE_LOCALE_COMMENT [=[
+Enable usage of 'L' specifier and use nl_langinfo for decimal separtors.
+]=])
+set(YIO_USE_LOCALE 1 CACHE BOOL "${YIO_USE_LOCALE_COMMENT}")
+yio_config_gen_add(YIO_USE_LOCALE)
+

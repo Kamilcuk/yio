@@ -17,22 +17,16 @@ function(yio_debug_variables)
     endif()
     set(${varname}
         TRUE
-        CACHE
-          INTERNAL
-          "Internal variable used to make yio_debug_variable print only once")
+        CACHE INTERNAL "Internal variable used to make yio_debug_variable print only once")
   endif()
 
   set(llist "${ARGV}")
 
   # list(SORT llist) list(REMOVE_DUPLICATES llist)
 
-  set(isdirectory 0)
   foreach(ii IN LISTS llist)
-    if(ii STREQUAL "DIRECTORY")
-      set(isdirectory 1)
-      continue()
-    endif()
-    if(isdirectory)
+	if(ii MATCHES "DIRECTORY:")
+	  string(REGEX REPLACE "DIRECTORY:" "" ii ${ii})
       get_directory_property(vval ${ii})
       set(ii "DIRECTORY:${ii}=")
     elseif(DEFINED ${ii})

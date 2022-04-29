@@ -109,4 +109,12 @@ if(UNIX)
 	)
 	set_property(TEST no_jinja2_error_inside_if APPEND PROPERTY LABELS nomemcheck)
 	set_tests_properties(no_jinja2_error_inside_if PROPERTIES WILL_FAIL 1)
+
+	add_test(
+		NAME no_Ω_nor_π_in_generated_files
+		COMMAND grep -ER "Ω|π" "${GENDIR}"
+	)
+	set_property(TEST no_Ω_nor_π_in_generated_files APPEND PROPERTY LABELS nomemcheck)
+	set_tests_properties(no_Ω_nor_π_in_generated_files PROPERTIES WILL_FAIL 1)
 endif()
+
