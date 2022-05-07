@@ -8,14 +8,15 @@
  */
 #include "yio_config.h"
 // {#+
+#ifdef _yIO_CDT_PARSER
+#include <yio/yio_print_arguments.h>
 #include <yio/yio_error.h>
 #include <yio/yio_version.h>
-#include <yio/yio_macros.h>
-#ifndef _yIO_CDT_PARSER
+#else
 // +#} //
+#include "yio_print_arguments.h"
 #include "yio_error.h"
 #include "yio_version.h"
-#include "yio_macros.h"
 // {#+
 #endif
 // +#} //

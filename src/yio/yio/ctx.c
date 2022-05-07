@@ -411,7 +411,7 @@ int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, TCHAR group
 		const TCHAR str[], size_t str_len) {
 	int err = 0;
 	// Find end of string (integer) or comma (floating point)
-	const TCHAR * const str0 = str;
+	const TCHAR *const str0 = str;
 	const TCHAR *comma_or_end = _yΩIO_str_comma_or_end(str, str_len);
 	// Calculate size of first block.
 	const size_t blocksize = 3;

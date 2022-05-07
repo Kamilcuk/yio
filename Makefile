@@ -7,6 +7,15 @@ SHELL = bash
 MAKEFLAGS += -rR --no-print-directory --warn-undefined-variables
 .SUFFIXES:
 .NOTPARALLEL:
+null :=
+space := $(null) $(null)
+define \n
+
+
+endef
+define nicecmd
+$(patsubst #%,,$(strip $(subst %{\n},${space},${${1}})))
+endef
 
 # check if we have nice
 NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
@@ -188,37 +197,62 @@ coverage_gen:
 ###############################################################################
 # cppcheck
 
-CPPCHECK_FLAGS_INIT = \
-	--project=./compile_commands.json \
-	-U__DOXYGEN__ \
-	-U__CDT_PARSER__ \
-	-U_yIO_CDT_PARSER \
-	-UNDEBUG \
-	-I${linuxincdir}/include \
-	-I/usr/local/include \
-	-I${linuxincdir}/include-fixed \
-	-I/usr/include \
-	-I${PWD}/gen \
-	--suppress=unmatchedSuppression \
-	--suppress=unreadVariable \
-	--suppress=unusedFunction \
-	--suppress="*:$(PWD)/src/*" \
-	--suppress="*:src/*" \
-	--suppress="*:$(PWD)/test/templated/*" \
-	--suppress="*:test/templated/*" \
-	--suppress="*:$(PWD)/test/reprocessed/*" \
-	--suppress="*:test/reprocessed/*" \
-	--library=posix \
-	--report-progress  \
-	-x c
-CPPCHECK_FLAGS = --quiet --enable=all
 HELP +=~ cppcheck Run cppcheck
-cppcheck: export linuxincdir=$(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
-cppcheck: export CMAKE_BUILD_TYPE=Release
+define _
+	-I{linuxincdir}/include
+	-I/usr/local/include
+	-I{linuxincdir}/include-fixed
+	-I/usr/include
+	-I{PWD}/gen
+	--suppress="*:$(PWD)/src/*"
+	--suppress="*:src/*"
+	--suppress="*:$(PWD)/test/templated/*"
+	--suppress="*:test/templated/*"
+	--suppress="*:$(PWD)/test/reprocessed/*"
+	--suppress="*:test/reprocessed/*"
+endef
+define CPPCHECK_FLAGS_INIT
+	--project=./_build/cppcheck/compile_commands.json
+	--cppcheck-build-dir=./_build/cppcheck
+
+	-U__DOXYGEN__
+	-U__CDT_PARSER__
+	-UNDEBUG
+
+	-D_yIO_PRIVATE=1
+	-D__FLT_MANT_DIG__=24
+	-D__DBL_MANT_DIG__=53
+	-D__LDBL_MANT_DIG__=64
+	-D_yIO_HAS_UNISTRING=1
+	-D__STDC_UTF_32__=1
+	-D__STDC_UTF_16__=1
+
+	--suppress=unmatchedSuppression
+	--suppress=unreadVariable
+	--suppress=unusedFunction
+	--library=posix
+	--report-progress
+	--language=c
+
+	--enable=all
+	-q
+	--clang
+	#--addon=cert
+	"--suppress=*:/usr/include/*"
+endef
+CPPCHECK_FLAGS_INIT := $(call nicecmd,CPPCHECK_FLAGS_INIT)
+#cppcheck: export linuxincdir=$(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
 cppcheck:
-	$(MAKE) configure .cppcheck
+	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo PRESET=lint build
+	$(MAKE) .cppcheck
+.cppcheck: C =
 .cppcheck:
-	$(NICE) cppcheck ${CPPCHECK_FLAGS_INIT} ${CPPCHECK_FLAGS}
+	mkdir -vp _build/cppcheck
+	jq --arg pwd "$(PWD)" --arg rgx \
+		"/(src|test/templated|test/reprocessed|_build/LintRelwithdebinfo/test|test|_build/LintRelwithdebinfo/gen/yio/y(w|c16|u)io)/" \
+		'[ .[] | select(.file | test("^" + $$pwd + $$rgx) | not) ]' \
+		_build/LintRelwithdebinfo/compile_commands.json > _build/cppcheck/compile_commands.json
+	$(NICE) cppcheck ${CPPCHECK_FLAGS_INIT} ${C}
 
 ###############################################################################
 

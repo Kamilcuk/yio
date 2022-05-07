@@ -31,8 +31,10 @@
 		1 \
 )
 
+static const unsigned fmt_size = FMT_SIZE;
+
 static inline
-void _yIO_float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int precision, char spec) {
+void _yIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision, char spec) {
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
 	if (precision >= 0) {
@@ -40,12 +42,12 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char fmt[FMT_SIZE], int pr
 		const int len = ysprint(fmtpnt, INT_MAX, precision);
 		(void)len;
 		assert(len > 0);
-		assert((size_t)len < FMT_SIZE - 2);
+		assert((size_t)len < fmt_size - 2);
 		fmtpnt += len;
 	}
 	*fmtpnt++ = spec;
 	*fmtpnt++ = '\0';
-	assert(fmtpnt <= fmt + FMT_SIZE);
+	assert(fmtpnt <= fmt + fmt_size);
 }
 
 {% call j_FOREACHAPPLY(j_FLOATS) %}

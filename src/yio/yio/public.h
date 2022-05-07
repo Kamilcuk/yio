@@ -15,7 +15,6 @@
 #include "ctx.h"
 #include "io.h"
 #include "manip/manip.h"
-#include "yio_print_arguments.h"
 /**
  * @defgroup yπio TMODEN yπio
  * @brief All stuff related to TMODEN / π / Ω mode.

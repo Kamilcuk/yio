@@ -5,26 +5,6 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
- *
- * Functions returning a string result take a <tt>(resultp, lengthp)</tt> argument pair.
- * @c resultp has to be not NULL. If @c *resultp is not NULL and @c lengthp is
- * not NULL and the result fits into @c *lengthp units, then the result is stored
- * into @c *resultp. If @c *resultp is NULL, then the result is dynamically
- * allocated and stored into @c *resultp. In any case, if @c lengthp is not NULL,
- * then length of the string is stored in @c *lengthp.
- * The caller is expected to check if @c *resultp equal to the original buffer. If it
- * does, no action has to be taken. If it does not, that means that the result was
- * dynamically allocated and has to be @c freed.
- * In case of error, the content of @c *resultp and @c *lengthp are indeterminate.
- * Typical usage example:
- *
- *     char buf[200];
- *     char *result = buf; size_t length = sizeof(buf);
- *     err = some_function(, ..., &result, &length);
- *     _yIO_res_free_result(buf, result);
- *
- * The API here is written in a "self-cleaning" fashion - if any of the functions
- * return with error, then there is no need for cleanup, it is called automatically.
  */
 #ifndef _yIO_YIO_PRIVATE_YIO_RES_H_
 #define _yIO_YIO_PRIVATE_YIO_RES_H_
@@ -108,14 +88,6 @@ int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...
  * @return Did we remove the dot too?
  */
 bool _yIO_res_remove_trailing_zeros_and_comma(_yIO_res *t);
-
-/// Free the result returned by _yIO_res
-static inline _yIO_nn(2)
-void _yIO_res_free_result(char *buffer, char *resultp) {
-	if (buffer != resultp) {
-		free(resultp);
-	}
-}
 
 /// @see _yIO_begin
 static inline _yIO_wur _yIO_nn()

@@ -330,7 +330,7 @@ int _yIO_float_astrfrom_custom$1(_yIO_res *v, const int precision0, const char s
 	}
 
 	SUCCESS:
-	return 0;
+	return err;
 }
 
 #undef TYPE

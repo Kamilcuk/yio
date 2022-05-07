@@ -79,6 +79,7 @@
       "name": "lint",
       "inherits": "default",
       "cacheVariables": {
+				"YIO_MLVLS": "20",
         "_yIO_HAS_FLOATf32": "0",
         "_yIO_HAS_FLOATf32x": "0",
         "_yIO_HAS_FLOATf64": "0",
@@ -87,8 +88,8 @@
         "_yIO_HAS_FLOATd64": "0",
         "_yIO_HAS_FLOATd128": "0",
         "_yIO_HAS_FLOATf128": "0",
-        "YIO_CPPLINT": "1",
-        "YIO_CLANG_TIDY": "1"
+        "YIO_CPPLINT": "0",
+        "YIO_CLANG_TIDY": "0"
       }
     }
   ],

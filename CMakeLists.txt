@@ -58,32 +58,12 @@ if(YIO_DEV)
 
 	set_from_env(YIO_CPPLINT)
 	if(YIO_CPPLINT)
-		set(_filter
-			whitespace           # Yes, I use tabs.
-			legal/copyright
-			runtime/int
-			build/include_subdir
-			readability/casting  # This is C not C++.
-			build/include_order  # Too much preprocssor stuff.
-			readability/todo     # I'm programming alone.
-			build/include        # This is hevily templated system, sometimes files don't include.
-			readability/nolint   # I use clang-tidy too, don't complain.
-			build/c++11          # This is C not C++.
-		)
-		string(REGEX REPLACE ";" ",-" _filter "${_filter}")
-		set(CMAKE_C_CPPLINT "cpplint" "--filter=-${_filter}")
-		unset(_filter)
+		find_program(CMAKE_C_CPPLING cpplint)
 	endif()
 
 	set_from_env(YIO_CLANG_TIDY)
 	if(YIO_CLANG_TIDY)
-		set(_filter
-			clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
-			clang-analyzer-valist.Uninitialized  # clang-tidy bug, can't return pointer to va_list from a function.
-		)
-		string(REGEX REPLACE ";" ",-" _filter "${_filter}")
-		set(CMAKE_C_CLANG_TIDY "clang-tidy" "-checks=-${_filter}")
-		unset(_filter)
+		find_program(CMAKE_C_CLANG_TIDY clang-tidy)
 	endif()
 
 	# Create symlink from gen to GENDIR for development purpouses
@@ -181,10 +161,9 @@ if(YIO_DEV)
 		CCACHE_COMMAND
 		UNISTRING_LIB
 		CPPLINT_COMMAND
-		DIRECTORY
-		COMPILE_OPTIONS
-		COMPILE_DEFINITIONS
-		LINK_OPTIONS
+		DIRECTORY:COMPILE_OPTIONS
+		DIRECTORY:COMPILE_DEFINITIONS
+		DIRECTORY:LINK_OPTIONS
 	)
 	if(0)
 		yio_debug_variables(
