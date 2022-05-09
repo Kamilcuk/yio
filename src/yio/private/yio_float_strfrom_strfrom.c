@@ -47,7 +47,7 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision, 
 	}
 	*fmtpnt++ = spec;
 	*fmtpnt++ = '\0';
-	assert(fmtpnt <= fmt + fmt_size);
+	assert(fmtpnt <= &fmt[fmt_size]);
 }
 
 {% call j_FOREACHAPPLY(j_FLOATS) %}
@@ -68,7 +68,6 @@ int _yIO_float_astrfrom_strfrom$1(_yIO_res *v, int precision, char spec, _yIO_FL
 	char fmt[FMT_SIZE];
 	_yIO_float_astrfrom_strfrom_create_format_string(fmt, precision, spec);
 	// get length
-	int err = 0;
 	assert(_yIO_res_size(v) < INT_MAX);
 	const int len = strfrom$1(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 	if (len <= 0) {
@@ -78,7 +77,7 @@ int _yIO_float_astrfrom_strfrom$1(_yIO_res *v, int precision, char spec, _yIO_FL
 	if ((size_t)len < _yIO_res_size(v)) {
 		_yIO_res_set_used(v, len);
 	} else {
-		err = _yIO_res_resize2(v, len + 1, len);
+		const int err = _yIO_res_resize2(v, len + 1, len);
 		if (err) return err;
 		const int len2 = strfrom$1(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 		(void)len2;

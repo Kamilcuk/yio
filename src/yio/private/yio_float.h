@@ -66,7 +66,7 @@
 #endif
 #if _yIO_HAS_FLOAT$1
 
-_yIO_FLOAT$1 frexp$2(_yIO_FLOAT$1, int *);
+_yIO_FLOAT$1 frexp$2(_yIO_FLOAT$1 x, int *exp);
 
 /**
  * @define _yIO_frexp2$1
@@ -74,7 +74,7 @@ _yIO_FLOAT$1 frexp$2(_yIO_FLOAT$1, int *);
  */
 {% if varargs.3 is defined %}
 #line
-_yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1, int *);
+_yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1 x, int *exp);
 {% else %}
 #line
 #define _yIO_frexp2$1  frexp$2
@@ -90,21 +90,21 @@ _yIO_FLOAT$1 _yIO_frexp2$1(_yIO_FLOAT$1, int *);
 #define _yIO_frexp10$1  frexp$2
 {% else %}
 #line
-_yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1, int *);
+_yIO_FLOAT$1 _yIO_frexp10$1(_yIO_FLOAT$1 x, int *exp);
 {% endif %}
 #line
 
-_yIO_FLOAT$1 floor$2(_yIO_FLOAT$1);
+_yIO_FLOAT$1 floor$2(_yIO_FLOAT$1 x);
 #define _yIO_floor$1   floor$2
-_yIO_FLOAT$1 exp2$2(_yIO_FLOAT$1);
+_yIO_FLOAT$1 exp2$2(_yIO_FLOAT$1 x);
 #define _yIO_exp2$1    exp2$2
-_yIO_FLOAT$1 log10$2(_yIO_FLOAT$1);
+_yIO_FLOAT$1 log10$2(_yIO_FLOAT$1 x);
 #define _yIO_log10$1   log10$2
-_yIO_FLOAT$1 fabs$2(_yIO_FLOAT$1);
+_yIO_FLOAT$1 fabs$2(_yIO_FLOAT$1 x);
 #define _yIO_fabs$1    fabs$2
-_yIO_FLOAT$1 pow$2(_yIO_FLOAT$1, _yIO_FLOAT$1);
+_yIO_FLOAT$1 pow$2(_yIO_FLOAT$1 x, _yIO_FLOAT$1 y);
 #define _yIO_pow$1     pow$2
-_yIO_FLOAT$1 nextafter$2(_yIO_FLOAT$1, _yIO_FLOAT$1);
+_yIO_FLOAT$1 nextafter$2(_yIO_FLOAT$1 x, _yIO_FLOAT$1 y);
 #define _yIO_nextafter$1  nextafter$2
 
 #ifndef _yIO_FLOAT_C$1
@@ -112,7 +112,7 @@ _yIO_FLOAT$1 nextafter$2(_yIO_FLOAT$1, _yIO_FLOAT$1);
 #endif
 
 #if _yIO_HAS_exp10$1
-_yIO_FLOAT$1 exp10$2(_yIO_FLOAT$1);
+_yIO_FLOAT$1 exp10$2(_yIO_FLOAT$1 x);
 #define _yIO_exp10$1  exp10$2
 #else
 static inline

@@ -133,7 +133,7 @@ class MFSLoader(jinja2.FileSystemLoader):
 
 def shoulddoline(source):
     global DEBUG
-    return DEBUG and not re.match("NOLINE", source)
+    return (DEBUG and not re.match("NOLINE", source))
 
 
 class SuperPreprocess(jinja2.ext.Extension):
@@ -299,7 +299,7 @@ def prepare_environment(args):
     )
     defglobals = {
         "j_MLVLS": 5,
-        "j_SLOTS_END": 105,
+        "j_SLOTS": 5,
         "j_FLOATS": j_FLOATS,
         "j_range": j_range,
         "j_match": j_match,

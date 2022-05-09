@@ -73,13 +73,10 @@ else()
 	yio_config_gen_add_value(_yIO_HAS_MONETARY_H 0)
 endif()
 
-
-yio_config_gen_check_type_exists(__int128 _yIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
 yio_config_gen_check_symbol_exists(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)
 
 yio_config_gen_check_type_exists("struct timespec" _yIO_HAS_timespec LANGUAGE C)
 yio_config_gen_check_type_exists("struct timeval" _yIO_HAS_timeval LANGUAGE C)
-yio_config_gen_check_symbol_exists(localtime_r "time.h" _yIO_HAS_localtime_r LANGUAGE C)
 
 yio_config_gen_check_symbol_exists(strnlen "string.h" _yIO_HAS_strnlen LANGUAGE C)
 

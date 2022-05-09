@@ -6,7 +6,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#include <yio_test.h>
 #include <yπio.h>
+#include <assert.h>
 int main() {
 	struct tm t = {
 		.tm_year = 112,
@@ -16,14 +18,17 @@ int main() {
 		.tm_min  = 10,
 		.tm_sec  = 20,
 	};
-	yπprintf(TC("{:%Y-%m-%d %H:%M:%S}\n"), t);
+	int err = 0;
+	err |= yπprintf(TC("{:%Y-%m-%d %H:%M:%S}\n"), t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	yπprintf(TC("{:%D}\n"), t);
+	err |= yπprintf(TC("{:%D}\n"), t);
 // PASS_REGULAR_EXPRESSION 10/09/12
-	yπprintf(TC("{:%F %T}\n"), t);
+	err |= yπprintf(TC("{:%F %T}\n"), t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	yπprintf(TC({{"\"{:A%%B{{C}}D}\\n\""}}), t);
-// PASS_REGULAR_EXPRESSION A%B{C}D
-	yπprintf(TC("{:%y %w %u}\n"), t);
+// FUN FACT: this file is templated with jinja, so {_{ are parsed by jinja.
+	err |= yπprintf(TC("{:A%%B{""{C}""}""}D\n"), t);
+// PASS_REGULAR_EXPRESSION A%B{[{]C}D
+	err |= yπprintf(TC("{:%y %w %u}\n"), t);
 // PASS_REGULAR_EXPRESSION 12 0 7
+	_yIO_TEST(err > 0);
 }

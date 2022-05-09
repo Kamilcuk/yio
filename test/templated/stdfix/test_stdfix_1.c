@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include <yπio.h>
+#include <yio_test.h>
 
 {% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
 #line
@@ -14,21 +14,12 @@
 int main() {
 	{% call j_FOREACHAPPLY(j_STDFIX) %}
 #line
-#ifdef _yIO_HAS_$1
+#ifdef _yIO_STDFIX_$3
 	{
 		const $2 a = 0.123456789;
-		yπprintf(TC("{:25}: {} {:x} {} {:a}\n"), "$2", (float)a, a, a, a);
+		YΩIO_TEST("[^:]+: [^ ]+ [0-9a-f]+ 0\\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*",
+				"{:25}: {} {:x} {} {:a}", "$2", (float)a, a, a, a);
 	}
 #endif
 	{% endcall %}
 }
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*
-// PASS_REGULAR_EXPRESSION [^:]+: [^ ]+ [0-9a-f]+ 0\.[0-9][0-9][0-9][0-9][0-9][0-9] 0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*

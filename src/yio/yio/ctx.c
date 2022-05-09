@@ -82,69 +82,81 @@ int _yΩIO_digit_to_number(TCHAR d) {
 #endif
 }
 
-int _yΩIO_printctx_strtoi_noerr(const TCHAR **ptr) {
-	const TCHAR *pnt = *ptr;
-	assert(TISDIGIT(pnt[0]));
+int _yΩIO_printctx_strtoi_noerr(const TCHAR **fmtpnt) {
+	const TCHAR *fmt = *fmtpnt;
+	assert(TISDIGIT(fmt[0]));
 	int num = 0;
 	do {
 		assert(num < INT_MAX / 10);
 		num *= 10;
-		const int c = _yΩIO_digit_to_number(pnt[0]);
+		const int c = _yΩIO_digit_to_number(fmt[0]);
 		assert(num < INT_MAX - c);
 		num += c;
-		++pnt;
-	} while (TISDIGIT(pnt[0]));
-	*ptr = pnt;
+		++fmt;
+	} while (TISDIGIT(fmt[0]));
+	*fmtpnt = fmt;
 	return num;
 }
 
-int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
-		const TCHAR *ptr, const TCHAR **endptr, int *res) {
-	int num = -1;
-	int ret = 0;
-	if (ptr[0] == TC('{')) {
-		ptr++;
-		if (TISDIGIT(ptr[0])) {
-			_yΩIO_skip_arm(t, _yΩIO_printctx_strtoi_noerr(&ptr));
-			const int skiperr = _yΩIO_skip_do(t);
-			if (skiperr) return skiperr;
-		}
-		if (t->ifunc == NULL) {
-			return _yIO_ERROR(YIO_ERROR_POSITIONAL_NO_ARGS, "no arguments for positional width or precision");
-		}
-		const yπio_printdata_t ifunc = *t->ifunc++;
-		if (ifunc == &_yΩIO_print_short)       num = yπio_printctx_va_arg_promote(t, short);
-		else if (ifunc == &_yΩIO_print_ushort) num = yπio_printctx_va_arg_promote(t, unsigned short);
-		else if (ifunc == &_yΩIO_print_int)    num = yπio_printctx_va_arg(t, int);
-		else if (ifunc == &_yΩIO_print_uint)   num = yπio_printctx_va_arg(t, unsigned int);
-		else if (ifunc == &_yΩIO_print_long)   num = yπio_printctx_va_arg(t, long);
-		else if (ifunc == &_yΩIO_print_ulong)  num = yπio_printctx_va_arg(t, unsigned long);
-		else if (ifunc == &_yΩIO_print_llong)  num = yπio_printctx_va_arg(t, long long);
-		else if (ifunc == &_yΩIO_print_ullong) num = yπio_printctx_va_arg(t, unsigned long long);
-		else return _yIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number");
-		if (ptr++[0] != TC('}')) {
-			ret = _yIO_ERROR(YIO_ERROR_POSITIONAL_MISSING_RIGHT_BRACE, "missing '}' when parsing positional width or precision specifier");
-			goto EXIT;
-		}
-	} else if (TISDIGIT(ptr[0])) {
-		num = _yΩIO_printctx_strtoi_noerr(&ptr);
+static inline
+int _yΩIO_printctx_take_positional_param(yπio_printctx_t *t, const TCHAR *fmt, const TCHAR **endptr, int *res) {
+	assert(fmt[0] == TC('{'));
+	fmt++;
+	if (TISDIGIT(fmt[0])) {
+		_yΩIO_skip_arm(t, _yΩIO_printctx_strtoi_noerr(&fmt));
+		const int skiperr = _yΩIO_skip_do(t);
+		if (skiperr) return skiperr;
 	}
-	EXIT:
-	*endptr = ptr;
+	if (t->ifunc == NULL) {
+		return _yIO_ERROR(YIO_ERROR_POSITIONAL_NO_ARGS, "no arguments for positional width or precision");
+	}
+	int num;
+	const yπio_printdata_t ifunc = *t->ifunc++;
+	// TODO: conversions
+	if (ifunc == &_yΩIO_print_short)       num = yπio_printctx_va_arg_promote(t, short);
+	else if (ifunc == &_yΩIO_print_ushort) num = yπio_printctx_va_arg_promote(t, unsigned short);
+	else if (ifunc == &_yΩIO_print_int)    num = yπio_printctx_va_arg(t, int);
+	else if (ifunc == &_yΩIO_print_uint)   num = yπio_printctx_va_arg(t, unsigned int);
+	else if (ifunc == &_yΩIO_print_long)   num = yπio_printctx_va_arg(t, long);
+	else if (ifunc == &_yΩIO_print_ulong)  num = yπio_printctx_va_arg(t, unsigned long);
+	else if (ifunc == &_yΩIO_print_llong)  num = yπio_printctx_va_arg(t, long long);
+	else if (ifunc == &_yΩIO_print_ullong) num = yπio_printctx_va_arg(t, unsigned long long);
+	else return _yIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number");
+	if (fmt++[0] != TC('}')) {
+		return _yIO_ERROR(YIO_ERROR_POSITIONAL_MISSING_RIGHT_BRACE, "missing '}' when parsing positional width or precision specifier");
+	}
+	if (num < 0) {
+		return _yIO_ERROR(YIO_ERROR_POSITIONAL_NEGATIVE, "positional width or precision specifier cannot be negative");
+	}
+	*endptr = fmt;
 	*res = num;
-	return ret;
+	return 0;
+}
+
+int _yΩIO_printctx_stdintparam(yπio_printctx_t *t, const TCHAR *fmt, const TCHAR **endptr, int *res) {
+	if (fmt[0] == TC('{')) {
+		const int ret = _yΩIO_printctx_take_positional_param(t, fmt, endptr, res);
+		if (ret) return ret;
+	} else if (TISDIGIT(fmt[0])) {
+		*res = _yΩIO_printctx_strtoi_noerr(&fmt);
+		*endptr = fmt;
+	} else {
+		// do nothing
+		*endptr = fmt;
+	}
+	return 0;
 }
 
 bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c) {
 	return c != TC('\0') && TSTRCHR(s, c) != NULL;
 }
 
-int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
+int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
 		const TCHAR *fmt, const TCHAR **endptr) {
 	/*
 	https://fmt.dev/latest/syntax.html#format-specification-mini-language
-	format_spec     ::=  [[fill]align][sign][#][0][width][grouping_option][.precision][type]
-	fill            ::=  <any character>
+	format_spec     ::=  [[fill]align][sign][#][0][width][grouping_option][.precision]["L"][type]
+	fill            ::=  <any character except { or }>
 	align           ::=  "<" | ">" | "=" | "^"
 	sign            ::=  "+" | "-" | " "
 	width           ::=  digit+
@@ -152,74 +164,90 @@ int _yΩIO_pfmt_parse(struct _yΩIO_printctx_s *c, struct yπio_printfmt_s *pf,
 	precision       ::=  digit+
 	type            ::=  "b" | "c" | "d" | "e" | "E" | "f" | "F" | "g" | "G" | "n" | "o" | "s" | "x" | "X" | "%"
 	 */
-	int ret = 0;
 
-	if (fmt[0] == TC('}')) {
-		fmt++;
-		goto EXIT;
-	}
-	if (fmt[0] == TC('\0')) {
-		ret = _yIO_ERROR(YIO_ERROR_EOF_IN_FMT, "end of string while looking for conversion specifier");
-		goto EXIT;
-	}
+	// fill and align must be first
 	if (fmt[0] != TC('\0') && _yΩIO_strnulchrbool(TC("<>=^"), fmt[1])) {
 		pf->fill = fmt++[0];
 		pf->align = fmt++[0];
 	} else if (_yΩIO_strnulchrbool(TC("<>=^"), fmt[0])) {
 		pf->align = fmt++[0];
 	}
-	if (_yΩIO_strnulchrbool(TC("+- "), fmt[0])) {
-		pf->sign = fmt++[0];
-	}
-	if (fmt[0] == TC('#')) {
-		pf->hash = true;
-		fmt++;
-	}
-	if (fmt[0] == TC('0')) {
-		fmt++;
-		pf->fill = TC('0');
-		pf->align = TC('=');
-	}
 
-	int err = _yΩIO_printctx_stdintparam(c, fmt, &fmt, &pf->width);
-	if (err) {
-		ret = err;
-		goto EXIT;
-	}
-
-	pf->grouping = _yΩIO_strnulchrbool(TC("_,"), fmt[0]) ? fmt++[0] : 0;
-	if (fmt[0] == '.') {
-		++fmt;
-		const TCHAR *endparamptr;
-		err = _yΩIO_printctx_stdintparam(c, fmt, &endparamptr, &pf->precision);
-		if (err) {
-			ret = err;
+	int ret = 0;
+	// I am parsing in a loop, but still it is undefined behavior to specify them out-of-place.
+	while (1) {
+		const TCHAR ch = fmt++[0];
+		switch (ch) {
+		case TC('}'):
+			goto EXIT;
+		case TC('\0'):
+			ret = _yIO_ERROR(YIO_ERROR_MISSING_RIGHT_BRACE, "missing '}' when parsing common format specification");
+			goto EXIT;
+		case TC('+'):
+		case TC('-'):
+		case TC(' '):
+			pf->sign = ch;
+			break;
+		case TC('#'):
+			pf->hash = true;
+			break;
+		case TC('0'):
+			pf->fill = TC('0');
+			pf->align = TC('=');
+			break;
+		case TC('1'):
+		case TC('2'):
+		case TC('3'):
+		case TC('4'):
+		case TC('5'):
+		case TC('6'):
+		case TC('7'):
+		case TC('8'):
+		case TC('9'):
+		case TC('{'):
+			--fmt;
+			ret = _yΩIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
+			if (ret) goto EXIT;
+			break;
+		case TC('_'):
+		case TC(','):
+		case TC('L'):
+			pf->grouping = ch;
+			break;
+		case TC('.'):
+			{
+				const TCHAR *endparamptr;
+				ret = _yΩIO_printctx_stdintparam(t, fmt, &endparamptr, &pf->precision);
+				if (ret) goto EXIT;
+				// If there is a dot, there must be precision.
+				if (endparamptr == fmt) {
+					ret = _yIO_ERROR(YIO_ERROR_MISSING_PRECISION, "Format specifier missing precision");
+					goto EXIT;
+				}
+				fmt = endparamptr;
+			}
+			break;
+		case TC('c'):
+		case TC('s'):
+		case TC('d'):
+		case TC('e'): case TC('E'):
+		case TC('f'): case TC('F'):
+		case TC('a'): case TC('A'):
+		case TC('g'): case TC('G'):
+		case TC('b'): case TC('B'):
+		case TC('o'): case TC('O'):
+		case TC('x'): case TC('X'):
+		case TC('n'):
+		case TC('p'):
+			pf->type = ch;
+			break;
+		default:
+			ret = _yIO_ERROR(YIO_ERROR_FMT_UNKNOWN, "Invalid character in standard format specification");
 			goto EXIT;
 		}
-		// If there is a dot, there must be precision.
-		if (endparamptr == fmt) {
-			ret = _yIO_ERROR(YIO_ERROR_MISSING_PRECISION, "Format specifier missing precision");
-			goto EXIT;
-		}
-		fmt = endparamptr;
-	} else {
-		pf->precision = -1;
 	}
-
-	if (_yΩIO_strnulchrbool(TC("bcdeEfFaAgGnosxXp%"), fmt[0])) {
-		pf->type = fmt++[0];
-	}
-
-	if (fmt[0] == TC('\0')) {
-		ret = _yIO_ERROR(YIO_ERROR_MISSING_RIGHT_BRACE, "missing '}' when parsing common format specification");
-		goto EXIT;
-	}
-	if (fmt[0] != TC('}')) {
-		ret = _yIO_ERROR(YIO_ERROR_ERRONEUS_FORMAT, "erroneus format string");
-		goto EXIT;
-	}
-	++fmt;
-
+	// SUCCESS
+	assert(fmt[-1] == '}');
 	EXIT:
 	*endptr = fmt;
 	return ret;
@@ -390,7 +418,6 @@ int _yΩIO_printformat_suffix(_yΩIO_printformat_t *pf) {
 	yπio_printctx_t * const t = pf->t;
 	struct yπio_printfmt_s * const f = &pf->t->pf;
 	const size_t alllen = pf->alllen;
-
 	const size_t width = f->width > 0 ? f->width : 0;
 	if ((f->align == YΩIO_ALIGN_LEFT || f->align == YΩIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
@@ -405,7 +432,7 @@ int _yΩIO_printformat_suffix(_yΩIO_printformat_t *pf) {
 
 static inline
 const TCHAR *str_dot_or_end(const TCHAR str[], size_t len) {
-	for (; len-- && str[0] != TC('.'); ++str) {
+	for (; len-- && str[0] != TC('.') && str[0] != TC(','); ++str) {
 		continue;
 	}
 	return str;
@@ -418,32 +445,15 @@ static const char GROUP3[2] = "\x03";
 static const char GROUP4[2] = "\x04";
 
 static inline
-int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, TCHAR grouping,
-		const TCHAR str[], size_t str_len) {
-	int err = 0;
-	// Find end of string (integer) or comma (floating point)
-	const TCHAR *const str0 = str;
-	const TCHAR *comma_or_end = _yΩIO_str_comma_or_end(str, str_len);
-	// Calculate size of first block.
-	const size_t blocksize = 3;
-	const size_t numberscnt = comma_or_end - str;
-	const size_t firstblock = numberscnt % blocksize;
-	// _yIO_dbgln("numberscnt=%zu firstblock=%zu", numberscnt, firstblock);
-
-	// Print nn_nnn_nnn_nnn_nnn_nnn[.nnnnnnnn]
-	if (firstblock) {
-		// print the first non divisible by blocksize
-		err = yπio_printctx_raw_write(t, str, firstblock);
-		str += firstblock;
-		if (err) return err;
-		// if there are more numbers to write, write the grouping character
-		if (str != comma_or_end) {
-			err = yπio_printctx_raw_write(t, &grouping, 1);
-			if (err) return err;
-		}
+const char *get_group(yπio_printctx_t *t) {
+#if YIO_USE_LOCALE && defined(GROUPING)
+	if (t->pf.grouping == TC('L')) {
+		const char *r = nl_langinfo(GROUPING);
+		return r != NULL && *r != '\0' ? r : NOGROUP;
 	}
 #endif
-	return TSTRCHR(TC("bBoO"), t->pf.conversion) != NULL ? GROUP3 : GROUP4;
+	//dbgln("HERE %c", (int)t->pf.type);
+	return _yΩIO_strnulchrbool(TC("bBxX"), t->pf.type) ? GROUP4 : GROUP3;
 }
 
 struct numsep {
@@ -488,7 +498,7 @@ static inline
 void print_numsep_end(yπio_printctx_t *t, struct numsep *ns) {
 #if TMODEX != 1
 	if (ns->sep != &t->pf.grouping && ns->sep != DEFAULT_THOUSEND_SEP) {
-		free((void *)ns->sep);
+		free((void *)ns->sep); // cppcheck-suppress cert-EXP05-C
 	}
 #endif
 }
@@ -515,14 +525,14 @@ int print_dot(yπio_printctx_t *t) {
 static inline
 int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR str[], size_t str_len) {
 	const TCHAR *num = str;
-	const TCHAR *const dotornul = str_dot_or_end(str, str_len);
-	size_t numlen = dotornul - str;
+	const TCHAR *const dotorend = str_dot_or_end(str, str_len);
+	size_t numlen = dotorend - str;
 	const char *group = get_group(t);
 	const char *gri = group;
 	unsigned groupsum = 0;
 	char c;
 	int err = 0;
-	struct numsep ns = { NULL };
+	struct numsep ns = { NULL, 0 };
 	for (; (c = *gri) != '\0' && c != CHAR_MAX; ++gri) {
 		groupsum += c;
 	}
@@ -531,7 +541,7 @@ int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR
 		if (c == '\0') {
 			// get_group guarantees that we have at least 2 bytes
 			assert(gri != group);
-			const char lastgroup = *(gri - 1);
+			const char lastgroup = gri[-1];
 			const unsigned odd = before % lastgroup;
 			if (odd) {
 				err = yπio_printctx_raw_write(t, num, odd);
@@ -565,6 +575,7 @@ int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR
 			const unsigned left = numlen - groupsum;
 			err = yπio_printctx_raw_write(t, num, left);
 			if (err) goto NUMSEP_END;
+			num += left;
 			while (groupsum) {
 				err = print_numsep(t, &ns);
 				if (err) goto NUMSEP_END;
@@ -572,22 +583,31 @@ int _yΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR
 				groupsum -= c;
 				err = yπio_printctx_raw_write(t, num, c);
 				if (err) goto NUMSEP_END;
+				num += c;
 			}
 			break;
 		}
 	}
 	assert(gri == group);
 	assert(num <= str + str_len);
+	//dbgln("%s %s", num, dotorend);
+	assert(num == dotorend);
 	print_numsep_end(t, &ns);
 	//
-	if (num != str + str_len) {
+	const size_t postdotlen = str_len - (num - str);
+	if (postdotlen) {
+		// We are at dot
+		assert(*num == TC('.') || *num == TC(','));
 		err = print_dot(t);
 		if (err) return err;
-		if (str_len > 1) {
-			err = yπio_printctx_raw_write(t, num, str_len - 1);
+		if (postdotlen > 1) {
+			// We are after dot
+			err = yπio_printctx_raw_write(t, num + 1, postdotlen - 1);
 			if (err) return err;
 		}
+		num += postdotlen;
 	}
+	assert(str + str_len == num);
 	// SUCCESS
 	return err;
 NUMSEP_END:

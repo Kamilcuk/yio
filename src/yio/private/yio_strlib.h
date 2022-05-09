@@ -84,7 +84,7 @@ void _yIO_strconv_free_##N1##str_to_##N2##str(\
 		const _yIO_##N1##char_t *src, \
 		const _yIO_##N2##char_t *dst) { \
 	assert((void*)src != dst); \
-	free((void*)dst); \
+	free((void*)dst); /* cppcheck-suppress cert-EXP05-C */ \
 } \
 /* end */
 #define _yIO_STRCONV_DECLARE_IN(N1, N2)  _yIO_STRCONV_DECLARE_IN2(N1, N2)

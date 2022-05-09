@@ -19,24 +19,6 @@
 /* ------------------------------------------------------------------------------- */
 
 static inline
-int _yΩIO_printint_to_radix(TCHAR type) {
-	switch (type) {
-	case 0:
-	case TC('d'):
-		return 10;
-	case TC('x'):
-	case TC('X'):
-		return 16;
-	case TC('o'):
-		return 8;
-	case TC('b'):
-		return 2;
-	}
-	return -1;
-}
-
-
-static inline
 const TCHAR *_yΩIO_printint_to_fmt(TCHAR type) {
 	if (type == TC('x')) {
 		return TC("0123456789abcdef");
@@ -45,16 +27,16 @@ const TCHAR *_yΩIO_printint_to_fmt(TCHAR type) {
 }
 
 {% call(V) j_FOREACHAPPLY([
-	["short", "short"],
 	["ushort", "unsigned short"],
-	["int", "int"],
+	["short", "short"],
 	["uint", "unsigned int"],
-	["long", "long"],
+	["int", "int"],
 	["ulong", "unsigned long"],
-	["llong", "long long"],
+	["long", "long"],
 	["ullong", "unsigned long long"],
-	["__int128", "__int128", "_yIO_HAS_INT128"],
+	["llong", "long long"],
 	["u__int128", "unsigned __int128", "_yIO_HAS_INT128"],
+	["__int128", "__int128", "_yIO_HAS_INT128"],
 	]) %}
 
 {% if V.2 is defined %}
@@ -66,43 +48,76 @@ const TCHAR *_yΩIO_printint_to_fmt(TCHAR type) {
 {% endif %}
 #line
 
-int _yΩIO_print_$1(yπio_printctx_t *t) {
-	$2 arg = yπio_printctx_va_arg_promote(t, $2);
-	int err = yπio_printctx_init(t);
-	if (err) return err;
-	const TCHAR type = yπio_printctx_get_fmt(t)->type;
-	const $2 radix = _yΩIO_printint_to_radix(type);
-	if (radix == ($2)-1) {
-		return YIO_ERROR_UNKNOWN_FMT;
-	}
-	const TCHAR *format = _yΩIO_printint_to_fmt(type);
-	const bool negative =
-	{# If $2 is unsigned, it can't be negative So remove the check, so that -Wtype-limits doesn't throw #}
-	{% if j_match(V.1, "unsigned") %}
-#line
-			false;
-	{% else %}
-#line
-			arg < 0;
-	{% endif %}
+{% if j_match(V.1, "unsigned") %}
 #line
 
-	TCHAR res[sizeof($2) * CHAR_BIT + 1] = {0};
-	TCHAR *const res_end = res + sizeof(res)/sizeof(*res);
-	TCHAR *num = res_end;
-	const $2 tmp = arg % radix;
-	(--num)[0] = format[negative ? -tmp : tmp];
-	if (arg /= radix) {
-		if (negative) {
-			arg = -arg;
-		}
-		do {
-			(--num)[0] = format[arg % radix];
-		} while (arg /= radix);
-	}
-	const size_t length = res_end - num;
-	return yπio_printctx_putπ_number(t, num, length, !negative);
+static inline
+int _yΩIO_print_$1_inradix(yπio_printctx_t *t, $2 arg, bool is_negative,
+		TCHAR type, $2 radix, TCHAR *res, size_t ressize) {
+	const TCHAR *fmt = _yΩIO_printint_to_fmt(type);
+	TCHAR *const resend = res + (ressize / sizeof(*res));
+	TCHAR *num = resend;
+	do {
+		(--num)[0] = fmt[arg % radix];
+	} while (arg /= radix);
+	assert(res <= num);
+	const size_t length = resend - num;
+	return yπio_printctx_putπ_number(t, num, length, !is_negative);
 }
+
+static inline
+int _yΩIO_print_$1_in(yπio_printctx_t *t, $2 arg, bool is_negative) {
+	const TCHAR type = yπio_printctx_get_fmt(t)->type;
+	switch (type) {
+		case TC('\0'):
+		case TC('d'):
+			{
+				TCHAR buf[_yIO_LOG10_POW2(sizeof($2) * CHAR_BIT)];
+				return _yΩIO_print_$1_inradix(t, arg, is_negative, type, 10, buf, sizeof(buf));
+			}
+		case TC('o'):
+		case TC('O'):
+			{
+				TCHAR buf[(sizeof($2) * CHAR_BIT) / 3 + !!((sizeof($2) * CHAR_BIT) % 3)];
+				return _yΩIO_print_$1_inradix(t, arg, is_negative, type, 8, buf, sizeof(buf));
+			}
+		case TC('x'):
+		case TC('X'):
+			{
+				TCHAR buf[(sizeof($2) * CHAR_BIT) / 4 + !!((sizeof($2) * CHAR_BIT) % 4)];
+				return _yΩIO_print_$1_inradix(t, arg, is_negative, type, 16, buf, sizeof(buf));
+			}
+		case TC('b'):
+		case TC('B'):
+			{
+				TCHAR buf[sizeof($2) * CHAR_BIT];
+				return _yΩIO_print_$1_inradix(t, arg, is_negative, type, 2, buf, sizeof(buf));
+			}
+		default:
+			return YIO_ERROR_UNKNOWN_FMT;
+	}
+}
+
+int _yΩIO_print_$1(yπio_printctx_t *t) {
+	const $2 arg = yπio_printctx_va_arg_promote(t, $2);
+	const int err = yπio_printctx_init(t);
+	if (err) return err;
+	return _yΩIO_print_$1_in(t, arg, false);
+}
+
+{% else %}
+#line
+
+int _yΩIO_print_$1(yπio_printctx_t *t) {
+	const $2 arg = yπio_printctx_va_arg_promote(t, $2);
+	const int err = yπio_printctx_init(t);
+	if (err) return err;
+	const bool is_negative = arg < 0;
+	const unsigned $2 uarg = is_negative ? -((unsigned $2)arg) : (unsigned $2)arg;
+	return _yΩIO_print_u$1_in(t, uarg, is_negative);
+}
+
+{% endif %}
 
 {% if V.2 is defined %}
 #endif // $3

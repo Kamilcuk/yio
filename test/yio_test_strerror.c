@@ -10,8 +10,6 @@ int main() {
 	int err;
 	err = yprintf("{} {}", 1);
 	yprintf("{}\n", yio_strerror(err));
-	err = yprintf("{a}", 1);
-	yprintf("{}\n", yio_strerror(err));
 	yprintf("{}\n", yio_strerror(-616278361));
 	yprintf("{}\n", yio_strerror(-1));
 	yprintf("{}\n", yio_strerror(_yIO_ERROR_START));
@@ -20,7 +18,6 @@ int main() {
 	yprintf("{}\n", yio_strerror(INT_MAX));
 }
 // PASS_REGULAR_EXPRESSION 1 Too many .*
-// PASS_REGULAR_EXPRESSION Function not implemented
 // PASS_REGULAR_EXPRESSION unknown error
 // PASS_REGULAR_EXPRESSION unknown error
 // PASS_REGULAR_EXPRESSION unknown error

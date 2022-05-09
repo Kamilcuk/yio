@@ -42,26 +42,28 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 
 static inline _yIO_access_r(2, 3)
 int _yΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
-#if TMODEX == 1
+#if TMODE == 1
 	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
-#elif TMODEX == 2 || TMODEX == 3
+#elif TMODE == 2 || TMODE == 3 || TMODE == 4
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	while (size--) {
 		char s[SUPER_MB_LEN_MAX];
 		const size_t wr =
 #if TMODE == 2
-			wcrtomb
+			wcrtomb(s, *ptr, &ps)
 #elif TMODE == 3
-			c16rtomb
+			c16rtomb(s, *ptr, &ps)
 #elif TMODE == 4
-			c32rtomb
+			c32rtomb(s, *ptr, &ps)
 #else
 #error
 #endif
-			(s, *ptr, &ps);
+		;
 		ptr++;
-		if (wr == (size_t)-1) return YIO_ERROR_WCTOMB;
+		if (wr == (size_t)-1) {
+			return (TMODE == 2) ? YIO_ERROR_WCTOMB : (TMODE == 3) ? YIO_ERROR_C16TOMB : YIO_ERROR_C32TOMB;
+		}
 		const int r = _yΩIO_yπvdprintf_cb_in(arg, s, wr);
 		if (r < 0) return r;
 	}

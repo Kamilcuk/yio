@@ -6,7 +6,7 @@ A bigger number will generate longer and bigger include files.
 ]=])
 set(YIO_MLVLS 62 CACHE STRING "${YIO_MLVLS_COMMENT}")
 
-set(YIO_SLOTS_END_COMMENT [=[
+set(YIO_SLOTS_COMMENT [=[
 The upper count of slots available for custom overloads.
 The slots for custom overloads named YIO_PRINT_SLOT_1XX
 available for custom overloads of the _Generic print function chooser.
@@ -14,11 +14,10 @@ This number should be greater then 100 and is the ending number at which
 the supported slots end. A bigger number is actually fine, it's not that
 much to process.
 ]=])
-set(YIO_SLOTS_END 120 CACHE STRING "${YIO_SLOTS_END_COMMENT}")
-if(YIO_SLOTS_END LESS 100)
-	message(FATAL_ERROR "YIO_SLOTS_END less then 100, needs to be greater")
+set(YIO_SLOTS 10 CACHE STRING "${YIO_SLOTS_COMMENT}")
+if(YIO_SLOTS LESS 0)
+	message(FATAL_ERROR "YIO_SLOTS less then 0, needs to be positive")
 endif()
-
 
 set(YIO_PRINT_FLOATS_WITH_COMMENT [=[
 Choose the floating point printing function. By default strfrom{f,d,l} are
@@ -60,3 +59,8 @@ Enable usage of 'L' specifier and use nl_langinfo for decimal separtors.
 set(YIO_USE_LOCALE 1 CACHE BOOL "${YIO_USE_LOCALE_COMMENT}")
 yio_config_gen_add(YIO_USE_LOCALE)
 
+set(YIO_LINE_COMMENT [=[
+Add #line to generated output files to properly pinpoint the problem in source files.
+Used mostly in development.
+]=])
+set(YIO_LINE 0 CACHE BOOL "${YIO_LINE_COMMENT}")

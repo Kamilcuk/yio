@@ -97,7 +97,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 			if (t->fmt[0] != TC('a')) {
 				return YIO_ERROR_UNKNOWN_CONVERSION;
 			}
-			t->pf.conversion = t->fmt[0];
+			t->pf.c_onversion = t->fmt[0];
 			t->fmt++;
 		}
 		if (t->fmt[0] == TC(':')) {

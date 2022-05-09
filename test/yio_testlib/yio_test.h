@@ -28,6 +28,8 @@
 #include <errno.h>
 #include <stdlib.h>
 
+#include <re.h> // tiny-regex-c
+
 #ifndef _yIO_VERBOSE
 #define _yIO_VERBOSE 0
 #endif
@@ -122,17 +124,50 @@ bool _yIO_test_is_in_valgrind(void);
 #define STRING(a)   #a
 #define XSTRING(a)  STRING(a)
 
-#define YIO_TEST(shouldbe, fmt, ...)  \
-	do { \
-		char buf[1024]; \
-		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
-		if (err > 0 || strcmp(shouldbe, buf) != 0) { \
-			_yIO_TEST(err > 0, "fmt=`%s` err=%d`%s` errno=%d", fmt, err, yio_strerror(err), errno); \
-			_yIO_TEST(strcmp(shouldbe, buf) == 0, "shouldbe=\n\t`%s` buf=\n\t`%s`", shouldbe, buf); \
-		} else { \
-			printf("GOOD: %d: `%s`\n", __LINE__, buf); \
+#define in_YIO_TEST(shouldbe, fmt, buf, err)  do { \
+		_yIO_TEST(err > 0, "fmt=`%s` err=%d`%s` errno=%d", fmt, err, yio_strerror(err), errno); \
+		int matchlen; \
+		_yIO_TEST(re_match("^" shouldbe "$", buf, &matchlen) == 0, "shouldbe=\n\t`%s` buf=\n\t`%s`", shouldbe, buf); \
+		if (err > 0 && re_match("^" shouldbe "$", buf, &matchlen) == 0) { \
+			fprintf(stderr, "GOOD:%d:`%s`%s`\n", __LINE__, shouldbe, buf); \
 		} \
+	} while (0)
+
+#define YIO_TEST(shouldbe, fmt, ...)  do { \
+		char buf[1024]; \
+		in_YIO_TEST(shouldbe, fmt, buf, ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__)); \
 	} while(0)
+
+
+#if _yIO_HAS_WCHAR_H
+#define YWIO_TEST(shouldbe, fmt, ...)  do { \
+		wchar_t buf[1024]; \
+		const int err = ywsprintf(buf, sizeof(buf), L##fmt, ## __VA_ARGS__); \
+		char bufc[1024]; \
+		wcstombs(bufc, buf, sizeof(bufc)); \
+		in_YIO_TEST(shouldbe, fmt, bufc, err); \
+	} while(0)
+#endif
+
+#if _yIO_HAS_UNISTRING
+#define YC16IO_TEST(shouldbe, fmt, ...)  do { \
+		char16_t buf[1024]; \
+		const int err = yc16sprintf(buf, sizeof(buf), u##fmt, ## __VA_ARGS__); \
+		char bufc[1024]; \
+		size_t lengthp = sizeof(bufc); \
+		u16_to_u8(buf, u16_strlen(buf) + 1, (uint8_t*)bufc, &lengthp); \
+		in_YIO_TEST(shouldbe, fmt, bufc, err); \
+	} while(0)
+
+#define YUIO_TEST(shouldbe, fmt, ...)  do { \
+		char32_t buf[1024]; \
+		const int err = yusprintf(buf, sizeof(buf), U##fmt, ## __VA_ARGS__); \
+		char bufc[1024]; \
+		size_t lengthp = sizeof(bufc); \
+		u32_to_u8(buf, u32_strlen(buf) + 1, (uint8_t*)bufc, &lengthp); \
+		in_YIO_TEST(shouldbe, fmt, bufc, err); \
+	} while(0)
+#endif
 
 #define YIO_TEST_FAIL(fmt, ...)  \
 	do { \

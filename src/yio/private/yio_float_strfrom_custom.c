@@ -103,21 +103,18 @@ static inline
 int get_next_digit$1(_yIO_res *v, TYPE *val,
 		bool dec, const char *to_digit_str, bool is_last) {
 	*val = dec ? (*val * FC(10.0)) : (*val * FC(16.0));
-
 	const int digit = *val;
-
 	const int baseint = dec ? 10 : 16;
-	ASSERTMSG(0 <= digit && digit < baseint,
-			"digit=%d dec=%d is_last=%d val=%a\n",
-			digit, dec, is_last, (float)*val
-	);
-	if (!(0 <= digit && digit <= baseint)) {
+	if (!(0 <= digit && digit < baseint)) {
+		ASSERTMSG(0 <= digit && digit < baseint,
+				"digit=%d dec=%d is_last=%d val=%a\n",
+				digit, dec, is_last, (float)*val
+		);
 		return YIO_ERROR_ENOSYS;
 	}
-
 	const char c = to_digit_str[digit];
 	const int err = _yIO_res_putc(v, c);
-	if (err) return err;
+	if (err != 0) return err;
 	if (!is_last) {
 		*val -= digit;
 	}

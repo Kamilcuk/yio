@@ -33,17 +33,19 @@
  *
  */
 
-{% call j_FOREACHAPPLY(j_range(100, j_SLOTS_END)) %}
+{% if j_SLOTS|int %}{% call j_FOREACHAPPLY(j_range(100, 100 + j_SLOTS|int)) %}
 #ifndef YΩIO_PRINT_SLOT_$1
 #define YΩIO_PRINT_SLOT_$1
 #endif
-{% endcall %}
+{% endcall %}{% endif %}
 
 
 /**
  * Expanded all slots macros.
  */
-#define _yΩIO_PRINT_FUNC_GENERIC_SLOTS() \
-		{% call j_FOREACHAPPLY(j_range(100, j_SLOTS_END)) %}
-		YΩIO_PRINT_SLOT_$1
-		{% endcall %}
+#define _yΩIO_PRINT_FUNC_GENERIC_SLOTS()  \
+		{% if j_SLOTS|int %}{% call j_FOREACHAPPLY(j_range(100, 100 + j_SLOTS|int)) %}
+		YΩIO_PRINT_SLOT_$1  \
+		{% endcall %}{% endif %}
+		/* */
+

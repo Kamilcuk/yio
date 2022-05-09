@@ -96,25 +96,36 @@ endforeach()
 ######################################################################################
 
 if(UNIX)
+	include(k/k_add_test)
 	# test if there are any absolute includes in the source tree
-	add_test(NAME find_absolute_includes
-		COMMAND sh ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/absolute_includes_find.sh ${GENDIR}
+	k_add_test(
+		NAME find_absolute_includes
+		COMMAND sh -c "$@ $<SEMICOLON> test $? -eq 1" _
+			grep -R "^[[:blank:]]*#[[:blank:]]*include[[:blank:]]*<y" "${GENDIR}"
+		LABELS nomemcheck
 	)
-	set_property(TEST find_absolute_includes APPEND PROPERTY LABELS nomemcheck)
 
 	# Test if {{}} are properly cast to int inside #if
-	add_test(
+	k_add_test(
 		NAME no_jinja2_error_inside_if
-		COMMAND grep -ER "#.*if.*(False|True)" "${GENDIR}"
+		COMMAND sh -c "$@ $<SEMICOLON> test $? -eq 1" _
+			grep -ER "#.*if.*(False|True)" "${GENDIR}"
+		LABELS nomemcheck
 	)
-	set_property(TEST no_jinja2_error_inside_if APPEND PROPERTY LABELS nomemcheck)
-	set_tests_properties(no_jinja2_error_inside_if PROPERTIES WILL_FAIL 1)
 
-	add_test(
-		NAME no_Ω_nor_π_in_generated_files
-		COMMAND grep -ER "Ω|π" "${GENDIR}"
+	k_add_test(
+		NAME no_omega_nor_pi_in_generated_files
+		COMMAND sh -c "$@ $<SEMICOLON> test $? -eq 1" _
+			grep -ER "Ω|π" "${GENDIR}"
+		LABELS nomemcheck
 	)
-	set_property(TEST no_Ω_nor_π_in_generated_files APPEND PROPERTY LABELS nomemcheck)
-	set_tests_properties(no_Ω_nor_π_in_generated_files PROPERTIES WILL_FAIL 1)
+
+	k_add_test(
+		NAME no_calls_to_dbgln
+		COMMAND sh -xc "$@ $<SEMICOLON> test $? -eq 1" _
+			grep -P -R --exclude "yio_private.h" "^\\s*(?<!//)\\s*dbgln" "${GENDIR}"
+		LABELS nomemcheck
+	)
+
 endif()
 

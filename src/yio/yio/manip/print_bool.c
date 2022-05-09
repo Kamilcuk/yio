@@ -14,7 +14,7 @@ int _yΩIO_print_bool(yπio_printctx_t *t) {
 
 	const struct yπio_printfmt_s *fmt = yπio_printctx_get_fmt(t);
 	if (fmt->type == 's') {
-		const TCHAR *arr[] = { TC("false"), TC("true") };
+		const TCHAR *const arr[] = { TC("false"), TC("true") };
 		const unsigned lengths[] = { 5, 4 };
 		return yπio_printctx_putπ(t, arr[value], lengths[value]);
 	}

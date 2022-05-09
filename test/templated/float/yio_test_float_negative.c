@@ -6,11 +6,16 @@
  */
 #include <yπio.h>
 int main() {
-	yπprintf(TC("{:f}\n"), -1.0);
-	yπprintf(TC("{:-.0f}\n"), -1.0);
-	yπprintf(TC("{: .3f}\n"), -1.0);
-	yπprintf(TC("{: .3f}\n"), 1.0);
-	yπprintf(TC("{: #.1f}\n"), -1.0);
-}
-// PASS_REGULAR_EXPRESSION -1\.[0-9]+
+	int err = 0;
+	err |= yπprintf(TC("{:f}\n"), -1.0);
+	err |= yπprintf(TC("{:-.0f}\n"), -1.0);
+	err |= yπprintf(TC("{: .3f}\n"), -1.0);
+	err |= yπprintf(TC("{: .3f}\n"), 1.0);
+	err |= yπprintf(TC("{: #.1f}\n"), -1.0);
+	return err;
+// PASS_REGULAR_EXPRESSION -1\.000000
 // PASS_REGULAR_EXPRESSION -1
+// PASS_REGULAR_EXPRESSION -1\.000
+// PASS_REGULAR_EXPRESSION [ ]1\.000
+// PASS_REGULAR_EXPRESSION -1\.0
+}

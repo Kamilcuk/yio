@@ -19,6 +19,7 @@
       },
       "cacheVariables": {
         "YIO_DEV": "1",
+        "YIO_LINE": "1",
         "YIO_BUILD_TESTING": "1",
         "BUILD_TESTING": "1",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
@@ -79,7 +80,9 @@
       "name": "lint",
       "inherits": "default",
       "cacheVariables": {
-				"YIO_MLVLS": "20",
+        "YIO_MLVLS": "20",
+        "HAS_ANALYZER": "0",
+        "YIO_LINE": "0",
         "_yIO_HAS_FLOATf32": "0",
         "_yIO_HAS_FLOATf32x": "0",
         "_yIO_HAS_FLOATf64": "0",

@@ -99,7 +99,7 @@ ifdef VALGRIND
 CTESTFLAGS += -LE nomemcheck -D ExperimentalMemCheck
 endif
 
-TESTFLAGS ?=
+TESTFLAGS ?= --output-on-failure -j $(NPROC)
 CTESTFLAGS += $(if $(value R),-j 0 -R '$(R)')
 
 ###############################################################################
@@ -110,7 +110,7 @@ all: help
 # Generic configure+build+test targets
 
 HELP +=~ configure - Configure the project
-configure:
+configure $(B)/compile_commands.json:
 	$(CMAKE) --preset=$(PRESET) -B$(B) -S. $(CMAKEFLAGS)
 
 HELP +=~ .build_% - Generic target build
@@ -131,26 +131,15 @@ HELP +=~ test - Run tests using ctest
 test: build testonly
 
 testonly:
-	ulimit -c 0 ; cd $(B) && $(CTEST) --output-on-failure -j $(NPROC) $(CTESTFLAGS) $(TESTFLAGS)
+	ulimit -c 0 ; cd $(B) && $(CTEST) $(TESTFLAGS) $(CTESTFLAGS)
 
 ###############################################################################
 
 HELP +=~ valgrind - Run tests under valgrind
 valgrind:
+	du $(B)/Testing/Temporary/MemoryChecker.*.log | grep '^[^0]' | cut -f2- | xargs -r -d '\n' rm -v --
 	$(MAKE) test VALGRIND=1
-
-HELP +=~ lint - run linters
-lint_files = jq -r '.[].file' compile_commands.json | \
-			 grep -Ev "^$(PWD)/(src|test/templated|test/reprocessed)/"
-lint:
-	$(MAKE) build_gen CMAKE_BUILD_TYPE=RelWithDebInfo PRESET=lint 2>&1 > >(tee _build/lint.txt)
-	$(lint_files) | xargs -t clang-tidy -p compile_commands.json
-
-lint2:
-	@mkdir -p _build
-	$(MAKE) build CMAKE_BUILD_TYPE=RelWithDebInfo PRESET=lint 2>&1 > >(tee _build/lint.txt)
-	grep -v '^Warning: cpplint diagnostics:\|^Done processing ' _build/lint.txt > _build/lint2.txt
-	! grep -i 'warning: \|error: ' _build/lint2.txt
+	! du $(B)/Testing/Temporary/MemoryChecker.*.log | grep '^[^0]'
 
 HELP +=~ clang
 clang:
@@ -200,64 +189,67 @@ coverage_gen:
 	gcovr --print-summary --txt - --xml ./_build/cobertura-coverage.xml --json ./coverage.json --filter "$(B)/gen" --filter "src" -r . "$(B)"
 
 ###############################################################################
+# linting
+
+LINTOPTS = CMAKE_BUILD_TYPE=Debug PRESET=lint
+
+_build/lint_compile_commands.json: ./compile_commands.json Makefile
+	jq --arg pwd "$(PWD)" --arg rgx \
+		"/(src|test|_build/.*/test)/" \
+		'[ .[] | select(.file | test("^" + $$pwd + $$rgx) | not) ]' \
+		$< > $@.tmp
+	! grep -F '"file": "$(PWD)/test/templated' $@.tmp
+	! grep -F '"file": "$(PWD)/test/reprocessed' $@.tmp
+	! grep -F '"file": "$(PWD)/src' $@.tmp
+	mv $@.tmp $@
+_build/lint_files.txt: _build/lint_compile_commands.json
+	jq -r '.[].file' $< > $@
+
+HELP +=~ lint - run linters
+HELP +=~ clang-tidy -
+HELP +=~ cpplint -
+lint: ; $(MAKE) $(LINTOPTS) .clang-tidy .cpplint
+clang-tidy cpplint: ; $(MAKE) $(LINTOPTS) .$@
+.clang-tidy: build_gen _build/lint_files.txt
+	xargs < _build/lint_files.txt -t -d '\n' clang-tidy -p $(B)
+.cpplint: build_gen _build/lint_files.txt
+	xargs < _build/lint_files.txt -t -d '\n' cpplint
+
+lint2:
+	@mkdir -p _build
+	$(MAKE) build $(LINTOPTS) 2>&1 > >(tee _build/lint.txt)
+	grep -v '^Warning: cpplint diagnostics:\|^Done processing ' _build/lint.txt > _build/lint2.txt
+	! grep -i 'warning: \|error: ' _build/lint2.txt
+
+###############################################################################
 # cppcheck
 
 HELP +=~ cppcheck Run cppcheck
-define _
-	-I{linuxincdir}/include
-	-I/usr/local/include
-	-I{linuxincdir}/include-fixed
-	-I/usr/include
-	-I{PWD}/gen
-	--suppress="*:$(PWD)/src/*"
-	--suppress="*:src/*"
-	--suppress="*:$(PWD)/test/templated/*"
-	--suppress="*:test/templated/*"
-	--suppress="*:$(PWD)/test/reprocessed/*"
-	--suppress="*:test/reprocessed/*"
-endef
-define CPPCHECK_FLAGS_INIT
-	--project=./_build/cppcheck/compile_commands.json
-	--cppcheck-build-dir=./_build/cppcheck
-
-	-U__DOXYGEN__
-	-U__CDT_PARSER__
-	-UNDEBUG
-
-	-D_yIO_PRIVATE=1
-	-D__FLT_MANT_DIG__=24
-	-D__DBL_MANT_DIG__=53
-	-D__LDBL_MANT_DIG__=64
-	-D_yIO_HAS_UNISTRING=1
-	-D__STDC_UTF_32__=1
-	-D__STDC_UTF_16__=1
-
-	--suppress=unmatchedSuppression
-	--suppress=unreadVariable
-	--suppress=unusedFunction
-	--library=posix
-	--report-progress
-	--language=c
-
-	--enable=all
-	-q
-	--clang
-	#--addon=cert
-	"--suppress=*:/usr/include/*"
-endef
-CPPCHECK_FLAGS_INIT := $(call nicecmd,CPPCHECK_FLAGS_INIT)
-#cppcheck: export linuxincdir=$(firstword $(wildcard /usr/lib/gcc/x86_64-pc-linux-gnu/*/))
 cppcheck:
-	$(MAKE) CMAKE_BUILD_TYPE=RelWithDebInfo PRESET=lint build
-	$(MAKE) .cppcheck
-.cppcheck: C =
-.cppcheck:
+	$(MAKE) $(LINTOPTS) .cppcheck
+
+_build/cppcheck/coverity-misra-standards-ds-ul.pdf:
+	mkdir -p _build/cppcheck
+	curl -o $@ "https://www.synopsys.com/content/dam/synopsys/sig-assets/datasheets/coverity-misra-standards-ds-ul.pdf"
+_build/cppcheck/misra_rules.txt: _build/cppcheck/coverity-misra-standards-ds-ul.pdf Makefile
+	pdftotext $< $@
+	sed -i \
+		-e '1,/MISRA C:2012 supported rules/d' \
+		-e '/^Rule 1\.1$$/iAppendix A Summary of guidelines' \
+		-e '/^This datasheet applies to/,$$d' \
+		$@
+	sed -zE -i \
+		-e 's/\n/ /g' \
+		-e 's/ * (Rule [0-9.]*)  */\n\n\1\n\n/g' \
+		$@
+.cppcheck: export F = --quiet
+.cppcheck: _build/cppcheck/misra_rules.txt
+	$(MAKE) build
 	mkdir -vp _build/cppcheck
-	jq --arg pwd "$(PWD)" --arg rgx \
-		"/(src|test/templated|test/reprocessed|_build/LintRelwithdebinfo/test|test|_build/LintRelwithdebinfo/gen/yio/y(w|c16|u)io)/" \
-		'[ .[] | select(.file | test("^" + $$pwd + $$rgx) | not) ]' \
-		_build/LintRelwithdebinfo/compile_commands.json > _build/cppcheck/compile_commands.json
-	$(NICE) cppcheck ${CPPCHECK_FLAGS_INIT} ${C}
+	$(MAKE) _build/lint_compile_commands.json
+	sed 's/[[:space:]]*#.*//; /^[[:space:]]*$$/d' ./cppcheck.cfg | \
+		NPROC=$(NPROC) envsubst '$$NPROC' | \
+		xargs -t -d '\n' $(NICE) cppcheck $(F)
 
 ###############################################################################
 

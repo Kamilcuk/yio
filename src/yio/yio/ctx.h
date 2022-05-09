@@ -39,8 +39,8 @@ struct yπio_printfmt_s {
 	TCHAR grouping;
 	/// The printing type character. The standard valid characters are "bcdeEfFgGnosxXp".
 	TCHAR type;
-	/// The conversion specifier.
-	TCHAR conversion;
+	/// The conversion specifier. Do not mix with type!
+	TCHAR c_onversion;
 	/// Use of alternate form.
 	bool hash;
 };
@@ -100,7 +100,7 @@ struct _yΩIO_printctx_s {
 	/// User argument for outputting functions.
 	void *outarg;
 	/// The count of characters written.
-	unsigned writtencnt;
+	unsigned int writtencnt;
 	/// Description of print formatting.
 	struct yπio_printfmt_s pf;
 	/// How many arguments to skip when outputting current argument.
@@ -114,7 +114,7 @@ struct _yΩIO_printctx_s {
  * @param t
  * @param count The positional number.
  */
-void _yΩIO_skip_arm(yπio_printctx_t *t, unsigned count);
+void _yΩIO_skip_arm(yπio_printctx_t *t, unsigned int count);
 
 /**
  * For positional arguments, skip until the proper positional argument is in va_arg.
@@ -182,7 +182,7 @@ int _yΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
 #define yπio_printctx_va_arg_promote(printctx, numtype)  \
 		_Generic(+(numtype)1, \
 			int: yπio_printctx_va_arg(printctx, int), \
-			unsigned: yπio_printctx_va_arg(printctx, unsigned), \
+			unsigned int: yπio_printctx_va_arg(printctx, unsigned int), \
 			float: yπio_printctx_va_arg(printctx, double), \
 			default: yπio_printctx_va_arg(printctx, numtype)  /* NOLINT(clang-diagnostic-varargs) */ \
 		)

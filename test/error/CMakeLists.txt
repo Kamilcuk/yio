@@ -17,3 +17,4 @@ add_test(
 	COMMAND sh -c "ninja yio_count_err && test $(cat yio_error_count.txt) -le ${MAX} || echo 'error count is not less or equal ${MAX}'"
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
+set_property(TEST err_count_less_than_${MAX} PROPERTY LABELS nomemcheck)

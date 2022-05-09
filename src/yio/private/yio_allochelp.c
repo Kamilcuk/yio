@@ -27,13 +27,14 @@ int _yIO_astrftime_nonzero(_yIO_res *res, const char *fmt, const struct tm *tm) 
 		const size_t bufsize = _yIO_res_size(res);
 		errno = 0;
 		size_t count = strftime(_yIO_res_begin(res), bufsize, fmt, tm);
-		if (count != 0) {
+		if (count != (size_t)0) {
 			_yIO_res_set_used(res, count);
 			break;
-		} else if (errno != 0) {
+		}
+		if (errno != 0) {
 			return _yIO_ERROR(YIO_ERROR_STRFTIME, "strftime returned -1 and errno is set");
 		}
-		if (bufsize > 4096) {
+		if (bufsize > 4096u) {
 			return _yIO_ERROR(YIO_ERROR_STRFTIME_TOOBIG, "strftime needed more than 4096 bytes to write");
 		}
 		int err = _yIO_res_reserve_more(res);

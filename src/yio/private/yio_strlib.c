@@ -154,14 +154,13 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 	// When first argument is NULL, then mb_len is ignored, and mbsrtowcs
 	// just scans until a terminating character. We have to loop.
 	size_t out_len = 0;
-	const char *src = mb;
-	for (size_t i = 0; i < mb_len; ++i) {
-		const size_t t = mbrtowc(NULL, src, mb_len - i, &ps);
-		if (t == (size_t)-1 || t == (size_t)-2) {
+	for (const char *src = mb, *srcend = &mb[mb_len]; src != srcend;) {
+		const size_t tt = mbrtowc(NULL, src, srcend - src, &ps);
+		if (tt == (size_t)-1 || tt == (size_t)-2) {
 			ret = YIO_ERROR_MBTOWC;
 			goto ERR_mbrtowc;
 		}
-		src += t;
+		src += tt;
 		out_len++;
 	}
 
@@ -172,13 +171,12 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 	}
 
 	memset(&ps, 0, sizeof(ps));
-	src = mb;
-	const size_t len2 = mbsrtowcs(out, &src, mb_len, &ps);
+	const size_t len2 = mbsrtowcs(out, &mb, out_len, &ps);
 	if (len2 == (size_t)-1 || len2 == (size_t)-2) {
 		ret = YIO_ERROR_MBTOWC;
 		goto ERR_mbsrtowcs;
 	}
-	/*fprintf(stderr, "%zu %zu `%ls` `%s` %zu\n", len2, out_len, out, mb, mb_len);*/
+	// dbgln("%zu %zu `%ls` `%s` %zu", len2, out_len, out, mb, mb_len);
 	assert(len2 == out_len);
 
 	*wc = out;
@@ -218,6 +216,7 @@ int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32
 #endif
 }
 {% endmacro %}
+#line
 {{ j_str_to_ustr() | replace('32', '16') | replace('ustr', 'c16str') }}
 {{ j_str_to_ustr() }}
 
@@ -228,9 +227,9 @@ int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32
 #if _yIO_HAS_WCHAR_H
 
 int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
-	if (!wc_len) {
+	if (wc_len == 0) {
 		*mb = NULL;
-		if (mb_len) {
+		if (mb_len != NULL) {
 			*mb_len = 0;
 		}
 		return 0;
@@ -240,27 +239,25 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
-	const wchar_t *src = wc;
+
 	size_t out_len = 0;
-	for (size_t i = 0; i < wc_len; ++i) {
+	for (const wchar_t *src = wc, *srcend = wc + wc_len; src != srcend; ++src) {
 		const size_t len = wcrtomb(NULL, *src, &ps);
 		if (len == (size_t)-1) {
 			ret = YIO_ERROR_WCTOMB;
 			goto ERR_wcrtomb_1;
 		}
-		src++;
 		out_len += len;
 	}
 
-	char * const out = malloc(sizeof(*out) * out_len);
+	char *const out = malloc(sizeof(*out) * out_len);
 	if (out == NULL) {
 		ret = YIO_ERROR_ENOMEM;
 		goto ERR_MALLOC;
 	}
 
 	memset(&ps, 0, sizeof(ps));
-	src = wc;
-	const size_t len2 = wcsrtombs(out, &src, wc_len, &ps);
+	const size_t len2 = wcsrtombs(out, &wc, wc_len, &ps);
 	if (len2 == (size_t)-1) {
 		ret = YIO_ERROR_WCTOMB;
 		goto ERR_wcrtomb_2;
@@ -269,7 +266,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 	assert(len2 == out_len);
 
 	*mb = out;
-	if (mb_len) {
+	if (mb_len != NULL) {
 		*mb_len = out_len;
 	}
 	return ret;
@@ -392,7 +389,7 @@ int _yIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wcha
 	}
 
 	ret = _yIO_strconv_str_to_wstr(mb, mb_len, wc, wc_len);
-	free((void*)mb);
+	free((void*)mb); // cppcheck-suppress cert-EXP05-C
 	return ret;
 }
 

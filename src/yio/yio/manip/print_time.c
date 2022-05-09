@@ -120,7 +120,7 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	_yIO_RES_AUTO_DECL(res);
 	ret = _yIO_astrftime_nonzero(&res, format, tm);
 	if (format != emptyformat) {
-		free((void *)format);
+		free((void *)format); // cppcheck-suppress cert-EXP05-C
 	}
 	if (ret == 0) {
 		assert(_yIO_res_used(&res) > 1);
@@ -128,28 +128,6 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	}
 	_yIO_res_end(&res);
 	return ret;
-}
-
-static inline
-struct tm _yIO_localtime(const time_t *sec) {
-	struct tm tm;
-#if _yIO_HAS_localtime_r
-	localtime_r(sec, &tm);
-#else
-	tm = *localtime(sec); // NOLINT(runtime/threadsafe_fn)
-#endif
-	return tm;
-}
-
-static inline
-struct tm _yIO_gmtime(const time_t *sec) {
-	struct tm tm;
-#if _yIO_HAS_localtime_r
-	gmtime_r(sec, &tm);
-#else
-	tm = *gmtime(sec); // NOLINT(runtime/threadsafe_fn)
-#endif
-	return tm;
 }
 
 int _yΩIO_print_tm(yπio_printctx_t *t) {

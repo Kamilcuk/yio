@@ -104,6 +104,9 @@ bool _yIO_test_is_in_valgrind(void) {
 
 // https://stackoverflow.com/questions/77005/how-to-automatically-generate-a-stacktrace-when-my-program-crashes
 static void sighandler(int sig) {
+	signal(SIGSEGV, SIG_DFL);
+	signal(SIGABRT, SIG_DFL);
+	//
 	void *array[50];
 	const size_t size = backtrace(array, sizeof(array)/sizeof(*array));
 	fprintf(stderr, "Error: signal %d:%s\n", sig, strsignal(sig));

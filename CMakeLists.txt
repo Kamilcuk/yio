@@ -56,16 +56,6 @@ if(YIO_DEV)
 		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
 	endif()
 
-	set_from_env(YIO_CPPLINT)
-	if(YIO_CPPLINT)
-		find_program(CMAKE_C_CPPLING cpplint)
-	endif()
-
-	set_from_env(YIO_CLANG_TIDY)
-	if(YIO_CLANG_TIDY)
-		find_program(CMAKE_C_CLANG_TIDY clang-tidy)
-	endif()
-
 	# Create symlink from gen to GENDIR for development purpouses
 	execute_process(
 		COMMAND ${CMAKE_COMMAND} -E create_symlink ${GENDIR} ${CMAKE_CURRENT_SOURCE_DIR}/gen
@@ -79,7 +69,7 @@ if(YIO_DEV)
 	)
 
 	# Add compiler options.
-	if(CMAKE_C_COMPILER_ID IN_LIST "GNU;Clang;Intel")
+	if(CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang|Intel)$")
 		add_compile_options(
 			-g
 			-Wall
@@ -156,7 +146,6 @@ if(YIO_DEV)
 		CMAKE_EXPORT_COMPILE_COMMANDS
 		CCACHE_COMMAND
 		UNISTRING_LIB
-		CPPLINT_COMMAND
 		DIRECTORY:COMPILE_OPTIONS
 		DIRECTORY:COMPILE_DEFINITIONS
 		DIRECTORY:LINK_OPTIONS
@@ -252,8 +241,6 @@ add_custom_target(yio_gen_prepare
 	COMMENT "jinja2: compiling preproces script target"
 )
 
-set_from_env(YIO_LINE) # Use to disable adding #line in source files
-
 #!
 function(jinja_generate)
 	cmake_parse_arguments(A "" "SOURCE;OUTPUT;TARGET" "DEPENDS" ${ARGN})
@@ -272,11 +259,12 @@ function(jinja_generate)
 	if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${A_SOURCE}")
 		message(FATAL_ERROR "Source file does not exist: ${A_SOURCE}")
 	endif()
+	#
 	set(debug)
-	if((DEFINED YIO_LINE AND YIO_LINE) OR
-			(NOT DEFINED YIO_LINE AND YIO_DEV AND CMAKE_BUILD_TYPE_UPPER STREQUAL "DEBUG"))
+	if(YIO_LINE)
 		set(debug --debug)
 	endif()
+	#
 	add_custom_command(
 		OUTPUT
 			"${A_OUTPUT}"
@@ -287,7 +275,7 @@ function(jinja_generate)
 			-S "${JINJAPROJECTSRC}"
 			-S "${CMAKE_CURRENT_SOURCE_DIR}"
 			-D "j_MLVLS=${YIO_MLVLS}"
-			-D "j_SLOTS_END=${YIO_SLOTS_END}"
+			-D "j_SLOTS=${YIO_SLOTS}"
 			--depfile "${depfile}"
 			--cachedir "${CMAKE_CURRENT_BINARY_DIR}/jinjacache"
 			${debug}
@@ -313,7 +301,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile ${CMAKE_CURRENT_BINARY_D
 add_subdirectory(src)
 if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
 	include(CTest)
-	add_subdirectory(test)
-	add_subdirectory(examples)
+	add_subdirectory(./third_party)
+	add_subdirectory(./test)
+	add_subdirectory(./examples)
 endif()
 

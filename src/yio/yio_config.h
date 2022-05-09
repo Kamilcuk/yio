@@ -31,6 +31,12 @@
 #endif // _yIO_CDT_PARSER
 // +#} //
 
+#ifdef __SIZEOF_INT128__
+#define _yIO_HAS_INT128 1
+#else
+#define _yIO_HAS_INT128 0
+#endif
+
 #ifndef _yIO_HAS_UNISTD_H
 #error _yIO_HAS_UNISTD_H
 #endif
