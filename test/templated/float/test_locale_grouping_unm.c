@@ -8,8 +8,8 @@
 #ifndef YIO_USE_LOCALE
 #error
 #endif
-#if !YIO_USE_LOCALE
-int main() {}
+#if !YIO_USE_LOCALE || !__GLIBC__
+int main() { return 100; }
 #else
 
 #include <locale.h>

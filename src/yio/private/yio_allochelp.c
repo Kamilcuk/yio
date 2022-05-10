@@ -27,11 +27,13 @@ int _yIO_astrftime_nonzero(_yIO_res *res, const char *fmt, const struct tm *tm) 
 		const size_t bufsize = _yIO_res_size(res);
 		errno = 0;
 		size_t count = strftime(_yIO_res_begin(res), bufsize, fmt, tm);
+		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, _yIO_res_size(res));
 		if (count != (size_t)0) {
 			_yIO_res_set_used(res, count);
 			break;
 		}
-		if (errno != 0) {
+		// MUSL set's EINVAL when buffer is too small
+		if (errno != 0 && errno != EINVAL) {
 			return _yIO_ERROR(YIO_ERROR_STRFTIME, "strftime returned -1 and errno is set");
 		}
 		if (bufsize > 4096u) {

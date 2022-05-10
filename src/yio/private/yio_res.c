@@ -33,9 +33,6 @@ void _yIO_res_end(_yIO_res *t) {
 	if (t->is_dynamic) {
 		free(t->beg);
 	}
-#ifndef NDEBUG
-	t->beg = t->pos = t->end = NULL;
-#endif
 }
 
 int _yIO_res_reserve(_yIO_res *t, size_t newsize) {

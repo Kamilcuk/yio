@@ -122,8 +122,10 @@ if(UNIX)
 
 	k_add_test(
 		NAME no_calls_to_dbgln
-		COMMAND sh -xc "$@ $<SEMICOLON> test $? -eq 1" _
-			grep -P -R --exclude "yio_private.h" "^\\s*(?<!//)\\s*dbgln" "${GENDIR}"
+		COMMAND
+      sh -xc "find . -type f -name '*.[hc]' '!' -name 'yio_private.h' | \"$@\"" _
+      xargs -t awk "/dbgln/ && !/\\/\\/.*dbgln/{print \"\\n\"FILENAME\":\"FNR\": \" $0 $<SEMICOLON> exit(1)}"
+    WORKING_DIRECTORY "${GENDIR}"
 		LABELS nomemcheck
 	)
 

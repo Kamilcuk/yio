@@ -116,7 +116,7 @@ configure $(B)/compile_commands.json:
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: configure
-	$(CMAKE) --build $(B) --target $(if $(value T),$T,$*) $(BUILDFLAGS) <&-
+	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep $(R) || echo all),$(if $(value T),$T,$*)) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen
