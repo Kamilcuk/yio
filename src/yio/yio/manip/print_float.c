@@ -32,6 +32,7 @@ static inline
 int _yΩIO_print_float_$2$1_in(yπio_printctx_t *t, _yIO_FLOAT$1 var) {
 	int err = yπio_printctx_init(t);
 	if (err) return err;
+	// TODO: fun fact, this converts from wchar/char16/char32 -> char. Convert for real with some checks here.
 	const char type = t->pf.type ? t->pf.type : 'g';
 	const int precision =  t->pf.precision;
 	_yIO_RES_AUTO_DECL(res);

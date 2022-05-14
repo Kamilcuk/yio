@@ -20,19 +20,6 @@
 #error
 #endif
 
-// {#
-#ifdef _yIO_CDT_PARSER
-#define _yIO_strconv_str_to_πstr
-#define _yIO_strconv_wstr_to_πstr
-#define _yIO_strconv_c16str_to_πstr
-#define _yIO_strconv_ustr_to_πstr
-#define _yIO_strconv_free_str_to_πstr
-#define _yIO_strconv_free_wstr_to_πstr
-#define _yIO_strconv_free_c16str_to_πstr
-#define _yIO_strconv_free_ustr_to_πstr
-#endif
-// #}
-
 /* ------------------------------------------------------------------------- */
 
 size_t _yIO_strnlen(const char *str, size_t maxlen) {
@@ -97,22 +84,19 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
  */
 #define _yIO_RETURN_STRCONV_SAME(src_type, dst_type, src, src_len, dst, dst_len)  do { \
 	dst_type * const _out = malloc(sizeof(*_out) * src_len); \
-	if (_out == NULL) { \
-		return YIO_ERROR_ENOMEM; \
-	} else { \
-		{ \
-			dst_type * _iout = _out; \
-			const src_type * _iin = src; \
-			for (size_t i = 0; i < src_len; ++i) { \
-				*_iout++ = *_iin++; \
-			} \
+	if (_out == NULL) return YIO_ERROR_ENOMEM; \
+	{ \
+		dst_type * _iout = _out; \
+		const src_type * _iin = src; \
+		for (size_t i = 0; i < src_len; ++i) { \
+			*_iout++ = *_iin++; \
 		} \
-		*dst = _out; \
-		if (dst_len) { \
-			*dst_len = src_len; \
-		} \
-		return 0; \
 	} \
+	*dst = _out; \
+	if (dst_len) { \
+		*dst_len = src_len; \
+	} \
+	return 0; \
 } while(0)
 
 /**
@@ -123,8 +107,8 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 		FUNC_dst_to_middle, \
 		FUNC_free_dst_to_middle, \
 		FUNC_middle_to_dst)  do { \
-	middle_type *mb; \
-	size_t mb_len; \
+	middle_type *mb = NULL; \
+	size_t mb_len = 0; \
 	int ret = FUNC_dst_to_middle(src, src_len, &mb, &mb_len); \
 	if (ret) return ret; \
 	ret = FUNC_middle_to_dst(mb, mb_len, dst, dst_len); \
@@ -136,85 +120,130 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 /* strconv_str_to_* -------------------------------------------------------------------- */
 
 #if _yIO_HAS_WCHAR_H
-int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
-	if (mb_len == 0) {
-		*wc = NULL;
-		if (wc_len) {
-			*wc_len = 0;
-		}
-		return 0;
-	}
 
-	int ret = 0;
-
+static inline
+int _yIO_strconv_str_to_wstr_count(const char *mb, size_t mb_len, size_t *wc_len) {
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
-
 	// mbsrtowcs(NULL, &src, mb_len, &ps); can't be used!
 	// When first argument is NULL, then mb_len is ignored, and mbsrtowcs
 	// just scans until a terminating character. We have to loop.
 	size_t out_len = 0;
 	for (const char *src = mb, *srcend = &mb[mb_len]; src != srcend;) {
 		const size_t tt = mbrtowc(NULL, src, srcend - src, &ps);
-		if (tt == (size_t)-1 || tt == (size_t)-2) {
-			ret = YIO_ERROR_MBTOWC;
-			goto ERR_mbrtowc;
+		switch (tt) {
+		case (size_t)-1: return YIO_ERROR_MBRTOWC;
+		case (size_t)-2: return YIO_ERROR_MBRTOWC_2;
 		}
+		assert(tt != 0);
 		src += tt;
 		out_len++;
 	}
+	*wc_len = out_len;
+	return 0;
+}
 
-	wchar_t *out = malloc(sizeof(wchar_t) * out_len);
-	if (out == NULL) {
-		ret = YIO_ERROR_ENOMEM;
-		goto ERR_MALLOC;
-	}
-
+static inline
+int _yIO_strconv_str_to_wstr_conv(const char *mb, wchar_t *out, size_t out_len) {
+	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	const size_t len2 = mbsrtowcs(out, &mb, out_len, &ps);
 	if (len2 == (size_t)-1 || len2 == (size_t)-2) {
-		ret = YIO_ERROR_MBTOWC;
-		goto ERR_mbsrtowcs;
+		return YIO_ERROR_MBRTOWC;
 	}
 	// dbgln("%zu %zu `%ls` `%s` %zu", len2, out_len, out, mb, mb_len);
 	assert(len2 == out_len);
+	return 0;
+}
 
-	*wc = out;
-	if (wc_len) {
-		*wc_len = out_len;
+int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
+	if (mb_len == 0) {
+		*wc = NULL;
+		if (wc_len) *wc_len = 0;
+		return 0;
 	}
-	return ret;
-
-	ERR_mbsrtowcs:
-	free(out);
-	ERR_MALLOC:
-	ERR_mbrtowc:
+	size_t out_len = 0;
+	int ret = _yIO_strconv_str_to_wstr_count(mb, mb_len, &out_len);
+	if (ret) return ret;
+	wchar_t *const out = malloc(sizeof(wchar_t) * out_len);
+	if (out == NULL) return YIO_ERROR_ENOMEM;
+	ret = _yIO_strconv_str_to_wstr_conv(mb, out, out_len);
+	if (ret) {
+		free(out);
+		return ret;
+	}
+	*wc = out;
+	if (wc_len) *wc_len = out_len;
 	return ret;
 }
+
 #endif
 
 #if _yIO_HAS_UCHAR_H
 
 {% macro j_str_to_ustr() %}
 #line
-int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32, size_t *c32_len) {
+
+static inline
+size_t _yIO_strconv_str_to_ustr_mbrtowc32_in(const char *in, size_t in_len, char32_t *pc32, size_t *plength) {
+	const char *in_end = in + in_len;
+	mbstate_t ps;
+	memset(&ps, 0, sizeof(ps));
+	size_t length = 0;
+	for (const char *ii = in; in != in_end; ++ii) {
+		const size_t len = mbrtoc32(pc32, ii, in_end - ii, &ps);
+		switch (len) {
+		case (size_t)-1: return YIO_ERROR_MBRTOC32;
+		case (size_t)-2: return YIO_ERROR_MBRTOC32_2;
+		case (size_t)-3: return YIO_ERROR_MBRTOC32_3;
+		}
+		length += len == 0 ? 1 : len;
+		if (pc32) ++pc32;
+	}
+	*plength = length;
+	return 0;
+}
+
+static inline
+int _yIO_strconv_str_to_ustr_mbrtowc32(const char *in, size_t in_len, const char32_t **pout, size_t *pout_len) {
+	size_t length = 0;
+	int ret = _yIO_strconv_str_to_ustr_mbrtowc32_in(in, in_len, NULL, &length);
+	if (ret) return ret;
+	char32_t *const out = malloc(sizeof(*out) * length);
+	if (out == NULL) return YIO_ERROR_ENOMEM;
+	size_t length2 = 0;
+	ret = _yIO_strconv_str_to_ustr_mbrtowc32_in(in, in_len, out, &length2);
+	if (ret) {
+		free(out);
+		return ret;
+	}
+	assert(length2 == length);
+	*pout = out;
+	if (pout_len != NULL) *pout_len = length;
+	return 0;
+}
+
+int _yIO_strconv_str_to_ustr(const char *in, size_t in_len, const char32_t **pout, size_t *pout_len) {
+	if (in_len == 0) {
+		*pout = NULL;
+		if (pout_len != NULL) *pout_len = 0;
+		return 0;
+	}
 #if __STDC_UTF_32__ && _yIO_HAS_UNISTRING
 	size_t length = 0;
 	uint32_t *buf = u32_conv_from_encoding(locale_charset(), iconveh_question_mark,
-			mb, mb_len, NULL, NULL, &length);
+			in, in_len, NULL, NULL, &length);
 	if (buf == NULL) {
 		return YIO_ERROR_U32_CONV_FROM_ENCODING;
 	}
-	*c32 = buf;
-	if (c32_len) {
-		*c32_len = length;
-	}
+	*pout = buf;
+	if (pout_len != NULL) *pout_len = length;
 	return 0;
 #else
-#error TODO: with mbtoc32 or install libunistring
-	return -1;
+	return _yIO_strconv_str_to_ustr_mbrtowc32(in, in_len, pout, pout_len);
 #endif
 }
+
 {% endmacro %}
 #line
 {{ j_str_to_ustr() | replace('32', '16') | replace('ustr', 'c16str') }}
@@ -226,55 +255,51 @@ int _yIO_strconv_str_to_ustr(const char *mb, size_t mb_len, const char32_t **c32
 
 #if _yIO_HAS_WCHAR_H
 
+static inline
+int _yIO_strconv_wstr_to_str_count(const wchar_t *wc, size_t wc_len, size_t *plength) {
+	mbstate_t ps;
+	memset(&ps, 0, sizeof(ps));
+	size_t out_len = 0;
+	for (const wchar_t *src = wc, *wc_end = wc + wc_len; src != wc_end; ++src) {
+		const size_t len = wcrtomb(NULL, *src, &ps);
+		if (len == (size_t)-1) return YIO_ERROR_WCRTOMB;
+		assert(len != 0);
+		out_len += len;
+	}
+	*plength = out_len;
+	return 0;
+}
+
+static inline
+int _yIO_strconv_wstr_to_str_conv(const wchar_t *wc, size_t wc_len, char *out, size_t out_len) {
+	mbstate_t ps;
+	memset(&ps, 0, sizeof(ps));
+	const size_t len2 = wcsrtombs(out, &wc, wc_len, &ps);
+	if (len2 == (size_t)-1) return YIO_ERROR_WCRTOMB;
+	// dbgln("%zu %zu", len2, len);
+	assert(len2 == out_len);
+	return 0;
+}
+
+
 int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
 	if (wc_len == 0) {
 		*mb = NULL;
-		if (mb_len != NULL) {
-			*mb_len = 0;
-		}
+		if (mb_len != NULL) *mb_len = 0;
 		return 0;
 	}
-
-	int ret = 0;
-
-	mbstate_t ps;
-	memset(&ps, 0, sizeof(ps));
-
 	size_t out_len = 0;
-	for (const wchar_t *src = wc, *srcend = wc + wc_len; src != srcend; ++src) {
-		const size_t len = wcrtomb(NULL, *src, &ps);
-		if (len == (size_t)-1) {
-			ret = YIO_ERROR_WCTOMB;
-			goto ERR_wcrtomb_1;
-		}
-		out_len += len;
-	}
-
+	int ret = _yIO_strconv_wstr_to_str_count(wc, wc_len, &out_len);
+	if (ret) return ret;
 	char *const out = malloc(sizeof(*out) * out_len);
-	if (out == NULL) {
-		ret = YIO_ERROR_ENOMEM;
-		goto ERR_MALLOC;
+	if (out == NULL) return YIO_ERROR_ENOMEM;
+	ret = _yIO_strconv_wstr_to_str_conv(wc, wc_len, out, out_len);
+	if (ret) {
+		free(out);
+		return ret;
 	}
-
-	memset(&ps, 0, sizeof(ps));
-	const size_t len2 = wcsrtombs(out, &wc, wc_len, &ps);
-	if (len2 == (size_t)-1) {
-		ret = YIO_ERROR_WCTOMB;
-		goto ERR_wcrtomb_2;
-	}
-	/*fprintf(stderr, "%zu %zu\n", len2, len);*/
-	assert(len2 == out_len);
-
 	*mb = out;
-	if (mb_len != NULL) {
-		*mb_len = out_len;
-	}
-	return ret;
-
-	ERR_wcrtomb_2:
-	free(out);
-	ERR_MALLOC:
-	ERR_wcrtomb_1:
+	if (mb_len != NULL) *mb_len = out_len;
 	return ret;
 }
 
@@ -282,6 +307,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 
 {% macro j_wstr_to_ustr() %}
 #line
+
 int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t **dst, size_t *dst_len) {
 #if __STDC_UTF_32__ && __STDC_ISO_10646__
 	_yIO_RETURN_STRCONV_SAME(wchar_t, char32_t, src, src_len, dst, dst_len);
@@ -294,7 +320,8 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 		return 0;
 	}
 
-	char *mb; size_t mb_len;
+	char *mb = NULL;
+	size_t mb_len = 0;
 	int ret = _yIO_strconv_wstr_to_str(src, src_len, &mb, &mb_len);
 	if (ret) return ret;
 	ret = _yIO_strconv_str_to_c32str(mb, mb_len, dst, dst_len);
@@ -302,9 +329,11 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 	return ret;
 #endif
 }
+
 {% endmacro %}
 {{ j_wstr_to_ustr() | replace('32', '16') | replace('ustr', 'c16str') }}
 {{ j_wstr_to_ustr() }}
+#line
 
 #endif // _yIO_HAS_UCHAR_H
 
@@ -316,54 +345,44 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 
 {% macro j_uchar_functions() %}
 #line
+
+static inline
+int _yIO_strconv_ustr_to_str_conv(const char32_t *c32, size_t c32_len, char *out, size_t *pout_len) {
+	mbstate_t ps;
+	memset(&ps, 0, sizeof(ps));
+	size_t out_len = 0;
+	for (const char32_t *ii = c32, *c32_end = c32 + c32_len; ii != c32_end; ++ii) {
+		size_t r = c32rtomb(out, *ii, &ps);
+		if (r == (size_t)-1) return YIO_ERROR_C32RTOMB;
+		assert(r != 0);
+		out_len += r;
+		if (out) ++out;
+	}
+	*pout_len = out_len;
+	return 0;
+}
+
+
 int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **mb, size_t *mb_len) {
 	if (!c32_len) {
 		*mb = NULL;
-		if (mb_len) {
-			*mb_len = 0;
-		}
+		if (mb_len) *mb_len = 0;
 		return 0;
 	}
-
-	mbstate_t ps;
-	memset(&ps, 0, sizeof(ps));
-
-	size_t iout_len = 0;
-	{
-		size_t i_len = c32_len;
-		for (const char32_t *i = c32; i_len--; ++i) {
-			size_t r = c32rtomb(NULL, *i, &ps);
-			if (r == (size_t)-1) {
-				return YIO_ERROR_C32TOMB;
-			}
-			iout_len += r;
-		}
+	size_t out_len = 0;
+	int ret = _yIO_strconv_ustr_to_str_conv(c32, c32_len, NULL, &out_len);
+	if (ret) return ret;
+	char *const out = malloc(sizeof(*out) * out_len);
+	if (out == NULL) return YIO_ERROR_ENOMEM;
+	size_t out_len2 = 0;
+	ret = _yIO_strconv_ustr_to_str_conv(c32, c32_len, out, &out_len2);
+	if (ret) {
+		free(out);
+		return ret;
 	}
-	const size_t out_len = iout_len;
-
-	char * const out = malloc(sizeof(*out) * out_len);
-	if (out == NULL) {
-		return YIO_ERROR_ENOMEM;
-	}
-
-	memset(&ps, 0, sizeof(ps));
-
-	char *iout = out;
-	size_t i_len = c32_len;
-	for (const char32_t *i = c32; i_len--; ++i) {
-		const size_t r = c32rtomb(iout, *i, &ps);
-		if (r == (size_t)-1) {
-			free(out);
-			return YIO_ERROR_C32TOMB;
-		}
-		iout += r;
-	}
-	assert(out_len == (size_t)(iout - out));
-
+	assert(out_len == out_len2);
 	*mb = out;
-	if (mb_len) {
-		*mb_len = out_len;
-	}
+	if (mb_len) *mb_len = out_len;
 	return 0;
 }
 
@@ -373,21 +392,18 @@ static inline
 int _yIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wchar_t **wc, size_t *wc_len) {
 	if (!c32_len) {
 		*wc = NULL;
-		if (wc_len) {
-			*wc_len = 0;
-		}
+		if (wc_len) *wc_len = 0;
 		return 0;
 	}
-
-	int ret = 0;
-
-	const char *mb;
-	size_t mb_len;
-	ret = _yIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
-	if (ret) {
-		return ret;
+	const char *mb = NULL;
+	size_t mb_len = 0;
+	int ret = _yIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
+	if (ret) return ret;
+	if (mb == NULL) {
+		*wc = NULL;
+		if (wc_len) *wc_len = 0;
+		return 0;
 	}
-
 	ret = _yIO_strconv_str_to_wstr(mb, mb_len, wc, wc_len);
 	free((void*)mb); // cppcheck-suppress cert-EXP05-C
 	return ret;
@@ -409,10 +425,48 @@ int _yIO_strconv_ustr_to_wstr(const char32_t *c32, size_t c32_len, const wchar_t
 {% endmacro %}
 {{ j_uchar_functions() | replace('32', '16') | replace('ustr', 'c16str') }}
 {{ j_uchar_functions() }}
+#line
+
+static inline
+int _yIO_strconv_c16str_to_ustr_no_unistring(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
+	const char *mb;
+	size_t mb_len;
+	int ret = _yIO_strconv_c16str_to_str(c16, c16_len, &mb, &mb_len);
+	if (ret) return ret;
+	if (mb == NULL) {
+		*c32 = NULL;
+		if (c32_len) *c32_len = 0;
+		return 0;
+	}
+	ret = _yIO_strconv_str_to_ustr(mb, mb_len, c32, c32_len);
+	free((void*)mb); // cppcheck-suppress cert-EXP05-C
+	return ret;
+}
+
+static inline
+int _yIO_strconv_ustr_to_c16str_no_unistring(const char32_t *c32, size_t c32_len, const char16_t **c16, size_t *c16_len) {
+	const char *mb;
+	size_t mb_len;
+	int ret = _yIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
+	if (ret) return ret;
+	if (mb == NULL) {
+		*c16 = NULL;
+		if (c16_len) *c16_len = 0;
+		return 0;
+	}
+	ret = _yIO_strconv_str_to_c16str(mb, mb_len, c16, c16_len);
+	free((void*)mb); // cppcheck-suppress cert-EXP05-C
+	return ret;
+}
 
 int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
+	if (c16_len == 0) {
+		*c32 = NULL;
+		if (c32_len != NULL) *c32_len = 0;
+		return 0;
+	}
 #if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && _yIO_HAS_UNISTRING
-	size_t length;
+	size_t length = 0;
 	uint32_t *result = u16_to_u32(c16, c16_len, NULL, &length);
 	if (result == NULL) return YIO_ERROR_ENOMEM;
 	*c32 = result;
@@ -421,14 +475,18 @@ int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char3
 	}
 	return 0;
 #else
-#error TODO install libunistring
-	return -1;
+	return _yIO_strconv_ustr_to_c16str_no_unistring(c16, c16_len, c32, c32_len);
 #endif
 }
 
 int _yIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char16_t **c16, size_t *c16_len) {
+	if (c32_len == 0) {
+		*c16 = NULL;
+		if (c16_len) *c16_len = 0;
+		return 0;
+	}
 #if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && _yIO_HAS_UNISTRING
-	size_t length;
+	size_t length = 0;
 	uint16_t *result = u32_to_u16(c32, c32_len, NULL, &length);
 	if (result == NULL) return YIO_ERROR_ENOMEM;
 	*c16 = result;
@@ -437,8 +495,7 @@ int _yIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char1
 	}
 	return 0;
 #else
-#error TODO install libunistring
-	return -1;
+	return _yIO_strconv_c16str_to_ustr_no_unistring(c32, c32_len, c16, c16_len);
 #endif
 }
 

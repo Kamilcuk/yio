@@ -193,9 +193,9 @@ coverage_gen:
 
 LINTOPTS = CMAKE_BUILD_TYPE=Debug PRESET=lint
 
-_build/lint_compile_commands.json: ./compile_commands.json Makefile
+_build/lint_compile_commands.json: $(B)/compile_commands.json Makefile
 	jq --arg pwd "$(PWD)" --arg rgx \
-		"/(src|test|_build/.*/test)/" \
+		"/(src|test|_build/.*/test|third_party)/" \
 		'[ .[] | select(.file | test("^" + $$pwd + $$rgx) | not) ]' \
 		$< > $@.tmp
 	! grep -F '"file": "$(PWD)/test/templated' $@.tmp
@@ -211,15 +211,9 @@ HELP +=~ cpplint -
 lint: ; $(MAKE) $(LINTOPTS) .clang-tidy .cpplint
 clang-tidy cpplint: ; $(MAKE) $(LINTOPTS) .$@
 .clang-tidy: build_gen _build/lint_files.txt
-	xargs < _build/lint_files.txt -t -d '\n' clang-tidy -p $(B)
+	xargs -P$(NPROC) -n 4 < _build/lint_files.txt -t -d '\n' clang-tidy -p $(B)
 .cpplint: build_gen _build/lint_files.txt
 	xargs < _build/lint_files.txt -t -d '\n' cpplint
-
-lint2:
-	@mkdir -p _build
-	$(MAKE) build $(LINTOPTS) 2>&1 > >(tee _build/lint.txt)
-	grep -v '^Warning: cpplint diagnostics:\|^Done processing ' _build/lint.txt > _build/lint2.txt
-	! grep -i 'warning: \|error: ' _build/lint2.txt
 
 ###############################################################################
 # cppcheck

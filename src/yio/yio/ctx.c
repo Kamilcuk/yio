@@ -116,7 +116,7 @@ int _yΩIO_printctx_take_positional_param(yπio_printctx_t *t, const TCHAR *fmt,
 	if (ifunc == &_yΩIO_print_short)       num = yπio_printctx_va_arg_promote(t, short);
 	else if (ifunc == &_yΩIO_print_ushort) num = yπio_printctx_va_arg_promote(t, unsigned short);
 	else if (ifunc == &_yΩIO_print_int)    num = yπio_printctx_va_arg(t, int);
-	else if (ifunc == &_yΩIO_print_uint)   num = yπio_printctx_va_arg(t, unsigned int);
+	else if (ifunc == &_yΩIO_print_uint)   num = yπio_printctx_va_arg(t, unsigned int); // NOLINT
 	else if (ifunc == &_yΩIO_print_long)   num = yπio_printctx_va_arg(t, long);
 	else if (ifunc == &_yΩIO_print_ulong)  num = yπio_printctx_va_arg(t, unsigned long);
 	else if (ifunc == &_yΩIO_print_llong)  num = yπio_printctx_va_arg(t, long long);
@@ -383,7 +383,7 @@ int _yΩIO_printformat_prefix(_yΩIO_printformat_t *pf) {
 	const bool has_hash = is_number && f->hash && TSTRCHR(TC("xXoObB"), f->type) != NULL;
 	const bool has_sign = is_number && (f->sign == YΩIO_SIGN_ALWAYS ||
 					f->sign == YΩIO_SIGN_ALWAYSSPACE || is_positive == false);
-	const size_t alllen = len + 2 * has_hash + has_sign;
+	const size_t alllen = len + (size_t)( 2U * has_hash + has_sign );
 	*alllen0 = alllen;
 	const size_t width = f->width > 0 ? f->width : 0;
 
@@ -432,8 +432,7 @@ int _yΩIO_printformat_suffix(_yΩIO_printformat_t *pf) {
 
 static inline
 const TCHAR *str_dot_or_end(const TCHAR str[], size_t len) {
-	for (; len-- && str[0] != TC('.') && str[0] != TC(','); ++str) {
-		continue;
+	for (; len != 0 && str[0] != TC('.') && str[0] != TC(','); ++str, --len) {
 	}
 	return str;
 }

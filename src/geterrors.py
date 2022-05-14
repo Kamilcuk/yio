@@ -16,7 +16,7 @@ from preprocess import save_if_changed, LL
 
 def get_all_errors_from_sources():
     rereplace = re.compile(
-        r'_yIO_ERROR\s*\(\s*(YIO_ERROR_[A-Z_]+)\s*,\s*(".+")\s*\)',
+        r'_yIO_ERROR\s*\(\s*(YIO_ERROR_[A-Z_]+)\s*,\s*(".*")\s*\)',
         flags=re.MULTILINE,
     )
     dir = os.path.dirname(__file__)

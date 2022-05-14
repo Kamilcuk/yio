@@ -53,13 +53,13 @@
 
 static const char _yIO_NAN[3] = {'N','A','N'};
 static const char _yIO_nan[3] = {'n','a','n'};
-static const char (*_yIO_nans[3])[] = { &_yIO_NAN, &_yIO_nan, };
+static const char (*const _yIO_nans[3])[] = { &_yIO_NAN, &_yIO_nan, };
 static const char _yIO_INF[3] = {'I','N','F'};
 static const char _yIO_inf[3] = {'i','n','f'};
-static const char (*_yIO_infs[3])[] = { &_yIO_INF, &_yIO_inf, };
+static const char (*const _yIO_infs[3])[] = { &_yIO_INF, &_yIO_inf, };
 static const char _yIO_digit_to_HEX[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 static const char _yIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-static const char (*_yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
+static const char (*const _yIO_digit_to_hexs[16])[] = { &_yIO_digit_to_HEX, &_yIO_digit_to_hex, };
 
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 	{% if not j_match(V.0, "^d[0-9]") %}{# exclude floats #}
@@ -145,7 +145,7 @@ int _yIO_float_astrfrom_custom$1(_yIO_res *v, const int precision0, const char s
 		val = FABS(val);
 	}
 
-	const char spec0lower = tolower(spec0);
+	const char spec0lower = tolower( (unsigned char)spec0 );
 	const bool is_lower_spec = spec0lower == spec0;
 
 	// take INF and NAN out of the way
@@ -173,7 +173,7 @@ int _yIO_float_astrfrom_custom$1(_yIO_res *v, const int precision0, const char s
 	int precision = precision0;
 	// This is exponent for number between (1/radix)<=x<1.0.
 	// The printed exponent is one less, cause of the initial digit!
-	int exponent;
+	int exponent = 0;
 
 	if (precision0 < 0) {
 		if (spec0lower == 'a') {
@@ -232,7 +232,7 @@ int _yIO_float_astrfrom_custom$1(_yIO_res *v, const int precision0, const char s
 	} else if (speclower == 'a') {
 		// rounding makes no sense, when precision is maximum available
 		if (precision0 >= 0) {
-			int exponent_tmp;
+			int exponent_tmp = 0;
 			FREXP2(val, &exponent_tmp);
 			if (precision > INT_MAX / 4) {
 				return YIO_ERROR_ENOSYS;

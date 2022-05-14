@@ -28,53 +28,6 @@ _yIO_res *_yIO_res_init(_yIO_res *t, char *resultp, size_t lengthp) {
 	return t;
 }
 
-/// End the object in case of error.
-void _yIO_res_end(_yIO_res *t) {
-	if (t->is_dynamic) {
-		free(t->beg);
-	}
-}
-
-int _yIO_res_reserve(_yIO_res *t, size_t newsize) {
-	const size_t pos = _yIO_res_used(t);
-	const size_t size = _yIO_res_size(t);
-	if (newsize <= size) {
-		return 0;
-	}
-	void *const p = realloc(t->is_dynamic ? t->beg : NULL, newsize * sizeof(*t->beg));
-	if (p == NULL) {
-		return YIO_ERROR_ENOMEM;
-	}
-	if (!t->is_dynamic) {
-		t->is_dynamic = true;
-		memcpy(p, t->beg, size);
-	}
-	t->beg = p;
-	t->pos = t->beg + pos;
-	t->end = t->beg + newsize;
-	return 0;
-}
-
-int _yIO_res_reserve_more(_yIO_res *t) {
-	const size_t size = _yIO_res_size(t);
-	const size_t _yIO_res_init_chunk = 32;
-	assert(size < SIZE_MAX / 52);
-	// golden ratio
-	const size_t newsizecalc = size * 52 / 32;
-	const size_t newsize = newsizecalc > _yIO_res_init_chunk ? newsizecalc : _yIO_res_init_chunk;
-	return _yIO_res_reserve(t, newsize);
-}
-
-int _yIO_res_putc(_yIO_res *t, char c) {
-	assert(t->beg <= t->pos && t->pos <= t->end);
-	if (t->pos == t->end) {
-		const int err = _yIO_res_reserve_more(t);
-		if (err) return err;
-	}
-	*t->pos++ = c;
-	return 0;
-}
-
 int _yIO_res_putsn(_yIO_res *t, const char *ptr, size_t size) {
 	while (_yIO_res_free_size(t) < size) {
 		const int err = _yIO_res_reserve_more(t);
