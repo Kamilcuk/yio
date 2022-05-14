@@ -124,7 +124,11 @@ int _yΩIO_print_time_strftime(yπio_printctx_t *t, const struct tm *tm) {
 	}
 	if (ret == 0) {
 		assert(_yIO_res_used(&res) > 1);
-		ret = yπio_printctx_put(t, _yIO_res_begin(&res), _yIO_res_used(&res) - 1);
+		const size_t reslen = _yIO_res_used(&res) - 1;
+		const struct yπio_printfmt_s *const pf = &t->pf;
+		const size_t toprint = pf->precision == -1 ? reslen :
+			reslen < (size_t)pf->precision ? reslen : (size_t)pf->precision;
+		ret = yπio_printctx_put(t, _yIO_res_begin(&res), toprint);
 	}
 	_yIO_res_end(&res);
 	return ret;

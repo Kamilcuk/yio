@@ -22,6 +22,8 @@
 #include <monetary.h>
 #endif
 
+static const size_t MAXSIZE = 4096U;
+
 int _yIO_astrftime_nonzero(_yIO_res *res, const char *fmt, const struct tm *tm) {
 	while (1) {
 		const size_t bufsize = _yIO_res_size(res);
@@ -36,7 +38,7 @@ int _yIO_astrftime_nonzero(_yIO_res *res, const char *fmt, const struct tm *tm) 
 		if (errno != 0 && errno != EINVAL) {
 			return _yIO_ERROR(YIO_ERROR_STRFTIME, "strftime returned -1 and errno is set");
 		}
-		if (bufsize > 4096u) {
+		if (bufsize > MAXSIZE) {
 			return _yIO_ERROR(YIO_ERROR_STRFTIME_TOOBIG, "strftime needed more than 4096 bytes to write");
 		}
 		int err = _yIO_res_reserve_more(res);
@@ -71,7 +73,7 @@ int _yIO_astrfmon(_yIO_res *res, const char *fmt, struct _yIO_astrfmon_arg arg) 
 				break;
 			}
 		}
-		if (bufsize > 4096) {
+		if (bufsize > MAXSIZE) {
 			return _yIO_ERROR(YIO_ERROR_STRFMON_TOOBIG, "strfmon needed more than 4096 bytes to write");
 		}
 		int err = _yIO_res_reserve_more(res);

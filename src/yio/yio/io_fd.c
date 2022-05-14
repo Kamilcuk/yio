@@ -45,25 +45,25 @@ int _yΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 #if TMODE == 1
 	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
 #elif TMODE == 2 || TMODE == 3 || TMODE == 4
+#if TMODE == 2
+#define STUFF_rtomb  wcrtomb
+#define STUFF_ERROR  YIO_ERROR_WCRTOMB
+#elif TMODE == 3
+#define STUFF_rtomb  c16rtomb
+#define STUFF_ERROR  YIO_ERROR_C16RTOMB
+#elif TMODE == 4
+#define STUFF_rtomb  c32rtomb
+#define STUFF_ERROR  YIO_ERROR_C32RTOMB
+#else
+#error
+#endif
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	while (size--) {
 		char s[SUPER_MB_LEN_MAX];
-		const size_t wr =
-#if TMODE == 2
-			wcrtomb(s, *ptr, &ps)
-#elif TMODE == 3
-			c16rtomb(s, *ptr, &ps)
-#elif TMODE == 4
-			c32rtomb(s, *ptr, &ps)
-#else
-#error
-#endif
-		;
+		const size_t wr = STUFF_rtomb(s, *ptr, &ps);
+		if (wr == (size_t)-1) return STUFF_ERROR;
 		ptr++;
-		if (wr == (size_t)-1) {
-			return (TMODE == 2) ? YIO_ERROR_WCTOMB : (TMODE == 3) ? YIO_ERROR_C16TOMB : YIO_ERROR_C32TOMB;
-		}
 		const int r = _yΩIO_yπvdprintf_cb_in(arg, s, wr);
 		if (r < 0) return r;
 	}

@@ -10,9 +10,9 @@
 #define __STDC_WANT_DEC_FP__ 1
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 #include "yio_float_strfrom_strfrom.h"
+#include "private.h"
 #include "yio_float.h"
 #include "yio_res.h"
-#include "private.h"
 #include <assert.h>
 #include <stddef.h>
 #include <limits.h>
@@ -48,6 +48,7 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision, 
 	*fmtpnt++ = spec;
 	*fmtpnt++ = '\0';
 	assert(fmtpnt <= &fmt[fmt_size]);
+	(void)fmt_size;
 }
 
 {% call j_FOREACHAPPLY(j_FLOATS) %}
@@ -60,8 +61,10 @@ void _yIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision, 
 #error  _yIO_HAS_strfrom$1
 #endif
 
+#if !_yIO_HAS_strfrom$1
 // In case it's not defined in standard headers, so that we get a link time error.
 extern int strfrom$1(char *str, size_t n, const char *format, _yIO_FLOAT$1 fp);
+#endif
 
 int _yIO_float_astrfrom_strfrom$1(_yIO_res *v, int precision, char spec, _yIO_FLOAT$1 val) {
 	// create format string

@@ -31,7 +31,7 @@
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int _yIO_float_astrfrom_printf$1(_yIO_res *o, int precision, char spec, _yIO_FLOAT$1 val);
+int _yIO_float_astrfrom_printf$1(_yIO_res *v, int precision, char spec, _yIO_FLOAT$1 val);
 #endif
 
 #define _yIO_has_float_printf$1  1

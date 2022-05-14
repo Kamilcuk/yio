@@ -18,6 +18,20 @@
 #include <uchar.h>
 #endif
 
+// {#
+#ifdef _yIO_CDT_PARSER
+int _yIO_strconv_str_to_πstr(const char *, size_t, const void *, size_t*);
+int _yIO_strconv_wstr_to_πstr(const wchar_t *, size_t, const void *, size_t *);
+int _yIO_strconv_c16str_to_πstr(const char16_t *, size_t, const void *, size_t *);
+int _yIO_strconv_ustr_to_πstr(const char32_t *, size_t, const void *, size_t *);
+int _yIO_strconv_free_str_to_πstr(const char *, const void *);
+int _yIO_strconv_free_wstr_to_πstr(const wchar_t *, const void *);
+int _yIO_strconv_free_c16str_to_πstr(const char16_t *, const void *);
+int _yIO_strconv_free_ustr_to_πstr(const char32_t *, const void *);
+#endif
+// #}
+
+
 #define _yIO_STRCONV_ESC(a)  a
 
 /*
@@ -56,16 +70,16 @@ typedef char32_t _yIO_uchar_t;
 
 /*  strnlen ------------------------------------------------------------------------------ */
 
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn() _yIO_access_r(1, 2)
 size_t _yIO_strnlen(const char *str, size_t maxlen);
 #if _yIO_HAS_WCHAR_H
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn() _yIO_access_r(1, 2)
 size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen);
 #endif
 #if _yIO_HAS_UCHAR_H
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn() _yIO_access_r(1, 2)
 size_t _yIO_c16strnlen(const char16_t *str, size_t maxlen);
-_yIO_wur _yIO_nn()
+_yIO_wur _yIO_nn() _yIO_access_r(1, 2)
 size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen);
 #endif
 
@@ -74,17 +88,17 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen);
 
 #define _yIO_STRCONV_DECLARE_IN2(N1, N2) \
 \
-_yIO_wur _yIO_access_r(1, 2) _yIO_nn(1, 3) \
+_yIO_wur _yIO_access_r(1, 2) _yIO_nn(1, 3) _yIO_access_w(3) _yIO_access_w(4) \
 int  _yIO_strconv_##N1##str_to_##N2##str(\
-		const _yIO_##N1##char_t *src, size_t src_len, \
-		const _yIO_##N2##char_t **dst, size_t *dst_len); \
+		const _yIO_##N1##char_t *in, size_t in_len, \
+		const _yIO_##N2##char_t **pout, size_t *pout_len); \
 \
 static inline _yIO_nn() \
 void _yIO_strconv_free_##N1##str_to_##N2##str(\
-		const _yIO_##N1##char_t *src, \
-		const _yIO_##N2##char_t *dst) { \
-	assert((void*)src != dst); \
-	free((void*)dst); /* cppcheck-suppress cert-EXP05-C */ \
+		const _yIO_##N1##char_t *in, \
+		const _yIO_##N2##char_t *out) { \
+	assert((void*)in != out); \
+	free((void*)out); /* cppcheck-suppress cert-EXP05-C */ \
 } \
 /* end */
 #define _yIO_STRCONV_DECLARE_IN(N1, N2)  _yIO_STRCONV_DECLARE_IN2(N1, N2)
@@ -95,11 +109,11 @@ void _yIO_strconv_free_##N1##str_to_##N2##str(\
 \
 static inline _yIO_wur _yIO_access_r(1, 2) _yIO_nn(1, 3) \
 int  _yIO_strconv_##N1##str_to_##N1##str(\
-		const _yIO_##N1##char_t *src, size_t src_len, \
-		const _yIO_##N1##char_t **dst, size_t *dst_len) { \
-	*dst = src; \
-	if (dst_len) { \
-		*dst_len = src_len; \
+		const _yIO_##N1##char_t *in, size_t in_len, \
+		const _yIO_##N1##char_t **pout, size_t *pout_len) { \
+	*pout = in; \
+	if (pout_len != NULL) { \
+		*pout_len = in_len; \
 	} \
 	return 0; \
 } \
@@ -136,12 +150,16 @@ _yIO_STRCONV_DECLARE((w), (u))
 
 #if _yIO_HAS_UCHAR_H
 _yIO_STRCONV_DECLARE((c16), ())
+#if _yIO_HAS_WCHAR_H
 _yIO_STRCONV_DECLARE((c16), (w))
+#endif
 _yIO_STRCONV_DECLARE_TO_ITSELF((c16))
 _yIO_STRCONV_DECLARE((c16), (u))
 
 _yIO_STRCONV_DECLARE((u), ())
+#if _yIO_HAS_WCHAR_H
 _yIO_STRCONV_DECLARE((u), (w))
+#endif
 _yIO_STRCONV_DECLARE((u), (c16))
 _yIO_STRCONV_DECLARE_TO_ITSELF((u))
 #endif

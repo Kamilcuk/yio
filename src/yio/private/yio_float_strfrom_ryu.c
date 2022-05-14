@@ -19,12 +19,12 @@
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 #define __STDC_WANT_IEC_60559_FUNCS_EXT__  1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
-#include "yio/yio_error.h"
 #include "yio_float_strfrom_ryu.h"
+#include "private.h"
+#include "yio/yio_error.h"
+#include "yio_float.h"
 #include "yio_float_strfrom_custom.h"
 #include "yio_res.h"
-#include "yio_float.h"
-#include "private.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -89,7 +89,8 @@ int _yIO_float_astrfrom_ryul(_yIO_res *res, const int precision0, const char spe
 		return YIO_ERROR_ENOSYS;
 	}
 	// https://github.com/ulfjack/ryu/blob/master/ryu/ryu_generic_128.h#L65
-	int err = _yIO_res_reserve(res, 53);
+	const size_t maximal_char_buffer_requirement_for_ryu = 53;
+	int err = _yIO_res_reserve(res, maximal_char_buffer_requirement_for_ryu);
 	if (err) return err;
 	int lengthp = generic_to_chars(long_double_to_fd128(val), _yIO_res_begin(res));
 	if (spec == 'e') {
