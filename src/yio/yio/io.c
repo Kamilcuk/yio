@@ -132,7 +132,7 @@ int yπvprintf(const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
 #endif
 }
 
-int yπvsprintf(TCHAR *dest, size_t size, const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
+int yπvsprintf(TCHAR *dest, size_t size, const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) { // NOLINT(readability-non-const-parameter)
 	struct _yΩIO_yvsprintf_ctx_s ctx = {
 			.dest = dest,
 			.size = size,

@@ -8,6 +8,7 @@
  */
 #ifndef _yIO_YIO_YΩIO_MANIP_UNHANDLED_H_
 #define _yIO_YIO_YΩIO_MANIP_UNHANDLED_H_
+#include "../ctx.h"
 
 // From https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html#Common-Function-Attributes
 // ... is used on a function declaration and a **call** to such a function is ...

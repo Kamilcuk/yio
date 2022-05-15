@@ -131,3 +131,22 @@ if(UNIX)
 
 endif()
 
+###############################################################################
+
+set_from_env(TESTPROGRAM)
+if(DEFINED TESTPROGRAM AND NOT TESTPOGRAM STREQUAL "")
+  set(source "\
+#include <yio_test.h>
+#include <locale.h>
+int main(int argc, char *argv[]) {
+  ${TESTPROGRAM}
+}
+")
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c "${source}")
+  message(STATUS "COMPILING:
+${source}")
+  add_executable(yio_testprogram EXCLUDE_FROM_ALL ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c)
+  target_link_libraries(yio_testprogram PRIVATE yio_testlib)
+  add_test(NAME yio_testprogram COMMAND yio_testprogram)
+endif()
+

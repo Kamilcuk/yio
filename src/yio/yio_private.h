@@ -49,21 +49,17 @@
  * @def dbgln
  * small debugging utility
  */
-#if !_yIO_HAS_UNISTRING
-#define dbgln(str, ...)  do{ \
-		fflush(0); \
-		fprintf(stderr, "%s:%d: " str "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
-} while(0)
-#else
+#if _yIO_HAS_UNISTRING
 #include <unistdio.h>
-#define dbgln(str, ...)  do{ \
-		fflush(0); \
-		ulc_fprintf(stderr, "%s:%d: " str "\n", __FILE__, __LINE__, ##__VA_ARGS__); \
-} while(0)
+#define DBGPRINTF  ulc_fprintf
+#else
+#define DBGPRINTF  fprintf
 #endif
 
-const char *_yIO_char_to_printstr_in(char dest[5], unsigned char c);
-#define _yIO_printc(c)  _yIO_char_to_printstr_in((char[5]){0}, c)
+#define dbgln(str, ...)  do{ \
+		fflush(0); \
+		DBGPRINTF(stderr, "\033[91m""%s:%d: " str "\033[0m""\n", __FILE__, __LINE__, ##__VA_ARGS__); \
+} while(0)
 
 /**
  * @def _yIO_ERROR(ENUM, DESC)

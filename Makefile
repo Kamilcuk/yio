@@ -5,7 +5,6 @@
 SHELL = bash
 MAKEFLAGS += -rR --no-print-directory --warn-undefined-variables
 .SUFFIXES:
-.NOTPARALLEL:
 null :=
 space := $(null) $(null)
 define \n
@@ -133,6 +132,11 @@ test: build testonly
 testonly:
 	ulimit -c 0 ; cd $(B) && $(CTEST) $(TESTFLAGS) $(CTESTFLAGS)
 
+testprogram: export TESTPROGRAM := $(TESTPROGRAM)
+testprogram: R = yio_testprogram
+testprogram: .build_yio_testprogram
+	$(B)/bin/yio_testprogram
+
 ###############################################################################
 
 HELP +=~ valgrind - Run tests under valgrind
@@ -191,59 +195,15 @@ coverage_gen:
 ###############################################################################
 # linting
 
-LINTOPTS = CMAKE_BUILD_TYPE=Debug PRESET=lint
-
-_build/lint_compile_commands.json: $(B)/compile_commands.json Makefile
-	jq --arg pwd "$(PWD)" --arg rgx \
-		"/(src|test|_build/.*/test|third_party)/" \
-		'[ .[] | select(.file | test("^" + $$pwd + $$rgx) | not) ]' \
-		$< > $@.tmp
-	! grep -F '"file": "$(PWD)/test/templated' $@.tmp
-	! grep -F '"file": "$(PWD)/test/reprocessed' $@.tmp
-	! grep -F '"file": "$(PWD)/src' $@.tmp
-	mv $@.tmp $@
-_build/lint_files.txt: _build/lint_compile_commands.json
-	jq -r '.[].file' $< > $@
-
 HELP +=~ lint - run linters
 HELP +=~ clang-tidy -
 HELP +=~ cpplint -
-lint: ; $(MAKE) $(LINTOPTS) .clang-tidy .cpplint
-clang-tidy cpplint: ; $(MAKE) $(LINTOPTS) .$@
-.clang-tidy: build_gen _build/lint_files.txt
-	xargs -P$(NPROC) -n 4 < _build/lint_files.txt -t -d '\n' clang-tidy -p $(B)
-.cpplint: build_gen _build/lint_files.txt
-	xargs < _build/lint_files.txt -t -d '\n' cpplint
-
-###############################################################################
-# cppcheck
-
-HELP +=~ cppcheck Run cppcheck
-cppcheck:
-	$(MAKE) $(LINTOPTS) .cppcheck
-
-_build/cppcheck/coverity-misra-standards-ds-ul.pdf:
-	mkdir -p _build/cppcheck
-	curl -o $@ "https://www.synopsys.com/content/dam/synopsys/sig-assets/datasheets/coverity-misra-standards-ds-ul.pdf"
-_build/cppcheck/misra_rules.txt: _build/cppcheck/coverity-misra-standards-ds-ul.pdf Makefile
-	pdftotext $< $@
-	sed -i \
-		-e '1,/MISRA C:2012 supported rules/d' \
-		-e '/^Rule 1\.1$$/iAppendix A Summary of guidelines' \
-		-e '/^This datasheet applies to/,$$d' \
-		$@
-	sed -zE -i \
-		-e 's/\n/ /g' \
-		-e 's/ * (Rule [0-9.]*)  */\n\n\1\n\n/g' \
-		$@
-.cppcheck: export F = --quiet
-.cppcheck: _build/cppcheck/misra_rules.txt
-	$(MAKE) build
-	mkdir -vp _build/cppcheck
-	$(MAKE) _build/lint_compile_commands.json
-	sed 's/[[:space:]]*#.*//; /^[[:space:]]*$$/d' ./cppcheck.cfg | \
-		NPROC=$(NPROC) envsubst '$$NPROC' | \
-		xargs -t -d '\n' $(NICE) cppcheck $(F)
+lint:
+	$(MAKE) clang-tidy cpplint
+LINTOPTS = CMAKE_BUILD_TYPE=Debug PRESET=lint
+clang-tidy cpplint cppcheck:
+	$(MAKE) $(LINTOPTS) .build_yio_$@
+.build_yio_cppcheck: export CMAKE_BUILD_PARALLEL_LEVEL=1
 
 ###############################################################################
 

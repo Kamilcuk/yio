@@ -5,6 +5,7 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
+#include "yio/yio_error.h"
 #define _XOPEN_SOURCE  1 // wcswidth
 #define _POSIX_C_SOURCE  200112L  // nl_langinfo
 #define _GNU_SOURCE  1 // GROUPING (?)
@@ -78,7 +79,7 @@ int _yΩIO_digit_to_number(TCHAR d) {
 	return d - '0';
 #else
 	const TCHAR table[] = TC("0123456789");
-	return TSTRCHR(table, d) - table;
+	return (int)(TSTRCHR(table, d) - table);
 #endif
 }
 
@@ -266,11 +267,12 @@ int yπio_printctx_init(yπio_printctx_t *t) {
 	return 0;
 }
 
-int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *ptr, size_t size) {
+int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *restrict ptr, size_t size) {
 	assert(t->out != NULL);
 	assert(ptr != NULL);
 	const int ret = (*t->out)(t->outarg, ptr, size);
 	if (ret) return ret;
+	//dbgln("%d", (int)size);
 	t->writtencnt += size;
 	return 0;
 }
@@ -299,6 +301,12 @@ int _yΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const
 
 /* printformat --------------------------------------------------- */
 
+#ifndef _yIO_HAS_wcswidth
+#error
+#endif
+#ifndef _yIO_HAS_UNISTRING
+#error
+#endif
 static inline
 size_t _yΩIO_width(const TCHAR *str, size_t str_len) {
 #if TMODE == 1 && _yIO_HAS_UNISTRING
@@ -312,10 +320,6 @@ size_t _yΩIO_width(const TCHAR *str, size_t str_len) {
 	return u32_width(str, str_len, locale_charset());
 #else
 	return str_len;
-#define HAS_WIDTH  1
-#endif
-#ifndef HAS_WIDTH
-#define HAS_WIDTH  0
 #endif
 }
 
@@ -359,7 +363,7 @@ int _yΩIO_printformat_prefix__print_sign_hash(yπio_printctx_t *t,
 		const struct yπio_printfmt_s *f,
 		bool has_sign, bool has_hash, bool is_positive) {
 	if (has_sign) {
-		const TCHAR c = is_positive ? f->sign : TC('-');
+		const TCHAR c = (TCHAR)(is_positive ? f->sign : TC('-'));
 		const int err = yπio_printctx_raw_write(t, &c, 1);
 		if (err) return err;
 	}
@@ -640,23 +644,206 @@ void _yΩIO_printformat_assert_valid(const struct yπio_printfmt_s *pf) {
 	assert(is_one_of_or_nul(pf->sign, TC("+- ")));
 	assert(pf->fill != TC('{') && pf->fill != TC('}'));
 	assert(is_one_of_or_nul(pf->grouping, TC("_,L")));
+	assert(is_one_of_or_nul(pf->c_onversion, TC("a")));
 }
 
-int _yΩIO_printformat_generic(yπio_printctx_t * restrict t,
+/* ------------------------------------------------------------------------- */
+
+static inline
+bool is_print_ascii(TCHAR tcc) {
+	const unsigned char ascii_min_printable = 32;
+	const unsigned char ascii_max_printable = 126;
+#if TMODE == 1 || \
+		(TMODE == 2 && !defined(__STDC_MB_MIGHT_NEQ_WC__)) || \
+		(TMODE == 3 && defined(__STDC_UTF_16__)) || \
+		(TMODE == 4 && defined(__STDC_UTF_32__))
+	const TCHAR cc = tcc;
+#else
+#warning TODO: conversion
+#endif
+	return ascii_min_printable <= cc && cc <= ascii_max_printable;
+}
+
+static const TCHAR *const xdigits = TC("0123456789abcdef");
+static const unsigned char four = 0xf;
+
+static inline
+TCHAR *ascii_encode_x(TCHAR cc, TCHAR newstr[restrict]) {
+	static_assert(CHAR_BIT == 8, "Really? TODO");
+	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
+			bb != bbend; ++bb) {
+		const unsigned char bbv = *bb;
+		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
+		*newstr++ = TC('\\');
+		*newstr++ = TC('x');
+		*newstr++ = xdigits[(bbv >> (4 * 1)) & four];
+		*newstr++ = xdigits[(bbv >> (4 * 0)) & four];
+	}
+	return newstr;
+}
+
+static inline
+TCHAR *ascii_encode_o(TCHAR cc, TCHAR newstr[restrict]) {
+	static const unsigned char three = 0x7;
+	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
+			bb != bbend; ++bb) {
+		const unsigned char bbv = *bb;
+		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
+		*newstr++ = TC('\\');
+		*newstr++ = xdigits[(bbv >> (3 * 2)) & three];
+		*newstr++ = xdigits[(bbv >> (3 * 1)) & three];
+		*newstr++ = xdigits[(bbv >> (3 * 0)) & three];
+	}
+	return newstr;
+}
+
+static inline
+TCHAR *ascii_encode_u(uint16_t cc, TCHAR newstr[restrict]) {
+	*newstr++ = TC('\\');
+	*newstr++ = TC('u');
+	*newstr++ = xdigits[(cc >> (4 * 3)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 2)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 1)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 0)) & four];
+	return newstr;
+}
+
+static inline
+TCHAR *ascii_encode_U(uint32_t cc, TCHAR newstr[restrict]) {
+	*newstr++ = TC('\\');
+	*newstr++ = TC('U');
+	*newstr++ = xdigits[(cc >> (4 * 7)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 6)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 5)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 4)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 3)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 2)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 1)) & four];
+	*newstr++ = xdigits[(cc >> (4 * 0)) & four];
+	return newstr;
+}
+
+static inline
+TCHAR ascii_encode_get_esc(TCHAR cc) {
+	switch (cc) {
+	case TC('\''): return TC('\'');
+	case TC('\"'): return TC('\"');
+	case TC('\a'): return TC('t');
+	case TC('\b'): return TC('b');
+	case TC('\f'): return TC('f');
+	case TC('\n'): return TC('n');
+	case TC('\r'): return TC('r');
+	case TC('\t'): return TC('t');
+	case TC('\v'): return TC('v');
+	}
+	return TC('\0');
+}
+
+#define CSTRLEN(x)  (sizeof(x) - 1)
+
+#if (TMODE == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT16_MAX) || (TMODE == 3 && defined(__STDC_UTF_16__))
+#define ASCII_USE  2  // \u1234
+#elif (TMODE == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT32_MAX) || (TMODE == 4 && defined(__STDC_UTF_32__))
+#define ASCII_USE  3  // \U12345678
+#else
+#define ASCII_USE  1  // \001\002\003...
+#endif
+
+static inline
+size_t ascii_encode_get_length(const TCHAR str[restrict], size_t str_len) {
+	size_t cnt = 0;
+	for (const TCHAR *const str_end = str + str_len; str != str_end; ++str) {
+		const TCHAR cc = *str;
+		const size_t add = ascii_encode_get_esc(cc) != TC('\0') ? CSTRLEN("\\\\") : is_print_ascii(cc) ? 1 :
+#if ASCII_USE == 1
+			 (CSTRLEN("\\012") * sizeof(*str))
+#elif ASCII_USE == 2
+			CSTRLEN("\\u1234")
+#elif ASCII_USE == 3
+			CSTRLEN("\\U12345678")
+#else
+#error
+#endif
+			;
+		cnt += add;
+	}
+	return cnt;
+}
+
+static inline
+void ascii_encode_do(const TCHAR str[restrict], size_t str_len, TCHAR newstr[restrict], size_t newstr_len) {
+	//dbgln("newstr_len=%d str_len=%d", (int)newstr_len, (int)str_len);
+	const TCHAR *const newstrend = newstr + newstr_len;
+	for (const TCHAR *const strend = str + str_len; str != strend; ++str) {
+		const TCHAR cc = *str;
+		const TCHAR esc = ascii_encode_get_esc(cc);
+		if (esc != TC('\0')) {
+			//dbgln("%c  %#x adding\\%c", cc, cc, esc);
+			*newstr++ = TC('\\');
+			*newstr++ = esc;
+		} else if (is_print_ascii(cc)) {
+			//dbgln("%c  %#x is_ascii", cc, cc);
+			*newstr++ = cc;
+		} else {
+#if ASCII_USE == 1
+			newstr = ascii_encode_o(cc, newstr);
+#elif ASCII_USE == 2
+			newstr = ascii_encode_u(cc, newstr);
+#elif ASCII_USE == 3
+			newstr = ascii_encode_U(cc, newstr);
+#else
+#error
+#endif
+		}
+	}
+	(void)newstrend;
+	assert(newstr == newstrend);
+}
+
+static inline
+int _yΩIO_printformat_conversion(yπio_printctx_t *restrict t,
+		const TCHAR *restrict *restrict pstr, size_t *pstr_len) {
+	//dbgln("%c", t->pf.c_onversion);
+	if (t->pf.c_onversion != TC('a')) return 0;
+	const TCHAR *restrict str = *pstr;
+	const size_t str_len = *pstr_len;
+	const size_t newstr_len = ascii_encode_get_length(str, str_len);
+	if (newstr_len == str_len) return 0;
+	assert(newstr_len > str_len);
+	TCHAR *const newstr = malloc(newstr_len * sizeof(*newstr));
+	if (newstr == NULL) return YIO_ERROR_ENOMEM;
+	ascii_encode_do(str, str_len, newstr, newstr_len);
+	*pstr_len = newstr_len;
+	*pstr = newstr;
+	return 1;
+}
+
+/* ------------------------------------------------------------------------- */
+
+int _yΩIO_printformat_generic(yπio_printctx_t *restrict t,
 		const TCHAR str[restrict], size_t str_len, bool is_number, bool is_positive) {
+	int err = 0;
+	const int converted = _yΩIO_printformat_conversion(t, &str, &str_len);
+	if (converted < 0) return converted;
+	//
 	_yΩIO_printformat_assert_valid(&t->pf);
 	_yΩIO_printformat_t pf;
 	_yΩIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
-	int err = _yΩIO_printformat_prefix(&pf);
-	if (err) return err;
+	err = _yΩIO_printformat_prefix(&pf);
+	if (err) goto EXIT;
 	err = _yΩIO_printformat_print(&pf, str, str_len);
-	if (err) return err;
+	if (err) goto EXIT;
 	err = _yΩIO_printformat_suffix(&pf);
-	if (err) return err;
-	return 0;
+	if (err) goto EXIT;
+	//
+EXIT:
+	if (converted) {
+		free((void *)str);
+	}
+	return err;
 }
 
-#if TMODEX != 1
+#if TMODE != 1
 int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive) {
 	const TCHAR *dest = NULL;

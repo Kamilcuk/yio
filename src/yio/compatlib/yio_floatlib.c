@@ -71,7 +71,7 @@ static inline void floaterror(const char *func) {
 
 weak _yIO_FLOAT$1 floor$2(_yIO_FLOAT$1 x);
 weak _yIO_FLOAT$1 floor$2(_yIO_FLOAT$1 x) {
-	return (int)x;
+	return (_yIO_FLOAT$1)(int)x;
 }
 
 weak _yIO_FLOAT$1 fabs$2(_yIO_FLOAT$1 x);
@@ -113,7 +113,7 @@ weak _yIO_FLOAT$1 log2$2(_yIO_FLOAT$1 x);
 weak _yIO_FLOAT$1 log2$2(_yIO_FLOAT$1 x) {
 	// https://stackoverflow.com/questions/39864840/using-series-to-approximate-log2
 	unsigned long n = 1;
-	_yIO_FLOAT$1 eps = _yIO_FLOAT_C$1(0.00001);
+	const _yIO_FLOAT$1 eps = _yIO_FLOAT_C$1(0.00001);
 	_yIO_FLOAT$1 kpow = (x - 1) / (x + 1);
 	_yIO_FLOAT$1 kpow2 = kpow * kpow;
 	_yIO_FLOAT$1 dk;
@@ -122,7 +122,7 @@ weak _yIO_FLOAT$1 log2$2(_yIO_FLOAT$1 x) {
 	do {
 	    n += 2;
 	    kpow *= kpow2;
-	    dk = _yIO_FLOAT_C$1(2.0) * kpow / n;
+	    dk = _yIO_FLOAT_C$1(2.0) * kpow / (_yIO_FLOAT$1)n;
 	    k += dk;
 	} while (fabs$2(dk) >= eps);
 

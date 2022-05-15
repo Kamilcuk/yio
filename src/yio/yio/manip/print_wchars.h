@@ -8,6 +8,7 @@
  */
 #ifndef _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
 #define _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
+#include "../ctx.h"
 
 #ifndef _yIO_HAS_WCHAR_H
 #error _yIO_HAS_WCHAR_H

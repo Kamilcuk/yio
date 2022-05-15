@@ -69,14 +69,15 @@ void exp_to_upper(char *str, bool doit) {
 #endif
 #if _yIO_HAS_INT128 && _yIO_HAS_FLOATl
 
-// https://github.com/ulfjack/ryu/blob/master/ryu/ryu_generic_128.h
+// copied from https://github.com/ulfjack/ryu/blob/master/ryu/ryu_generic_128.h
+// depends on ABI
 struct floating_decimal_128 {
   __uint128_t mantissa;
   int32_t exponent;
   bool sign;
 };
 struct floating_decimal_128 long_double_to_fd128(long double d);
-int generic_to_chars(const struct floating_decimal_128 v, char* const result);
+int generic_to_chars(struct floating_decimal_128 v, char *result);
 
 int _yIO_float_astrfrom_ryul(_yIO_res *res, const int precision0, const char spec, _yIO_FLOATl val) {
 	if (spec == 'a' || spec == 'A') {

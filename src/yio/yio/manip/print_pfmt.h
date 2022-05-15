@@ -8,6 +8,7 @@
  */
 #ifndef _yIO_YIO_YΩIO_MANIP_PRINT_PFMT_H_
 #define _yIO_YIO_YΩIO_MANIP_PRINT_PFMT_H_
+#include "../ctx.h"
 
 /**
  * @defgroup yπppfmt TMODEN yπppfmt

@@ -11,12 +11,18 @@ It is used as part of CMake scripts to generate error messages.
 import os
 import re
 import sys
-from preprocess import save_if_changed, LL
+
+from preprocess import LL, save_if_changed
+
+
+def fatal(str, *args):
+    print(str.format(*args), file=stderr)
+    sys.exit(1)
 
 
 def get_all_errors_from_sources():
     rereplace = re.compile(
-        r'_yIO_ERROR\s*\(\s*(YIO_ERROR_[A-Z_]+)\s*,\s*(".*")\s*\)',
+        r'_yIO_ERROR\s*\(\s*(.*)\s*,\s*(".*")\s*\)\s*;',
         flags=re.MULTILINE,
     )
     dir = os.path.dirname(__file__)
@@ -28,6 +34,9 @@ def get_all_errors_from_sources():
             file = os.path.join(root, filename)
             content = open(file).read()
             for res in rereplace.findall(content):
+                name, msg = res
+                if not name.startswith("YIO_ERROR_"):
+                    fatal("{}: Argument to _yIO_ERROR does not start with YIO_ERROR", file)
                 errors += [(res[0], res[1])]
     return errors
 

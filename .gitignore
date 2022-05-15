@@ -23,3 +23,4 @@ a.out
 __pycache__
 */__pycache__
 .vim
+coverage

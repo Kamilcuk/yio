@@ -27,6 +27,8 @@ const TCHAR *_yΩIO_printint_to_fmt(TCHAR type) {
 }
 
 {% call(V) j_FOREACHAPPLY([
+	["uschar", "unsigned char"],
+	["schar", "signed char"],
 	["ushort", "unsigned short"],
 	["short", "short"],
 	["uint", "unsigned int"],
@@ -113,7 +115,12 @@ int _yΩIO_print_$1(yπio_printctx_t *t) {
 	const int err = yπio_printctx_init(t);
 	if (err) return err;
 	const bool is_negative = arg < 0;
-	const unsigned $2 uarg = is_negative ? -((unsigned $2)arg) : (unsigned $2)arg;
+{% if j_match(V.1, "signed char") %} #line
+	typedef unsigned char unsignedtype;
+{% else %} #line
+	typedef unsigned $2 unsignedtype;
+{% endif %} #line
+	const unsignedtype uarg = is_negative ? -((unsignedtype)arg) : (unsignedtype)arg;
 	return _yΩIO_print_u$1_in(t, uarg, is_negative);
 }
 

@@ -29,10 +29,10 @@
 int _yΩIO_print_bool(yπio_printctx_t *t);
 
 int _yΩIO_print_char(yπio_printctx_t *t);
-int _yΩIO_print_schar(yπio_printctx_t *t);
-int _yΩIO_print_uchar(yπio_printctx_t *t);
 int _yΩIO_print_constcharpnt(yπio_printctx_t *t);
 
+int _yΩIO_print_schar(yπio_printctx_t *t);
+int _yΩIO_print_uschar(yπio_printctx_t *t);
 int _yΩIO_print_short(yπio_printctx_t *t);
 int _yΩIO_print_ushort(yπio_printctx_t *t);
 int _yΩIO_print_int(yπio_printctx_t *t);
@@ -113,7 +113,7 @@ int _yΩIO_print_count(yπio_printctx_t *t);
 			const void*: _yΩIO_print_voidp, \
 		default: _Generic((arg), \
 			signed char: _yΩIO_print_schar, \
-			unsigned char: _yΩIO_print_uchar, \
+			unsigned char: _yΩIO_print_uschar, \
 			_yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
 		default: _yΩIO_print_unhandled_type \
 		)))

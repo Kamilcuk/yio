@@ -8,6 +8,7 @@
  */
 #ifndef _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
 #define _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
+#include "../ctx.h"
 #include <time.h>
 #ifndef _yIO_HAS_timespec
 #error

@@ -124,24 +124,32 @@ bool _yIO_test_is_in_valgrind(void);
 #define STRING(a)   #a
 #define XSTRING(a)  STRING(a)
 
+struct testparam {
+	const char *rgx;
+	const char *match;
+	bool fail;
+};
+
 #define in_YIO_TEST(shouldbe, fmt, buf, err)  do { \
-		_yIO_TEST(err > 0, "fmt=`%s` err=%d`%s` errno=%d", fmt, err, yio_strerror(err), errno); \
+		_yIO_TEST((err) > 0, "fmt=`%s` err=%d`%s` errno=%d", \
+				fmt, err, yio_strerror(err), errno); \
 		int matchlen; \
 		_yIO_TEST(re_match("^" shouldbe "$", buf, &matchlen) == 0, "shouldbe=\n\t`%s` buf=\n\t`%s`", shouldbe, buf); \
-		if (err > 0 && re_match("^" shouldbe "$", buf, &matchlen) == 0) { \
+		if ((err) > 0 && re_match("^" shouldbe "$", buf, &matchlen) == 0) { \
 			fprintf(stderr, "GOOD:%d:`%s`%s`\n", __LINE__, shouldbe, buf); \
 		} \
 	} while (0)
 
 #define YIO_TEST(shouldbe, fmt, ...)  do { \
 		char buf[1024]; \
-		in_YIO_TEST(shouldbe, fmt, buf, ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__)); \
+		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
+		in_YIO_TEST(shouldbe, fmt, buf, err); \
 	} while(0)
 
 
 #if _yIO_HAS_WCHAR_H
 #define YWIO_TEST(shouldbe, fmt, ...)  do { \
-		wchar_t buf[1024]; \
+		wchar_t buf[1024] = {0}; \
 		const int err = ywsprintf(buf, sizeof(buf), L##fmt, ## __VA_ARGS__); \
 		char bufc[1024]; \
 		wcstombs(bufc, buf, sizeof(bufc)); \

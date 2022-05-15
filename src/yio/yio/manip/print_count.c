@@ -16,7 +16,7 @@ int _yΩIO_print_count(yπio_printctx_t *t) {
 	if (writtencnt > INT_MAX) {
 		*arg = INT_MAX;
 	} else {
-		*arg = writtencnt;
+		*arg = (int)writtencnt;
 	}
 	return 0;
 }

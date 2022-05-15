@@ -159,23 +159,6 @@ int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...
  */
 bool _yIO_res_remove_trailing_zeros_and_comma(_yIO_res *t);
 
-/**
- * Reserves at least @c newsize count of bytes and sets
- * the used count of bytes to newused.
- * @param t
- * @param newsize
- * @param newused
- * @return same as @c _yIO_res_reserve
- */
-static inline _yIO_wur _yIO_nn()
-int _yIO_res_resize2(_yIO_res *t, size_t newsize, size_t newused) {
-	assert(newused <= newsize);
-	const int err = _yIO_res_reserve(t, newsize);
-	if (err) return err;
-	_yIO_res_set_used(t, newused);
-	return 0;
-}
-
 #ifndef YIO_CACHE_STACK_SIZE
 #error "YIO_CACHE_STACK_SIZE not defined"
 #define YIO_CACHE_STACK_SIZE 32
@@ -192,11 +175,11 @@ int _yIO_res_resize2(_yIO_res *t, size_t newsize, size_t newused) {
 #define _yIO_RES_AUTO_DECL(var)  \
 		char _yIO_RES_CONCAT(_buf_##var, __LINE__)[YIO_CACHE_STACK_SIZE]; \
 		_yIO_res var; \
-		_yIO_res_init(&var, _yIO_RES_CONCAT(_buf_##var, __LINE__), YIO_CACHE_STACK_SIZE)
+		_yIO_res_init(&(var), _yIO_RES_CONCAT(_buf_##var, __LINE__), YIO_CACHE_STACK_SIZE)
 #else
 #define _yIO_RES_AUTO_DECL(var)  \
 		_yIO_res var; \
-		_yIO_res_init(&var, NULL, 0)
+		_yIO_res_init(&(var), NULL, 0)
 #endif
 
 #endif /* _yIO_YIO_PRIVATE_YIO_RES_H_ */

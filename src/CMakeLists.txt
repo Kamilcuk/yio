@@ -44,6 +44,12 @@ include(version.cmake)
 configure_file(${SRCDIR}/yio/yio_version.h.in ${GENDIR}/yio/yio_version.h)
 list(APPEND _gensrcs yio/yio_version.h)
 
+###########################################################################################
+
+add_custom_target(yio_gen
+	COMMENT "yio sources generated"
+)
+
 # Generate errors
 file(GLOB_RECURSE csrcs yio/*.c)
 add_custom_command(
@@ -68,11 +74,9 @@ list(APPEND _yio_gensrcs
   yio/yio_error_genenum.h
   yio/yio_error_genmsg.h
 )
-
-###########################################################################################
-
-add_custom_target(yio_gen
-	COMMENT "yio sources generated"
+set_property(TARGET yio_gen APPEND PROPERTY SOURCES
+  ${GENDIR}/yio/yio_error_genenum.h
+  ${GENDIR}/yio/yio_error_genmsg.h
 )
 
 file(GLOB_RECURSE _srcs *.c *.h)
@@ -353,3 +357,154 @@ add_custom_target(
 	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	VERBATIM
 )
+
+###############################################################################
+
+if(NOT UNIX)
+  return()
+endif()
+
+set(_lintsrcs ${_gensrcs})
+list(FILTER _lintsrcs EXCLUDE REGEX ".*yio_error_gen.*")
+list(FILTER _lintsrcs EXCLUDE REGEX ".*/yio/private.h")
+list(FILTER _lintsrcs EXCLUDE REGEX ".*/yio_strlib.h")
+#list(FILTER _lintsrcs EXCLUDE REGEX ".*\\.h")
+
+function(yio_add_linter A_NAME)
+  cmake_parse_arguments(A "" "" "COMMENT;COMMAND;DEPENDS" ${ARGV})
+  if(NOT A_COMMENT)
+    set(A_COMMENT ${A_COMMAND})
+  endif()
+  list(GET A_COMMENT 0 A_NAME)
+  string(REPLACE ";" " " A_COMMENT "${A_COMMENT}")
+  set(deps)
+  foreach(ii IN LISTS _lintsrcs)
+    add_custom_command(
+      OUTPUT
+        ${CMAKE_CURRENT_BINARY_DIR}/${A_NAME}/${ii}
+      COMMENT
+        "${A_COMMENT} ${ii}"
+      COMMAND
+        ${A_COMMAND} ${GENDIR}/${ii}
+      COMMAND ${CMAKE_COMMAND} -E touch
+        ${CMAKE_CURRENT_BINARY_DIR}/${A_NAME}/${ii}
+      DEPENDS
+        ${GENDIR}/${ii}
+        #$<TARGET_OBJECTS:yio>
+        ${A_DEPENDS}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+      VERBATIM
+    )
+    list(APPEND deps
+      ${CMAKE_CURRENT_BINARY_DIR}/${A_NAME}/${ii}
+    )
+  endforeach()
+  add_custom_target(yio_${A_NAME}
+    COMMENT "Run ${A_NAME}"
+    DEPENDS ${deps}
+  )
+  add_dependencies(yio_${A_NAME} yio)
+endfunction()
+
+yio_add_linter(
+  COMMENT
+    clang-tidy --quiet -p ${CMAKE_BINARY_DIR} --color
+  COMMAND
+    bash -c "\"$@\" 2> >(sed '/[0-9]* warnings\\? generated\\.$/d')" _
+    clang-tidy --quiet -p ${CMAKE_BINARY_DIR} --color
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../.clang-tidy
+)
+yio_add_linter(
+  COMMAND cpplint --quiet
+  DEPENDS ../CPPLINT.cfg
+)
+
+###############################################################################
+
+add_custom_command(
+  OUTPUT coverity-misra-standards-ds-ul.pdf
+  COMMENT "Download coverity-misra-standards-ds-ul.pdf to generate misra_rules.txt"
+  COMMAND
+    curl -sS -o coverity-misra-standards-ds-ul.pdf
+    https://www.synopsys.com/content/dam/synopsys/sig-assets/datasheets/coverity-misra-standards-ds-ul.pdf
+  VERBATIM
+)
+add_custom_command(
+  OUTPUT misra_rules.txt
+  COMMENT "Generate misra_rules.txt for cppcheck misra plugin"
+  DEPENDS coverity-misra-standards-ds-ul.pdf
+  COMMAND pdftotext coverity-misra-standards-ds-ul.pdf misra_rules.txt.tmp
+  COMMAND sed -i
+		-e "1,/MISRA C:2012 supported rules/d"
+		-e "/^Rule 1\.1$/iAppendix A Summary of guidelines"
+		-e "/^This datasheet applies to/,$d"
+		misra_rules.txt.tmp
+  COMMAND sed -zE -i
+		-e "s/\\n/ /g"
+		-e "s/ * (Rule [0-9.]*)  */\\n\\n\\1\\n\\n/g"
+    misra_rules.txt.tmp
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different misra_rules.txt.tmp misra_rules.txt
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  VERBATIM
+)
+include(ProcessorCount)
+ProcessorCount(NPROC)
+math(EXPR NPROC "${NPROC} + 1")
+add_custom_command(
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/cppcheck.cfg
+  COMMENT "Generate cppcheck.cfg command line options"
+  DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/../cppcheck.cfg
+  COMMAND sed "s/[[:space:]]*#.*//; /^[[:space:]]*$/d"
+    ${CMAKE_CURRENT_SOURCE_DIR}/../cppcheck.cfg > ${CMAKE_CURRENT_BINARY_DIR}/cppcheck.cfg.1
+  COMMAND env -i
+    NPROC=${NPROC}
+    CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
+    envsubst
+    < ${CMAKE_CURRENT_BINARY_DIR}/cppcheck.cfg.1
+    > ${CMAKE_CURRENT_BINARY_DIR}/cppcheck.cfg
+  VERBATIM
+)
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json.diff
+  COMMENT "Copy if different compile_commands.json"
+  DEPENDS
+    ${CMAKE_BINARY_DIR}/compile_commands.json
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_BINARY_DIR}/compile_commands.json
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json.diff
+)
+add_custom_command(
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json
+  COMMENT "Generate yio_lint_compile_commands.json with less source files"
+  DEPENDS
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json.diff
+  COMMAND
+    jq --arg pwd ${PROJECT_SOURCE_DIR} --arg rgx
+    "/(src|test|_build/.*/test|third_party)/"
+    "[ .[] | select(.file | ltrimstr($pwd) | test($rgx) | not) ]"
+    ${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json.diff >
+    ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json.tmp
+  COMMAND ! grep -F "\"file\": \"test/templated" ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json.tmp
+  COMMAND ! grep -F "\"file\": \"test/reprocessed" ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json.tmp
+  COMMAND ! grep -F "\"file\": \"src" ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json.tmp
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json.tmp
+    ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json
+  VERBATIM
+)
+add_custom_target(yio_cppcheck
+  COMMENT "Run cppcheck"
+  #COMMAND mkdir -vp ${CMAKE_CURRENT_BINARY_DIR}/cppcheckbuilddir/
+  COMMAND xargs -t -d "\\n" cppcheck < ${CMAKE_CURRENT_BINARY_DIR}/cppcheck.cfg > /dev/tty 2>&1
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+  DEPENDS
+    ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/cppcheck_misra.json
+    ${CMAKE_CURRENT_BINARY_DIR}/misra_rules.txt
+    ${CMAKE_CURRENT_BINARY_DIR}/cppcheck.cfg
+    ${CMAKE_CURRENT_BINARY_DIR}/yio_lint_compile_commands.json
+  VERBATIM
+)
+add_dependencies(yio_cppcheck yio)

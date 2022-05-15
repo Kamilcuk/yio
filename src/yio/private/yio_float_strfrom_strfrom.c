@@ -77,16 +77,15 @@ int _yIO_float_astrfrom_strfrom$1(_yIO_res *v, int precision, char spec, _yIO_FL
 		// this is not possible
 		return _yIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned -1");
 	}
-	if ((size_t)len < _yIO_res_size(v)) {
-		_yIO_res_set_used(v, len);
-	} else {
-		const int err = _yIO_res_resize2(v, len + 1, len);
+	if ((size_t)len >= _yIO_res_size(v)) {
+		const int err = _yIO_res_reserve(v, len + 1);
 		if (err) return err;
 		const int len2 = strfrom$1(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 		(void)len2;
-		assert((size_t)len2 == _yIO_res_used(v));
+		assert(len2 > 0);
 		assert(len2 == len);
 	}
+	_yIO_res_set_used(v, len);
 	return 0;
 }
 

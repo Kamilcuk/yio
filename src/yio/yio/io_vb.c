@@ -21,7 +21,7 @@ int yπvbprintf_iterate_until_format_callback(yπio_printctx_t *t, const TCHAR *
 }
 
 static inline
-int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR *fmt, const TCHAR **endptr) {
+int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR fmt[restrict], const TCHAR **restrict endptr) {
 	const TCHAR *pos = fmt;
 	while (fmt[0] != TC('\0')) {
 		//fprintf(stderr, "P1:pos=`%s` fmt=`%s`\n", pos, fmt);
@@ -36,20 +36,18 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR *fmt
 					if (err) return err;
 					pos = fmt + 2;
 					fmt = pos;
-					continue;
 				} else {
 					// We can optimize a bit - continue from the next character.
 					pos += 1;
 					fmt = pos + 1;
-					continue;
 				}
-			} else {
-				if (fmt[0] == TC('}')) {
-					return _yIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
-				}
-				// {} or {:stuff} found
-				break;
+				continue;
 			}
+			if (fmt[0] == TC('}')) {
+				return _yIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
+			}
+			// {} or {:stuff} found
+			break;
 		}
 		fmt++;
 	}
@@ -138,6 +136,6 @@ int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const
 		return -abs(err);
 	}
 	assert(t->writtencnt <= (unsigned)INT_MAX);
-	return t->writtencnt;
+	return (int)t->writtencnt;
 }
 

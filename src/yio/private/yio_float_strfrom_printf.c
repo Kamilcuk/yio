@@ -26,8 +26,8 @@
 #if _yIO_USE_STRFROM_PRINTF
 
 static inline
-void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
-		int precision, char spec, const char *pri, size_t prisize) {
+void _yIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
+		int precision, char spec, const char *restrict pri, size_t prisize) {
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
 	if (precision >= 0) {
@@ -64,7 +64,7 @@ void _yIO_create_format_string_generic(char *fmt, size_t fmtsize,
 )
 
 static inline
-void _yIO_create_format_string$1(char *fmt, int precision, char spec) {
+void _yIO_create_format_string$1(char *restrict fmt, int precision, char spec) {
 	_yIO_create_format_string_generic(fmt, FMT_SIZE$1,
 			precision, spec, _yIO_FLOAT_PRI$1, sizeof(_yIO_FLOAT_PRI$1) - 1);
 }
@@ -75,18 +75,15 @@ int _yIO_float_astrfrom_printf$1(_yIO_res *v, int precision, char spec, _yIO_FLO
 	assert(_yIO_res_size(v) < INT_MAX);
 	const int len = snprintf(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 	assert(len >= 0);
-	if ((size_t)len < _yIO_res_size(v)) {
-		_yIO_res_set_used(v, len);
-	} else {
-		int err = _yIO_res_resize2(v, len + 1, len);
+	if ((size_t)len >= _yIO_res_size(v)) {
+		int err = _yIO_res_reserve(v, len + 1);
 		if (err) return err;
-
 		const int len2 = snprintf(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
 		(void)len2;
 		assert(len2 >= 0);
 		assert(len2 == len);
-		assert((size_t)len2 == _yIO_res_used(v));
 	}
+	_yIO_res_set_used(v, len);
 	return 0;
 }
 

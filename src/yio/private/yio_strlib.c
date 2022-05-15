@@ -83,39 +83,21 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
  * the same representation as character in dst.
  */
 #define _yIO_RETURN_STRCONV_SAME(src_type, dst_type, src, src_len, dst, dst_len)  do { \
-	dst_type * const _out = malloc(sizeof(*_out) * src_len); \
+	dst_type * const _out = malloc(sizeof(*_out) * src_len); /* NOLINT(bugprone-macro-parentheses) */ \
 	if (_out == NULL) return YIO_ERROR_ENOMEM; \
 	{ \
-		dst_type * _iout = _out; \
+		dst_type * _iout = _out; /* NOLINT(bugprone-macro-parentheses) */ \
 		const src_type * _iin = src; \
-		for (size_t i = 0; i < src_len; ++i) { \
+		for (size_t i = 0; i < src_len; ++i) { /* NOLINT(bugprone-macro-parentheses) */ \
 			*_iout++ = *_iin++; \
 		} \
 	} \
-	*dst = _out; \
+	*dst = _out; /* NOLINT(bugprone-macro-parentheses) */ \
 	if (dst_len) { \
-		*dst_len = src_len; \
+		*dst_len = src_len; /* NOLINT(bugprone-macro-parentheses) */ \
 	} \
 	return 0; \
 } while(0)
-
-/**
- * Converts src to dst types by using a type in between.
- * Used to convert ex. utf32 to utf16 by using multibyte between.
- */
-#define _yIO_RETURN_STRCONV_FORWARD(middle_type, \
-		FUNC_dst_to_middle, \
-		FUNC_free_dst_to_middle, \
-		FUNC_middle_to_dst)  do { \
-	middle_type *mb = NULL; \
-	size_t mb_len = 0; \
-	int ret = FUNC_dst_to_middle(src, src_len, &mb, &mb_len); \
-	if (ret) return ret; \
-	ret = FUNC_middle_to_dst(mb, mb_len, dst, dst_len); \
-	FUNC_free_dst_to_middle(src, mb); \
-	return ret; \
-} while(0)
-
 
 /* strconv_str_to_* -------------------------------------------------------------------- */
 
@@ -185,7 +167,7 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 #line
 
 static inline
-size_t _yIO_strconv_str_to_ustr_mbrtowc32_in(const char *in, size_t in_len, char32_t *pc32, size_t *plength) {
+int _yIO_strconv_str_to_ustr_mbrtowc32_in(const char *in, size_t in_len, char32_t *pc32, size_t *plength) {
 	const char *in_end = in + in_len;
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
@@ -209,6 +191,7 @@ int _yIO_strconv_str_to_ustr_mbrtowc32(const char *in, size_t in_len, const char
 	size_t length = 0;
 	int ret = _yIO_strconv_str_to_ustr_mbrtowc32_in(in, in_len, NULL, &length);
 	if (ret) return ret;
+	assert(length != 0);
 	char32_t *const out = malloc(sizeof(*out) * length);
 	if (out == NULL) return YIO_ERROR_ENOMEM;
 	size_t length2 = 0;
@@ -291,6 +274,7 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 	size_t out_len = 0;
 	int ret = _yIO_strconv_wstr_to_str_count(wc, wc_len, &out_len);
 	if (ret) return ret;
+	assert(out_len != 0);
 	char *const out = malloc(sizeof(*out) * out_len);
 	if (out == NULL) return YIO_ERROR_ENOMEM;
 	ret = _yIO_strconv_wstr_to_str_conv(wc, wc_len, out, out_len);
@@ -372,6 +356,7 @@ int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **m
 	size_t out_len = 0;
 	int ret = _yIO_strconv_ustr_to_str_conv(c32, c32_len, NULL, &out_len);
 	if (ret) return ret;
+	assert(out_len != 0);
 	char *const out = malloc(sizeof(*out) * out_len);
 	if (out == NULL) return YIO_ERROR_ENOMEM;
 	size_t out_len2 = 0;
