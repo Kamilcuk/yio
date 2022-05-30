@@ -132,6 +132,7 @@ test: build testonly
 testonly:
 	ulimit -c 0 ; cd $(B) && $(CTEST) $(TESTFLAGS) $(CTESTFLAGS)
 
+TESTPROGRAM ?=
 testprogram: export TESTPROGRAM := $(TESTPROGRAM)
 testprogram: R = yio_testprogram
 testprogram: .build_yio_testprogram

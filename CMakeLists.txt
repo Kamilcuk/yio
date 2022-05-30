@@ -224,11 +224,13 @@ if(POLICY CMP0116)
 endif()
 set(JINJASCRIPT ${CMAKE_CURRENT_BINARY_DIR}/jinja2script.pyc)
 set(JINJAPROJECTSRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+
 add_custom_command(
 	OUTPUT "${JINJASCRIPT}"
 	COMMENT "jinja2: compiling preprocess script"
 	COMMAND
 		${Python3_EXECUTABLE}
+    -X pycache_prefix=${CMAKE_CURRENT_BINARY_DIR}
 		-c
 		"import py_compile, sys ; py_compile.compile(sys.argv[1], cfile=sys.argv[2], doraise=True)"
 		"${SRCDIR}/preprocess.py"
@@ -271,6 +273,7 @@ function(jinja_generate)
 		COMMENT "jinja2: ${A_SOURCE} -> ${reloutputf}"
 		COMMAND
 			"${Python3_EXECUTABLE}"
+      -X pycache_prefix=${CMAKE_CURRENT_BINARY_DIR}
 			"${JINJASCRIPT}"
 			-S "${JINJAPROJECTSRC}"
 			-S "${CMAKE_CURRENT_SOURCE_DIR}"

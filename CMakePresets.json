@@ -99,6 +99,13 @@
         "YIO_CPPLINT": "0",
         "YIO_CLANG_TIDY": "0"
       }
+    },
+    {
+      "name": "winegcc",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/kcmakelib/cmake/Toolchain/winegcc.cmake"
+      }
     }
   ],
   "testPresets": [
