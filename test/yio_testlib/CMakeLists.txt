@@ -37,3 +37,8 @@ if(DFP)
 		#yio_compat
 	#)
 endif()
+if(CMAKE_COMPILER_IS_GNUCC)
+  target_compile_options(${PROJECT_NAME} PUBLIC
+    -Wno-missing-field-initializers
+  )
+endif()

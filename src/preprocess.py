@@ -28,12 +28,13 @@ template_data = {
             "TPRI":   ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
             },
         "funcs": {
-            "TC":       ["{}",                         "L{}",          "u{}",                    "U{}", ],
-            "TFPRINTF": ["fprintf({})",                "fprintf({})",  "ulc_fprintf({})",        "ulc_fprintf({})", ],
-            "TISDIGIT": ["isdigit((unsigned char){})", "iswdigit({})", "uc_is_digit({})",        "uc_is_digit({})", ],
-            "TSTRCHR":  ["strchr({})",                 "wcschr({})",   "u16_strchr({})",         "u32_strchr({})", ],
-            "TSTRCMP":  ["strcmp({})",                 "wcscmp({})",   "u16_strcmp({})",         "u32_strcmp({})", ],
-            "TSTRLEN":  ["strlen({})",                 "wcslen({})",   "u16_strlen({})",         "u32_strlen({})", ],
+            "TC":        ["{}",                          "L{}",           "u{}",              "U{}", ],
+            "TFPRINTF":  ["fprintf({})",                 "fprintf({})",   "ulc_fprintf({})",  "ulc_fprintf({})", ],
+            "TISDIGIT":  ["isdigit((unsigned char){})",  "iswdigit({})",  "uc_is_digit({})",  "uc_is_digit({})", ],
+            "TISXDIGIT": ["isxdigit((unsigned char){})", "iswxdigit({})", "uc_is_xdigit({})", "uc_is_xdigit({})", ],
+            "TSTRCHR":   ["strchr({})",                  "wcschr({})",    "u16_strchr({})",   "u32_strchr({})", ],
+            "TSTRCMP":   ["strcmp({})",                  "wcscmp({})",    "u16_strcmp({})",   "u32_strcmp({})", ],
+            "TSTRLEN":   ["strlen({})",                  "wcslen({})",    "u16_strlen({})",   "u32_strlen({})", ],
             },
         }
 # fmt: on

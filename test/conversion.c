@@ -8,12 +8,14 @@
 #endif
 
 int main() {
-	YIO_TEST("a\\\\001\\\\002b", "{!a}", "a\001\002b");
-	YYIO_TEST(yprintf("c{!a}d\n", "a\001\002b") == 13);
-	YIO_TEST("a\\\\001\\+", "{!a}", "a\x01\x02b");
+	YIO_TEST(( .eq="a\\1\\2b", .ret=6 ), "{!a}", "a\001\2b");
+	YIO_TEST(( .eq="a\\1+" ), "{!a}", "a\x01\x02b");
+	YIO_TEST("a\\\\0011", "{!a}", "a\0011");
+	YIO_TEST("\\?\\\\\\?=", "{!a}", "?\?=");
 #if YIO_HAS_WCHAR_H
 #if defined(__STDC_ISO_10646__) && WCHAR_MAX == INT32_MAX
 	YWIO_TEST("ab\\\\U00000424cd", "a{!a}d", L"b\U00000424c");
+	YWIO_TEST("ab\\\\U424!d", "a{!a}d", L"b\U00000424!");
 #else
 	YWIO_TEST("ab\\\\044\\\\004\\\\000\\\\000""cd", "a{!a}d", L"b\U00000424c");
 #endif

@@ -109,12 +109,13 @@ all: help
 # Generic configure+build+test targets
 
 HELP +=~ configure - Configure the project
+.PHONY: conf config configure
 conf config configure $(B) $(B)/compile_commands.json:
 	$(CMAKE) --preset=$(PRESET) -B$(B) -S. $(CMAKEFLAGS)
 
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
-.build_%: $(B)
+.build_%: conf
 	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep $(R) || echo all),$(if $(value T),$T,$*)) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor

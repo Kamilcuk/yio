@@ -473,6 +473,7 @@ int print_numsep(yπio_printctx_t *t, struct numsep *ns) {
 #if YIO_USE_LOCALE
 			const char *sep = nl_langinfo(THOUSEP); // THOUSEND_SEP
 			if (sep == NULL) {
+				// No separator, set sep to non-null to pass check above.
 				ns->sep = DEFAULT_THOUSEND_SEP;
 				ns->len = 0;
 			} else {
@@ -480,6 +481,7 @@ int print_numsep(yπio_printctx_t *t, struct numsep *ns) {
 				ns->sep = sep;
 				ns->len = strlen(ns->sep);
 #else
+				// Convert separator to wchar/char16/char32.
 				const int err = YYIO_strconv_str_to_πstr(sep, strlen(sep), &ns->sep, &ns->len);
 				if (err) return err;
 #endif
@@ -651,80 +653,118 @@ void YYΩIO_printformat_assert_valid(const struct yπio_printfmt_s *pf) {
 
 static inline
 bool is_print_ascii(TCHAR tcc) {
-	const unsigned char ascii_min_printable = 32;
-	const unsigned char ascii_max_printable = 126;
+	const unsigned char ascii_min_printable = 32U;
+	const unsigned char ascii_max_printable = 126U;
 #if TMODE == 1 || \
 		(TMODE == 2 && !defined(__STDC_MB_MIGHT_NEQ_WC__)) || \
 		(TMODE == 3 && defined(__STDC_UTF_16__)) || \
 		(TMODE == 4 && defined(__STDC_UTF_32__))
-	const TCHAR cc = tcc;
 #else
 #warning TODO: conversion
 #endif
+	const TCHAR cc = tcc;
 	return ascii_min_printable <= cc && cc <= ascii_max_printable;
 }
 
+union out_or_counting_u {
+	TCHAR *newstr;
+	size_t cnt;
+};
+
+struct ss_s {
+	union out_or_counting_u uu;
+	bool counting;
+};
+
+static inline
+struct ss_s ss_init(TCHAR *newstr) {
+	struct ss_s rr;
+	if (newstr != NULL) {
+		rr.counting = false;
+		rr.uu.newstr = newstr;
+	} else {
+		rr.counting = true;
+		rr.uu.cnt = 0;
+	}
+	return rr;
+}
+
+static inline
+void ss_out(struct ss_s *t, TCHAR cc) {
+	if (t->counting) {
+		t->uu.cnt++;
+	} else {
+		if (t->uu.newstr == NULL) __builtin_unreachable();
+		*t->uu.newstr++ = cc;
+	}
+}
+
 static const TCHAR *const xdigits = TC("0123456789abcdef");
-static const unsigned char four = 0xf;
+static const unsigned char four = 0xfU;
 
 static inline
-TCHAR *ascii_encode_x(TCHAR cc, TCHAR newstr[restrict]) {
+void ascii_encode_x(struct ss_s *ss, TCHAR cc, TCHAR next) {
 	static_assert(CHAR_BIT == 8, "Really? TODO");
+	const bool nextdigit = !!TISXDIGIT(next);
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
 		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
-		*newstr++ = TC('\\');
-		*newstr++ = TC('x');
-		*newstr++ = xdigits[(bbv >> (4 * 1)) & four];
-		*newstr++ = xdigits[(bbv >> (4 * 0)) & four];
+		ss_out(ss, TC('\\'));
+		ss_out(ss, TC('x'));
+		if (nextdigit || bbv > (TCHAR)16U) {
+			ss_out(ss, xdigits[(bbv >> 4U) & four]);
+		}
+		ss_out(ss, xdigits[bbv & four]);
 	}
-	return newstr;
 }
 
 static inline
-TCHAR *ascii_encode_o(TCHAR cc, TCHAR newstr[restrict]) {
-	static const unsigned char three = 0x7;
+void ascii_encode_o(struct ss_s *ss, TCHAR cc, TCHAR next) {
+	static const unsigned char three = 0x7U;
+	const bool nextdigit = !!TISDIGIT(next);
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
 		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
-		*newstr++ = TC('\\');
-		*newstr++ = xdigits[(bbv >> (3 * 2)) & three];
-		*newstr++ = xdigits[(bbv >> (3 * 1)) & three];
-		*newstr++ = xdigits[(bbv >> (3 * 0)) & three];
+		ss_out(ss, TC('\\'));
+		for (unsigned ii = 3U * 2U; ii > 0U; ii -= 3U) {
+			if (nextdigit || bbv > (TCHAR)(1U << ii)) {
+				ss_out(ss, xdigits[(bbv >> ii) & three]);
+			}
+		}
+		ss_out(ss, xdigits[bbv & three]);
 	}
-	return newstr;
 }
 
 static inline
-TCHAR *ascii_encode_u(uint16_t cc, TCHAR newstr[restrict]) {
-	*newstr++ = TC('\\');
-	*newstr++ = TC('u');
-	*newstr++ = xdigits[(cc >> (4 * 3)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 2)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 1)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 0)) & four];
-	return newstr;
+void ascii_encode_u(struct ss_s *ss, TCHAR cc, TCHAR next) {
+	const bool nextdigit = !!TISXDIGIT(next);
+	ss_out(ss, TC('\\'));
+	ss_out(ss, TC('u'));
+	for (unsigned ii = 4U * 3U; ii > 0U; ii -= 4U) {
+		if (nextdigit || cc > (TCHAR)(1U << ii)) {
+			ss_out(ss, xdigits[(cc >> ii) & four]);
+		}
+	}
+	ss_out(ss, xdigits[cc & four]);
 }
 
 static inline
-TCHAR *ascii_encode_U(uint32_t cc, TCHAR newstr[restrict]) {
-	*newstr++ = TC('\\');
-	*newstr++ = TC('U');
-	*newstr++ = xdigits[(cc >> (4 * 7)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 6)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 5)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 4)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 3)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 2)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 1)) & four];
-	*newstr++ = xdigits[(cc >> (4 * 0)) & four];
-	return newstr;
+void ascii_encode_U(struct ss_s *ss, TCHAR cc, TCHAR next) {
+	const bool nextdigit = !!TISXDIGIT(next);
+	ss_out(ss, TC('\\'));
+	ss_out(ss, TC('U'));
+	for (unsigned ii = 4U * 7U; ii > 0U; ii -= 4U) {
+		if (nextdigit || cc > (TCHAR)(1U << ii)) {
+			ss_out(ss, xdigits[(cc >> ii) & four]);
+		}
+	}
+	ss_out(ss, xdigits[cc & four]);
 }
 
 static inline
-TCHAR ascii_encode_get_esc(TCHAR cc) {
+TCHAR ascii_encode_get_esc(TCHAR prev, TCHAR cc) {
 	switch (cc) {
 	case TC('\''): return TC('\'');
 	case TC('\"'): return TC('\"');
@@ -735,6 +775,12 @@ TCHAR ascii_encode_get_esc(TCHAR cc) {
 	case TC('\r'): return TC('r');
 	case TC('\t'): return TC('t');
 	case TC('\v'): return TC('v');
+	case TC('\?'):
+		// If the previous character was ?, then watch out for trigraphs.
+		if (prev == '?') {
+			return TC('?');
+		}
+		break;
 	}
 	return TC('\0');
 }
@@ -742,62 +788,44 @@ TCHAR ascii_encode_get_esc(TCHAR cc) {
 #define CSTRLEN(x)  (sizeof(x) - 1)
 
 #if (TMODE == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT16_MAX) || (TMODE == 3 && defined(__STDC_UTF_16__))
-#define ASCII_USE  2  // \u1234
+#define ASCII_ENCODE  ascii_encode_u  // \u1234
 #elif (TMODE == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT32_MAX) || (TMODE == 4 && defined(__STDC_UTF_32__))
-#define ASCII_USE  3  // \U12345678
+#define ASCII_ENCODE  ascii_encode_U  // \U12345678
 #else
-#define ASCII_USE  1  // \001\002\003...
+#define ASCII_ENCODE  ascii_encode_o  // \1\123\377...
 #endif
 
 static inline
-size_t ascii_encode_get_length(const TCHAR str[restrict], size_t str_len) {
-	size_t cnt = 0;
-	for (const TCHAR *const str_end = str + str_len; str != str_end; ++str) {
-		const TCHAR cc = *str;
-		const size_t add = ascii_encode_get_esc(cc) != TC('\0') ? CSTRLEN("\\\\") : is_print_ascii(cc) ? 1 :
-#if ASCII_USE == 1
-			 (CSTRLEN("\\012") * sizeof(*str))
-#elif ASCII_USE == 2
-			CSTRLEN("\\u1234")
-#elif ASCII_USE == 3
-			CSTRLEN("\\U12345678")
-#else
-#error
-#endif
-			;
-		cnt += add;
+struct ss_s ascii_encode_do(const TCHAR str[restrict], size_t str_len, TCHAR *restrict newstr, size_t newstr_len) {
+	struct ss_s ss_mem = ss_init(newstr);
+	struct ss_s *ss = &ss_mem;
+	for (TCHAR prev = TC('\0'), next = *str, cc = next;
+			cc != TC('\0');
+			prev = cc, cc = next) {
+		next = *(++str);
+		//
+		const TCHAR esc = ascii_encode_get_esc(prev, cc);
+		if (esc != TC('\0')) {
+			//dbgln("%c  %#x adding\\%c", cc, cc, esc);
+			ss_out(ss, TC('\\'));
+			ss_out(ss, esc);
+		} else if (is_print_ascii(cc)) {
+			//dbgln("%c  %#x is_ascii", cc, cc);
+			ss_out(ss, cc);
+		} else {
+			ASCII_ENCODE(ss, cc, next);
+		}
 	}
-	return cnt;
+	if (newstr != NULL) {
+		(void)newstr_len;
+		assert(ss->uu.newstr == newstr + newstr_len);
+	}
+	return ss_mem;
 }
 
 static inline
-void ascii_encode_do(const TCHAR str[restrict], size_t str_len, TCHAR newstr[restrict], size_t newstr_len) {
-	//dbgln("newstr_len=%d str_len=%d", (int)newstr_len, (int)str_len);
-	const TCHAR *const newstrend = newstr + newstr_len;
-	for (const TCHAR *const strend = str + str_len; str != strend; ++str) {
-		const TCHAR cc = *str;
-		const TCHAR esc = ascii_encode_get_esc(cc);
-		if (esc != TC('\0')) {
-			//dbgln("%c  %#x adding\\%c", cc, cc, esc);
-			*newstr++ = TC('\\');
-			*newstr++ = esc;
-		} else if (is_print_ascii(cc)) {
-			//dbgln("%c  %#x is_ascii", cc, cc);
-			*newstr++ = cc;
-		} else {
-#if ASCII_USE == 1
-			newstr = ascii_encode_o(cc, newstr);
-#elif ASCII_USE == 2
-			newstr = ascii_encode_u(cc, newstr);
-#elif ASCII_USE == 3
-			newstr = ascii_encode_U(cc, newstr);
-#else
-#error
-#endif
-		}
-	}
-	(void)newstrend;
-	assert(newstr == newstrend);
+size_t ascii_encode_get_length(const TCHAR str[restrict], size_t str_len) {
+	return ascii_encode_do(str, str_len, NULL, 0).uu.cnt;
 }
 
 static inline
@@ -812,7 +840,7 @@ int YYΩIO_printformat_conversion(yπio_printctx_t *restrict t,
 	assert(newstr_len > str_len);
 	TCHAR *const newstr = malloc(newstr_len * sizeof(*newstr));
 	if (newstr == NULL) return YIO_ERROR_ENOMEM;
-	ascii_encode_do(str, str_len, newstr, newstr_len);
+	(void)ascii_encode_do(str, str_len, newstr, newstr_len);
 	*pstr_len = newstr_len;
 	*pstr = newstr;
 	return 1;

@@ -12,6 +12,10 @@
 #include <stdbool.h>
 #include <string.h>
 
+static const char *const GREEN = "\33[32m";
+static const char *const RED = "\33[91m";
+static const char *const RESET = "\33[0m";
+
 static unsigned failures = 0;
 
 static inline
@@ -29,32 +33,30 @@ const char * YYIO__test_get_relative_filepath(const char *file) {
 
 static
 void YYIO__test_failed_atexit(void) {
-	printf("YYIO_TEST: failures: %u\n", failures);
+	printf("YIO_TESTEXPR: failures: %u\n", failures);
 	_Exit(EXIT_FAILURE);
 }
 
-int YYIO__testing(bool verbose, const char *expr, const char *file, int line) {
+void YYIO_testing(bool verbose, const char *expr, const char *file, int line) {
 	fflush(stdout);
 	fflush(stderr);
-	if (!verbose) return 0;
+	if (!verbose) return;
 	const char *relative_file = YYIO__test_get_relative_filepath(file);
 	printf("%s:%d: Testing %s\n", relative_file, line, expr);
 	fflush(stdout);
-	return 0;
 }
 
-bool YYIO__test_failed(int unused, bool result,
-		int flags, const char *expr, const char *file, int line, const char *fmt, ...) {
-	(void)unused;
-	if (result) return false;
-
-	const bool fail = !(flags & YYIO_TEST_FLAG_NOFAIL);
-	const bool assert = flags & YYIO_TEST_FLAG_ASSERT;
-
-	fflush(stdout);
-
+bool YYIO_test_failed(bool result, int flags, const char *expr, const char *file, int line, const char *fmt, ...) {
+	fflush(0);
 	const char *relative_file = YYIO__test_get_relative_filepath(file);
-	fprintf(stderr, "%s:%d: %s: %s", relative_file, line, fail ? "ERROR" : "WARNING", expr);
+	if (result) {
+		fprintf(stderr, "%s:%d: %s%s OK%s\n", relative_file, line, GREEN, expr, RESET);
+		fflush(0);
+		return false;
+	}
+
+	const bool fail = !(flags & YIO_TEST_FLAG_NOFAIL);
+	fprintf(stderr, "%s:%d: %s%s: %s", relative_file, line, RED, fail ? "ERROR" : "WARNING", expr);
 	if (strlen(fmt) != 0 && !(strlen(fmt) == 1 && fmt[0] == ' ')) {
 		fprintf(stderr, ": ");
 		va_list va;
@@ -62,14 +64,14 @@ bool YYIO__test_failed(int unused, bool result,
 		vfprintf(stderr, fmt, va);
 		va_end(va);
 		if (fmt[strlen(fmt)] != '\n') {
-			fprintf(stderr, "\n");
+			fprintf(stderr, "%s\n", RESET);
 		}
 	} else {
-		fprintf(stderr, "\n");
+		fprintf(stderr, "%s\n", RESET);
 	}
-	fflush(stderr);
+	fflush(0);
 
-	if (assert) {
+	if (flags & YIO_TEST_FLAG_ASSERT) {
 		abort();
 	}
 
