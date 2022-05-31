@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_PRIVATE_YIO_RES_H_
-#define _yIO_YIO_PRIVATE_YIO_RES_H_
+#ifndef YYIO_YIO_PRIVATE_YIO_RES_H_
+#define YYIO_YIO_PRIVATE_YIO_RES_H_
 #include "../yio_config.h"
 #include "../yio/io.h"
 #include "../yio_error.h"
@@ -17,66 +17,66 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct _yIO_res {
+typedef struct YYIO_res {
 	char *beg;
 	char *pos;
 	char *end;
 	bool is_dynamic;
-} _yIO_res;
+} YYIO_res;
 
 /**
  * Initialized the res object.
  * Note that pointers are not needed here - only on the end.
- * @param t A pointer to _yIO_res to initialize.
+ * @param t A pointer to YYIO_res to initialize.
  * @param resultp The statically allocated buffer or @c NULL.
  * @param lengthp The length of statically allocated buffer or 0.
  * @return Returns @c t.
  */
-_yIO_rnn _yIO_access_w(1)
-_yIO_res *_yIO_res_init(_yIO_res *t, char *resultp, size_t lengthp);
+YYIO_rnn YYIO_access_w(1)
+YYIO_res *YYIO_res_init(YYIO_res *t, char *resultp, size_t lengthp);
 
 /// End the object in case of error.
-static inline _yIO_access_rw(1)
-void _yIO_res_end(_yIO_res *t) {
+static inline YYIO_access_rw(1)
+void YYIO_res_end(YYIO_res *t) {
 	if (t->is_dynamic) {
 		free(t->beg);
 	}
 }
 
-/// @see _yIO_begin
-static inline _yIO_wur _yIO_nn()
-char *_yIO_res_data(const _yIO_res *t) {
+/// @see YYIO_begin
+static inline YYIO_wur YYIO_nn()
+char *YYIO_res_data(const YYIO_res *t) {
 	return t->beg;
 }
 
 /// Return a poitner to beginning of memory
-static inline _yIO_wur _yIO_nn()
-char *_yIO_res_begin(const _yIO_res *t) {
+static inline YYIO_wur YYIO_nn()
+char *YYIO_res_begin(const YYIO_res *t) {
 	return t->beg;
 }
 
 /// Return the size of the container
-static inline _yIO_wur _yIO_nn()
-size_t _yIO_res_size(const _yIO_res *t) {
+static inline YYIO_wur YYIO_nn()
+size_t YYIO_res_size(const YYIO_res *t) {
 	return t->end - t->beg;
 }
 
 /// Return the used memory
-static inline _yIO_wur _yIO_nn()
-size_t _yIO_res_used(const _yIO_res *t) {
+static inline YYIO_wur YYIO_nn()
+size_t YYIO_res_used(const YYIO_res *t) {
 	return t->pos - t->beg;
 }
 
 /// Return the left free memory size
-static inline _yIO_wur _yIO_nn()
-size_t _yIO_res_free_size(const _yIO_res *t) {
+static inline YYIO_wur YYIO_nn()
+size_t YYIO_res_free_size(const YYIO_res *t) {
 	return t->end - t->pos;
 }
 
 /// Set the count of used bytes in container.
-static inline _yIO_nn()
-void _yIO_res_set_used(_yIO_res *t, size_t newused) {
-	assert(newused < _yIO_res_size(t));
+static inline YYIO_nn()
+void YYIO_res_set_used(YYIO_res *t, size_t newused) {
+	assert(newused < YYIO_res_size(t));
 	t->pos = t->beg + newused;
 }
 
@@ -88,10 +88,10 @@ void _yIO_res_set_used(_yIO_res *t, size_t newused) {
  * @param newsize
  * @return
  */
-static inline _yIO_wur _yIO_nn()
-int _yIO_res_reserve(_yIO_res *t, size_t newsize) {
-	const size_t pos = _yIO_res_used(t);
-	const size_t size = _yIO_res_size(t);
+static inline YYIO_wur YYIO_nn()
+int YYIO_res_reserve(YYIO_res *t, size_t newsize) {
+	const size_t pos = YYIO_res_used(t);
+	const size_t size = YYIO_res_size(t);
 	if (newsize <= size) {
 		return 0;
 	}
@@ -111,24 +111,24 @@ int _yIO_res_reserve(_yIO_res *t, size_t newsize) {
 
 /**
  * Allocate golden ratio more memory.
- * @see _yIO_res_reserve
+ * @see YYIO_res_reserve
  */
-static inline _yIO_wur _yIO_nn()
-int _yIO_res_reserve_more(_yIO_res *t) {
-	const size_t size = _yIO_res_size(t);
-	const size_t _yIO_res_init_chunk = 32;
+static inline YYIO_wur YYIO_nn()
+int YYIO_res_reserve_more(YYIO_res *t) {
+	const size_t size = YYIO_res_size(t);
+	const size_t YYIO_res_init_chunk = 32;
 	assert(size < SIZE_MAX / 52);
 	// golden ratio
 	const size_t newsizecalc = size * 52 / 32;
-	const size_t newsize = newsizecalc > _yIO_res_init_chunk ? newsizecalc : _yIO_res_init_chunk;
-	return _yIO_res_reserve(t, newsize);
+	const size_t newsize = newsizecalc > YYIO_res_init_chunk ? newsizecalc : YYIO_res_init_chunk;
+	return YYIO_res_reserve(t, newsize);
 }
 /// Add a character
 static inline
-int _yIO_res_putc(_yIO_res *t, char c) {
+int YYIO_res_putc(YYIO_res *t, char c) {
 	assert(t->beg <= t->pos && t->pos <= t->end);
 	if (t->pos == t->end) {
-		const int err = _yIO_res_reserve_more(t);
+		const int err = YYIO_res_reserve_more(t);
 		if (err) return err;
 	}
 	*t->pos++ = c;
@@ -136,28 +136,28 @@ int _yIO_res_putc(_yIO_res *t, char c) {
 }
 
 /// Add memory
-_yIO_wur _yIO_nn() _yIO_access_rw(1) _yIO_access_r(2, 3)
-int _yIO_res_putsn(_yIO_res *t, const char *ptr, size_t size);
+YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2, 3)
+int YYIO_res_putsn(YYIO_res *t, const char *ptr, size_t size);
 
 /// Add a string
-static inline _yIO_wur _yIO_nn() _yIO_access_rw(1) _yIO_access_r(2)
-int _yIO_res_puts(_yIO_res *t, const char *str) {
-	return _yIO_res_putsn(t, str, strlen(str));
+static inline YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2)
+int YYIO_res_puts(YYIO_res *t, const char *str) {
+	return YYIO_res_putsn(t, str, strlen(str));
 }
 
 /// Print into the container
-_yIO_wur _yIO_nn() _yIO_access_rw(1) _yIO_access_r(2) _yIO_access_r(3)
-int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...);
+YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2) YYIO_access_r(3)
+int YYIO_res_yprintf_in(YYIO_res *t, yio_printdata_t *data, const char *fmt, ...);
 
 /// Print into the container
-#define _yIO_res_yprintf(t, ...)  _yIO_res_yprintf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define YYIO_res_yprintf(t, ...)  YYIO_res_yprintf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
  * Removes trailing zeros. There _has to_ be a dot in the string.
  * @param b
  * @return Did we remove the dot too?
  */
-bool _yIO_res_remove_trailing_zeros_and_comma(_yIO_res *t);
+bool YYIO_res_remove_trailing_zeros_and_comma(YYIO_res *t);
 
 #ifndef YIO_CACHE_STACK_SIZE
 #error "YIO_CACHE_STACK_SIZE not defined"
@@ -165,21 +165,21 @@ bool _yIO_res_remove_trailing_zeros_and_comma(_yIO_res *t);
 #endif
 
 /**
- * @def _yIO_RES_AUTO_DECL(var)
+ * @def YYIO_RES_AUTO_DECL(var)
  * @param var Name of the variable.
- * @brief Create a _yIO_res variable with YIO_CACHE_STACK_SIZE size bytes allocated on stack.
+ * @brief Create a YYIO_res variable with YIO_CACHE_STACK_SIZE size bytes allocated on stack.
  */
 #if YIO_CACHE_STACK_SIZE > 0
-#define _yIO_RES_CONCAT(a, b)   a##b
-#define _yIO_RES_XCONCAT(a, b)  _yIO_RES_CONCAT(a, b)
-#define _yIO_RES_AUTO_DECL(var)  \
-		char _yIO_RES_CONCAT(_buf_##var, __LINE__)[YIO_CACHE_STACK_SIZE]; \
-		_yIO_res var; \
-		_yIO_res_init(&(var), _yIO_RES_CONCAT(_buf_##var, __LINE__), YIO_CACHE_STACK_SIZE)
+#define YYIO_RES_CONCAT(a, b)   a##b
+#define YYIO_RES_XCONCAT(a, b)  YYIO_RES_CONCAT(a, b)
+#define YYIO_RES_AUTO_DECL(var)  \
+		char YYIO_RES_CONCAT(_buf_##var, __LINE__)[YIO_CACHE_STACK_SIZE]; \
+		YYIO_res var; \
+		YYIO_res_init(&(var), YYIO_RES_CONCAT(_buf_##var, __LINE__), YIO_CACHE_STACK_SIZE)
 #else
-#define _yIO_RES_AUTO_DECL(var)  \
-		_yIO_res var; \
-		_yIO_res_init(&(var), NULL, 0)
+#define YYIO_RES_AUTO_DECL(var)  \
+		YYIO_res var; \
+		YYIO_res_init(&(var), NULL, 0)
 #endif
 
-#endif /* _yIO_YIO_PRIVATE_YIO_RES_H_ */
+#endif /* YYIO_YIO_PRIVATE_YIO_RES_H_ */

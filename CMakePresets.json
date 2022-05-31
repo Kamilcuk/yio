@@ -44,7 +44,7 @@
       "name": "icc",
       "inherits": "default",
       "cacheVariables": {
-        "_yIO_HAS_FLOATf64x": "0"
+        "YIO_HAS_FLOATf64x": "0"
       }
     },
     {
@@ -68,12 +68,12 @@
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/kcmakelib/cmake/Toolchain/sdcc.cmake",
         "CMAKE_C_FLAGS": " --include malloc.h ",
-        "_yIO_USE_STRFROM_PRINTF": "0",
-        "_yIO_USE_STRFROM_RYU": "0",
-        "_yIO_HAS_FLOATd": "0",
-        "_yIO_HAS_FLOATl": "0",
-        "_yIO_HAS_WCHAR_H": "0",
-        "_yIO_HAS_UCHAR_H": "0"
+        "YIO_USE_STRFROM_PRINTF": "0",
+        "YIO_USE_STRFROM_RYU": "0",
+        "YIO_HAS_FLOATd": "0",
+        "YIO_HAS_FLOATl": "0",
+        "YIO_HAS_WCHAR_H": "0",
+        "YIO_HAS_UCHAR_H": "0"
       }
     },
     {
@@ -83,19 +83,19 @@
         "YIO_MLVLS": "20",
         "HAS_ANALYZER": "0",
         "YIO_LINE": "0",
-        "_yIO_HAS_FLOATf16": "0",
-        "_yIO_HAS_FLOATf32": "0",
-        "_yIO_HAS_FLOATf64": "0",
-        "_yIO_HAS_FLOATf128": "0",
-        "_yIO_HAS_FLOATf32x": "0",
-        "_yIO_HAS_FLOATf64x": "0",
-        "_yIO_HAS_FLOATf128x": "0",
-        "_yIO_HAS_FLOATd32": "0",
-        "_yIO_HAS_FLOATd64": "0",
-        "_yIO_HAS_FLOATd128": "0",
-        "_yIO_HAS_FLOATd32x": "0",
-        "_yIO_HAS_FLOATd64x": "0",
-        "_yIO_HAS_FLOATd128x": "0",
+        "YIO_HAS_FLOATf16": "0",
+        "YIO_HAS_FLOATf32": "0",
+        "YIO_HAS_FLOATf64": "0",
+        "YIO_HAS_FLOATf128": "0",
+        "YIO_HAS_FLOATf32x": "0",
+        "YIO_HAS_FLOATf64x": "0",
+        "YIO_HAS_FLOATf128x": "0",
+        "YIO_HAS_FLOATd32": "0",
+        "YIO_HAS_FLOATd64": "0",
+        "YIO_HAS_FLOATd128": "0",
+        "YIO_HAS_FLOATd32x": "0",
+        "YIO_HAS_FLOATd64x": "0",
+        "YIO_HAS_FLOATd128x": "0",
         "YIO_CPPLINT": "0",
         "YIO_CLANG_TIDY": "0"
       }

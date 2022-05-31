@@ -147,6 +147,7 @@ Implemented:
     - `c` specifier
 - all standard integer types
     - `b` `B` `x` `X` `o` `O` `c` `d` specifiers
+    - `L` locale specific integer printing
 - standard floating-point types and `_Float*` interchange
   and extended floating-point types from [n2601](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2601.pdf)
   and decimal floating-point types from [n2401](http://www.open-std.org/jtc1/sc22/wg14/www/docs/n2401.pdf)
@@ -179,18 +180,14 @@ Implemented:
 - `struct timeval` and `struct timespec`
     - format string ignored
     - just printed as `[+-]<sec>.<nano/milli-sec>`
-
-Not implemented:
-
-- `!a` conversion flag
-- `L` locale specific printing
+- `!a` conversion flag, that outputs a string that can be read with C compiler
 
 ### Namespaces
 
- - `y*` - Many common public symbols, like `yprintf`, `ysnprintf`.
- - `yio_*` `y{w,c16,u}io_*` - Public internal functions, symbols for implementators of _custom modifiers_.
- - `YIO_*` - Macros, options, constants, error codes.
- - `_yIO_*` `_y{W,C16,U}IO_*` - All the plethora of private symbols that is used by the library.
+ - `y*` - Many "short" common public symbols, like `yprintf`, `ysnprintf`.
+ - `yio_*` `ywio_*` `yc16io_*` `yuio_*` - Public internal functions, symbols for implementators of _custom modifiers_.
+ - `YIO_*` - Public symbols, macros, configuration options, constants, error codes.
+ - `YYIO_*` `YYWIO_*` `YYC16IO_*` `YUIO_*` - All the plethora of private symbols that is used by the library.
 
 ### Examples :heart_eyes:
 
@@ -334,7 +331,7 @@ So the float should be that way:
 1. The printf prints everything up until first `{`. The it extracts the string between 
    `{` and `}`, including optional two positional arguments if needed, and hands it 
    to the next handler function.
-2. Each type has a handler, ex. `int` has ex. `_yIO_print_int` handler chosen with _Generic. 
+2. Each type has a handler, ex. `int` has ex. `YYIO_print_int` handler chosen with _Generic. 
    Now that handler parses two optional arguments with the format string for each type 
    _separately_.
 3. Each handler has it's own logic how to handle the format string. 

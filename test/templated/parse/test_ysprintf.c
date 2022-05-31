@@ -14,28 +14,28 @@ int main() {
 	int err = 0;
 
 	err = yπsprintf(buf, sizeof(buf)/sizeof(*buf), TC("123"));
-	_yIO_TEST(err > 0, "err=%s", yio_strerror(err));
-	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0);
+	YYIO_TEST(err > 0, "err=%s", yio_strerror(err));
+	YYIO_TEST(TSTRCMP(buf, TC("123")) == 0);
 
 	err = yπsprintf(buf, SIZE_MAX, TC("123"));
-	_yIO_TEST(err > 0);
-	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0);
+	YYIO_TEST(err > 0);
+	YYIO_TEST(TSTRCMP(buf, TC("123")) == 0);
 
 	err = yπsprintf(buf, 2, TC("123"));
-	_yIO_TEST(err < 0);
-	_yIO_TEST(TSTRCMP(buf, TC("1")) == 0);
+	YYIO_TEST(err < 0);
+	YYIO_TEST(TSTRCMP(buf, TC("1")) == 0);
 
 	err = yπsprintf(buf, 3, TC("123"));
-	_yIO_TEST(err < 0);
-	_yIO_TEST(TSTRCMP(buf, TC("12")) == 0);
+	YYIO_TEST(err < 0);
+	YYIO_TEST(TSTRCMP(buf, TC("12")) == 0);
 
 	err = yπsprintf(buf, 4, TC("123"));
-	_yIO_TEST(err > 0);
-	_yIO_TEST(TSTRCMP(buf, TC("123")) == 0);
+	YYIO_TEST(err > 0);
+	YYIO_TEST(TSTRCMP(buf, TC("123")) == 0);
 
 	err = yπsprintf(buf, 1, TC("123"));
-	_yIO_TEST(err < 0);
-	_yIO_TEST(TSTRCMP(buf, TC("")) == 0);
+	YYIO_TEST(err < 0);
+	YYIO_TEST(TSTRCMP(buf, TC("")) == 0);
 
 	return 0;
 }

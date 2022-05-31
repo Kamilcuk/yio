@@ -6,16 +6,16 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
-#define _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
+#ifndef YYIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
+#define YYIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_
 #include "../ctx.h"
 
-#ifndef _yIO_HAS_WCHAR_H
-#error _yIO_HAS_WCHAR_H
+#ifndef YIO_HAS_WCHAR_H
+#error YIO_HAS_WCHAR_H
 #endif
-#if _yIO_HAS_WCHAR_H
-int _yΩIO_print_wchar(yπio_printctx_t *t);
-int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
+#if YIO_HAS_WCHAR_H
+int YYΩIO_print_wchar(yπio_printctx_t *t);
+int YYΩIO_print_constwcharpnt(yπio_printctx_t *t);
 
 /**
  * @defgroup yπpw TMODEN yπpw
@@ -24,21 +24,21 @@ int _yΩIO_print_constwcharpnt(yπio_printctx_t *t);
  * @{
  */
 /// Print wchar_t character.
-#define yπpwchar(wchar)         yiocb(_yΩIO_print_wchar, (wchar_t)(wchar))
+#define yπpwchar(wchar)         yiocb(YYΩIO_print_wchar, (wchar_t)(wchar))
 /// Print a string of wchar_t characters.
-#define yπpwstring(wstring)     yiocb(_yΩIO_print_constwcharpnt, (const wchar_t*)(wstring))
+#define yπpwstring(wstring)     yiocb(YYΩIO_print_constwcharpnt, (const wchar_t*)(wstring))
 /**
  * @}
  */
 
-#define _yΩIO_PRINT_FUNC_GENERIC_WCHARS() \
-		wchar_t *: _yΩIO_print_constwcharpnt, \
-		const wchar_t *: _yΩIO_print_constwcharpnt,
+#define YYΩIO_PRINT_FUNC_GENERIC_WCHARS() \
+		wchar_t *: YYΩIO_print_constwcharpnt, \
+		const wchar_t *: YYΩIO_print_constwcharpnt,
 
-#define _yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
-		wchar_t: _yΩIO_print_wchar,
+#define YYΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
+		wchar_t: YYΩIO_print_wchar,
 #else
-#define _yΩIO_PRINT_FUNC_GENERIC_WCHARS()
-#define _yΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
+#define YYΩIO_PRINT_FUNC_GENERIC_WCHARS()
+#define YYΩIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
 #endif
-#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_ */
+#endif /* YYIO_YIO_YΩIO_MANIP_PRINT_WCHARS_H_ */

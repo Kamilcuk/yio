@@ -10,7 +10,7 @@
 #include <float.h>
 #define _(x)  yprint( #x "123.456=", (x)123.456, "\n");
 int main() {
-#if _yIO_USE__FLOATN
+#if YYIO_USE__FLOATN
 #ifdef FLT16_DECIMAL_DIG
 	_(_Float16);
 #endif
@@ -32,8 +32,8 @@ int main() {
 #ifdef FLT128X_DECIMAL_DIG
 	_(_Float128x);
 #endif
-#endif // #if _yIO_USE__FLOATN
-#if _yIO_USE__DECIMALN
+#endif // #if YYIO_USE__FLOATN
+#if YYIO_USE__DECIMALN
 #ifdef DEC32_DECIMAL_DIG
 	_(_Decimal32);
 #endif
@@ -43,5 +43,5 @@ int main() {
 #ifdef DEC128_DECIMAL_DIG
 	_(_Decimal128);
 #endif
-#endif // #if _yIO_USE__DECIMALN
+#endif // #if YYIO_USE__DECIMALN
 }

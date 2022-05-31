@@ -12,24 +12,24 @@
 
 static inline
 void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
-	struct yio_printfmt_s pf = _yIO_printfmt_default;
+	struct yio_printfmt_s pf = YYIO_printfmt_default;
 	const char *endptr = (const char *)-1;
-	const int err = _yIO_pfmt_parse((void*)1, &pf, str, &endptr);
-	_yIO_TEST(err == 0, "%s", str ? str : "(NULL)");
-	_yIO_TEST(endptr == str + strlen(str), "%s", str ? str : "(NULL)");
-	(void)_yIO_test_compare_printformat(pf, shouldbe);
+	const int err = YYIO_pfmt_parse((void*)1, &pf, str, &endptr);
+	YYIO_TEST(err == 0, "%s", str ? str : "(NULL)");
+	YYIO_TEST(endptr == str + strlen(str), "%s", str ? str : "(NULL)");
+	(void)YYIO_test_compare_printformat(pf, shouldbe);
 }
 
 
 int main() {
 	struct yio_printfmt_s pf;
-	pf = _yIO_printfmt_default; test_pfmt(pf, "}");
-	pf = _yIO_printfmt_default; pf.align = '<'; test_pfmt(pf, "<}");
-	pf = _yIO_printfmt_default; pf.grouping = '_'; test_pfmt(pf, "_}");
-	pf = _yIO_printfmt_default; pf.grouping = ','; test_pfmt(pf, ",}");
-	pf = _yIO_printfmt_default; pf.align = '<'; pf.fill = '%'; test_pfmt(pf, "%<}");
-	pf = _yIO_printfmt_default; pf.align = '>'; pf.fill = '%'; test_pfmt(pf, "%>}");
-	pf = _yIO_printfmt_default; pf.align = '='; pf.fill = '%'; test_pfmt(pf, "%=}");
-	pf = _yIO_printfmt_default; pf.align = '^'; pf.fill = '%'; test_pfmt(pf, "%^}");
+	pf = YYIO_printfmt_default; test_pfmt(pf, "}");
+	pf = YYIO_printfmt_default; pf.align = '<'; test_pfmt(pf, "<}");
+	pf = YYIO_printfmt_default; pf.grouping = '_'; test_pfmt(pf, "_}");
+	pf = YYIO_printfmt_default; pf.grouping = ','; test_pfmt(pf, ",}");
+	pf = YYIO_printfmt_default; pf.align = '<'; pf.fill = '%'; test_pfmt(pf, "%<}");
+	pf = YYIO_printfmt_default; pf.align = '>'; pf.fill = '%'; test_pfmt(pf, "%>}");
+	pf = YYIO_printfmt_default; pf.align = '='; pf.fill = '%'; test_pfmt(pf, "%=}");
+	pf = YYIO_printfmt_default; pf.align = '^'; pf.fill = '%'; test_pfmt(pf, "%^}");
 	return 0;
 }

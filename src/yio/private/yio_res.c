@@ -17,9 +17,9 @@
 #include <stdint.h>
 #include <assert.h>
 
-_yIO_res *_yIO_res_init(_yIO_res *t, char *resultp, size_t lengthp) {
+YYIO_res *YYIO_res_init(YYIO_res *t, char *resultp, size_t lengthp) {
 	const bool is_dynamic = resultp == NULL || lengthp == 0;
-	_yIO_res ret;
+	YYIO_res ret;
 	ret.beg = is_dynamic ? NULL : resultp;
 	ret.pos = ret.beg;
 	ret.end = is_dynamic ? NULL : (resultp + lengthp);
@@ -28,9 +28,9 @@ _yIO_res *_yIO_res_init(_yIO_res *t, char *resultp, size_t lengthp) {
 	return t;
 }
 
-int _yIO_res_putsn(_yIO_res *t, const char *ptr, size_t size) {
-	while (_yIO_res_free_size(t) < size) {
-		const int err = _yIO_res_reserve_more(t);
+int YYIO_res_putsn(YYIO_res *t, const char *ptr, size_t size) {
+	while (YYIO_res_free_size(t) < size) {
+		const int err = YYIO_res_reserve_more(t);
 		if (err) return err;
 	}
 	memcpy(t->pos, ptr, size * sizeof(*t->pos));
@@ -39,19 +39,19 @@ int _yIO_res_putsn(_yIO_res *t, const char *ptr, size_t size) {
 }
 
 static
-int _yIO_res_yprintf_cb(void *ptr, const char *data, size_t count) {
-	_yIO_res *o = ptr;
+int YYIO_res_yprintf_cb(void *ptr, const char *data, size_t count) {
+	YYIO_res *o = ptr;
 	while (count--) {
-		const int err = _yIO_res_putc(o, *data++);
+		const int err = YYIO_res_putc(o, *data++);
 		if (err) return err;
 	}
 	return 0;
 }
 
-int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...) {
+int YYIO_res_yprintf_in(YYIO_res *t, yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int err = yvbprintf(_yIO_res_yprintf_cb, t, data, fmt, &va);
+	const int err = yvbprintf(YYIO_res_yprintf_cb, t, data, fmt, &va);
 	va_end(va);
 	if (err < 0) {
 		return err;
@@ -59,7 +59,7 @@ int _yIO_res_yprintf_in(_yIO_res *t, yio_printdata_t *data, const char *fmt, ...
 	return 0;
 }
 
-bool _yIO_res_remove_trailing_zeros_and_comma(_yIO_res *t) {
+bool YYIO_res_remove_trailing_zeros_and_comma(YYIO_res *t) {
 	bool fractional_part_removed = false;
 	// remove trailing zeros
 	char * const dest = t->pos;

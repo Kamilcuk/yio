@@ -6,15 +6,15 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "private.h"
-#ifndef _yIO_HAS_UNISTD_H
+#ifndef YYIO_HAS_UNISTD_H
 #error
 #endif
-#if _yIO_HAS_UNISTD_H
+#if YYIO_HAS_UNISTD_H
 #include <unistd.h>
 #include <errno.h>
 
-static inline _yIO_access_r(2, 3)
-int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
+static inline YYIO_access_r(2, 3)
+int YYΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	const int fd = *(int*)arg;
 	int ret = 0;
 	while (size) {
@@ -40,10 +40,10 @@ int _yΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 #define SUPER_MB_LEN_MAX  (MB_LEN_MAX)
 #endif
 
-static inline _yIO_access_r(2, 3)
-int _yΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
+static inline YYIO_access_r(2, 3)
+int YYΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 #if TMODE == 1
-	return _yΩIO_yπvdprintf_cb_in(arg, ptr, size);
+	return YYΩIO_yπvdprintf_cb_in(arg, ptr, size);
 #elif TMODE == 2 || TMODE == 3 || TMODE == 4
 #if TMODE == 2
 #define STUFF_rtomb  wcrtomb
@@ -64,7 +64,7 @@ int _yΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 		const size_t wr = STUFF_rtomb(s, *ptr, &ps);
 		if (wr == (size_t)-1) return STUFF_ERROR;
 		ptr++;
-		const int r = _yΩIO_yπvdprintf_cb_in(arg, s, wr);
+		const int r = YYΩIO_yπvdprintf_cb_in(arg, s, wr);
 		if (r < 0) return r;
 	}
 	return 0;
@@ -74,10 +74,10 @@ int _yΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 }
 
 int yπvdprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
-	return yπvbprintf(_yΩIO_yπvdprintf_cb, &fd, data, fmt, va);
+	return yπvbprintf(YYΩIO_yπvdprintf_cb, &fd, data, fmt, va);
 }
 
-int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...) {
+int YYΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvdprintf(fd, data, fmt, &va);
@@ -85,4 +85,4 @@ int _yΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...
 	return ret;
 }
 
-#endif // _yIO_HAS_UNISTD
+#endif // YYIO_HAS_UNISTD

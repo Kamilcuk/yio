@@ -17,7 +17,7 @@ int main() {
 		// There is a problem with long long operations as of now
 		{% if not j_match(V.1, ".*long.*long.*") %}
 #line
-#ifdef _yIO_STDFIX_$3
+#ifdef YYIO_STDFIX_$3
 	{
 		const $2 a = 0.125;
 		yfprintf(stderr, "{}\n", "$2");

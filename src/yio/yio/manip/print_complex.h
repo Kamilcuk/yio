@@ -6,9 +6,9 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_
-#define _yIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_
-#if _yIO_HAS_COMPLEX
+#ifndef YYIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_
+#define YYIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_
+#if YYIO_HAS_COMPLEX
 
 {% set j_complex_types = [
 		["cf", "float _Complex", "f"],
@@ -23,36 +23,36 @@
 
 {% call j_FOREACHAPPLY(j_complex_types) %}
 #line
-int _yΩIO_print_complex_$1(yπio_printctx_t *t);
+int YYΩIO_print_complex_$1(yπio_printctx_t *t);
 {% endcall %}
-#define _yΩIO_PRINT_COMPLEX_COMPLEX() \
+#define YYΩIO_PRINT_COMPLEX_COMPLEX() \
 		{% call j_FOREACHAPPLY(j_complex_types) %}
-		$2: _yΩIO_print_complex_$1, \
+		$2: YYΩIO_print_complex_$1, \
 		{% endcall %}
 		/**/
 
-#if _yIO_HAS_IMAGINARY
+#if YYIO_HAS_IMAGINARY
 
 {% call j_FOREACHAPPLY(j_imaginary_types) %}
 #line
-int _yΩIO_print_imaginary_$1(yπio_printctx_t *t);
+int YYΩIO_print_imaginary_$1(yπio_printctx_t *t);
 {% endcall %}
-#define _yΩIO_PRINT_COMPLEX_IMAGINARY() \
+#define YYΩIO_PRINT_COMPLEX_IMAGINARY() \
 		{% call j_FOREACHAPPLY(j_imaginary_types) %}
-		$2: _yΩIO_print_imaginary_$1, \
+		$2: YYΩIO_print_imaginary_$1, \
 		{% endcall %}
 		/**/
 
 #else
-#define _yΩIO_PRINT_COMPLEX_IMAGINARY()
+#define YYΩIO_PRINT_COMPLEX_IMAGINARY()
 #endif
 
-#define _yΩIO_PRINT_COMPLEX() \
-		_yΩIO_PRINT_COMPLEX_COMPLEX() \
-		_yΩIO_PRINT_COMPLEX_IMAGINARY()
+#define YYΩIO_PRINT_COMPLEX() \
+		YYΩIO_PRINT_COMPLEX_COMPLEX() \
+		YYΩIO_PRINT_COMPLEX_IMAGINARY()
 
 #else
-#define _yΩIO_PRINT_COMPLEX()
+#define YYΩIO_PRINT_COMPLEX()
 #endif
 
-#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_ */
+#endif /* YYIO_YIO_YΩIO_MANIP_PRINT_COMPLEX_H_ */

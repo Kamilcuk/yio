@@ -31,7 +31,7 @@ set(_gensrcs)
 include(cpack.cmake)
 # Pre checks
 # unistd is used in configuration and environmental checks
-yio_config_gen_check_include_file("unistd.h" _yIO_HAS_UNISTD_H)
+yio_config_gen_check_include_file("unistd.h" YYIO_HAS_UNISTD_H)
 # User configuration
 include(configuration.cmake)
 # Environment checks
@@ -58,6 +58,7 @@ add_custom_command(
     ${GENDIR}/yio/yio_error_genmsg.h
   COMMAND
     ${Python3_EXECUTABLE}
+    -X pycache_prefix=${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
     ${GENDIR}/yio/yio_error_genenum.h
     ${GENDIR}/yio/yio_error_genmsg.h
@@ -256,7 +257,7 @@ function(yio_add_library name)
 		SOVERSION "${YIO_PROJECT_SOVERSION}"
 	)
 	target_compile_definitions(${name} PRIVATE
-		_yIO_PRIVATE=1
+		YYIO_PRIVATE=1
 	)
 	target_include_directories(${name} PUBLIC
 		$<BUILD_INTERFACE:${GENDIR}>
@@ -318,7 +319,7 @@ set(_yio_sources
 	yio.h
 	${_yio_gensrcs}
 )
-if(_yIO_HAS_WCHAR_H)
+if(YIO_HAS_WCHAR_H)
   list(APPEND _yio_sources
     ywio.h
     ${_ywio_gensrcs}

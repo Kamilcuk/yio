@@ -5,8 +5,8 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#ifndef _yIO_YIO_YIO_ERROR_H_
-#define _yIO_YIO_YIO_ERROR_H_
+#ifndef YYIO_YIO_YIO_ERROR_H_
+#define YYIO_YIO_YIO_ERROR_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -53,14 +53,14 @@ extern "C" {
  * yio_error_messages_gen.h are generated.
  * See yio_error_messages_gen.cmake script
  */
-enum _yIO_errors_e {
+enum YYIO_errors_e {
 	YIO_ERROR_OK = 0,              /// "Success"
-	_yIO_ERROR_START = -12300,     /// Start of custom errors
+	YYIO_ERROR_START = -12300,     /// Start of custom errors
 {% for v, k in j_ERRORS %} #line
 	{{ v }},  /// {{ k }}
 {% endfor %} #line
 #include "yio_error_genenum.h"
-	_yIO_ERROR_STOP,               /// End of custom errors
+	YYIO_ERROR_STOP,               /// End of custom errors
 };
 
 /**
@@ -73,10 +73,10 @@ enum _yIO_errors_e {
  * @return The function never returns null and always returns
  * a valid pointer to a string with static storage duration.
  */
-_yIO_const _yIO_rnn
+YYIO_const YYIO_rnn
 const char *yio_strerror(int error);
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* _yIO_YIO_YIO_ERROR_H_ */
+#endif /* YYIO_YIO_YIO_ERROR_H_ */

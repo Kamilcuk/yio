@@ -7,7 +7,7 @@
 #include <stdbool.h>
 #include "private.h"
 
-int _yΩIO_print_bool(yπio_printctx_t *t) {
+int YYΩIO_print_bool(yπio_printctx_t *t) {
 	const bool value = yπio_printctx_va_arg_promote(t, _Bool);
 	int err = yπio_printctx_init(t);
 	if (err) return err;

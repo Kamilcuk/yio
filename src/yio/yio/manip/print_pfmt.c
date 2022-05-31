@@ -8,7 +8,7 @@
 #include "private.h"
 #include <stddef.h>
 
-int _yΩIO_print_pfmt(yπio_printctx_t *t) {
+int YYΩIO_print_pfmt(yπio_printctx_t *t) {
 	const TCHAR *str = yπio_printctx_va_arg(t, const TCHAR *);
 	const TCHAR *endptr = NULL;
 	if (str[0] == TC('{')) {
@@ -19,7 +19,7 @@ int _yΩIO_print_pfmt(yπio_printctx_t *t) {
 	}
 	if (str[0] == TC(':')) {
 		str++;
-		int err = _yΩIO_pfmt_parse(t, &t->pf, str, &endptr);
+		int err = YYΩIO_pfmt_parse(t, &t->pf, str, &endptr);
 		if (err) return err;
 	}
 	if ((size_t)(endptr - str) != TSTRLEN(str)) {

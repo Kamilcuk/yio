@@ -5,15 +5,15 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#ifndef _yIO_YIO_YIO_CONFIG_H_
-#define _yIO_YIO_YIO_CONFIG_H_
+#ifndef YYIO_YIO_YIO_CONFIG_H_
+#define YYIO_YIO_YIO_CONFIG_H_
 
 // {#+
-#ifndef _yIO_CDT_PARSER
+#ifndef YYIO_CDT_PARSER
 // +#} //
 #include "yio_config_gen.h"
 // {#+
-#else // _yIO_CDT_PARSER
+#else // YYIO_CDT_PARSER
 
 #include <yio/yio_config_gen.h>
 
@@ -28,21 +28,21 @@
 #define TSTRCMP(x, y)  wcscmp(x, y)
 #define TFPRINTF(...)  fprintf(__VA_ARGS__)
 #define TSTRLEN(x)     wcslen(x)
-#endif // _yIO_CDT_PARSER
+#endif // YYIO_CDT_PARSER
 // +#} //
 
 #ifdef __SIZEOF_INT128__
-#define _yIO_HAS_INT128 1
+#define YYIO_HAS_INT128 1
 #else
-#define _yIO_HAS_INT128 0
+#define YYIO_HAS_INT128 0
 #endif
 
-#ifndef _yIO_HAS_UNISTD_H
-#error _yIO_HAS_UNISTD_H
+#ifndef YYIO_HAS_UNISTD_H
+#error YYIO_HAS_UNISTD_H
 #endif
 
 // check
-#if !_yIO_HAS_UNISTD_H
+#if !YYIO_HAS_UNISTD_H
 #if YIO_USE_OUTPUT_FD
 #error "You can't output to fd without unistd.h"
 #endif
@@ -54,74 +54,74 @@
  * @{
  */
 #ifdef __GNUC__
-#define _yIO_nn(...)          __attribute__((__nonnull__(__VA_ARGS__)))
-#define _yIO_wur              __attribute__((__warn_unused_result__))
-#define _yIO_retmalloc        __attribute__((__malloc__))
-#define _yIO_const            __attribute__((__const__))
+#define YYIO_nn(...)          __attribute__((__nonnull__(__VA_ARGS__)))
+#define YYIO_wur              __attribute__((__warn_unused_result__))
+#define YYIO_retmalloc        __attribute__((__malloc__))
+#define YYIO_const            __attribute__((__const__))
 #ifndef __INTEL_COMPILER
-#define _yIO_rnn              __attribute__((__returns_nonnull__))
+#define YYIO_rnn              __attribute__((__returns_nonnull__))
 #endif
-#define _yIO_format(...)      __attribute__((__format__(__VA_ARGS__)))
-#define _yIO_deprecated(...)  __attribute__((__deprecated__(__VA_ARGS__)))
-#define _yIO_warning(...)     __attribute__((__warning__(__VA_ARGS__)))
+#define YYIO_format(...)      __attribute__((__format__(__VA_ARGS__)))
+#define YYIO_deprecated(...)  __attribute__((__deprecated__(__VA_ARGS__)))
+#define YYIO_warning(...)     __attribute__((__warning__(__VA_ARGS__)))
 #if !__clang__
-#define _yIO_error(...)       __attribute__((__error__(__VA_ARGS__)))
+#define YYIO_error(...)       __attribute__((__error__(__VA_ARGS__)))
 #endif
 #if __GNUC__ >= 10
-#define _yIO_access_r(...)    __attribute__((__access__(__read_only__, ##__VA_ARGS__)))
-#define _yIO_access_w(...)    __attribute__((__access__(__write_only__, ##__VA_ARGS__)))
-#define _yIO_access_rw(...)   __attribute__((__access__(__read_write__, ##__VA_ARGS__)))
+#define YYIO_access_r(...)    __attribute__((__access__(__read_only__, ##__VA_ARGS__)))
+#define YYIO_access_w(...)    __attribute__((__access__(__write_only__, ##__VA_ARGS__)))
+#define YYIO_access_rw(...)   __attribute__((__access__(__read_write__, ##__VA_ARGS__)))
 #endif
 #endif // __GNUC__
 
-#ifndef _yIO_nn
+#ifndef YYIO_nn
 /// Mark that function returns nonnull.
-#define _yIO_nn(...)
+#define YYIO_nn(...)
 #endif
-#ifndef _yIO_wur
+#ifndef YYIO_wur
 /// Warn on function unused return value.
-#define _yIO_wur
+#define YYIO_wur
 #endif
-#ifndef _yIO_retmalloc
+#ifndef YYIO_retmalloc
 /// Function allocates new memory and returns it.
-#define _yIO_retmalloc
+#define YYIO_retmalloc
 #endif
-#ifndef _yIO_const
+#ifndef YYIO_const
 /// Function is a const-like function.
-#define _yIO_const
+#define YYIO_const
 #endif
-#ifndef _yIO_rnn
+#ifndef YYIO_rnn
 /// Function never returns null.
-#define _yIO_rnn
+#define YYIO_rnn
 #endif
-#ifndef _yIO_format
+#ifndef YYIO_format
 /// Function formats like printf
-#define _yIO_format(...)
+#define YYIO_format(...)
 #endif
-#ifndef _yIO_deprecated
+#ifndef YYIO_deprecated
 /// Function is deprecated
-#define _yIO_deprecated(...)
+#define YYIO_deprecated(...)
 #endif
-#ifndef _yIO_warning
+#ifndef YYIO_warning
 /// Function is deprecated
-#define _yIO_warning(...)
+#define YYIO_warning(...)
 #endif
-#ifndef _yIO_error
+#ifndef YYIO_error
 /// Function errors upon calling
-#define _yIO_error(...)
+#define YYIO_error(...)
 #endif
-#ifndef _yIO_access_r
-#define _yIO_access_r(...)
+#ifndef YYIO_access_r
+#define YYIO_access_r(...)
 #endif
-#ifndef _yIO_access_w
-#define _yIO_access_w(...)
+#ifndef YYIO_access_w
+#define YYIO_access_w(...)
 #endif
-#ifndef _yIO_access_rw
-#define _yIO_access_rw(...)
+#ifndef YYIO_access_rw
+#define YYIO_access_rw(...)
 #endif
 
 /**
  * @}
  */
 
-#endif /* _yIO_YIO_YIO_CONFIG_H_ */
+#endif /* YYIO_YIO_YIO_CONFIG_H_ */

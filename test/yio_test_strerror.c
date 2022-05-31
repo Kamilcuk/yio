@@ -12,8 +12,8 @@ int main() {
 	yprintf("{}\n", yio_strerror(err));
 	yprintf("{}\n", yio_strerror(-616278361));
 	yprintf("{}\n", yio_strerror(-1));
-	yprintf("{}\n", yio_strerror(_yIO_ERROR_START));
-	yprintf("{}\n", yio_strerror(_yIO_ERROR_STOP));
+	yprintf("{}\n", yio_strerror(YYIO_ERROR_START));
+	yprintf("{}\n", yio_strerror(YYIO_ERROR_STOP));
 	yprintf("{}\n", yio_strerror(INT_MIN));
 	yprintf("{}\n", yio_strerror(INT_MAX));
 }

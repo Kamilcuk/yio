@@ -8,8 +8,8 @@
  */
 #include "private.h"
 
-static inline _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
-size_t _yΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
+static inline YYIO_access_r(2, 3) YYIO_wur YYIO_nn()
+size_t YYΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
 #if TMODE == 1
 	return fwrite(str, 1, size, file);
 #elif TMODE == 2
@@ -23,36 +23,36 @@ size_t _yΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
 	const bool isnormal = fwide(file, 0) <= 0;
 	if (isnormal) {
 		const char *mb; size_t mb_len;
-		int ret = _yIO_strconv_πstr_to_str(str, size, &mb, &mb_len);
+		int ret = YYIO_strconv_πstr_to_str(str, size, &mb, &mb_len);
 		if (ret) return ret;
 		size_t r = fwrite(mb, 1, mb_len, file);
-		_yIO_strconv_free_πstr_to_str(str, mb);
+		YYIO_strconv_free_πstr_to_str(str, mb);
 		if (r != mb_len) return -1;
 	} else {
 		const wchar_t *wc; size_t wc_len;
-		int ret = _yIO_strconv_πstr_to_wstr(str, size, &wc, &wc_len);
+		int ret = YYIO_strconv_πstr_to_wstr(str, size, &wc, &wc_len);
 		if (ret) return ret;
 		for (size_t i = wc_len; i--; ) {
 			if (fputwc(wc[i], file) == TEOF) {
-				_yIO_strconv_free_πstr_to_wstr(str, wc);
+				YYIO_strconv_free_πstr_to_wstr(str, wc);
 				return i;
 			}
 		}
-		_yIO_strconv_free_πstr_to_wstr(str, wc);
+		YYIO_strconv_free_πstr_to_wstr(str, wc);
 	}
 	return size;
 #endif
 }
 
-static _yIO_access_r(2, 3) _yIO_wur _yIO_nn()
-int _yΩIO_yvfprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
+static YYIO_access_r(2, 3) YYIO_wur YYIO_nn()
+int YYΩIO_yvfprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 	FILE *f = arg;
-	const size_t cnt = _yΩIO_fwrite(f, ptr, size);
+	const size_t cnt = YYΩIO_fwrite(f, ptr, size);
 	return cnt == size ? 0 : YIO_ERROR_EIO;
 }
 
 
-int _yΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const TCHAR *fmt, ...) {
+int YYΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const TCHAR *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yπvfprintf(file, data, fmt, &va);
@@ -61,6 +61,6 @@ int _yΩIO_yfprintf(FILE *file, const yπio_printdata_t *data, const TCHAR *fmt,
 }
 
 int yπvfprintf(FILE *file, const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
-	return yπvbprintf(_yΩIO_yvfprintf_cb, file, data, fmt, va);
+	return yπvbprintf(YYΩIO_yvfprintf_cb, file, data, fmt, va);
 }
 

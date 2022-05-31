@@ -109,12 +109,12 @@ all: help
 # Generic configure+build+test targets
 
 HELP +=~ configure - Configure the project
-configure $(B)/compile_commands.json:
+conf config configure $(B) $(B)/compile_commands.json:
 	$(CMAKE) --preset=$(PRESET) -B$(B) -S. $(CMAKEFLAGS)
 
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
-.build_%: configure
+.build_%: $(B)
 	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep $(R) || echo all),$(if $(value T),$T,$*)) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
@@ -192,6 +192,19 @@ coverage_gen:
 	$(MAKE) .coverage_gen PRESET=coverage
 .coverage_gen:
 	gcovr --print-summary --txt - --xml ./_build/cobertura-coverage.xml --json ./coverage.json --filter "$(B)/gen" --filter "src" -r . "$(B)"
+
+namespace_stat: build_gen
+	find gen/ -type f -name '*.[ch]' -exec cat {} + | \
+		grep -v '@\|#line' | \
+		tr -c '[:alnum:]_' '\n' | \
+		grep -x '^[yY][[:alnum:]_]*_[[:alnum:]_]*' | \
+		sort -u | \
+		sed 's/_/ /' | \
+		shuf | \
+		awk '{ cnt[$$1]++; ex[$$1] = ex[$$1] (ex[$$1]?",":"") $$2; } END{ for (i in cnt) print cnt[i] "|" i "|" ex[i] }' | \
+		sort -n | \
+		column -t -s "|" -o ' ' | \
+		if [ -t 1 ]; then cut -c-"$$(tput cols)"; else cat; fi
 
 ###############################################################################
 # linting

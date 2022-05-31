@@ -20,13 +20,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef _yIO_USE_STRFROM_PRINTF
-#error _yIO_USE_STRFROM_PRINTF
+#ifndef YIO_USE_STRFROM_PRINTF
+#error YIO_USE_STRFROM_PRINTF
 #endif
-#if _yIO_USE_STRFROM_PRINTF
+#if YIO_USE_STRFROM_PRINTF
 
 static inline
-void _yIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
+void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 		int precision, char spec, const char *restrict pri, size_t prisize) {
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
@@ -48,42 +48,42 @@ void _yIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 {% call j_FOREACHAPPLY(["f", "d", "l", "d32", "d64", "d128"]) %}
 #line
 
-#ifndef _yIO_has_float_printf$1
-#error  _yIO_has_float_printf$1
+#ifndef YYIO_has_float_printf$1
+#error  YYIO_has_float_printf$1
 #endif
-#if _yIO_has_float_printf$1
+#if YYIO_has_float_printf$1
 
 #define FMT_SIZE$1 ( \
 		\
 		sizeof("%") - 1 + \
 		sizeof(".") - 1 + \
-		_yIO_INT_STRLEN_BOUND() + \
-		sizeof(_yIO_FLOAT_PRI$1) - 1 + \
+		YYIO_INT_STRLEN_BOUND() + \
+		sizeof(YYIO_FLOAT_PRI$1) - 1 + \
 		sizeof(char) + \
 		1 \
 )
 
 static inline
-void _yIO_create_format_string$1(char *restrict fmt, int precision, char spec) {
-	_yIO_create_format_string_generic(fmt, FMT_SIZE$1,
-			precision, spec, _yIO_FLOAT_PRI$1, sizeof(_yIO_FLOAT_PRI$1) - 1);
+void YYIO_create_format_string$1(char *restrict fmt, int precision, char spec) {
+	YYIO_create_format_string_generic(fmt, FMT_SIZE$1,
+			precision, spec, YYIO_FLOAT_PRI$1, sizeof(YYIO_FLOAT_PRI$1) - 1);
 }
 
-int _yIO_float_astrfrom_printf$1(_yIO_res *v, int precision, char spec, _yIO_FLOAT$1 val) {
+int YYIO_float_astrfrom_printf$1(YYIO_res *v, int precision, char spec, YYIO_FLOAT$1 val) {
 	char fmt[FMT_SIZE$1];
-	_yIO_create_format_string$1(fmt, precision, spec);
-	assert(_yIO_res_size(v) < INT_MAX);
-	const int len = snprintf(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
+	YYIO_create_format_string$1(fmt, precision, spec);
+	assert(YYIO_res_size(v) < INT_MAX);
+	const int len = snprintf(YYIO_res_data(v), YYIO_res_size(v), fmt, val);
 	assert(len >= 0);
-	if ((size_t)len >= _yIO_res_size(v)) {
-		int err = _yIO_res_reserve(v, len + 1);
+	if ((size_t)len >= YYIO_res_size(v)) {
+		int err = YYIO_res_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = snprintf(_yIO_res_data(v), _yIO_res_size(v), fmt, val);
+		const int len2 = snprintf(YYIO_res_data(v), YYIO_res_size(v), fmt, val);
 		(void)len2;
 		assert(len2 >= 0);
 		assert(len2 == len);
 	}
-	_yIO_res_set_used(v, len);
+	YYIO_res_set_used(v, len);
 	return 0;
 }
 

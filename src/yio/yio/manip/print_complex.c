@@ -8,7 +8,7 @@
  */
 #include "private.h"
 #include "print_complex.h"
-#if _yIO_HAS_COMPLEX
+#if YYIO_HAS_COMPLEX
 #include <complex.h>
 
 #if defined(__GNUC__) && !defined(__clang__) && __GNUC__ == 11
@@ -20,7 +20,7 @@
 
 {% call j_FOREACHAPPLY(j_complex_types) %}
 #line
-int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
+int YYΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2); // NOLINT(clang-analyzer-valist.Uninitialized)
 	int err = yπio_printctx_init(t);
 	if (err) return err;
@@ -28,16 +28,16 @@ int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
 }
 {% endcall %}
 
-#if _yIO_HAS_IMAGINARY
+#if YYIO_HAS_IMAGINARY
 {% call j_FOREACHAPPLY(j_imaginary_types) %}
 #line
-int _yΩIO_print_complex_$1(yπio_printctx_t *t) {
+int YYΩIO_print_complex_$1(yπio_printctx_t *t) {
 	const $2 val = yπio_printctx_va_arg(t, $2);
 	int err = yπio_printctx_init(t);
 	if (err) return err;
 	return yπio_printctx_printf(t, TC("0{:+}i"), cimag$3(val));
 }
 {% endcall %}
-#endif // _yIO_HAS_IMAGINARY
+#endif // YYIO_HAS_IMAGINARY
 
 #endif

@@ -89,8 +89,8 @@ if(YIO_DEV)
 				add_compile_options(-fanalyzer)
 			endif()
 		endif()
-		check_c_compiler_flag(-Wattribute-warning _yIO_ATTRIBUTE_WARNING)
-		if(_yIO_ATTRIBUTE_WARNING)
+		check_c_compiler_flag(-Wattribute-warning YYIO_ATTRIBUTE_WARNING)
+		if(YYIO_ATTRIBUTE_WARNING)
 			add_compile_options(-Wattribute-warning)
 		endif()
 		add_compile_definitions(_FORTIFY_SOURCE=2)
@@ -196,19 +196,19 @@ function(yio_cdt_parser tgt)
 	add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
 	target_compile_definitions(${tgt} PRIVATE
 		__CDT_PARSER__=1
-		_yIO_CDT_PARSER=1
-		_yIO_HAS_FLOATf32=0
-		_yIO_HAS_FLOATf64=0
-		_yIO_HAS_FLOATf32x=0
-		_yIO_HAS_FLOATf64x=0
-		_yIO_HAS_FLOATf128=0
-		_yIO_HAS_FLOATf128x=0
-		_yIO_HAS_FLOATd32=0
-		_yIO_HAS_FLOATd64=0
-		_yIO_HAS_FLOATd128=0
-		_yIO_HAS_FLOATd32x=0
-		_yIO_HAS_FLOATd64x=0
-		_yIO_HAS_FLOATd128x=0
+		YYIO_CDT_PARSER=1
+		YIO_HAS_FLOATf32=0
+		YIO_HAS_FLOATf64=0
+		YIO_HAS_FLOATf32x=0
+		YIO_HAS_FLOATf64x=0
+		YIO_HAS_FLOATf128=0
+		YIO_HAS_FLOATf128x=0
+		YIO_HAS_FLOATd32=0
+		YIO_HAS_FLOATd64=0
+		YIO_HAS_FLOATd128=0
+		YIO_HAS_FLOATd32x=0
+		YIO_HAS_FLOATd64x=0
+		YIO_HAS_FLOATd128x=0
 	)
 	target_include_directories(${tgt} PRIVATE
 		${GENDIR}

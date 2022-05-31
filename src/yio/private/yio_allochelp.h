@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
-#define _yIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
+#ifndef YYIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
+#define YYIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
 #include "../yio_config.h"
 #include "yio_res.h"
 #include <stddef.h>
@@ -16,20 +16,20 @@
 /**
  * Dynamic strftime.
  * The call @c strftime(..., fmt, tm) *must* result in a nonzero string.
- * @param res The @c _yIO_res object for storing output.
+ * @param res The @c YYIO_res object for storing output.
  * @param fmt The formatting string for strftime.
  *            It *must* result in a nonzero output from strftime.
  * @param tm The current broken down time representation.
  * @return 0 on success, otherwise error.
  */
-int _yIO_astrftime_nonzero(_yIO_res *res, const char *fmt, const struct tm *tm);
+int YYIO_astrftime_nonzero(YYIO_res *res, const char *fmt, const struct tm *tm);
 
-#ifndef _yIO_HAS_MONETARY_H
+#ifndef YYIO_HAS_MONETARY_H
 #error
 #endif
-#if _yIO_HAS_MONETARY_H
+#if YYIO_HAS_MONETARY_H
 
-struct _yIO_astrfmon_arg {
+struct YYIO_astrfmon_arg {
 	union {
 		double d;
 		long double ld;
@@ -39,12 +39,12 @@ struct _yIO_astrfmon_arg {
 
 /**
  * Dynamic allocation astrfmon.
- * @param res The @c _yIO_res object for storing output.
+ * @param res The @c YYIO_res object for storing output.
  * @param fmt The formatting string passed to strfmon.
  * @param arg The arguments, which should match type with formatting string.
  * @return 0 on success, otherwise error.
  */
-int _yIO_astrfmon(_yIO_res *res, const char *fmt, struct _yIO_astrfmon_arg arg);
+int YYIO_astrfmon(YYIO_res *res, const char *fmt, struct YYIO_astrfmon_arg arg);
 #endif
 
-#endif /* _yIO_YIO_PRIVATE_YIO_ALLOCHELP_H_ */
+#endif /* YYIO_YIO_PRIVATE_YIO_ALLOCHELP_H_ */

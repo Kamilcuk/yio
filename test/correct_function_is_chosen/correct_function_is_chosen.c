@@ -19,65 +19,65 @@ static const char *gfunc = "";
 		return __real_##FUNC(t); \
 	}
 
-#ifndef _yIO_HAS_strfromf
-#error _yIO_HAS_strfromf
+#ifndef YYIO_HAS_strfromf
+#error YYIO_HAS_strfromf
 #endif
-#if _yIO_HAS_strfromf
-MASK(_yIO_print_float_strfromf)
+#if YYIO_HAS_strfromf
+MASK(YYIO_print_float_strfromf)
 #endif
-#ifndef _yIO_HAS_strfromd
-#error _yIO_HAS_strfromd
+#ifndef YYIO_HAS_strfromd
+#error YYIO_HAS_strfromd
 #endif
-#if _yIO_HAS_strfromd
-MASK(_yIO_print_float_strfromd)
+#if YYIO_HAS_strfromd
+MASK(YYIO_print_float_strfromd)
 #endif
-#ifndef _yIO_HAS_strfroml
-#error _yIO_HAS_strfroml
+#ifndef YYIO_HAS_strfroml
+#error YYIO_HAS_strfroml
 #endif
-#if _yIO_HAS_strfroml
-MASK(_yIO_print_float_strfroml)
+#if YYIO_HAS_strfroml
+MASK(YYIO_print_float_strfroml)
 #endif
-MASK(_yIO_print_float_printff)
-MASK(_yIO_print_float_printfd)
-MASK(_yIO_print_float_printfl)
-MASK(_yIO_print_float_customf)
-MASK(_yIO_print_float_customd)
-MASK(_yIO_print_float_customl)
+MASK(YYIO_print_float_printff)
+MASK(YYIO_print_float_printfd)
+MASK(YYIO_print_float_printfl)
+MASK(YYIO_print_float_customf)
+MASK(YYIO_print_float_customd)
+MASK(YYIO_print_float_customl)
 
 #define CHECK(FUNC) \
 	do{ \
 		printf("%s\n", gfunc); \
-		_yIO_TEST(strcmp(gfunc, FUNC) == 0, "gfunc=%s", gfunc); \
+		YYIO_TEST(strcmp(gfunc, FUNC) == 0, "gfunc=%s", gfunc); \
 	} while(0)
 
 int main() {
-#if _yIO_HAS_FLOATf
+#if YYIO_HAS_FLOATf
 	yprintf("{}", 1.0f);
-#if _yIO_HAS_strfromf
-	CHECK("_yIO_print_float_strfromf");
+#if YYIO_HAS_strfromf
+	CHECK("YYIO_print_float_strfromf");
 #else
-	CHECK("_yIO_print_float_customf");
-	//CHECK("_yIO_print_float_printff");
+	CHECK("YYIO_print_float_customf");
+	//CHECK("YYIO_print_float_printff");
 #endif
 #endif
 
-#if _yIO_HAS_FLOATd
+#if YIO_HAS_FLOATd
 	yprintf("{}", 1.0);
-#if _yIO_HAS_strfromd
-	CHECK("_yIO_print_float_strfromd");
+#if YYIO_HAS_strfromd
+	CHECK("YYIO_print_float_strfromd");
 #else
-	CHECK("_yIO_print_float_customd");
-	//CHECK("_yIO_print_float_printfd");
+	CHECK("YYIO_print_float_customd");
+	//CHECK("YYIO_print_float_printfd");
 #endif
 #endif
 
-#if _yIO_HAS_FLOATl
+#if YIO_HAS_FLOATl
 	yprintf("{}", 1.0l);
-#if _yIO_HAS_strfroml
-	CHECK("_yIO_print_float_strfroml");
+#if YYIO_HAS_strfroml
+	CHECK("YYIO_print_float_strfroml");
 #else
-	CHECK("_yIO_print_float_customl");
-	//CHECK("_yIO_print_float_printfl");
+	CHECK("YYIO_print_float_customl");
+	//CHECK("YYIO_print_float_printfl");
 #endif
 #endif
 }

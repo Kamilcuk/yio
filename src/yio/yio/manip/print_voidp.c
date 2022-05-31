@@ -8,7 +8,7 @@
  */
 #include "private.h"
 
-int _yΩIO_print_voidp(yπio_printctx_t *t) {
+int YYΩIO_print_voidp(yπio_printctx_t *t) {
 	const void *val = yπio_printctx_va_arg(t, void *);
 	int err = yπio_printctx_init(t);
 	if (err) return err;

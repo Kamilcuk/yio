@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-A small script that will extract all calls to _yIO_ERROR within all source files
+A small script that will extract all calls to YYIO_ERROR within all source files
 in current source directory, and from these calls it will generate two files:
 .c and .h file given as first and second argumetns with enum-ish definition
 and array of strings definition.
@@ -22,7 +22,7 @@ def fatal(str, *args):
 
 def get_all_errors_from_sources():
     rereplace = re.compile(
-        r'_yIO_ERROR\s*\(\s*(.*)\s*,\s*(".*")\s*\)\s*;',
+        r'YYIO_ERROR\s*\(\s*(.*)\s*,\s*(".*")\s*\)\s*;',
         flags=re.MULTILINE,
     )
     dir = os.path.dirname(__file__)
@@ -36,7 +36,7 @@ def get_all_errors_from_sources():
             for res in rereplace.findall(content):
                 name, msg = res
                 if not name.startswith("YIO_ERROR_"):
-                    fatal("{}: Argument to _yIO_ERROR does not start with YIO_ERROR", file)
+                    fatal("{}: Argument to YYIO_ERROR does not start with YIO_ERROR", file)
                 errors += [(res[0], res[1])]
     return errors
 

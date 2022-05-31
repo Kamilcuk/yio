@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_YΩIO_CTX_H_
-#define _yIO_YIO_YΩIO_CTX_H_
+#ifndef YYIO_YIO_YΩIO_CTX_H_
+#define YYIO_YIO_YΩIO_CTX_H_
 #include "../yio_config.h"
 #include <stdarg.h>
 #include <stdbool.h>
@@ -48,12 +48,12 @@ struct yπio_printfmt_s {
 /**
  * The default values of printfmt.
  */
-extern const struct yπio_printfmt_s _yΩIO_printfmt_default;
+extern const struct yπio_printfmt_s YYΩIO_printfmt_default;
 
 /**
  * Print context.
  */
-typedef struct _yΩIO_printctx_s yπio_printctx_t;
+typedef struct YYΩIO_printctx_s yπio_printctx_t;
 
 /**
  * The type representing a callback that will write output data to the user specified place.
@@ -62,8 +62,8 @@ typedef struct _yΩIO_printctx_s yπio_printctx_t;
  * @param count Count of characters to print
  * @return 0 on success, otherwise error
  */
-typedef int _yΩIO_printcb_t(void *arg, const TCHAR *data, size_t count)
-		_yIO_wur _yIO_nn(2) _yIO_access_r(2, 3);
+typedef int YYΩIO_printcb_t(void *arg, const TCHAR *data, size_t count)
+		YYIO_wur YYIO_nn(2) YYIO_access_r(2, 3);
 
 /**
  * The type of callback functions, but abstractly, this represents
@@ -84,7 +84,7 @@ typedef int (*const yπio_printdata_t)(yπio_printctx_t *t);
 /**
  * The structure that allows for printing context manipulation.
  */
-struct _yΩIO_printctx_s {
+struct YYΩIO_printctx_s {
 	/// Current iterator in the format string.
 	const TCHAR *fmt;
 	/// va_list of current argument.
@@ -96,7 +96,7 @@ struct _yΩIO_printctx_s {
 	/// The pointer to the data.
 	yπio_printdata_t *startifunc;
 	/// The outputting function.
-	_yΩIO_printcb_t *out;
+	YYΩIO_printcb_t *out;
 	/// User argument for outputting functions.
 	void *outarg;
 	/// The count of characters written.
@@ -114,14 +114,14 @@ struct _yΩIO_printctx_s {
  * @param t
  * @param count The positional number.
  */
-void _yΩIO_skip_arm(yπio_printctx_t *t, unsigned int count);
+void YYΩIO_skip_arm(yπio_printctx_t *t, unsigned int count);
 
 /**
  * For positional arguments, skip until the proper positional argument is in va_arg.
  * @param t
  * @return 0 on success, otherwise error.
  */
-int _yΩIO_skip_do(yπio_printctx_t *t);
+int YYΩIO_skip_do(yπio_printctx_t *t);
 
 /**
  * Convert the string pointed to by ptr to a digit.
@@ -129,18 +129,18 @@ int _yΩIO_skip_do(yπio_printctx_t *t);
  * @param ptr
  * @return The converted number.
  */
-int _yΩIO_printctx_strtoi_noerr(const TCHAR **ptr);
+int YYΩIO_printctx_strtoi_noerr(const TCHAR **ptr);
 
 /**
  * Parse the width or precision param, that can be either a number of a positional parameter.
  */
-int _yΩIO_printctx_stdintparam(yπio_printctx_t *t,
+int YYΩIO_printctx_stdintparam(yπio_printctx_t *t,
 		const TCHAR *ptr, const TCHAR **endptr, int *res);
 
 /**
  * Check if @c c is not nul and is one of characters in @c s.
  */
-bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c);
+bool YYΩIO_strnulchrbool(const TCHAR *s, TCHAR c);
 
 /**
  * Parse python formatting string.
@@ -150,8 +150,8 @@ bool _yΩIO_strnulchrbool(const TCHAR *s, TCHAR c);
  * @param endptr Will be set to the last character parsed in fmt
  * @return 0 on success, otherwise error
  */
-_yIO_wur _yIO_nn()
-int _yΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
+YYIO_wur YYIO_nn()
+int YYΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
 		const TCHAR *fmt, const TCHAR **endptr);
 
 /* printctx ---------------------------------------------------- */
@@ -161,7 +161,7 @@ int _yΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
  * Gets the next argument from variadic arguments stack. The argument has type @c type.
  * The type argument undergoes implicit conversion when calling a variadic function,
  * so char, short is converted to int, float is converted to double.
- * If it errors on you, that means that @c type is not a promoted type, see _yΩIO_IS_PROMOTED_TYPE
+ * If it errors on you, that means that @c type is not a promoted type, see YYΩIO_IS_PROMOTED_TYPE
  * @def yπio_printctx_va_arg(printctx, type)
  * @param printctx Printing context, pointer to yπio_printctx_t
  * @param type Type of argument passed to va_list.
@@ -197,7 +197,7 @@ int _yΩIO_pfmt_parse(yπio_printctx_t *c, struct yπio_printfmt_s *pf,
  * @param t
  * @return 0 on succes, otherwise error.
  */
-_yIO_wur _yIO_nn()
+YYIO_wur YYIO_nn()
 int yπio_printctx_init(yπio_printctx_t *t);
 
 /**
@@ -207,7 +207,7 @@ int yπio_printctx_init(yπio_printctx_t *t);
  * @param size
  * @return 0 on success, otherwise error.
  */
-_yIO_wur _yIO_nn() _yIO_access_r(2, 3)
+YYIO_wur YYIO_nn() YYIO_access_r(2, 3)
 int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *ptr, size_t size);
 
 /**
@@ -216,7 +216,7 @@ int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *ptr, size_t size)
  * @param t
  * @return The return value of the next formatting function.
  */
-_yIO_wur _yIO_nn()
+YYIO_wur YYIO_nn()
 int yπio_printctx_next(yπio_printctx_t *t);
 
 /**
@@ -236,8 +236,8 @@ struct yπio_printfmt_s *yπio_printctx_get_fmt(yπio_printctx_t *t) {
  * @param data
  * @return
  */
-_yIO_wur _yIO_nn(1, 2)
-int _yΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const TCHAR *fmt, ...);
+YYIO_wur YYIO_nn(1, 2)
+int YYΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const TCHAR *fmt, ...);
 
 /**
  * Use it to print data from inside a printing context.
@@ -246,7 +246,7 @@ int _yΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const
  * @return int 0 on success, otherwise error
  */
 #define yπio_printctx_printf(printctx, ...)  \
-		_yΩIO_printctx_print_in(printctx, YΩIO_PRINT_ARGUMENTS(__VA_ARGS__))
+		YYΩIO_printctx_print_in(printctx, YΩIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
  * Generic formatter to output stuff formatted according to python standard format specification.
@@ -257,27 +257,27 @@ int _yΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const
  * @param is_positive If @c str is a number, is it a positive or negative number?
  * @return 0 on success, otherwise error.
  */
-_yIO_wur _yIO_nn()
-int _yΩIO_printformat_generic(yπio_printctx_t *t,
+YYIO_wur YYIO_nn()
+int YYΩIO_printformat_generic(yπio_printctx_t *t,
 		const TCHAR str[], size_t str_len, bool is_number, bool is_positive);
 
 /**
  * From printing context output a string
- * @see _yΩIO_printformat_generic
+ * @see YYΩIO_printformat_generic
  */
-_yIO_wur _yIO_nn() static inline
+YYIO_wur YYIO_nn() static inline
 int yπio_printctx_putπ(yπio_printctx_t *t, const TCHAR str[], size_t str_len) {
-	return _yΩIO_printformat_generic(t, str, str_len, false, false);
+	return YYΩIO_printformat_generic(t, str, str_len, false, false);
 }
 
 /**
  * From printing context output a number.
  * The @c str argument has to consist of only digits.
- * @see _yΩIO_printformat_generic
+ * @see YYΩIO_printformat_generic
  */
-_yIO_wur _yIO_nn() static inline
+YYIO_wur YYIO_nn() static inline
 int yπio_printctx_putπ_number(yπio_printctx_t *t, const TCHAR str[], size_t str_len, bool is_positive) {
-	return _yΩIO_printformat_generic(t, str, str_len, true, is_positive);
+	return YYΩIO_printformat_generic(t, str, str_len, true, is_positive);
 }
 
 #if TMODE != 1
@@ -286,24 +286,24 @@ int yπio_printctx_putπ_number(yπio_printctx_t *t, const TCHAR str[], size_t s
  * On modes different than normal, use this to output a @c char string.
  * Automatically converts @c char string into @c YCHAR string and then outputs it.
  */
-_yIO_wur _yIO_nn()
-int _yΩIO_printformat_generic_char(yπio_printctx_t *t,
+YYIO_wur YYIO_nn()
+int YYΩIO_printformat_generic_char(yπio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive);
 
 /**
- * @see _yΩIO_printformat_generic_char
+ * @see YYΩIO_printformat_generic_char
  */
-_yIO_wur _yIO_nn() static inline
+YYIO_wur YYIO_nn() static inline
 int yπio_printctx_put(yπio_printctx_t *t, const char str[], size_t str_len) {
-	return _yΩIO_printformat_generic_char(t, str, str_len, false, false);
+	return YYΩIO_printformat_generic_char(t, str, str_len, false, false);
 }
 
 /**
- * @see _yΩIO_printformat_generic_char
+ * @see YYΩIO_printformat_generic_char
  */
-_yIO_wur _yIO_nn() static inline
+YYIO_wur YYIO_nn() static inline
 int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
-	return _yΩIO_printformat_generic_char(t, str, str_len, true, is_positive);
+	return YYΩIO_printformat_generic_char(t, str, str_len, true, is_positive);
 }
 
 #endif
@@ -312,4 +312,4 @@ int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_
  * @}
  */
 
-#endif /* _yIO_YIO_YΩIO_CTX_H_ */
+#endif /* YYIO_YIO_YΩIO_CTX_H_ */

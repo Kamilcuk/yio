@@ -45,54 +45,46 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
 )
 
 #########################################################################
-# Check if _Generic is supported
-
-check_c_source_compiles("int main() { return _Generic(1, int: 1, default: 0); }" _yIO_HAS__Generic)
-if(NOT _yIO_HAS__Generic)
-	message(SEND_ERROR "Selected compiler has no C11 _Generic() support, compilation WILL fail")
-endif()
-
-#########################################################################
 # some generic checks
 
-if(_yIO_HAS_UNISTD_H)
+if(YYIO_HAS_UNISTD_H)
 	list(APPEND CMAKE_EXTRA_INCLUDE_FILES
 		"unistd.h"
 		"sys/time.h"
 	)
 endif()
 
-set(_yIO_HAS_FLOAT_H_COMMENT "Do we have float.h?")
-yio_config_gen_check_include_file("float.h" _yIO_HAS_FLOAT_H)
-set(_yIO_HAS_FENV_H_COMMENT "Do we have fenv.h?")
-yio_config_gen_check_include_file("fenv.h" _yIO_HAS_FENV_H)
-set(_yIO_HAS_NUMERIC_H_COMMENT "Do we have numeric.h?")
-if(_yIO_HAS_UNISTD_H)
-	yio_config_gen_check_include_file("monetary.h" _yIO_HAS_MONETARY_H)
+set(YYIO_HAS_FLOAT_H_COMMENT "Do we have float.h?")
+yio_config_gen_check_include_file("float.h" YYIO_HAS_FLOAT_H)
+set(YYIO_HAS_FENV_H_COMMENT "Do we have fenv.h?")
+yio_config_gen_check_include_file("fenv.h" YYIO_HAS_FENV_H)
+set(YYIO_HAS_NUMERIC_H_COMMENT "Do we have numeric.h?")
+if(YYIO_HAS_UNISTD_H)
+	yio_config_gen_check_include_file("monetary.h" YYIO_HAS_MONETARY_H)
 else()
-	yio_config_gen_add_value(_yIO_HAS_MONETARY_H 0)
+	yio_config_gen_add_value(YYIO_HAS_MONETARY_H 0)
 endif()
 
-yio_config_gen_check_symbol_exists(asprintf "stdio.h" _yIO_HAS_asprintf LANGUAGE C)
+yio_config_gen_check_symbol_exists(asprintf "stdio.h" YYIO_HAS_asprintf LANGUAGE C)
 
-yio_config_gen_check_type_exists("struct timespec" _yIO_HAS_timespec LANGUAGE C)
-yio_config_gen_check_type_exists("struct timeval" _yIO_HAS_timeval LANGUAGE C)
+yio_config_gen_check_type_exists("struct timespec" YYIO_HAS_timespec LANGUAGE C)
+yio_config_gen_check_type_exists("struct timeval" YYIO_HAS_timeval LANGUAGE C)
 
-yio_config_gen_check_symbol_exists(strnlen "string.h" _yIO_HAS_strnlen LANGUAGE C)
+yio_config_gen_check_symbol_exists(strnlen "string.h" YYIO_HAS_strnlen LANGUAGE C)
 
-yio_config_gen_check_include_file("wchar.h"  _yIO_HAS_WCHAR_H)
-yio_config_gen_check_symbol_exists(wcswidth "wchar.h" _yIO_HAS_wcswidth LANGUAGE C)
+yio_config_gen_check_include_file("wchar.h"  YIO_HAS_WCHAR_H)
+yio_config_gen_check_symbol_exists(wcswidth "wchar.h" YYIO_HAS_wcswidth LANGUAGE C)
 
-yio_config_gen_check_include_file("uchar.h"  _yIO_HAS_UCHAR_H)
+yio_config_gen_check_include_file("uchar.h"  YIO_HAS_UCHAR_H)
 
 if(UNISTRING_LIB)
-	set(_yIO_HAS_UNISTRING 1)
+	set(YYIO_HAS_UNISTRING 1)
 endif()
-yio_config_gen_add(_yIO_HAS_UNISTRING)
+yio_config_gen_add(YYIO_HAS_UNISTRING)
 
-set(_yIO_USE_STRFROM_PRINTF 1)
-yio_config_gen_add_value(_yIO_USE_STRFROM_PRINTF 1)
-yio_config_gen_add_value(_yIO_USE_STRFROM_RYU 1)
+set(YIO_USE_STRFROM_PRINTF 1)
+yio_config_gen_add_value(YIO_USE_STRFROM_PRINTF 1)
+yio_config_gen_add_value(YIO_USE_STRFROM_RYU 1)
 
 #########################################################################
 # handle and detect _floats
@@ -120,15 +112,15 @@ set(_floats
 	"_Decimal128x"   "d128x"    "d128x"   "d128x"
 )
 
-# If two types are the same, set _yIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
+# If two types are the same, set YYIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
 function(exclude_same type1 type2 suffix)
 	check_c_source_compiles(
 		"int main() { return _Generic((${type1})0, ${type1}: 0, ${type2}: 0); }"
-		_yIO_samecompiles_FLOAT${suffix}
+		YYIO_samecompiles_FLOAT${suffix}
 	)
-	if(NOT _yIO_samecompiles_FLOAT${suffix})
+	if(NOT YYIO_samecompiles_FLOAT${suffix})
 		# cmake-lint: disable=C0103
-		set(_yIO_HAS_FLOAT${suffix} 0 CACHE INTERNAL "")
+		set(YYIO_HAS_FLOAT${suffix} 0 CACHE INTERNAL "")
 	endif()
 endfunction()
 # Intel compiler
@@ -144,22 +136,22 @@ foreach(ii IN LISTS _floats)
 	if(ii)
 		continue()
 	endif()
-	if(NOT DEFINED _yIO_HAS_FLOAT${suffix})
+	if(NOT DEFINED YYIO_HAS_FLOAT${suffix})
 		message(STATUS "Detecting: '${type}' '${mathsuffix}' '${suffix}' '${strtosuffix}'")
 	endif()
 
-	if(NOT DEFINED _yIO_HAS_FLOAT${suffix})
-		check_type_exists_bool(${type} _yIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
+	if(NOT DEFINED YYIO_HAS_FLOAT${suffix})
+		check_type_exists_bool(${type} YYIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
 	endif()
-	yio_config_gen_add(_yIO_HAS_FLOAT${suffix})
-	if(_yIO_HAS_FLOAT${suffix})
+	yio_config_gen_add(YYIO_HAS_FLOAT${suffix})
+	if(YYIO_HAS_FLOAT${suffix})
 		list(APPEND YIO_FLOAT_SUFFIXES ${suffix})
-		yio_config_gen_add_value(_yIO_FLOAT${suffix} ${type})
-		check_symbol_exists_bool(exp10${mathsuffix}  "math.h"    _yIO_HAS_exp10${suffix})
-		check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  _yIO_HAS_strfrom${suffix})
-		check_symbol_exists_bool(strto${strtosuffix} "stdlib.h"  _yIO_HAS_strto${suffix})
+		yio_config_gen_add_value(YYIO_FLOAT${suffix} ${type})
+		check_symbol_exists_bool(exp10${mathsuffix}  "math.h"    YYIO_HAS_exp10${suffix})
+		check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  YYIO_HAS_strfrom${suffix})
+		check_symbol_exists_bool(strto${strtosuffix} "stdlib.h"  YYIO_HAS_strto${suffix})
 		foreach(ii IN ITEMS exp10 strfrom strto)
-			yio_config_gen_add(_yIO_HAS_${ii}${suffix})
+			yio_config_gen_add(YYIO_HAS_${ii}${suffix})
 		endforeach()
 	endif()
 endforeach()
@@ -170,7 +162,7 @@ float _Imaginary fi = 1;
 double _Imaginary di = 2;
 long double _Imaginary li = 3;
 int main() {}
-]=] _yIO_HAS_IMAGINARY)
+]=] YYIO_HAS_IMAGINARY)
 
 yio_config_gen_check_c_source_compiles([=[
 #include <complex.h>
@@ -178,10 +170,10 @@ yio_config_gen_check_c_source_compiles([=[
 #error
 #endif
 int main() {}
-]=] _yIO_HAS_COMPLEX)
+]=] YYIO_HAS_COMPLEX)
 
-if(NOT DEFINED _yIO_MUSL_BROKEN_EXP10)
-	if(NOT CMAKE_CROSSCOMPILING AND _yIO_HAS_exp10l AND _yIO_HAS_FLOAT_H)
+if(NOT DEFINED YYIO_MUSL_BROKEN_EXP10)
+	if(NOT CMAKE_CROSSCOMPILING AND YYIO_HAS_exp10l AND YYIO_HAS_FLOAT_H)
 		set(_o  ${CMAKE_CURRENT_BINARY_DIR}/checkexp10)
 		file(MAKE_DIRECTORY ${_o})
 		file(WRITE ${_o}/checkexp10.c [=[
@@ -197,20 +189,20 @@ int main() {
 			LINK_LIBRARIES m
 		)
 		if(compileres AND runres EQUAL 1)
-			set(_yIO_MUSL_BROKEN_EXP10 1 CACHE INTERNAL "")
+			set(YYIO_MUSL_BROKEN_EXP10 1 CACHE INTERNAL "")
 		endif()
 	endif()
 endif()
-if(NOT DEFINED _yIO_MUSL_BROKEN_EXP10)
-	set(_yIO_MUSL_BROKEN_EXP10 0 CACHE INTERNAL "")
+if(NOT DEFINED YYIO_MUSL_BROKEN_EXP10)
+	set(YYIO_MUSL_BROKEN_EXP10 0 CACHE INTERNAL "")
 endif()
-yio_config_gen_add(_yIO_MUSL_BROKEN_EXP10)
+yio_config_gen_add(YYIO_MUSL_BROKEN_EXP10)
 
 #########################################################################
 # handle and detect stdfix
 
-yio_config_gen_check_include_file("stdfix.h"  _yIO_HAS_STDFIX_H)
-yio_config_gen_check_type_exists(_Fract _yIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
+yio_config_gen_check_include_file("stdfix.h"  YYIO_HAS_STDFIX_H)
+yio_config_gen_check_type_exists(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
 
 #########################################################################
 

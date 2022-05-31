@@ -5,15 +5,15 @@ endif()
 
 add_executable(correct_function_is_chosen correct_function_is_chosen.c)
 foreach(i IN ITEMS
-	_yIO_print_float_strfromf
-	_yIO_print_float_strfromd
-	_yIO_print_float_strfroml
-	_yIO_print_float_printff
-	_yIO_print_float_printfd
-	_yIO_print_float_printfl
-	_yIO_print_float_customf
-	_yIO_print_float_customd
-	_yIO_print_float_customl
+	YYIO_print_float_strfromf
+	YYIO_print_float_strfromd
+	YYIO_print_float_strfroml
+	YYIO_print_float_printff
+	YYIO_print_float_printfd
+	YYIO_print_float_printfl
+	YYIO_print_float_customf
+	YYIO_print_float_customd
+	YYIO_print_float_customl
 )
 	target_link_options(correct_function_is_chosen PRIVATE
 		-Wl,--wrap=${i}

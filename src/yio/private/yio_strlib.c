@@ -10,20 +10,20 @@
 #define _GNU_SOURCE
 #include "private.h"
 #include "yio_strlib.h"
-#if _yIO_HAS_UNISTRING
+#if YYIO_HAS_UNISTRING
 #include <uniconv.h>
 #include <unistr.h>
 #endif
 #include <string.h>
 
-#ifndef _yIO_HAS_UNISTRING
+#ifndef YYIO_HAS_UNISTRING
 #error
 #endif
 
 /* ------------------------------------------------------------------------- */
 
-size_t _yIO_strnlen(const char *str, size_t maxlen) {
-#if _yIO_HAS_strnlen
+size_t YYIO_strnlen(const char *str, size_t maxlen) {
+#if YYIO_HAS_strnlen
 	return strnlen(str, maxlen);
 #else
 	const char *str0 = str;
@@ -34,9 +34,9 @@ size_t _yIO_strnlen(const char *str, size_t maxlen) {
 #endif
 }
 
-#if _yIO_HAS_WCHAR_H
-size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen) {
-#if _yIO_HAS_strnlen
+#if YIO_HAS_WCHAR_H
+size_t YYIO_wstrnlen(const wchar_t *str, size_t maxlen) {
+#if YYIO_HAS_strnlen
 	return wcsnlen(str, maxlen);
 #else
 	const wchar_t *str0 = str;
@@ -48,10 +48,10 @@ size_t _yIO_wstrnlen(const wchar_t *str, size_t maxlen) {
 }
 #endif
 
-#if _yIO_HAS_UCHAR_H
+#if YIO_HAS_UCHAR_H
 
-size_t _yIO_c16strnlen(const char16_t *str, size_t maxlen) {
-#if _yIO_HAS_UNISTRING
+size_t YYIO_c16strnlen(const char16_t *str, size_t maxlen) {
+#if YYIO_HAS_UNISTRING
 	return u16_strnlen(str, maxlen);
 #else
 	const char16_t *str0 = str;
@@ -62,8 +62,8 @@ size_t _yIO_c16strnlen(const char16_t *str, size_t maxlen) {
 #endif
 }
 
-size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
-#if _yIO_HAS_UNISTRING
+size_t YYIO_ustrnlen(const char32_t *str, size_t maxlen) {
+#if YYIO_HAS_UNISTRING
 	return u32_strnlen(str, maxlen);
 #else
 	const char32_t *str0 = str;
@@ -76,13 +76,13 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 
 #endif
 
-/* _yIO_strconv_* -------------------------------------------------------- */
+/* YYIO_strconv_* -------------------------------------------------------- */
 
 /**
  * Convert one type to another when characters from src have
  * the same representation as character in dst.
  */
-#define _yIO_RETURN_STRCONV_SAME(src_type, dst_type, src, src_len, dst, dst_len)  do { \
+#define YYIO_RETURN_STRCONV_SAME(src_type, dst_type, src, src_len, dst, dst_len)  do { \
 	dst_type * const _out = malloc(sizeof(*_out) * src_len); /* NOLINT(bugprone-macro-parentheses) */ \
 	if (_out == NULL) return YIO_ERROR_ENOMEM; \
 	{ \
@@ -101,10 +101,10 @@ size_t _yIO_ustrnlen(const char32_t *str, size_t maxlen) {
 
 /* strconv_str_to_* -------------------------------------------------------------------- */
 
-#if _yIO_HAS_WCHAR_H
+#if YIO_HAS_WCHAR_H
 
 static inline
-int _yIO_strconv_str_to_wstr_count(const char *mb, size_t mb_len, size_t *wc_len) {
+int YYIO_strconv_str_to_wstr_count(const char *mb, size_t mb_len, size_t *wc_len) {
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	// mbsrtowcs(NULL, &src, mb_len, &ps); can't be used!
@@ -126,7 +126,7 @@ int _yIO_strconv_str_to_wstr_count(const char *mb, size_t mb_len, size_t *wc_len
 }
 
 static inline
-int _yIO_strconv_str_to_wstr_conv(const char *mb, wchar_t *out, size_t out_len) {
+int YYIO_strconv_str_to_wstr_conv(const char *mb, wchar_t *out, size_t out_len) {
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	const size_t len2 = mbsrtowcs(out, &mb, out_len, &ps);
@@ -138,18 +138,18 @@ int _yIO_strconv_str_to_wstr_conv(const char *mb, wchar_t *out, size_t out_len) 
 	return 0;
 }
 
-int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
+int YYIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, size_t *wc_len) {
 	if (mb_len == 0) {
 		*wc = NULL;
 		if (wc_len) *wc_len = 0;
 		return 0;
 	}
 	size_t out_len = 0;
-	int ret = _yIO_strconv_str_to_wstr_count(mb, mb_len, &out_len);
+	int ret = YYIO_strconv_str_to_wstr_count(mb, mb_len, &out_len);
 	if (ret) return ret;
 	wchar_t *const out = malloc(sizeof(wchar_t) * out_len);
 	if (out == NULL) return YIO_ERROR_ENOMEM;
-	ret = _yIO_strconv_str_to_wstr_conv(mb, out, out_len);
+	ret = YYIO_strconv_str_to_wstr_conv(mb, out, out_len);
 	if (ret) {
 		free(out);
 		return ret;
@@ -161,13 +161,13 @@ int _yIO_strconv_str_to_wstr(const char *mb, size_t mb_len, const wchar_t **wc, 
 
 #endif
 
-#if _yIO_HAS_UCHAR_H
+#if YIO_HAS_UCHAR_H
 
 {% macro j_str_to_ustr() %}
 #line
 
 static inline
-int _yIO_strconv_str_to_ustr_mbrtowc32_in(const char *in, size_t in_len, char32_t *pc32, size_t *plength) {
+int YYIO_strconv_str_to_ustr_mbrtowc32_in(const char *in, size_t in_len, char32_t *pc32, size_t *plength) {
 	const char *in_end = in + in_len;
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
@@ -187,15 +187,15 @@ int _yIO_strconv_str_to_ustr_mbrtowc32_in(const char *in, size_t in_len, char32_
 }
 
 static inline
-int _yIO_strconv_str_to_ustr_mbrtowc32(const char *in, size_t in_len, const char32_t **pout, size_t *pout_len) {
+int YYIO_strconv_str_to_ustr_mbrtowc32(const char *in, size_t in_len, const char32_t **pout, size_t *pout_len) {
 	size_t length = 0;
-	int ret = _yIO_strconv_str_to_ustr_mbrtowc32_in(in, in_len, NULL, &length);
+	int ret = YYIO_strconv_str_to_ustr_mbrtowc32_in(in, in_len, NULL, &length);
 	if (ret) return ret;
 	assert(length != 0);
 	char32_t *const out = malloc(sizeof(*out) * length);
 	if (out == NULL) return YIO_ERROR_ENOMEM;
 	size_t length2 = 0;
-	ret = _yIO_strconv_str_to_ustr_mbrtowc32_in(in, in_len, out, &length2);
+	ret = YYIO_strconv_str_to_ustr_mbrtowc32_in(in, in_len, out, &length2);
 	if (ret) {
 		free(out);
 		return ret;
@@ -206,13 +206,13 @@ int _yIO_strconv_str_to_ustr_mbrtowc32(const char *in, size_t in_len, const char
 	return 0;
 }
 
-int _yIO_strconv_str_to_ustr(const char *in, size_t in_len, const char32_t **pout, size_t *pout_len) {
+int YYIO_strconv_str_to_ustr(const char *in, size_t in_len, const char32_t **pout, size_t *pout_len) {
 	if (in_len == 0) {
 		*pout = NULL;
 		if (pout_len != NULL) *pout_len = 0;
 		return 0;
 	}
-#if __STDC_UTF_32__ && _yIO_HAS_UNISTRING
+#if __STDC_UTF_32__ && YYIO_HAS_UNISTRING
 	size_t length = 0;
 	uint32_t *buf = u32_conv_from_encoding(locale_charset(), iconveh_question_mark,
 			in, in_len, NULL, NULL, &length);
@@ -223,7 +223,7 @@ int _yIO_strconv_str_to_ustr(const char *in, size_t in_len, const char32_t **pou
 	if (pout_len != NULL) *pout_len = length;
 	return 0;
 #else
-	return _yIO_strconv_str_to_ustr_mbrtowc32(in, in_len, pout, pout_len);
+	return YYIO_strconv_str_to_ustr_mbrtowc32(in, in_len, pout, pout_len);
 #endif
 }
 
@@ -232,14 +232,14 @@ int _yIO_strconv_str_to_ustr(const char *in, size_t in_len, const char32_t **pou
 {{ j_str_to_ustr() | replace('32', '16') | replace('ustr', 'c16str') }}
 {{ j_str_to_ustr() }}
 
-#endif // _yIO_HAS_UCHAR_H
+#endif // YIO_HAS_UCHAR_H
 
 /* strconv_wstr_to_* -------------------------------------------------------------------- */
 
-#if _yIO_HAS_WCHAR_H
+#if YIO_HAS_WCHAR_H
 
 static inline
-int _yIO_strconv_wstr_to_str_count(const wchar_t *wc, size_t wc_len, size_t *plength) {
+int YYIO_strconv_wstr_to_str_count(const wchar_t *wc, size_t wc_len, size_t *plength) {
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	size_t out_len = 0;
@@ -254,7 +254,7 @@ int _yIO_strconv_wstr_to_str_count(const wchar_t *wc, size_t wc_len, size_t *ple
 }
 
 static inline
-int _yIO_strconv_wstr_to_str_conv(const wchar_t *wc, size_t wc_len, char *out, size_t out_len) {
+int YYIO_strconv_wstr_to_str_conv(const wchar_t *wc, size_t wc_len, char *out, size_t out_len) {
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	const size_t len2 = wcsrtombs(out, &wc, wc_len, &ps);
@@ -265,19 +265,19 @@ int _yIO_strconv_wstr_to_str_conv(const wchar_t *wc, size_t wc_len, char *out, s
 }
 
 
-int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
+int YYIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, size_t *mb_len) {
 	if (wc_len == 0) {
 		*mb = NULL;
 		if (mb_len != NULL) *mb_len = 0;
 		return 0;
 	}
 	size_t out_len = 0;
-	int ret = _yIO_strconv_wstr_to_str_count(wc, wc_len, &out_len);
+	int ret = YYIO_strconv_wstr_to_str_count(wc, wc_len, &out_len);
 	if (ret) return ret;
 	assert(out_len != 0);
 	char *const out = malloc(sizeof(*out) * out_len);
 	if (out == NULL) return YIO_ERROR_ENOMEM;
-	ret = _yIO_strconv_wstr_to_str_conv(wc, wc_len, out, out_len);
+	ret = YYIO_strconv_wstr_to_str_conv(wc, wc_len, out, out_len);
 	if (ret) {
 		free(out);
 		return ret;
@@ -287,14 +287,14 @@ int _yIO_strconv_wstr_to_str(const wchar_t *wc, size_t wc_len, const char **mb, 
 	return ret;
 }
 
-#if _yIO_HAS_UCHAR_H
+#if YIO_HAS_UCHAR_H
 
 {% macro j_wstr_to_ustr() %}
 #line
 
-int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t **dst, size_t *dst_len) {
+int YYIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t **dst, size_t *dst_len) {
 #if __STDC_UTF_32__ && __STDC_ISO_10646__
-	_yIO_RETURN_STRCONV_SAME(wchar_t, char32_t, src, src_len, dst, dst_len);
+	YYIO_RETURN_STRCONV_SAME(wchar_t, char32_t, src, src_len, dst, dst_len);
 #else
 	if (!src_len) {
 		*dst = NULL;
@@ -306,10 +306,10 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 
 	char *mb = NULL;
 	size_t mb_len = 0;
-	int ret = _yIO_strconv_wstr_to_str(src, src_len, &mb, &mb_len);
+	int ret = YYIO_strconv_wstr_to_str(src, src_len, &mb, &mb_len);
 	if (ret) return ret;
-	ret = _yIO_strconv_str_to_c32str(mb, mb_len, dst, dst_len);
-	_yIO_strconv_free_wstr_to_str(src, mb);
+	ret = YYIO_strconv_str_to_c32str(mb, mb_len, dst, dst_len);
+	YYIO_strconv_free_wstr_to_str(src, mb);
 	return ret;
 #endif
 }
@@ -319,19 +319,19 @@ int _yIO_strconv_wstr_to_ustr(const wchar_t *src, size_t src_len, const char32_t
 {{ j_wstr_to_ustr() }}
 #line
 
-#endif // _yIO_HAS_UCHAR_H
+#endif // YIO_HAS_UCHAR_H
 
-#endif // _yIO_HAS_WCHAR_H
+#endif // YIO_HAS_WCHAR_H
 
 /* strconv_ustr_to_* -------------------------------------------------------------------- */
 
-#if _yIO_HAS_UCHAR_H
+#if YIO_HAS_UCHAR_H
 
 {% macro j_uchar_functions() %}
 #line
 
 static inline
-int _yIO_strconv_ustr_to_str_conv(const char32_t *c32, size_t c32_len, char *out, size_t *pout_len) {
+int YYIO_strconv_ustr_to_str_conv(const char32_t *c32, size_t c32_len, char *out, size_t *pout_len) {
 	mbstate_t ps;
 	memset(&ps, 0, sizeof(ps));
 	size_t out_len = 0;
@@ -347,20 +347,20 @@ int _yIO_strconv_ustr_to_str_conv(const char32_t *c32, size_t c32_len, char *out
 }
 
 
-int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **mb, size_t *mb_len) {
+int YYIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **mb, size_t *mb_len) {
 	if (!c32_len) {
 		*mb = NULL;
 		if (mb_len) *mb_len = 0;
 		return 0;
 	}
 	size_t out_len = 0;
-	int ret = _yIO_strconv_ustr_to_str_conv(c32, c32_len, NULL, &out_len);
+	int ret = YYIO_strconv_ustr_to_str_conv(c32, c32_len, NULL, &out_len);
 	if (ret) return ret;
 	assert(out_len != 0);
 	char *const out = malloc(sizeof(*out) * out_len);
 	if (out == NULL) return YIO_ERROR_ENOMEM;
 	size_t out_len2 = 0;
-	ret = _yIO_strconv_ustr_to_str_conv(c32, c32_len, out, &out_len2);
+	ret = YYIO_strconv_ustr_to_str_conv(c32, c32_len, out, &out_len2);
 	if (ret) {
 		free(out);
 		return ret;
@@ -371,10 +371,10 @@ int _yIO_strconv_ustr_to_str(const char32_t *c32, size_t c32_len, const char **m
 	return 0;
 }
 
-#if _yIO_HAS_WCHAR_H
+#if YIO_HAS_WCHAR_H
 
 static inline
-int _yIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wchar_t **wc, size_t *wc_len) {
+int YYIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wchar_t **wc, size_t *wc_len) {
 	if (!c32_len) {
 		*wc = NULL;
 		if (wc_len) *wc_len = 0;
@@ -382,75 +382,75 @@ int _yIO_strconv_ustr_to_wstr_NE(const char32_t *c32, size_t c32_len, const wcha
 	}
 	const char *mb = NULL;
 	size_t mb_len = 0;
-	int ret = _yIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
+	int ret = YYIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
 	if (ret) return ret;
 	if (mb == NULL) {
 		*wc = NULL;
 		if (wc_len) *wc_len = 0;
 		return 0;
 	}
-	ret = _yIO_strconv_str_to_wstr(mb, mb_len, wc, wc_len);
+	ret = YYIO_strconv_str_to_wstr(mb, mb_len, wc, wc_len);
 	free((void*)mb); // cppcheck-suppress cert-EXP05-C
 	return ret;
 }
 
 static inline
-int _yIO_strconv_ustr_to_wstr_EQ(const char32_t *src, size_t src_len, const wchar_t **dst, size_t *dst_len) {
-	_yIO_RETURN_STRCONV_SAME(char32_t, wchar_t, src, src_len, dst, dst_len);
+int YYIO_strconv_ustr_to_wstr_EQ(const char32_t *src, size_t src_len, const wchar_t **dst, size_t *dst_len) {
+	YYIO_RETURN_STRCONV_SAME(char32_t, wchar_t, src, src_len, dst, dst_len);
 }
 
-int _yIO_strconv_ustr_to_wstr(const char32_t *c32, size_t c32_len, const wchar_t **wc, size_t *wc_len) {
+int YYIO_strconv_ustr_to_wstr(const char32_t *c32, size_t c32_len, const wchar_t **wc, size_t *wc_len) {
 #if __STDC_UTF_32__ && __STDC_ISO_10646__
-	return _yIO_strconv_ustr_to_wstr_EQ(c32, c32_len, wc, wc_len);
+	return YYIO_strconv_ustr_to_wstr_EQ(c32, c32_len, wc, wc_len);
 #else
-	return _yIO_strconv_ustr_to_wstr_NE(c32, c32_len, wc, wc_len);
+	return YYIO_strconv_ustr_to_wstr_NE(c32, c32_len, wc, wc_len);
 #endif
 }
-#endif // _yIO_HAS_WCHAR_H
+#endif // YIO_HAS_WCHAR_H
 {% endmacro %}
 {{ j_uchar_functions() | replace('32', '16') | replace('ustr', 'c16str') }}
 {{ j_uchar_functions() }}
 #line
 
 static inline
-int _yIO_strconv_c16str_to_ustr_no_unistring(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
+int YYIO_strconv_c16str_to_ustr_no_unistring(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
 	const char *mb;
 	size_t mb_len;
-	int ret = _yIO_strconv_c16str_to_str(c16, c16_len, &mb, &mb_len);
+	int ret = YYIO_strconv_c16str_to_str(c16, c16_len, &mb, &mb_len);
 	if (ret) return ret;
 	if (mb == NULL) {
 		*c32 = NULL;
 		if (c32_len) *c32_len = 0;
 		return 0;
 	}
-	ret = _yIO_strconv_str_to_ustr(mb, mb_len, c32, c32_len);
+	ret = YYIO_strconv_str_to_ustr(mb, mb_len, c32, c32_len);
 	free((void*)mb); // cppcheck-suppress cert-EXP05-C
 	return ret;
 }
 
 static inline
-int _yIO_strconv_ustr_to_c16str_no_unistring(const char32_t *c32, size_t c32_len, const char16_t **c16, size_t *c16_len) {
+int YYIO_strconv_ustr_to_c16str_no_unistring(const char32_t *c32, size_t c32_len, const char16_t **c16, size_t *c16_len) {
 	const char *mb;
 	size_t mb_len;
-	int ret = _yIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
+	int ret = YYIO_strconv_ustr_to_str(c32, c32_len, &mb, &mb_len);
 	if (ret) return ret;
 	if (mb == NULL) {
 		*c16 = NULL;
 		if (c16_len) *c16_len = 0;
 		return 0;
 	}
-	ret = _yIO_strconv_str_to_c16str(mb, mb_len, c16, c16_len);
+	ret = YYIO_strconv_str_to_c16str(mb, mb_len, c16, c16_len);
 	free((void*)mb); // cppcheck-suppress cert-EXP05-C
 	return ret;
 }
 
-int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
+int YYIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char32_t **c32, size_t *c32_len) {
 	if (c16_len == 0) {
 		*c32 = NULL;
 		if (c32_len != NULL) *c32_len = 0;
 		return 0;
 	}
-#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && _yIO_HAS_UNISTRING
+#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && YYIO_HAS_UNISTRING
 	size_t length = 0;
 	uint32_t *result = u16_to_u32(c16, c16_len, NULL, &length);
 	if (result == NULL) return YIO_ERROR_ENOMEM;
@@ -460,17 +460,17 @@ int _yIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char3
 	}
 	return 0;
 #else
-	return _yIO_strconv_ustr_to_c16str_no_unistring(c16, c16_len, c32, c32_len);
+	return YYIO_strconv_ustr_to_c16str_no_unistring(c16, c16_len, c32, c32_len);
 #endif
 }
 
-int _yIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char16_t **c16, size_t *c16_len) {
+int YYIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char16_t **c16, size_t *c16_len) {
 	if (c32_len == 0) {
 		*c16 = NULL;
 		if (c16_len) *c16_len = 0;
 		return 0;
 	}
-#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && _yIO_HAS_UNISTRING
+#if __STDC_UTF_16__ && __STDC_UTF_32__ && __STDC_ISO_10646__ && YYIO_HAS_UNISTRING
 	size_t length = 0;
 	uint16_t *result = u32_to_u16(c32, c32_len, NULL, &length);
 	if (result == NULL) return YIO_ERROR_ENOMEM;
@@ -480,9 +480,9 @@ int _yIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char1
 	}
 	return 0;
 #else
-	return _yIO_strconv_c16str_to_ustr_no_unistring(c32, c32_len, c16, c16_len);
+	return YYIO_strconv_c16str_to_ustr_no_unistring(c32, c32_len, c16, c16_len);
 #endif
 }
 
-#endif // _yIO_HAS_UCHAR_H
+#endif // YIO_HAS_UCHAR_H
 

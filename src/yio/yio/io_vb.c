@@ -15,13 +15,13 @@
 /* yvbprintf helpers ------------------------------------------------------ */
 
 static inline
-int yπvbprintf_iterate_until_format_callback(yπio_printctx_t *t, const TCHAR *begin, const TCHAR *end) {
+int YYΩIO_yvbprintf_iterate_until_format_callback(yπio_printctx_t *t, const TCHAR *begin, const TCHAR *end) {
 	//fprintf(stderr, "PO:out=`%.*s`\n", (int)(end - begin), begin);
 	return yπio_printctx_raw_write(t, begin, end - begin);
 }
 
 static inline
-int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR fmt[restrict], const TCHAR **restrict endptr) {
+int YYΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR fmt[restrict], const TCHAR **restrict endptr) {
 	const TCHAR *pos = fmt;
 	while (fmt[0] != TC('\0')) {
 		//fprintf(stderr, "P1:pos=`%s` fmt=`%s`\n", pos, fmt);
@@ -32,7 +32,7 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR fmt[
 					//fprintf(stderr, "P2\n");
 					// If we are at start, we can flush already known characters,
 					// and continue one after.
-					const int err = yπvbprintf_iterate_until_format_callback(t, pos, fmt + 1);
+					const int err = YYΩIO_yvbprintf_iterate_until_format_callback(t, pos, fmt + 1);
 					if (err) return err;
 					pos = fmt + 2;
 					fmt = pos;
@@ -44,7 +44,7 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR fmt[
 				continue;
 			}
 			if (fmt[0] == TC('}')) {
-				return _yIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
+				return YYIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
 			}
 			// {} or {:stuff} found
 			break;
@@ -53,7 +53,7 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR fmt[
 	}
 	if (fmt != pos) {
 		// Flush skipped characters up until now.
-		const int err = yπvbprintf_iterate_until_format_callback(t, pos, fmt);
+		const int err = YYΩIO_yvbprintf_iterate_until_format_callback(t, pos, fmt);
 		if (err) return err;
 	}
 	//
@@ -64,13 +64,13 @@ int _yΩIO_yvbgeneric_iterate_until_format(yπio_printctx_t *t, const TCHAR fmt[
 /* yvbprintf ----------------------------------------------------------- */
 
 static inline
-int yπvbprintf_in(yπio_printctx_t *t) {
+int YYΩIO_yvbprintf_in(yπio_printctx_t *t) {
 	if (t->fmt == NULL) {
 		if (t->ifunc == NULL) {
 			return 0;
 		}
 		for (; *t->ifunc != NULL; ++t->ifunc) {
-			t->pf = _yΩIO_printfmt_default;
+			t->pf = YYΩIO_printfmt_default;
 			const int ifuncret = (*t->ifunc)(t);
 			if (ifuncret) {
 				return ifuncret;
@@ -79,15 +79,15 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 		return 0;
 	}
 	while (1) {
-		int err = _yΩIO_yvbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
+		int err = YYΩIO_yvbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
 		if (err) return err;
 		if (t->fmt[0] == TC('\0')) break;
 		assert(t->fmt[0] == TC('{'));
 		t->fmt++;
 		//
-		t->pf = _yΩIO_printfmt_default;
+		t->pf = YYΩIO_printfmt_default;
 		if (TISDIGIT(t->fmt[0])) {
-			_yΩIO_skip_arm(t, _yΩIO_printctx_strtoi_noerr(&t->fmt));
+			YYΩIO_skip_arm(t, YYΩIO_printctx_strtoi_noerr(&t->fmt));
 		}
 		if (t->fmt[0] == TC('!')) {
 			// Handle conversion specifier.
@@ -103,7 +103,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 		} else if (t->fmt[0] != TC('}')) {
 			return YIO_ERROR_PYFMT_INVALID;
 		}
-		const int skipret = _yΩIO_skip_do(t);
+		const int skipret = YYΩIO_skip_do(t);
 		if (skipret) return skipret;
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
 			return YIO_ERROR_TOO_MANY_FMT;
@@ -114,7 +114,7 @@ int yπvbprintf_in(yπio_printctx_t *t) {
 	return 0;
 }
 
-int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
+int yπvbprintf(YYΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
@@ -130,7 +130,7 @@ int yπvbprintf(_yΩIO_printcb_t *out, void *arg, yπio_printdata_t *data, const
 		.outarg = arg,
 	};
 	yπio_printctx_t * const t = &_ctx;
-	const int err = yπvbprintf_in(t);
+	const int err = YYΩIO_yvbprintf_in(t);
 	va_end(startva);
 	if (err) {
 		return -abs(err);

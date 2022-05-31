@@ -43,7 +43,7 @@
 /**
  * Expanded all slots macros.
  */
-#define _yΩIO_PRINT_FUNC_GENERIC_SLOTS()  \
+#define YYΩIO_PRINT_FUNC_GENERIC_SLOTS()  \
 		{% if j_SLOTS|int %}{% call j_FOREACHAPPLY(j_range(100, 100 + j_SLOTS|int)) %}
 		YΩIO_PRINT_SLOT_$1  \
 		{% endcall %}{% endif %}

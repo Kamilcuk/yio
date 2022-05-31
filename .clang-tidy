@@ -6,7 +6,6 @@ Checks: >
   -altera-*,
   -hicpp-*,
   -bugprone-easily-swappable-parameters,
-  -bugprone-reserved-identifier,
   -cert-dcl37-c,
   -cert-dcl51-cpp,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,

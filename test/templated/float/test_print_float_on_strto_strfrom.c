@@ -8,7 +8,7 @@
  */
 #include <assert.h>
 #include <yio/yio_config.h>
-#if _yIO_HAS_strfromf
+#if YYIO_HAS_strfromf
 #ifdef YIO_PRINT_FLOATS_WITH
 #undef YIO_PRINT_FLOATS_WITH
 #endif
@@ -16,11 +16,11 @@
 #include "test_print_float_on_strto.c"
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
-#ifndef _yΩIO_PRINT_FLOAT$1
-#error _yΩIO_PRINT_FLOAT$1
+#ifndef YYΩIO_PRINT_FLOAT$1
+#error YYΩIO_PRINT_FLOAT$1
 #endif
 #if defined __GNUC__ && ! defined __clang__ && ! defined __INTEL_COMPILER
-static_assert(_yΩIO_PRINT_FLOAT$1 == _yΩIO_print_float_strfrom$1, "");
+static_assert(YYΩIO_PRINT_FLOAT$1 == YYΩIO_print_float_strfrom$1, "");
 #endif
 {% endcall %}
 #line

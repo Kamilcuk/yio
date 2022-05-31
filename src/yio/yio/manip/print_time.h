@@ -6,17 +6,17 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
-#define _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
+#ifndef YYIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
+#define YYIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
 #include "../ctx.h"
 #include <time.h>
-#ifndef _yIO_HAS_timespec
+#ifndef YYIO_HAS_timespec
 #error
 #endif
-#ifndef _yIO_HAS_timeval
+#ifndef YYIO_HAS_timeval
 #error
 #endif
-#if _yIO_HAS_timespec || _yIO_HAS_timeval
+#if YYIO_HAS_timespec || YYIO_HAS_timeval
 #include <sys/time.h>
 #endif
 
@@ -32,29 +32,29 @@
  * zero terminating character that would have been written to or were written to
  * @c dest depending if it's a null pointer or not.
  */
-int _yΩIO_print_time_in_extract_format_add_space(TCHAR *dest, const TCHAR *fmt, const TCHAR **enptr);
+int YYΩIO_print_time_in_extract_format_add_space(TCHAR *dest, const TCHAR *fmt, const TCHAR **enptr);
 
-int _yΩIO_print_tm(yπio_printctx_t *t);
+int YYΩIO_print_tm(yπio_printctx_t *t);
 
-#if _yIO_HAS_timespec
-int _yΩIO_print_timespec(yπio_printctx_t *t);
-#define _yΩIO_PRINT_GENERIC_TIMESPEC() \
-		struct timespec: _yΩIO_print_timespec,
+#if YYIO_HAS_timespec
+int YYΩIO_print_timespec(yπio_printctx_t *t);
+#define YYΩIO_PRINT_GENERIC_TIMESPEC() \
+		struct timespec: YYΩIO_print_timespec,
 #else
-#define _yΩIO_PRINT_GENERIC_TIMESPEC()
+#define YYΩIO_PRINT_GENERIC_TIMESPEC()
 #endif
 
-#if _yIO_HAS_timeval
-int _yΩIO_print_timeval(yπio_printctx_t *t);
-#define _yΩIO_PRINT_GENERIC_TIMEVAL() \
-		struct timeval: _yΩIO_print_timeval,
-#else // _yIO_HAS_timeval
-#define _yΩIO_PRINT_GENERIC_TIMEVAL()
-#endif // _yIO_HAS_timeval
+#if YYIO_HAS_timeval
+int YYΩIO_print_timeval(yπio_printctx_t *t);
+#define YYΩIO_PRINT_GENERIC_TIMEVAL() \
+		struct timeval: YYΩIO_print_timeval,
+#else // YYIO_HAS_timeval
+#define YYΩIO_PRINT_GENERIC_TIMEVAL()
+#endif // YYIO_HAS_timeval
 
-#define _yΩIO_PRINT_GENERIC_TIME() \
-		struct tm: _yΩIO_print_tm, \
-		_yΩIO_PRINT_GENERIC_TIMESPEC() \
-		_yΩIO_PRINT_GENERIC_TIMEVAL()
+#define YYΩIO_PRINT_GENERIC_TIME() \
+		struct tm: YYΩIO_print_tm, \
+		YYΩIO_PRINT_GENERIC_TIMESPEC() \
+		YYΩIO_PRINT_GENERIC_TIMEVAL()
 
-#endif /* _yIO_YIO_YΩIO_MANIP_PRINT_TIME_H_ */
+#endif /* YYIO_YIO_YΩIO_MANIP_PRINT_TIME_H_ */

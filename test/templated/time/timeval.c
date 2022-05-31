@@ -9,7 +9,7 @@
 #include <yπio.h>
 #include <string.h>
 int main() {
-#if _yIO_HAS_timeval
+#if YYIO_HAS_timeval
 	struct timeval t = {
 		.tv_sec = 1234567,
 		.tv_usec = 1,

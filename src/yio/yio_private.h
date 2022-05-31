@@ -5,17 +5,17 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#ifndef _yIO_YIO_YIO_PRIVATE_H_
-#define _yIO_YIO_YIO_PRIVATE_H_
+#ifndef YYIO_YIO_YIO_PRIVATE_H_
+#define YYIO_YIO_YIO_PRIVATE_H_
 #include "yio_public.h"
 #include <string.h>
 
-#ifndef _yIO_PRIVATE
-#error _yIO_PRIVATE
+#ifndef YYIO_PRIVATE
+#error YYIO_PRIVATE
 #endif
 
 // https://www.wolframalpha.com/input/?i=ceiling%28log_10%282%5Ex%29%29+for+x+%3D+1+to+256
-#define _yIO_LOG10_POW2(x) ( \
+#define YYIO_LOG10_POW2(x) ( \
 		(x) < 3   ? 1  : (x) < 6   ? 2  : (x) < 9   ? 3  : (x) < 13  ? 4  : (x) < 16  ? 5  : \
 		(x) < 19  ? 6  : (x) < 23  ? 7  : (x) < 26  ? 8  : (x) < 29  ? 9  : (x) < 33  ? 10 : \
 		(x) < 36  ? 11 : (x) < 39  ? 12 : (x) < 43  ? 13 : (x) < 46  ? 14 : (x) < 49  ? 15 : \
@@ -39,17 +39,17 @@
 */
 
 /**
- * @def _yIO_INT_STRLEN_BOUND
+ * @def YYIO_INT_STRLEN_BOUND
  * The number of digits needed to represent an int in base10 _without_ sign.
  */
-#define _yIO_INT_STRLEN_BOUND()   _yIO_LOG10_POW2(sizeof(int) * CHAR_BIT)
+#define YYIO_INT_STRLEN_BOUND()   YYIO_LOG10_POW2(sizeof(int) * CHAR_BIT)
 
 
 /**
  * @def dbgln
  * small debugging utility
  */
-#if _yIO_HAS_UNISTRING
+#if YYIO_HAS_UNISTRING
 #include <unistdio.h>
 #define DBGPRINTF  ulc_fprintf
 #else
@@ -62,11 +62,11 @@
 } while(0)
 
 /**
- * @def _yIO_ERROR(ENUM, DESC)
+ * @def YYIO_ERROR(ENUM, DESC)
  * @param ENUM The suffix to YIO_ERROR_* enum name.
  * @param DESC The description of the errors
  * @short Is used to automatically parse and register an error code with description.
  */
-#define _yIO_ERROR(ENUM, DESC)  ENUM
+#define YYIO_ERROR(ENUM, DESC)  ENUM
 
-#endif /* _yIO_YIO_YIO_PRIVATE_H_ */
+#endif /* YYIO_YIO_YIO_PRIVATE_H_ */

@@ -5,8 +5,8 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#ifndef _yIO_YIO_YIO_VERSION_H_IN_
-#define _yIO_YIO_YIO_VERSION_H_IN_
+#ifndef YYIO_YIO_YIO_VERSION_H_IN_
+#define YYIO_YIO_YIO_VERSION_H_IN_
 
 #include "yio_config.h"
 
@@ -36,19 +36,19 @@
 /**
  * Returns YIO_VERSION number.
  */
-_yIO_const
+YYIO_const
 unsigned long yio_get_version(void);
 
 /**
  * Returns a pointer to statically allocated YIO_VERSION_STRING
  */
-_yIO_rnn _yIO_const
+YYIO_rnn YYIO_const
 const char *yio_get_version_string(void);
 
 /**
  * Returns a pointer to statically allocated library banner.
  */
-_yIO_rnn _yIO_const
+YYIO_rnn YYIO_const
 const char *yio_get_version_banner(void);
 
-#endif /* _yIO_YIO_YIO_VERSION_H_IN_ */
+#endif /* YYIO_YIO_YIO_VERSION_H_IN_ */

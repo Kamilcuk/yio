@@ -15,15 +15,15 @@
 #include <assert.h>
 #include <ctype.h>
 
-#if _yIO_HAS_STDFIX_TYPES
+#if YYIO_HAS_STDFIX_TYPES
 
 {% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
 
-static const char _yIO_stdfix_strfrom_i_to_c_HEX[] = "0123456789ABCDEF";
-static const char _yIO_stdfix_strfrom_i_to_c_hex[] = "0123456789abcdef";
+static const char YYIO_stdfix_strfrom_i_to_c_HEX[] = "0123456789ABCDEF";
+static const char YYIO_stdfix_strfrom_i_to_c_hex[] = "0123456789abcdef";
 static inline
-const char *_yIO_stdfix_strfrom_i_to_c(bool upper) {
-	return upper ? _yIO_stdfix_strfrom_i_to_c_HEX : _yIO_stdfix_strfrom_i_to_c_hex;
+const char *YYIO_stdfix_strfrom_i_to_c(bool upper) {
+	return upper ? YYIO_stdfix_strfrom_i_to_c_HEX : YYIO_stdfix_strfrom_i_to_c_hex;
 }
 
 {% call(V) j_FOREACHAPPLY([8, 16, 32, 64]) %}
@@ -32,7 +32,7 @@ const char *_yIO_stdfix_strfrom_i_to_c(bool upper) {
 
 // I think this is countl, but I am not sure
 static inline
-int _yIO_stdfix_strfrom_int$1_ffs(TYPEUINT tmp) {
+int YYIO_stdfix_strfrom_int$1_ffs(TYPEUINT tmp) {
 	int exp;
 	for (exp = 0; exp < (int)sizeof(tmp) * CHAR_BIT; ++exp) {
 		if (!(tmp & 1)) {
@@ -44,20 +44,20 @@ int _yIO_stdfix_strfrom_int$1_ffs(TYPEUINT tmp) {
 }
 
 static inline
-int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spec_is_upper, _yIO_res *o, TYPEUINT v, int ibit, int fbit) {
+int YYIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spec_is_upper, YYIO_res *o, TYPEUINT v, int ibit, int fbit) {
 	int err = 0;
 	(void)err;
-	const char * const i_to_c = _yIO_stdfix_strfrom_i_to_c(spec_is_upper);
+	const char * const i_to_c = YYIO_stdfix_strfrom_i_to_c(spec_is_upper);
 
 	if (spec == 'x') {
-		err = _yIO_res_yprintf(o, "{:x}", v + 0);
+		err = YYIO_res_yprintf(o, "{:x}", v + 0);
 		if (err) return err;
 	} else if (spec == 'f') {
 		const bool only_fract = fbit == sizeof(v) * CHAR_BIT;
 
 		if (only_fract) {
 			// it's all fractional anyway, just zero
-			err = _yIO_res_putc(o, '0');
+			err = YYIO_res_putc(o, '0');
 			if (err) return err;
 		} else {
 			// a little bit of a hack to print it on newlib-nano
@@ -65,10 +65,10 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 			typedef {% if V == 64 %}uint32_t{% else %}uint$1_t{% endif %} uint_32_when_64_otherwise_type_t;
 			const uint_32_when_64_otherwise_type_t integer_part = v >> fbit;
 			// The + 0 promotes integer_part to an integer type, so it isn't detected as (char)
-			err = _yIO_res_yprintf(o, "{:d}", integer_part + 0);
+			err = YYIO_res_yprintf(o, "{:d}", integer_part + 0);
 			if (err) return err;
 		}
-		err = _yIO_res_putc(o, '.');
+		err = YYIO_res_putc(o, '.');
 		if (err) return err;
 
 		TYPEUINT num = v;
@@ -83,13 +83,13 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 
 			assert(0 <= digit && digit < 10);
 			const char c = i_to_c[digit];
-			err = _yIO_res_putc(o, c);
+			err = YYIO_res_putc(o, c);
 			if (err) return err;
 		}
 	} else if (spec == 'a') {
-		err = _yIO_res_putc(o, '0');
+		err = YYIO_res_putc(o, '0');
 		if (err) return err;
-		err = _yIO_res_putc(o, spec_is_upper ? 'X' : 'x');
+		err = YYIO_res_putc(o, spec_is_upper ? 'X' : 'x');
 
 		int exponent = 0;
 		if (v != 0) {
@@ -119,17 +119,17 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 			v <<= 4;
 			assert(0 <= c && c < 16);
 			if (i == 1) {
-				err = _yIO_res_putc(o, '.');
+				err = YYIO_res_putc(o, '.');
 				if (err) return err;
 			}
-			err = _yIO_res_putc(o, i_to_c[c]);
+			err = YYIO_res_putc(o, i_to_c[c]);
 			if (err) return err;
 		}
 
-		err = _yIO_res_putc(o, spec_is_upper ? 'P' : 'p');
+		err = YYIO_res_putc(o, spec_is_upper ? 'P' : 'p');
 		if (err) return err;
 
-		err = _yIO_res_yprintf(o, "{:+d}", exponent + 0);
+		err = YYIO_res_yprintf(o, "{:+d}", exponent + 0);
 		if (err) return err;
 	} else {
 		return YIO_ERROR_ENOSYS;
@@ -145,10 +145,10 @@ int _yIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 {% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
 #define TYPE      $2
-#define TYPEUINT  _yIO_UINT_$3
+#define TYPEUINT  YYIO_UINT_$3
 
 // Many things are missing here
-int _yIO_astrfrom$1(_yIO_res *o, int precision0, char spec0, TYPE val) {
+int YYIO_astrfrom$1(YYIO_res *o, int precision0, char spec0, TYPE val) {
 	_Static_assert(sizeof(val) <= sizeof(TYPEUINT), "");
 
 	int err = 0;
@@ -163,7 +163,7 @@ int _yIO_astrfrom$1(_yIO_res *o, int precision0, char spec0, TYPE val) {
 	if (spec != 'x') {
 		const bool negative = val < 0;
 		if (negative) {
-			err = _yIO_res_putc(o, '-');
+			err = YYIO_res_putc(o, '-');
 			if (err) return err;
 			// TODO: undefined behavior for _MIN
 			val = -val;
@@ -188,19 +188,19 @@ int _yIO_astrfrom$1(_yIO_res *o, int precision0, char spec0, TYPE val) {
 	// we do not really care
 	TYPEUINT v = 0;
 	memcpy(&v, &val, sizeof(v));
-#if _yIO_BITS_$3 == 8
-#define _yIO_stdfix_strfrom_intX _yIO_stdfix_strfrom_int8
-#elif _yIO_BITS_$3 == 16
-#define _yIO_stdfix_strfrom_intX _yIO_stdfix_strfrom_int16
-#elif _yIO_BITS_$3 == 32
-#define _yIO_stdfix_strfrom_intX _yIO_stdfix_strfrom_int32
-#elif _yIO_BITS_$3 == 64
-#define _yIO_stdfix_strfrom_intX _yIO_stdfix_strfrom_int64
+#if YYIO_BITS_$3 == 8
+#define YYIO_stdfix_strfrom_intX YYIO_stdfix_strfrom_int8
+#elif YYIO_BITS_$3 == 16
+#define YYIO_stdfix_strfrom_intX YYIO_stdfix_strfrom_int16
+#elif YYIO_BITS_$3 == 32
+#define YYIO_stdfix_strfrom_intX YYIO_stdfix_strfrom_int32
+#elif YYIO_BITS_$3 == 64
+#define YYIO_stdfix_strfrom_intX YYIO_stdfix_strfrom_int64
 #else
 #error
 #endif
-	err = _yIO_stdfix_strfrom_intX(precision0, precision, spec, spec_is_upper, o, v, _yIO_$3_IBIT, _yIO_$3_FBIT);
-#undef _yIO_stdfix_strfrom_intX
+	err = YYIO_stdfix_strfrom_intX(precision0, precision, spec, spec_is_upper, o, v, YYIO_$3_IBIT, YYIO_$3_FBIT);
+#undef YYIO_stdfix_strfrom_intX
 	if (err) return err;
 
 	return 0;
@@ -210,4 +210,4 @@ int _yIO_astrfrom$1(_yIO_res *o, int precision0, char spec0, TYPE val) {
 #undef TYPEUINT
 {% endcall %}
 
-#endif // _yIO_HAS_STDFIX_TYPES
+#endif // YYIO_HAS_STDFIX_TYPES

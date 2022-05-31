@@ -6,18 +6,18 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef _yIO_YIO_PRIVATE_YIO_STDFIX_H_
-#define _yIO_YIO_PRIVATE_YIO_STDFIX_H_
+#ifndef YYIO_YIO_PRIVATE_YIO_STDFIX_H_
+#define YYIO_YIO_PRIVATE_YIO_STDFIX_H_
 #include "../yio_config.h"
-#ifndef _yIO_HAS_STDFIX_TYPES
+#ifndef YYIO_HAS_STDFIX_TYPES
 #error
 #endif
-#ifndef _yIO_HAS_STDFIX_H
+#ifndef YYIO_HAS_STDFIX_H
 #error
 #endif
-#if _yIO_HAS_STDFIX_TYPES
+#if YYIO_HAS_STDFIX_TYPES
 #include "private.h"
-#if _yIO_HAS_STDFIX_H
+#if YYIO_HAS_STDFIX_H
 #include <stdfix.h>
 #endif
 
@@ -29,7 +29,7 @@
 #  define $1 $2
 # endif
 #endif
-#define _yIO_$1 $1
+#define YYIO_$1 $1
 {% endcall %}{% endmacro %}
 
 {# SUFFIX TYPE MACROFIX MAX MIN IBIT FBIT EPSILON #}
@@ -57,8 +57,8 @@
 #line
 #ifdef __$3_MAX__
 
-#define _yIO_C_$3(x)  x##$1
-#define _yIO_STDFIX_$3  $2
+#define YYIO_C_$3(x)  x##$1
+#define YYIO_STDFIX_$3  $2
 
 {{j_take_compilers_or_default("$3_MAX", "$4")}}
 {{j_take_compilers_or_default("$3_MIN", "$5")}}
@@ -66,16 +66,16 @@
 {{j_take_compilers_or_default("$3_FBIT", "$7")}}
 {{j_take_compilers_or_default("$3_EPSILON", "$8")}}
 
-#define _yIO_BITS_$3  ((_yIO_$3_IBIT + _yIO_$3_FBIT + 1)/8*8)
+#define YYIO_BITS_$3  ((YYIO_$3_IBIT + YYIO_$3_FBIT + 1)/8*8)
 
-#if   _yIO_BITS_$3 == 8
-#define _yIO_UINT_$3  uint_least8_t
-#elif _yIO_BITS_$3 == 16
-#define _yIO_UINT_$3  uint_least16_t
-#elif _yIO_BITS_$3 == 32
-#define _yIO_UINT_$3  uint_least32_t
-#elif _yIO_BITS_$3 == 64
-#define _yIO_UINT_$3  uint_least64_t
+#if   YYIO_BITS_$3 == 8
+#define YYIO_UINT_$3  uint_least8_t
+#elif YYIO_BITS_$3 == 16
+#define YYIO_UINT_$3  uint_least16_t
+#elif YYIO_BITS_$3 == 32
+#define YYIO_UINT_$3  uint_least32_t
+#elif YYIO_BITS_$3 == 64
+#define YYIO_UINT_$3  uint_least64_t
 #else
 #error "I did not expect that one $2!"
 #endif
@@ -83,5 +83,5 @@
 #endif
 {% endcall %}
 
-#endif // _yIO_HAS_STDFIX_TYPES
-#endif /* _yIO_YIO_PRIVATE_YIO_STDFIX_H_ */
+#endif // YYIO_HAS_STDFIX_TYPES
+#endif /* YYIO_YIO_PRIVATE_YIO_STDFIX_H_ */

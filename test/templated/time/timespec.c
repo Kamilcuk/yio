@@ -9,7 +9,7 @@
 #include <yπio.h>
 #include <string.h>
 int main() {
-#if _yIO_HAS_timespec
+#if YYIO_HAS_timespec
 	struct timespec t = {
 		.tv_sec = 1234567,
 		.tv_nsec = 1,

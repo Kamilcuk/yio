@@ -9,23 +9,23 @@
 #include <yio_test.h>
 
 #if __linux__
-#ifndef _yIO_HAS_WCHAR_H
+#ifndef YIO_HAS_WCHAR_H
 #error
 #endif
-#ifndef _yIO_HAS_UCHAR_H
+#ifndef YIO_HAS_UCHAR_H
 #error
 #endif
 #endif
 
 int main() {
 	int a = 1;
-#if _yIO_HAS_UCHAR_H
+#if YIO_HAS_UCHAR_H
 	const char16_t nl[] = {u'\n'};
 	char16_t s[] = u"hello";
 	const char16_t s2[] = u"hello";
 	const int ret1 = yπprint(s, " world", a++, "\n");
 	const int ret2 = yπprintf(TC("{} {}{}{:.1}"), s2, "world", a++, nl);
-	_yIO_TEST(ret1 > 0 && ret2 > 0, "ret1=%d ret2=%d\n", ret1, ret2);
+	YYIO_TEST(ret1 > 0 && ret2 > 0, "ret1=%d ret2=%d\n", ret1, ret2);
 #else
 	yπprint("hello world", a++, "\n");
 	yπprint("hello world", a++, "\n");

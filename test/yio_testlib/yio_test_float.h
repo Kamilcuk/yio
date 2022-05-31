@@ -26,21 +26,21 @@
 	]) %}
 #line
 
-#ifndef _yIO_HAS_FLOAT$1
+#ifndef YYIO_HAS_FLOAT$1
 #error
 #endif
 
-#if _yIO_HAS_FLOAT$1
+#if YYIO_HAS_FLOAT$1
 
-struct _yIO_test_floatlist$1_s {
+struct YYIO_test_floatlist$1_s {
 	const char *valstr;
-	_yIO_FLOAT$1 val;
+	YYIO_FLOAT$1 val;
 };
 
-static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
+static const struct YYIO_test_floatlist$1_s YYIO_test_floatlist$1[] = {
 
 		// start from 12 to remove them
-#define _yIO_floatlist_exotics_cnt  12
+#define YYIO_floatlist_exotics_cnt  12
 #define M(x)  { #x, x }, { "-"#x, -x }
 		M(INFINITY),
 		M(NAN),
@@ -50,7 +50,7 @@ static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
 		M($3_MAX),
 #undef M
 
-#define M(x) { #x, _yIO_FLOAT_C$1(x) }, { "-"#x, _yIO_FLOAT_C$1(-x) }
+#define M(x) { #x, YYIO_FLOAT_C$1(x) }, { "-"#x, YYIO_FLOAT_C$1(-x) }
 		M(0.0),
 		M(123.456),
 		M(0.4583577231),
@@ -195,16 +195,16 @@ static const struct _yIO_test_floatlist$1_s _yIO_test_floatlist$1[] = {
 
 };
 
-struct _yIO_astrfroms$1_s {
-	int (*astrfrom)(_yIO_res *res, int precision, char type, _yIO_FLOAT$1 val);
+struct YYIO_astrfroms$1_s {
+	int (*astrfrom)(YYIO_res *res, int precision, char type, YYIO_FLOAT$1 val);
 	const char *astrfrom_str;
 };
 
-static const struct _yIO_astrfroms$1_s  _yIO_astrfroms$1[] = {
+static const struct YYIO_astrfroms$1_s  YYIO_astrfroms$1[] = {
 #define T(a)  { a, #a, }
-		T(_yIO_float_astrfrom_strfrom$1),
-		T(_yIO_float_astrfrom_custom$1),
-		T(_yIO_float_astrfrom_printf$1)
+		T(YYIO_float_astrfrom_strfrom$1),
+		T(YYIO_float_astrfrom_custom$1),
+		T(YYIO_float_astrfrom_printf$1)
 #undef T
 };
 
