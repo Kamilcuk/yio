@@ -12,7 +12,7 @@
 
 // {#
 #ifdef YYIO_CDT_PARSER
-#define YYIO_HAS_FLOAT$1  1
+#define YIO_HAS_FLOAT$1  1
 #define YYIO_FLOAT$1      float
 #define YYIO_FLOAT_PRI$1  ""
 #define $3_MANT_DIG  20
@@ -46,7 +46,7 @@
 		["d128", "DEC128", "128", "dl", "\"DD\"", 34],
 	]) %}
 #line
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 #ifdef $2_MANT_DIG
 #define YYIO_FLOAT_MANT_DIG$1  $2_MANT_DIG
 #else
@@ -61,10 +61,10 @@
 
 {% macro j_floatdefine() %}{% call j_APPLY(*varargs) %}
 #line
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 x, int *exp);
 

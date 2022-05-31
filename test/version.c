@@ -9,7 +9,7 @@ int main() {
 #error
 #endif
 	printf("%#010lx == %#010lx\n", YIO_VERSION, yio_get_version());
-	YYIO_TEST(YIO_VERSION == yio_get_version());
+	YIO_TESTEXPR(YIO_VERSION == yio_get_version());
 	printf("%s == %s\n", YIO_VERSION_STRING, yio_get_version_string());
-	YYIO_TEST(strcmp(YIO_VERSION_STRING, yio_get_version_string()) == 0);
+	YIO_TESTEXPR(strcmp(YIO_VERSION_STRING, yio_get_version_string()) == 0);
 }

@@ -50,7 +50,7 @@
         type _var = value; \
         TCHAR *_ptr = yπformat("("#type")"#value" -> ", _var, "\n"); \
         yπprint(_ptr); \
-        YYIO_TEST(TSTRCMP(_ptr, #value) == 0, "%"TPRI" failed", _ptr); \
+        YIO_TESTEXPR(TSTRCMP(_ptr, #value) == 0, "%"TPRI" failed", _ptr); \
         free(_ptr); \
     } while(0)
 #undef TEST_in

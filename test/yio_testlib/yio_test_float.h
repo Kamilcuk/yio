@@ -26,11 +26,11 @@
 	]) %}
 #line
 
-#ifndef YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
 #error
 #endif
 
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 struct YYIO_test_floatlist$1_s {
 	const char *valstr;

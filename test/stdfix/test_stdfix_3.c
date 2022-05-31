@@ -31,7 +31,7 @@ int main() {
 		const short _Fract x = 0.123456789;
 		char *tmp = yformatf("{:.1a}\n", x);
 		unsigned a, b; int c;
-		YYIO_TEST(sscanf(tmp, "0x%x.%xp%x", &a, &b, &c) == 3, "%s", tmp);
+		YIO_TESTEXPR(sscanf(tmp, "0x%x.%xp%x", &a, &b, &c) == 3, "%s", tmp);
 		free(tmp);
 		int v = b << 4 | a;
 		yprintf("{:x} {:x}\n", v, x);

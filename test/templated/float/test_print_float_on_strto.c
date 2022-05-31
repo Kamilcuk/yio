@@ -62,11 +62,11 @@ static const struct formats_s formats[] = {
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
 
-#ifndef YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
 #error
 #endif
 
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 #define TYPE$1   YYIO_FLOAT$1
 #define STRTO$1  YYIO_strto$1
@@ -112,7 +112,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 		const char *format, double diffatmost) {
 	errno = 0;
 	TCHAR *const format_native = yπformatf(TC("{}"), format);
-	YYIO_TEST_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
+	YIO_TESTEXPR_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
 	YYIO_ASSERT(format_native);
 
 	if (!instr) instr = "(null)";
@@ -120,7 +120,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	TCHAR *str_native = NULL;
 	errno = 0;
 	int err = yπaprintf(&str_native, format_native, in);
-	YYIO_TEST_NOFAIL(errno == 0, "%s,%s %d %s", format, instr, errno, strerror(errno));
+	YIO_TESTEXPR_NOFAIL(errno == 0, "%s,%s %d %s", format, instr, errno, strerror(errno));
 	free(format_native);
 	if (strstr(instr, "_MAX") != NULL && (
 			err == YIO_ERROR_ENOMEM ||
@@ -154,17 +154,17 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	if (errnostrto == ERANGE && (res == YYIO_FLOAT_HUGE_VAL$1 || res == -YYIO_FLOAT_HUGE_VAL$1)) {
 		// Only allowed when converting the max values.
 		if (!(YYIO_fabs$1(in) >= YYIO_FLOAT_MAX$1 && strstr(instr, "_MAX"))) {
-			failed |= YYIO_TEST(errnostrto == 0, "overflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
+			failed |= YIO_TESTEXPR(errnostrto == 0, "overflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
 		}
 	} else if ((strstr(instr, "_MIN") || strstr(instr, "_EPSILON")) && strstr(format, "f")) {
 	} else {
-		failed |= YYIO_TEST(diff <= diffatmost, "π %s,%s %"PRI$1"g<%g", format, instr, diff, diffatmost);
+		failed |= YIO_TESTEXPR(diff <= diffatmost, "π %s,%s %"PRI$1"g<%g", format, instr, diff, diffatmost);
 	}
 	if (res == 0) {
 #ifdef __INTEL_COMPILER
-		failed |= YYIO_TEST_NOFAIL(
+		failed |= YIO_TESTEXPR_NOFAIL(
 #else
-		failed |= YYIO_TEST(
+		failed |= YIO_TESTEXPR(
 #endif
 			errnostrto == 0, "underflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
 	}
@@ -173,8 +173,8 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 		printf(VERBOSEARGS("$1", PRI$1));
 	}
 
-	// YYIO_TEST_NOFAIL(fabs$1(in - res) < 0.05, "π %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
-	YYIO_TEST(endp == str + strlen(str));
+	// YIO_TESTEXPR_NOFAIL(fabs$1(in - res) < 0.05, "π %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
+	YIO_TESTEXPR(endp == str + strlen(str));
 
 	free(str);
 }

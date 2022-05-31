@@ -15,10 +15,10 @@
 
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 #ifdef YYIO_PRIVATE
 /**
@@ -43,10 +43,10 @@ int YYIO_float_astrfrom_ryu$1(YYIO_res *res, int precision, char spec0, YYIO_FLO
 		"f16", "f32", "f64", "f128",
 		"f32x", "f64x", "f128x",
 		"d32", "d64", "d128" ]) %}
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 #ifndef YYIO_has_float_ryu$1
 #define YYIO_has_float_ryu$1  0
 #endif

@@ -64,10 +64,10 @@ static inline void floaterror(const char *func) {
 {% for V in j_FLOATS %}{% call j_APPLY(V.0, V.math, V.strto) %}
 #line
 
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x);
 weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x) {
@@ -168,7 +168,7 @@ weak YYIO_FLOAT$1 strto$3(const char *restrict str, char **restrict pnt) {
 	return -1;
 }
 
-#endif // YYIO_HAS_FLOAT$1
+#endif // YIO_HAS_FLOAT$1
 
 {% endcall %}{% endfor %}
 

@@ -53,10 +53,10 @@ void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision, 
 
 {% call j_FOREACHAPPLY(j_FLOATS) %}
 #line
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 #ifndef YYIO_HAS_strfrom$1
 #error  YYIO_HAS_strfrom$1
 #endif

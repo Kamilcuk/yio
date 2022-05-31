@@ -36,10 +36,10 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
 
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 static int YYIO_test_print_float_custom_in$1(int precision,
         char type, YYIO_FLOAT$1 val, const char *valstr0,
@@ -49,7 +49,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 	YYIO_res_init(&res, 0, 0);
 	int err = astrfrom(&res, precision, type, val);
 	if (err) {
-		YYIO_TEST(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
+		YIO_TESTEXPR(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
 				__func__, precision, type, valstr0, astrfrom_str, err);
 		return err;
 	}
@@ -61,16 +61,16 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 	if (precision < 0) {
 		char *fmt = NULL;
 		err = asprintf(&fmt, "%%" YYIO_FLOAT_PRI$1 "%c", type);
-		YYIO_TEST(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
+		YIO_TESTEXPR(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
 		err = asprintf(&valstr, fmt, val);
-		YYIO_TEST(err > 0, "asprintf(&valstr, ...) failed err=%d", err);
+		YIO_TESTEXPR(err > 0, "asprintf(&valstr, ...) failed err=%d", err);
 		free(fmt);
 	} else {
 		char *fmt = NULL;
 		err = asprintf(&fmt, "%%.*" YYIO_FLOAT_PRI$1 "%c", type);
-		YYIO_TEST(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
+		YIO_TESTEXPR(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
 		err = asprintf(&valstr, fmt, precision, val);
-		YYIO_TEST(err > 0, "asprintf(&valstr, ...) failed err=%d", err);
+		YIO_TESTEXPR(err > 0, "asprintf(&valstr, ...) failed err=%d", err);
 		free(fmt);
 	}
 

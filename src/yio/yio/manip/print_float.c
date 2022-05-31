@@ -83,10 +83,10 @@ int YYΩIO_print_float_$2$1pnt(yπio_printctx_t *t) {
 {% endcall %}{% endmacro %}
 
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 {{ j_generate_print_floats(V.0, "strfrom") }}
 

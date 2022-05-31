@@ -78,10 +78,10 @@ int YYIO_print_scientific_suffix(YYIO_res *v, char speclower, char spec, bool is
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 	{% if not j_match(V.0, "^d[0-9]") %}{# exclude floats #}
 #line
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 #define TYPE     YYIO_FLOAT$1
 #define FLOOR    YYIO_floor$1

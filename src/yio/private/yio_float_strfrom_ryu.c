@@ -106,10 +106,10 @@ int YYIO_float_astrfrom_ryul(YYIO_res *res, const int precision0, const char spe
 {% call j_FOREACHAPPLY(["f", "d"]) %}
 #line
 
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 static inline
 int YYIO_float_astrfrom_ryu$1_in(YYIO_res *res, const int precision0, const char spec, YYIO_FLOAT$1 val) {

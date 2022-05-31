@@ -24,10 +24,10 @@
 #error  YYIO_MUSL_BROKEN_EXP10
 #endif
 
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 YYIO_FLOAT$1 YYIO_frexp10$1(YYIO_FLOAT$1 val, int *exp) {
 	const int tmp = val == 0 ? 0 : (int)(
@@ -56,6 +56,6 @@ YYIO_FLOAT$1 YYIO_frexp10$1(YYIO_FLOAT$1 val, int *exp) {
 	return val;
 }
 
-#endif // YYIO_HAS_FLOAT$1
+#endif // YIO_HAS_FLOAT$1
 
 {% endcall %}

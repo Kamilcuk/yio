@@ -30,5 +30,5 @@ int main() {
 // PASS_REGULAR_EXPRESSION A%B{[{]C}D
 	err |= yπprintf(TC("{:%y %w %u}\n"), t);
 // PASS_REGULAR_EXPRESSION 12 0 7
-	YYIO_TEST(err > 0);
+	YIO_TESTEXPR(err > 0);
 }

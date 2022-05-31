@@ -14,10 +14,10 @@
 {% call j_FOREACHAPPLY(["d32", "d64", "d128", "d32x", "d64x", "d128x"]) %}
 #line
 
-#ifndef YYIO_HAS_FLOAT$1
-#error  YYIO_HAS_FLOAT$1
+#ifndef YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1
 #endif
-#if YYIO_HAS_FLOAT$1
+#if YIO_HAS_FLOAT$1
 
 // Forward declaration so we get compile time errors.
 // If you see link errors, link with an implementation of decimal-library.

@@ -18,8 +18,8 @@ int main() {
 
 	int count;
 	int count2 = yprintf("Hello\n{}", ypcount(&count));
-	YYIO_TEST(count2 == 6);
-	YYIO_TEST(count == 6);
+	YIO_TESTEXPR(count2 == 6);
+	YIO_TESTEXPR(count == 6);
 
 	//YIO_TEST("\\x02", "{!a}", "\x02");
 

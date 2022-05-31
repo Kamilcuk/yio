@@ -112,7 +112,7 @@ set(_floats
 	"_Decimal128x"   "d128x"    "d128x"   "d128x"
 )
 
-# If two types are the same, set YYIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
+# If two types are the same, set YIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
 function(exclude_same type1 type2 suffix)
 	check_c_source_compiles(
 		"int main() { return _Generic((${type1})0, ${type1}: 0, ${type2}: 0); }"
@@ -120,7 +120,7 @@ function(exclude_same type1 type2 suffix)
 	)
 	if(NOT YYIO_samecompiles_FLOAT${suffix})
 		# cmake-lint: disable=C0103
-		set(YYIO_HAS_FLOAT${suffix} 0 CACHE INTERNAL "")
+		set(YIO_HAS_FLOAT${suffix} 0 CACHE INTERNAL "")
 	endif()
 endfunction()
 # Intel compiler
@@ -136,15 +136,15 @@ foreach(ii IN LISTS _floats)
 	if(ii)
 		continue()
 	endif()
-	if(NOT DEFINED YYIO_HAS_FLOAT${suffix})
+	if(NOT DEFINED YIO_HAS_FLOAT${suffix})
 		message(STATUS "Detecting: '${type}' '${mathsuffix}' '${suffix}' '${strtosuffix}'")
 	endif()
 
-	if(NOT DEFINED YYIO_HAS_FLOAT${suffix})
-		check_type_exists_bool(${type} YYIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
+	if(NOT DEFINED YIO_HAS_FLOAT${suffix})
+		check_type_exists_bool(${type} YIO_HAS_FLOAT${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
 	endif()
-	yio_config_gen_add(YYIO_HAS_FLOAT${suffix})
-	if(YYIO_HAS_FLOAT${suffix})
+	yio_config_gen_add(YIO_HAS_FLOAT${suffix})
+	if(YIO_HAS_FLOAT${suffix})
 		list(APPEND YIO_FLOAT_SUFFIXES ${suffix})
 		yio_config_gen_add_value(YYIO_FLOAT${suffix} ${type})
 		check_symbol_exists_bool(exp10${mathsuffix}  "math.h"    YYIO_HAS_exp10${suffix})

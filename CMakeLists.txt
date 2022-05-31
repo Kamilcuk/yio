@@ -304,7 +304,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile ${CMAKE_CURRENT_BINARY_D
 add_subdirectory(src)
 if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
 	include(CTest)
-	add_subdirectory(./third_party)
+	add_subdirectory(./third_party EXCLUDE_FROM_ALL)
 	add_subdirectory(./test)
 	add_subdirectory(./examples)
 endif()

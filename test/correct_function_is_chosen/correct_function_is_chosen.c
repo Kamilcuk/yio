@@ -47,11 +47,11 @@ MASK(YYIO_print_float_customl)
 #define CHECK(FUNC) \
 	do{ \
 		printf("%s\n", gfunc); \
-		YYIO_TEST(strcmp(gfunc, FUNC) == 0, "gfunc=%s", gfunc); \
+		YIO_TESTEXPR(strcmp(gfunc, FUNC) == 0, "gfunc=%s", gfunc); \
 	} while(0)
 
 int main() {
-#if YYIO_HAS_FLOATf
+#if YIO_HAS_FLOATf
 	yprintf("{}", 1.0f);
 #if YYIO_HAS_strfromf
 	CHECK("YYIO_print_float_strfromf");
