@@ -17,7 +17,7 @@ int main() {
 	YWIO_TEST("ab\\\\U00000424cd", "a{!a}d", L"b\U00000424c");
 	YWIO_TEST("ab\\\\U424!d", "a{!a}d", L"b\U00000424!");
 #else
-	YWIO_TEST("ab\\\\044\\\\004\\\\000\\\\000""cd", "a{!a}d", L"b\U00000424c");
+	YWIO_TEST(( .eq="ab\\44\\4\\0\\0""cd" ), "a{!a}d", L"b\U00000424c");
 #endif
 #endif
 #if YYIO_HAS_UNISTRING

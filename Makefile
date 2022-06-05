@@ -165,7 +165,8 @@ cicd.local:
 cicd.gitlab:
 	,gitlab run-gitlabci --runasroot --inplace alpine_test <&-
 	,gitlab run-gitlabci --runasroot --inplace centos8_test <&-
-
+icc:
+	,gitlab run-gitlabci --runasroot --inplace icc_test
 # Exotic Targets ##################################################
 
 HELP +=~ sanitize
