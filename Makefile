@@ -144,8 +144,8 @@ testprogram: .build_yio_testprogram
 HELP +=~ valgrind - Run tests under valgrind
 valgrind:
 	du $(B)/Testing/Temporary/MemoryChecker.*.log | grep '^[^0]' | cut -f2- | xargs -r -d '\n' rm -v --
-	$(MAKE) test VALGRIND=1
-	! du $(B)/Testing/Temporary/MemoryChecker.*.log | grep '^[^0]'
+	ret=0 ; $(MAKE) test VALGRIND=1 || { ret=$$? ; tail -n +1 $(B)/Testing/Temporary/MemoryChecker.*.log ; } ; \
+		! du $(B)/Testing/Temporary/MemoryChecker.*.log | grep '^[^0]' || exit "$$ret"
 
 HELP +=~ clang
 clang:

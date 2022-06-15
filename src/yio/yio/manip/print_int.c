@@ -67,7 +67,6 @@ int YYΩIO_print_$1_inradix(yπio_printctx_t *t, $2 arg, bool is_negative,
 	return yπio_printctx_putπ_number(t, num, length, !is_negative);
 }
 
-static inline
 int YYΩIO_print_$1_in(yπio_printctx_t *t, $2 arg, bool is_negative) {
 	const TCHAR type = yπio_printctx_get_fmt(t)->type;
 	switch (type) {

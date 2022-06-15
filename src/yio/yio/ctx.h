@@ -35,7 +35,7 @@ struct yπio_printfmt_s {
 	TCHAR align;
 	/// May be on of '+' '-' ' ' character or 0 when unset.
 	TCHAR sign;
-	/// May be set to '_' ',' or 0 when unset.
+	/// May be set to 'L' or '_' ',' or 0 when unset.
 	TCHAR grouping;
 	/// The printing type character. The standard valid characters are "bcdeEfFgGnosxXp".
 	TCHAR type;

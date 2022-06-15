@@ -26,6 +26,18 @@
 #include <uchar.h>
 #endif
 
+#if YYIO_PRIVATE
+// These functions are exported for printing bool, char and wchar_t as integers.
+int YYΩIO_print_uschar_in(yπio_printctx_t *t, unsigned char arg, bool is_negative);
+int YYΩIO_print_ushort_in(yπio_printctx_t *t, unsigned short arg, bool is_negative);
+int YYΩIO_print_uint_in(yπio_printctx_t *t, unsigned int arg, bool is_negative);
+int YYΩIO_print_ulong_in(yπio_printctx_t *t, unsigned long arg, bool is_negative);
+int YYΩIO_print_ullong_in(yπio_printctx_t *t, unsigned long long arg, bool is_negative);
+#if YYIO_HAS_INT128
+int YYΩIO_print_u__int128_in(yπio_printctx_t *t, unsigned __int128 arg, bool is_negative);
+#endif
+#endif
+
 int YYΩIO_print_bool(yπio_printctx_t *t);
 
 int YYΩIO_print_char(yπio_printctx_t *t);

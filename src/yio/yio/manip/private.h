@@ -7,3 +7,4 @@
  * @brief
  */
 #include "../private.h"
+#include "manip.h"

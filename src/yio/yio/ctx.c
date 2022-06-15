@@ -45,7 +45,6 @@ const struct yπio_printfmt_s YYΩIO_printfmt_default = {
 		.width = -1,
 		.precision = -1,
 		.fill = TC(' '),
-		.align = TC('>'),
 		.sign = TC('-'),
 };
 
@@ -193,8 +192,9 @@ int YYΩIO_pfmt_parse(struct YYΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
 			pf->hash = true;
 			break;
 		case TC('0'):
-			pf->fill = TC('0');
-			pf->align = TC('=');
+			if (pf->align == TC('\0')) {
+				pf->align = TC('0');
+			}
 			break;
 		case TC('1'):
 		case TC('2'):
@@ -390,6 +390,11 @@ int YYΩIO_printformat_prefix(YYΩIO_printformat_t *pf) {
 	const size_t alllen = len + (size_t)( 2U * has_hash + has_sign );
 	*alllen0 = alllen;
 	const size_t width = f->width > 0 ? f->width : 0;
+
+	if (f->align == TC('\0')) {
+		// The default for numbers is right, otherwise it's left.
+		f->align = pf->is_number ? YYΩIO_ALIGN_RIGHT : YYΩIO_ALIGN_LEFT;
+	}
 
 	if (f->align == YYΩIO_ALIGN_PADSIGN) {
 		const int err = YYΩIO_printformat_prefix__print_sign_hash(t, f,

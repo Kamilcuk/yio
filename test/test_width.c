@@ -18,15 +18,16 @@ int main() {
 	if (!ret) {
 		ret = setlocale(LC_ALL, "C.UTF-8");
 		if (!ret) {
-			return 0;
+			//// SKIP_RETURN_CODE 100
+			return 100;
 		}
 	}
 
-#if !YYIO_HAS_UNISTRING
+#if YYIO_HAS_UNISTRING
 	// This needs unistring support from u8_width
 	char *str = yformatf("{:5s}", "Ω");
-	YIO_TESTEXPR(strcmp(str, "    Ω") == 0, "'%s'", str);
-	YIO_TESTEXPR(strlen(str) == strlen("    Ω"));
+	YIO_TESTEXPR(strcmp(str, "Ω    ") == 0, "'%s'", str);
+	YIO_TESTEXPR(strlen(str) == strlen("Ω    "));
 	free(str);
 #endif
 
@@ -36,8 +37,8 @@ int main() {
 	//for (size_t i = 0; i < wcslen(wstr); i++) {
 		//fprintf(stderr, "BBBBB %x\n", wstr[i]);
 	//}
-	YIO_TESTEXPR(wcscmp(wstr, L"    Ω") == 0, "'%ls'", wstr);
-	YIO_TESTEXPR(wcslen(wstr) == wcslen(L"    Ω"));
+	YIO_TESTEXPR(wcscmp(wstr, L"Ω    ") == 0, "'%ls'", wstr);
+	YIO_TESTEXPR(wcslen(wstr) == wcslen(L"Ω    "));
 	free(wstr);
 #endif
 }

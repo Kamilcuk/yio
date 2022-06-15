@@ -6,7 +6,7 @@ int main() {
 	YIO_TEST(" { } } { { ", " {{ }} }} {{ {{ ");
 	YIO_TEST(" 1", " {}", "1");
 	YIO_TEST(" A", " {}", "A");
-	YIO_TEST(" Hello World! ", " {:}{: 6}{} ", "Hello", "World", (char)'!');
+	YIO_TEST(" Hello World! ", " {:}{: >6}{} ", "Hello", "World", (char)'!');
 	YIO_TEST("}", "}}");
 	YIO_TEST("{", "{{");
 	YIO_TEST("{}", "{{}}");

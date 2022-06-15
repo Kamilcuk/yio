@@ -25,6 +25,9 @@ devel: ![pipeline dev status badge](https://gitlab.com/kamcuk/yio/badges/devel/p
 - `cmake`
 - `python3` and [`jinja2`](https://pypi.org/project/Jinja2/) for templating
 - `bash` and `make` are used for various administration tasks
+- `git`
+
+Mostly: `apt install -y git libunistring-dev ninja-build ; pip install jinja2`.
 
 ### Compilation and installation with CMake
 

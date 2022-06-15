@@ -4,3 +4,7 @@
 [submodule "third_party/tiny-regex-c"]
 	path = third_party/tiny-regex-c
 	url = https://github.com/kokke/tiny-regex-c.git
+[submodule "sstest"]
+	path = third_party/sstest
+	url = git@gitlab.com:Kamcuk/sstest.git
+	branch = master

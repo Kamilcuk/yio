@@ -3,7 +3,7 @@ int main() {
 	YIO_TEST("I'd rather be happy than right.", "I'd rather be {1} than {0}.", "right", "happy");
 	YIO_TEST_FAIL("The answer is {:d}", "forty-two");
 	YIO_TEST("abracadabra", "{0}{1}{0}", "abra", "cad");
-	YIO_TEST("\\+3.140000; -3.140000", "{:+f}; {:+f}", 3.14, -3.14);
+	YIO_TEST("+3.140000; -3.140000", "{:+f}; {:+f}", 3.14, -3.14);
 	YIO_TEST(" 3.140000; -3.140000","{: f}; {: f}", 3.14, -3.14);
 	YIO_TEST("3.140000; -3.140000","{:-f}; {:-f}", 3.14, -3.14);
 	YIO_TEST("3.1", "{:.{}f}", 3.14, 1);

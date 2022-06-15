@@ -41,14 +41,14 @@ int YYΩIO_print_float_$2$1_in(yπio_printctx_t *t, YYIO_FLOAT$1 var) {
 	const char *const result = YYIO_res_begin(&res);
 	const size_t length = YYIO_res_used(&res);
 	const bool is_negative = result[0] == '-';
-	if (
-			isdigit((unsigned char)result[0]) ||
-			(is_negative && isdigit((unsigned char)result[1]))
-	) {
+	//if (
+			//isdigit((unsigned char)result[0]) ||
+			//(is_negative && isdigit((unsigned char)result[1]))
+	//) {
 		err = yπio_printctx_put_number(t, result + is_negative, length - is_negative, !is_negative);
-	} else {
-		err = yπio_printctx_put(t, result, length);
-	}
+	//} else {
+		//err = yπio_printctx_put(t, result, length);
+	//}
 	YYIO_res_end(&res);
 	return err;
 }

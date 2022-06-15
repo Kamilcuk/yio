@@ -113,7 +113,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	errno = 0;
 	TCHAR *const format_native = yπformatf(TC("{}"), format);
 	YIO_TESTEXPR_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
-	YYIO_ASSERT(format_native);
+	YIO_TESTEXPR_ASSERT(format_native != NULL);
 
 	if (!instr) instr = "(null)";
 
@@ -133,11 +133,11 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 					"π", "$1", format, instr, err, yio_strerror(err));
 		return;
 	}
-	YYIO_ASSERT(str_native != NULL);
+	YIO_TESTEXPR_ASSERT(str_native != NULL);
 
 	char *const str = yformatf("{}", str_native);
 	free(str_native);
-	YYIO_ASSERT(str != NULL);
+	YIO_TESTEXPR_ASSERT(str != NULL);
 
 	char *endp;
 	errno = 0;
@@ -154,17 +154,17 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	if (errnostrto == ERANGE && (res == YYIO_FLOAT_HUGE_VAL$1 || res == -YYIO_FLOAT_HUGE_VAL$1)) {
 		// Only allowed when converting the max values.
 		if (!(YYIO_fabs$1(in) >= YYIO_FLOAT_MAX$1 && strstr(instr, "_MAX"))) {
-			failed |= YIO_TESTEXPR(errnostrto == 0, "overflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
+			failed |= YIO_TESTEXPR_ASSERT(errnostrto == 0, "overflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
 		}
 	} else if ((strstr(instr, "_MIN") || strstr(instr, "_EPSILON")) && strstr(format, "f")) {
 	} else {
-		failed |= YIO_TESTEXPR(diff <= diffatmost, "π %s,%s %"PRI$1"g<%g", format, instr, diff, diffatmost);
+		failed |= YIO_TESTEXPR_ASSERT(diff <= diffatmost, "π %s,%s %"PRI$1"g<%g", format, instr, diff, diffatmost);
 	}
 	if (res == 0) {
 #ifdef __INTEL_COMPILER
 		failed |= YIO_TESTEXPR_NOFAIL(
 #else
-		failed |= YIO_TESTEXPR(
+		failed |= YIO_TESTEXPR_ASSERT(
 #endif
 			errnostrto == 0, "underflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
 	}
@@ -174,7 +174,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	}
 
 	// YIO_TESTEXPR_NOFAIL(fabs$1(in - res) < 0.05, "π %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
-	YIO_TESTEXPR(endp == str + strlen(str));
+	YIO_TESTEXPR_ASSERT(endp == str + strlen(str));
 
 	free(str);
 }
