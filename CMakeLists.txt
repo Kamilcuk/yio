@@ -11,10 +11,16 @@ include(yio_debug_variables)
 include(src/version.cmake)
 project(yio
 	VERSION "${YIO_PROJECT_VERSION}"
-	LANGUAGES C
+  LANGUAGES C CXX
 	DESCRIPTION "YIO Iconic Output C Library that aims in type-safe printf replacement"
 	HOMEPAGE_URL "https://gitlab.com/kamcuk/yio"
 )
+
+message(STATUS ${CMAKE_C_COMPILE_FEATURES})
+if("cxx_std_30" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
+  message("HELLO")
+endif()
+message(FATAL_ERROR)
 
 include(CheckCCompilerFlag)
 include(k/force_build_dir_without_cmakelists)

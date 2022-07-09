@@ -19,8 +19,11 @@ endif()
 function(yio_add_test T_SOURCE)
 	cmake_parse_arguments(T "" "NAME;REALFILE;GETNAME" "LABELS" ${ARGN})
 
+  if(NOT YIO_HAS_WCHAR_H AND (T_SOURCE MATCHES "ywio"))
+		return()
+	endif()
 	# unicode tests need unicode support
-	if(NOT YIO_HAS_UCHAR_H AND (T_SOURCE MATCHES "yui" OR T_SOURCE MATCHES "yc16io"))
+	if(NOT YIO_HAS_UCHAR_H AND (T_SOURCE MATCHES "yuio" OR T_SOURCE MATCHES "yc16io"))
 		return()
 	endif()
 	# stdfix are run only if we have stdfix

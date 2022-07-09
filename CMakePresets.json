@@ -82,7 +82,6 @@
       "inherits": "default",
       "cacheVariables": {
         "YIO_MLVLS": "20",
-        "HAS_ANALYZER": "0",
         "YIO_LINE": "0",
         "YIO_HAS_FLOATf16": "0",
         "YIO_HAS_FLOATf32": "0",
@@ -96,9 +95,7 @@
         "YIO_HAS_FLOATd128": "0",
         "YIO_HAS_FLOATd32x": "0",
         "YIO_HAS_FLOATd64x": "0",
-        "YIO_HAS_FLOATd128x": "0",
-        "YIO_CPPLINT": "0",
-        "YIO_CLANG_TIDY": "0"
+        "YIO_HAS_FLOATd128x": "0"
       }
     },
     {
@@ -106,6 +103,22 @@
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/kcmakelib/cmake/Toolchain/winegcc.cmake"
+      }
+    },
+    {
+      "name": "cproc",
+      "inherits": "lint",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cproc",
+        "CMAKE_C_COMPILER_ID": "cproc",
+        "YIO_HAS_FLOATl": "0",
+        "YYIO_HAS_timespec": "0",
+        "YYIO_HAS_timeval": "0",
+        "YYIO_HAS_MONETARY_H": "0",
+        "YIO_HAS_WCHAR_H": "0",
+        "YIO_HAS_UCHAR_H": "0",
+        "UNISTRING_LIB": "0",
+        "YYIO_HAS_UNISTRING": "0"
       }
     }
   ],

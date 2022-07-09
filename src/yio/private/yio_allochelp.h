@@ -13,6 +13,10 @@
 #include <stddef.h>
 #include <time.h>
 
+#ifndef YIO_HAS_FLOATl
+#error
+#endif
+
 /**
  * Dynamic strftime.
  * The call @c strftime(..., fmt, tm) *must* result in a nonzero string.
@@ -32,7 +36,9 @@ int YYIO_astrftime_nonzero(YYIO_res *res, const char *fmt, const struct tm *tm);
 struct YYIO_astrfmon_arg {
 	union {
 		double d;
+#if YIO_HAS_FLOATl
 		long double ld;
+#endif
 	} v;
 	bool isldbl;
 };

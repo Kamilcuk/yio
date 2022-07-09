@@ -53,8 +53,11 @@ int YYIO_astrfmon(YYIO_res *res, const char *fmt, struct YYIO_astrfmon_arg arg) 
 		char *const buf = YYIO_res_begin(res);
 		const size_t bufsize = YYIO_res_size(res);
 		errno = 0;
-		const ssize_t count = arg.isldbl ?
+		const ssize_t count =
+#if YIO_HAS_FLOATl
+			arg.isldbl ?
 			strfmon(buf, bufsize, fmt, arg.v.ld) :
+#endif
 			strfmon(buf, bufsize, fmt, arg.v.d);
 		//dbgln("bufsize=%d count=%d errno=%d buf=`%.*s`", (int)bufsize, (int)count, errno, (int)bufsize, buf);
 		if (count <= 0) {

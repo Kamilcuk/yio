@@ -139,7 +139,6 @@ int YYΩIO_print_tm(yπio_printctx_t *t) {
 	return YYΩIO_print_time_strftime(t, &tm);
 }
 
-
 #if YYIO_HAS_timespec
 int YYΩIO_print_timespec(yπio_printctx_t *t) {
 	const struct timespec ts = yπio_printctx_va_arg(t, struct timespec);

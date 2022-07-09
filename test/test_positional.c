@@ -10,12 +10,18 @@ int main() {
 			(short)3,
 			(unsigned short)4,
 			5, 6u, 7l, 8lu, 9ll, 10llu,
-			11.0f, 12.0, 13.0L,
+			11.0f, 12.0,
+#if YIO_HAS_FLOATl
+			13.0L,
+#else
+			13.0,
+#endif
 			(void*)(uintptr_t)14,
 			(const void *)(uintptr_t)15,
 			"16",
 			L"17",
-			(struct tm){.tm_sec=18} );
+			(struct tm){.tm_sec=18}
+	);
 	YIO_TEST("a, b, c", "{0}, {1}, {2}", "a", "b", "c");
 	YIO_TEST("a, b, c", "{}, {}, {}", "a", "b", "c");
 	YIO_TEST("c, b, a", "{2}, {1}, {0}", "a", "b", "c");

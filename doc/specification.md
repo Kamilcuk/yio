@@ -6,8 +6,8 @@ The intention is to align the format specification to be similar to
 Python Format Specification Mini-Language and `fmt::format()` Format
 String Syntax and `std::formatter` from `<format>` from C++20.
 
-Format strings contain “replacement fields” surrounded by curly braces
-`{}`. Anything that is not contained in braces is considered literal
+Format strings contain "replacement fields" surrounded by curly braces
+`{` `}`. Anything that is not contained in braces is considered literal
 text, which is copied unchanged to the output. If you need to include
 a brace character in the literal text, it can be escaped by doubling:
 `{{` and `}}`.

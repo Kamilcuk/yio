@@ -19,7 +19,7 @@ size_t YYΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
 		}
 	}
 	return size;
-#else
+#elif TMODE == 3 || TMODE == 4
 	const bool isnormal = fwide(file, 0) <= 0;
 	if (isnormal) {
 		const char *mb; size_t mb_len;
@@ -41,6 +41,8 @@ size_t YYΩIO_fwrite(FILE *file, const TCHAR* str, size_t size) {
 		YYIO_strconv_free_πstr_to_wstr(str, wc);
 	}
 	return size;
+#else
+#error
 #endif
 }
 

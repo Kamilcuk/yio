@@ -208,6 +208,9 @@ namespace_stat: build_gen
 		column -t -s "|" -o ' ' | \
 		if [ -t 1 ]; then cut -c-"$$(tput cols)"; else cat; fi
 
+cproc:
+	$(MAKE) test PRESET=$@
+
 ###############################################################################
 # linting
 
