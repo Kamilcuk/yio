@@ -16,12 +16,6 @@ project(yio
 	HOMEPAGE_URL "https://gitlab.com/kamcuk/yio"
 )
 
-message(STATUS ${CMAKE_C_COMPILE_FEATURES})
-if("cxx_std_30" IN_LIST CMAKE_CXX_COMPILE_FEATURES)
-  message("HELLO")
-endif()
-message(FATAL_ERROR)
-
 include(CheckCCompilerFlag)
 include(k/force_build_dir_without_cmakelists)
 
@@ -273,6 +267,10 @@ function(jinja_generate)
 		set(debug --debug)
 	endif()
 	#
+  # Handle CMake dependencies.
+	set_property(TARGET "${A_TARGET}" APPEND PROPERTY SOURCES "${A_OUTPUT}")
+	add_dependencies(yio_gen ${A_TARGET})
+  #
 	add_custom_command(
 		OUTPUT
 			"${A_OUTPUT}"
@@ -299,8 +297,6 @@ function(jinja_generate)
 			${A_DEPENDS}
 		VERBATIM
 	)
-	set_property(TARGET "${A_TARGET}" APPEND PROPERTY SOURCES "${A_OUTPUT}")
-	add_dependencies(yio_gen ${A_TARGET})
 endfunction()
 
 ###############################################################################

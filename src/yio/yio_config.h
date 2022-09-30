@@ -120,6 +120,9 @@
 #define YYIO_access_rw(...)
 #endif
 
+#define YYIO_CONCAT(a, b)   a##b
+#define YYIO_XCONCAT(a, b)  YYIO_CONCAT(a, b)
+
 /**
  * @}
  */

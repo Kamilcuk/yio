@@ -25,15 +25,11 @@ typedef struct YYIO_res {
 } YYIO_res;
 
 /**
- * Initialized the res object.
+ * Initializes the res object.
  * Note that pointers are not needed here - only on the end.
- * @param t A pointer to YYIO_res to initialize.
- * @param resultp The statically allocated buffer or @c NULL.
- * @param lengthp The length of statically allocated buffer or 0.
- * @return Returns @c t.
  */
-YYIO_rnn YYIO_access_w(1)
-YYIO_res *YYIO_res_init(YYIO_res *t, char *resultp, size_t lengthp);
+YYIO_access_w(1)
+void YYIO_res_init(YYIO_res *t, char *bufbegin, char *bufend);
 
 /// End the object in case of error.
 static inline YYIO_access_rw(1)
@@ -170,16 +166,16 @@ bool YYIO_res_remove_trailing_zeros_and_comma(YYIO_res *t);
  * @brief Create a YYIO_res variable with YIO_CACHE_STACK_SIZE size bytes allocated on stack.
  */
 #if YIO_CACHE_STACK_SIZE > 0
-#define YYIO_RES_CONCAT(a, b)   a##b
-#define YYIO_RES_XCONCAT(a, b)  YYIO_RES_CONCAT(a, b)
-#define YYIO_RES_AUTO_DECL(var)  \
-		char YYIO_RES_CONCAT(_buf_##var, __LINE__)[YIO_CACHE_STACK_SIZE]; \
+#define YYIO_RES_AUTO_DECL2(var, bufname)  \
+		char bufname[YIO_CACHE_STACK_SIZE]; \
 		YYIO_res var; \
-		YYIO_res_init(&(var), YYIO_RES_CONCAT(_buf_##var, __LINE__), YIO_CACHE_STACK_SIZE)
+		YYIO_res_init(&(var), (bufname), (bufname) + sizeof(bufname));
+#define YYIO_RES_AUTO_DECL(var)  \
+		YYIO_RES_AUTO_DECL2(var, YYIO_XCONCAT(_buf_##var, __LINE__))
 #else
 #define YYIO_RES_AUTO_DECL(var)  \
 		YYIO_res var; \
-		YYIO_res_init(&(var), NULL, 0)
+		YYIO_res_init(&(var), NULL, NULL)
 #endif
 
 #endif /* YYIO_YIO_PRIVATE_YIO_RES_H_ */

@@ -4,7 +4,7 @@ if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
 endif()
 
 add_executable(correct_function_is_chosen correct_function_is_chosen.c)
-foreach(i IN ITEMS
+foreach(ii IN ITEMS
 	YYIO_print_float_strfromf
 	YYIO_print_float_strfromd
 	YYIO_print_float_strfroml
@@ -16,7 +16,7 @@ foreach(i IN ITEMS
 	YYIO_print_float_customl
 )
 	target_link_options(correct_function_is_chosen PRIVATE
-		-Wl,--wrap=${i}
+		-Wl,--wrap=${ii}
 	)
 endforeach()
 target_link_libraries(correct_function_is_chosen PRIVATE

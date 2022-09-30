@@ -5,5 +5,6 @@ int main() {
 	YIO_TEST("  inf", "{:05}", INFINITY);
 	YIO_TEST("00inf", "{:0>5}", INFINITY);
 #endif
+}
 
 

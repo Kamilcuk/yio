@@ -5,10 +5,6 @@
  *      Author: kamil
  */
 
-// One way to overload is to use PRINT_SLOT to add commands for _Generic callback within the library.
-// It has to be defined __before__ any other includes. It has to have comma on the end.
-#define YIO_PRINT_SLOT_100  struct A: yio_print_A, const struct A: yio_print_A,
-
 #include <yio.h>
 #include <stdlib.h>
 
@@ -29,12 +25,19 @@ static int yio_print_A(yio_printctx_t *t) {
 	return yio_printctx_printf(t, "{} {}", a.a, a.b);
 }
 
+// Add both const and non-const of the type to callback function.
+YIO_ADD_TYPE(struct A, yio_print_A)
+#include YIO_ADD_TYPE_INC()
+YIO_ADD_TYPE(const struct A, yio_print_A)
+#include YIO_ADD_TYPE_INC()
+
 // Alternative way is to create a custom format callback.
 // Custom yio callbacks to be used with yio invokations.
 // For type safety, make sure your arguments are proper type with _Generic.
-#define yprint_A(var)  yiocb( yio_print_A, ( (void)_Generic((var), struct A: 1, const struct A: 1), (var)) )
-//                                         ^^^^^.. any arguments passed to callback, that you have to eat with va_arg.
-//                            ^^^^^^^^^^^ - the callback to call
+#define yprint_A(var)  \
+		yiocb( yio_print_A, ( (void)_Generic((var), struct A: 1, const struct A: 1), (var)) )
+//                                  ^^^^^^^^ - protect against invalid arguments
+//             ^^^^^^^^^^^ - the callback to call
 
 int main() {
 	struct A var_a = {

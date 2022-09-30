@@ -48,7 +48,7 @@
 #endif
 
 static inline void floaterror(const char *func) {
-	fprintf(stderr,
+	(void)fprintf(stderr,
 			"yio: compatlib: Function %s is not implemented. Link with an actual implementation.\n",
 			func);
 	errno = ENOSYS;

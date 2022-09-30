@@ -45,8 +45,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
         char type, YYIO_FLOAT$1 val, const char *valstr0,
 		int (*astrfrom)(YYIO_res *res, int precision, char type, YYIO_FLOAT$1 val),
 		const char *astrfrom_str) {
-	YYIO_res res;
-	YYIO_res_init(&res, 0, 0);
+	YYIO_RES_AUTO_DECL(res);
 	int err = astrfrom(&res, precision, type, val);
 	if (err) {
 		YIO_TESTEXPR(err == 0, "%s(%d, %c, %s, %s) failed -> %d",

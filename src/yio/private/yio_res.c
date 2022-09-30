@@ -17,15 +17,14 @@
 #include <stdint.h>
 #include <assert.h>
 
-YYIO_res *YYIO_res_init(YYIO_res *t, char *resultp, size_t lengthp) {
-	const bool is_dynamic = resultp == NULL || lengthp == 0;
+void YYIO_res_init(YYIO_res *t, char *bufbegin, char *bufend) {
+	assert((bufbegin != NULL && bufend != NULL) || (bufbegin == NULL && bufend == NULL));
 	YYIO_res ret;
-	ret.beg = is_dynamic ? NULL : resultp;
+	ret.beg = bufbegin;
 	ret.pos = ret.beg;
-	ret.end = is_dynamic ? NULL : (resultp + lengthp);
-	ret.is_dynamic = is_dynamic;
+	ret.end = bufend;
+	ret.is_dynamic = bufbegin == NULL;
 	*t = ret;
-	return t;
 }
 
 int YYIO_res_putsn(YYIO_res *t, const char *ptr, size_t size) {
