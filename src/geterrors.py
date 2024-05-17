@@ -1,22 +1,32 @@
 #!/usr/bin/env python3
 
-"""
-A small script that will extract all calls to YYIO_ERROR within all source files
-in current source directory, and from these calls it will generate two files:
-.c and .h file given as first and second argumetns with enum-ish definition
-and array of strings definition.
-It is used as part of CMake scripts to generate error messages.
-"""
-
+import argparse
+import logging
 import os
 import re
 import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import List
 
-from preprocess import LL, save_if_changed
+from preprocess import save_if_changed
+
+log = logging.getLogger(__name__)
+
+
+@dataclass
+class Err:
+    enum: str
+    msg: str
+
+    def __post_init_(self):
+        assert self.enum.startswith(
+            "YIO_ERROR_"
+        ), f"{self.enum}: Argument to YYIO_ERROR does not start with YIO_ERROR"
 
 
 def fatal(str, *args):
-    print(str.format(*args), file=stderr)
+    print(str.format(*args), file=sys.stderr)
     sys.exit(1)
 
 
@@ -26,26 +36,18 @@ def get_all_errors_from_sources():
         flags=re.MULTILINE,
     )
     dir = os.path.dirname(__file__)
-    errors = []
-    for root, dirs, files in os.walk(dir):
-        for filename in files:
-            if not filename.endswith(".c"):
-                continue
-            file = os.path.join(root, filename)
-            content = open(file).read()
-            for res in rereplace.findall(content):
-                name, msg = res
-                if not name.startswith("YIO_ERROR_"):
-                    fatal("{}: Argument to YYIO_ERROR does not start with YIO_ERROR", file)
-                errors += [(res[0], res[1])]
+    errors: List[Err] = []
+    for path in Path(dir).glob("**/*.c"):
+        for line in open(path).read():
+            res = rereplace.findall(line)
+            if res:
+                errors += [Err(*res)]
     return errors
 
 
 def check_duplicates(arr, name):
     dupl = [el for el in arr if arr.count(el) > 1]
-    if len(dupl) > 0:
-        print("Duplicated " + name + ": " + str(dupl), file=sys.stderr)
-        sys.exit(1)
+    assert len(dupl) == 0, f"Duplicated {name}: {dupl}"
 
 
 def prepare_sources(errors):
@@ -66,12 +68,39 @@ def write_to_argv_on_change(idx, str):
     save_if_changed(str, file, file)
 
 
-if __name__ == "__main__":
-    # LL.setLevel("DEBUG")
-    LL.setLevel("INFO")
+def main():
+    parser = argparse.ArgumentParser(
+        description="""
+    A small script that will extract all calls to YYIO_ERROR within all source files
+    in current source directory, and from these calls it will generate two files:
+    .c and .h file given as first and second argumetns with enum-ish definition
+    and array of strings definition.
+    It is used as part of CMake scripts to generate error messages.
+    """
+    )
+    parser.add_argument("-v", "--verbose", action="store_true")
+    parser.add_argument(
+        "file1",
+        help="output the integers for enum",
+        default=sys.stdout,
+        type=argparse.FileType("w"),
+    )
+    parser.add_argument(
+        "file2",
+        help="output the strings of errors",
+        default=sys.stdout,
+        type=argparse.FileType("w"),
+    )
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
+    #
     errors = get_all_errors_from_sources()
-    check_duplicates([k for k, v in errors], "enums")
-    check_duplicates([v for k, v in errors], "messages")
+    check_duplicates([e.enum for e in errors], "enums")
+    check_duplicates([e.msg for e in errors], "messages")
     enumout, msgout = prepare_sources(errors)
     write_to_argv_on_change(1, enumout)
     write_to_argv_on_change(2, msgout)
+
+
+if __name__ == "__main__":
+    main()

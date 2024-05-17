@@ -1,70 +1,77 @@
 #!/usr/bin/env python3
 
+
 import argparse
 import datetime
-import jinja2
-import jinja2.ext
-import jinja2.meta
+import inspect
 import logging
 import os
 import re
+from dataclasses import dataclass
 
-logging.basicConfig(format="%(funcName)s:%(lineno)s:\t%(message)s")
-LL = logging.getLogger(os.path.basename(__file__))
-LL.setLevel(logging.DEBUG)
+import jinja2.ext
+
+log = logging.getLogger(os.path.basename(__file__))
+DIR = os.path.dirname(__file__)
+
+###############################################################################
+# Internal define variables and functions exported to jinja
 
 # fmt: off
 template_data = {
-        "mode":  ["yio", "ywio", "yc16io", "yuio", ],
-        "omega": ["",    "W",    "C16",    "U", ],
-        "pi":    ["",    "w",    "c16",    "u", ],
-        "names": {
-            "TMODEX": [1,       2,         3,            3, ],
-            "TMODE":  [1,       2,         3,            4, ],
-            "TMODEN": [1,       2,         3,            4, ],
-            "TCHAR":  ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
-            "TINT":   ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
-            "TEOF":   ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
-            "TPRI":   ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
-            },
-        "funcs": {
-            "TC":        ["{}",                          "L{}",           "u{}",              "U{}", ],
-            "TFPRINTF":  ["fprintf({})",                 "fprintf({})",   "ulc_fprintf({})",  "ulc_fprintf({})", ],
-            "TISDIGIT":  ["isdigit((unsigned char){})",  "iswdigit({})",  "uc_is_digit({})",  "uc_is_digit({})", ],
-            "TISXDIGIT": ["isxdigit((unsigned char){})", "iswxdigit({})", "uc_is_xdigit({})", "uc_is_xdigit({})", ],
-            "TSTRCHR":   ["strchr({})",                  "wcschr({})",    "u16_strchr({})",   "u32_strchr({})", ],
-            "TSTRCMP":   ["strcmp({})",                  "wcscmp({})",    "u16_strcmp({})",   "u32_strcmp({})", ],
-            "TSTRLEN":   ["strlen({})",                  "wcslen({})",    "u16_strlen({})",   "u32_strlen({})", ],
-            },
-        }
+    "mode":  ["yio", "ywio", "yc16io", "yuio", ],
+    "omega": ["",    "W",    "C16",    "U", ],
+    "pi":    ["",    "w",    "c16",    "u", ],
+    "names": {
+        "TMODEX": [1,       2,         3,            3, ],
+        "TMODE":  [1,       2,         3,            4, ],
+        "TMODEN": [1,       2,         3,            4, ],
+        "TCHAR":  ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
+        "TINT":   ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
+        "TEOF":   ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
+        "TPRI":   ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
+    },
+    "funcs": {
+        "TC":        ["{}",                          "L{}",           "u{}",              "U{}", ],
+        "TFPRINTF":  ["fprintf({})",                 "fprintf({})",   "ulc_fprintf({})",  "ulc_fprintf({})", ],
+        "TISDIGIT":  ["isdigit((unsigned char){})",  "iswdigit({})",  "uc_is_digit({})",  "uc_is_digit({})", ],
+        "TISXDIGIT": ["isxdigit((unsigned char){})", "iswxdigit({})", "uc_is_xdigit({})", "uc_is_xdigit({})", ],
+        "TSTRCHR":   ["strchr({})",                  "wcschr({})",    "u16_strchr({})",   "u32_strchr({})", ],
+        "TSTRCMP":   ["strcmp({})",                  "wcscmp({})",    "u16_strcmp({})",   "u32_strcmp({})", ],
+        "TSTRLEN":   ["strlen({})",                  "wcslen({})",    "u16_strlen({})",   "u32_strlen({})", ],
+    },
+}
 # fmt: on
 
-j_FLOATS = [
+
+@dataclass
+class Float:
     # N - "name"
+    N: str
     # G - "group". s = "standard", "f" = floats, "d" = decimals
-    ["N", "G", "type", "math", "strto"],
-    ["f", "s", "float", "f", "f"],
-    ["d", "s", "double", "", "d"],
-    ["l", "s", "long double", "l", "ld"],
-    ["f16", "f", "_Float16", "f16", "f16"],
-    ["f32", "f", "_Float32", "f32", "f32"],
-    ["f64", "f", "_Float64", "f64", "f64"],
-    ["f128", "f", "_Float128", "f128", "f128"],
-    ["f32x", "fx", "_Float32x", "f32x", "f32x"],
-    ["f64x", "fx", "_Float64x", "f64x", "f64x"],
-    ["f128x", "fx", "_Float128x", "f128x", "f128x"],
-    ["d32", "d", "_Decimal32", "d32", "d32"],
-    ["d64", "d", "_Decimal64", "d64", "d64"],
-    ["d128", "d", "_Decimal128", "d128", "d128"],
-    ["d32x", "dx", "_Decimal32x", "d32x", "d32x"],
-    ["d64x", "dx", "_Decimal64x", "d64x", "d64x"],
-    ["d128x", "dx", "_Decimal128x", "d128x", "d128x"],
-]
+    G: str
+    type: str
+    math: str
+    strto: str
+
 
 j_FLOATS = [
-    # "invert" the table and replace N for 0, so it is j_FLOATS = [ {0:"f", "type": "float", etc..}, ... ]
-    {**dict([(0, x[0])]), **{v: k for v, k in zip(j_FLOATS[0], x) if v != "N"}}
-    for x in j_FLOATS[1:]
+    Float("f", "s", "float", "f", "f"),
+    Float("d", "s", "double", "", "d"),
+    Float("l", "s", "long double", "l", "ld"),
+    Float("f16", "f", "_Float16", "f16", "f16"),
+    Float("f32", "f", "_Float32", "f32", "f32"),
+    Float("f64", "f", "_Float64", "f64", "f64"),
+    Float("f128", "f", "_Float128", "f128", "f128"),
+    Float("f32x", "fx", "_Float32x", "f32x", "f32x"),
+    Float("f64x", "fx", "_Float64x", "f64x", "f64x"),
+    Float("f128x", "fx", "_Float128x", "f128x", "f128x"),
+    Float("d32", "d", "_Decimal32", "d32", "d32"),
+    Float("d64", "d", "_Decimal64", "d64", "d64"),
+    Float("d128", "d", "_Decimal128", "d128", "d128"),
+    Float("d32x", "dx", "_Decimal32x", "d32x", "d32x"),
+    Float("d64x", "dx", "_Decimal64x", "d64x", "d64x"),
+    Float("d128x", "dx", "_Decimal128x", "d128x", "d128x"),
 ]
 
 
@@ -79,7 +86,7 @@ def j_range(*args) -> range:
 
 
 def j_match(value, regex) -> bool:
-    return re.match(regex, str(value))
+    return bool(re.match(regex, str(value)))
 
 
 def j_fatal(value="fatal error"):
@@ -87,8 +94,6 @@ def j_fatal(value="fatal error"):
 
 
 def j_frametemplate():
-    import inspect
-
     template = None
     for frameInfo in inspect.stack():
         if frameInfo.frame.f_globals.get("__jinja_template__") is not None:
@@ -98,11 +103,12 @@ def j_frametemplate():
 
 
 def j_lineno():
-    import inspect
-
-    return j_frametemplate().get_corresponding_lineno(
-        inspect.currentframe().f_back.f_lineno
-    )
+    ft = j_frametemplate()
+    assert ft
+    curf = inspect.currentframe()
+    assert curf
+    assert curf.f_back
+    return ft.get_corresponding_lineno(curf.f_back.f_lineno)
 
 
 def test_integer(value) -> bool:
@@ -112,68 +118,41 @@ def test_integer(value) -> bool:
     return isinstance(value, int) and value is not True and value is not False
 
 
+IMPORTS_FROM_LIBRARY_JINJA = ",".join(
+    [
+        "j_seq",
+        "j_seqcomma",
+        "j_seqdashcomma",
+        "j_APPLY_IN",
+        "j_APPLY",
+        "j_FOREACHAPPLY",
+        "j_FUNC",
+        "j_yio_macros_funcs",
+        "j_yio_macros_args",
+        "j_yio_macros_funcs",
+        "j_STDFIX",
+    ]
+)
+
+PREFIX = "{% from 'library.jinja' import " + IMPORTS_FROM_LIBRARY_JINJA + " %}"
+
 ###############################################################################
 
-DEPENDENCIES = set()
 
-
-class MFSLoader(jinja2.FileSystemLoader):
-    """
-    A normal loader, just stores referenced tepmlates in dependencies
-    https://gist.github.com/Zoramite/f4c42620d7b564a26a398d8d25ecb419
-    """
-
-    def get_source(self, environment, template):
-        source, filename, uptodate = super(MFSLoader, self).get_source(
-            environment, template
-        )
-        global DEPENDENCIES
-        DEPENDENCIES.add(filename)
-        return source, filename, uptodate
-
-
-def shoulddoline(source):
-    global DEBUG
-    return (DEBUG and not re.match("NOLINE", source))
-
-
-class SuperPreprocess(jinja2.ext.Extension):
-    """
-    Custom plugin for preprocessing source files according to custom rules
-    basically signifiicantly extending jinja2
-    """
-
+class MyPreprocess(jinja2.ext.Extension):
     def preprocess(self, source, name, filename=None):
-        output = ""
-        # Add autoincludes
-        if name is not None and not name.endswith(".jinja"):
-            imports = [
-                "j_seq",
-                "j_seqcomma",
-                "j_seqdashcomma",
-                "j_APPLY_IN",
-                "j_APPLY",
-                "j_FOREACHAPPLY",
-                "j_FUNC",
-            ]
-            output += "{% from 'library.jinja' import " + ",".join(imports) + " %}"
-        doline = shoulddoline(source)
-        # Replace '#line' by the proper C directive.
+        output = PREFIX
         for lineno, line in enumerate(source.split("\n")):
-            if "#line" in line:
-                line = line.replace(
-                    "#line",
-                    ('#line {} "{}"'.format(lineno + 2, filename)) if doline else "",
-                )
-                output += line + "\n"
-            else:
-                output += line + "\n"
+            if line == "#line":
+                # Replace '#line' by the proper C directive.
+                line = '#line {lineno + 2} "{filename}"'
+            output += line + "\n"
         return output
 
 
 def postprocess(output, infilename, mode):
     global TDATA
-    LL.debug("mode=" + str(mode) + "\t" + infilename)
+    log.debug("mode=" + str(mode) + "\t" + infilename)
     tmpl = None
     if mode is not None and mode != "none":
         tmpl = TDATA[template_data["mode"].index(mode)]
@@ -191,24 +170,19 @@ def postprocess(output, infilename, mode):
             )
         # Replace YYIO_TYPE_Y*IO by 1
         output = re.sub("YYIO_TYPE_" + mode.upper(), "1", output)
-    if shoulddoline(output):
-        header = """ \
-// Do not edit this file! This file was auto-generated by preprocess.py at %s
+    header = f"""\
+// Do not edit this file! This file was auto-generated by preprocess.py at {datetime.datetime.now()}
 // To change this file, edit the source.
-// mode = %s
-#line 1 "%s"
-""" % (
-            datetime.datetime.now(),
-            mode,
-            infilename,
-        )
-        output = header + output
+// mode = {mode}
+#line 1 "{infilename}"
+"""
+    output = header + output
     return output
 
 
 def save_if_changed(output, outfilename, msg):
     """Output output to outfilename only if changed. Print msg for logs"""
-    global LL
+    global log
     if os.path.exists(outfilename):
         if open(outfilename, "r").read() == output:
             # LL.debug("NOCHANGE: " + msg)
@@ -218,7 +192,7 @@ def save_if_changed(output, outfilename, msg):
         os.makedirs(os.path.dirname(os.path.realpath(outfilename)), exist_ok=True)
     with open(outfilename, "w") as outfile:
         os.chmod(outfilename, 0o444)
-        LL.debug("GENERATED: " + msg)
+        log.debug("GENERATED: " + msg)
         outfile.write(output)
 
 
@@ -226,8 +200,10 @@ def invert_template_data():
     """Invert template_data"""
     global TDATA, template_data
     # Add /*TMODE*/ and /*TMODEX*/ to template_data
-    for k in ['TMODE', 'TMODEX']:
-        template_data['names'][k] = [str(i) + '/*'+k+'*/' for i in template_data['names'][k]]
+    for k in ["TMODE", "TMODEX"]:
+        template_data["names"][k] = [
+            str(i) + "/*" + k + "*/" for i in template_data["names"][k]
+        ]
     TDATA = []
     for i in range(4):
         tmp = {}
@@ -241,21 +217,7 @@ def invert_template_data():
         TDATA += [tmp]
 
 
-def find_dependencies():
-    """Find all files with .jinja suffix and add them as dependencies"""
-    global DEPENDENCIES
-    DEPENDENCIES = [__file__]
-    for (dirpath, _, filenames) in os.walk(SRCDIR):
-        for ff in filenames:
-            if ff.endswith(".jinja"):
-                DEPENDENCIES += [os.path.join(dirpath, ff)]
-
-
 def parse_arguments():
-    global LL, DIR, SRCDIR, DEBUG
-    # Some globals assignment
-    DIR = os.path.dirname(__file__)
-
     # Parse arguments
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-S", "--srcdir", default=[DIR], action="append")
@@ -270,12 +232,11 @@ def parse_arguments():
     parser.add_argument("source")
     parser.add_argument("output")
     args = parser.parse_args()
-
-    # Some globals assgnment
-    LL.setLevel("DEBUG" if args.verbose else "INFO")
+    logging.basicConfig(
+        format="%(funcName)s:%(lineno)s:\t%(message)s",
+        level=logging.DEBUG if args.verbose else logging.INFO,
+    )
     SRCDIR = args.srcdir
-    DEBUG = args.debug
-
     return args
 
 
@@ -284,9 +245,9 @@ def prepare_environment(args):
     if args.cachedir is not None:
         os.makedirs(args.cachedir, exist_ok=True)
     env = jinja2.Environment(
-        loader=(jinja2.FileSystemLoader if args.depfile is None else MFSLoader)(SRCDIR),
+        loader=jinja2.FileSystemLoader(SRCDIR),
         extensions=[
-            SuperPreprocess,
+            MyPreprocess,
         ],
         trim_blocks=True,
         lstrip_blocks=True,
@@ -315,23 +276,6 @@ def prepare_environment(args):
     return env
 
 
-def depfile_path(path):
-    return os.path.realpath(path).replace(" ", "\\ ")
-
-
-def generate_depfile(depfile, env, infilename, outfilename):
-    if depfile is None:
-        return
-    LL.debug("Writing depfile " + depfile)
-    os.makedirs(os.path.dirname(depfile), exist_ok=True)
-    print(
-        depfile_path(outfilename)
-        + ":"
-        + "".join([" " + depfile_path(dd) for dd in DEPENDENCIES]),
-        file=open(depfile, "w"),
-    )
-
-
 if __name__ == "__main__":
     args = parse_arguments()
     invert_template_data()
@@ -343,4 +287,3 @@ if __name__ == "__main__":
     output = postprocess(output, infilename, mode)
     outfilename = args.output
     save_if_changed(output, outfilename, infilename + "\t->\t" + outfilename)
-    generate_depfile(args.depfile, env, infilename, outfilename)

@@ -671,36 +671,23 @@ bool is_print_ascii(TCHAR tcc) {
 	return ascii_min_printable <= cc && cc <= ascii_max_printable;
 }
 
-union out_or_counting_u {
+struct ss_s {
 	TCHAR *newstr;
 	size_t cnt;
 };
 
-struct ss_s {
-	union out_or_counting_u uu;
-	bool counting;
-};
-
 static inline
 struct ss_s ss_init(TCHAR *newstr) {
-	struct ss_s rr;
-	if (newstr != NULL) {
-		rr.counting = false;
-		rr.uu.newstr = newstr;
-	} else {
-		rr.counting = true;
-		rr.uu.cnt = 0;
-	}
+	struct ss_s rr = {newstr};
 	return rr;
 }
 
 static inline
 void ss_out(struct ss_s *t, TCHAR cc) {
-	if (t->counting) {
-		t->uu.cnt++;
+	if (t->newstr) {
+		*t->newstr++ = cc;
 	} else {
-		if (t->uu.newstr == NULL) __builtin_unreachable();
-		*t->uu.newstr++ = cc;
+		t->cnt++;
 	}
 }
 
@@ -830,7 +817,7 @@ struct ss_s ascii_encode_do(const TCHAR str[restrict], size_t str_len, TCHAR *re
 
 static inline
 size_t ascii_encode_get_length(const TCHAR str[restrict], size_t str_len) {
-	return ascii_encode_do(str, str_len, NULL, 0).uu.cnt;
+	return ascii_encode_do(str, str_len, NULL, 0).cnt;
 }
 
 static inline

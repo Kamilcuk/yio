@@ -1,7 +1,9 @@
 include_guard()
 
+find_package(Git REQUIRED)
+
 execute_process(
-	COMMAND git describe --tags --match "v[0-9]*"
+  COMMAND ${GIT_EXECUTABLE} describe --tags --match "v[0-9]*"
 	RESULT_VARIABLE _result
 	OUTPUT_VARIABLE _output
 	ERROR_VARIABLE _error

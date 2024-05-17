@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.11)
 cmake_policy(SET CMP0054 NEW) #-- fixes IF() with quoted args
 cmake_policy(SET CMP0057 NEW) #-- enables IF(.. IN_LIST ..)
 cmake_policy(SET CMP0075 NEW) #-- uses CMAKE_REQUIRED_LIBRARIES
+if(POLICY CMP0116)
+  cmake_policy(SET CMP0116 NEW) #-- DEPFILE is relative
+endif()
 
 include(./kcmakelib/cmake/kcmakelib.cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -219,9 +222,6 @@ endfunction()
 ###############################################################################
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
-if(POLICY CMP0116)
-	cmake_policy(SET CMP0116 NEW)
-endif()
 set(JINJASCRIPT ${CMAKE_CURRENT_BINARY_DIR}/jinja2script.pyc)
 set(JINJAPROJECTSRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 

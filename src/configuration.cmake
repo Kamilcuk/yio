@@ -4,7 +4,7 @@ The count of levels variadic macros expand to.  This specifies the maximum
 number of arguments that can be passed to yprintf functions.
 A bigger number will generate longer and bigger include files.
 ]=])
-set(YIO_MLVLS 62 CACHE STRING "${YIO_MLVLS_COMMENT}")
+set(YIO_MLVLS 32 CACHE STRING "${YIO_MLVLS_COMMENT}")
 
 set(YIO_SLOTS_COMMENT [=[
 The upper count of slots available for custom overloads.
@@ -14,7 +14,7 @@ This number should be greater then 100 and is the ending number at which
 the supported slots end. A bigger number is actually fine, it's not that
 much to process.
 ]=])
-set(YIO_SLOTS 10 CACHE STRING "${YIO_SLOTS_COMMENT}")
+set(YIO_SLOTS 100 CACHE STRING "${YIO_SLOTS_COMMENT}")
 if(YIO_SLOTS LESS 0)
 	message(FATAL_ERROR "YIO_SLOTS less then 0, needs to be positive")
 endif()
