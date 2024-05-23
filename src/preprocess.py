@@ -7,7 +7,16 @@ import inspect
 import logging
 import os
 import re
+<<<<<<< Updated upstream
 from dataclasses import dataclass
+||||||| Stash base
+=======
+from typing import Set
+
+import jinja2
+import jinja2.ext
+import jinja2.meta
+>>>>>>> Stashed changes
 
 import jinja2.ext
 
@@ -103,12 +112,28 @@ def j_frametemplate():
 
 
 def j_lineno():
+<<<<<<< Updated upstream
     ft = j_frametemplate()
     assert ft
     curf = inspect.currentframe()
     assert curf
     assert curf.f_back
     return ft.get_corresponding_lineno(curf.f_back.f_lineno)
+||||||| Stash base
+    import inspect
+
+    return j_frametemplate().get_corresponding_lineno(
+        inspect.currentframe().f_back.f_lineno
+    )
+=======
+    ft = j_frametemplate()
+    assert ft
+    cf = inspect.currentframe()
+    assert cf
+    cfback = cf.f_back
+    assert cfback
+    return ft.get_corresponding_lineno(cfback.f_lineno)
+>>>>>>> Stashed changes
 
 
 def test_integer(value) -> bool:
@@ -138,6 +163,66 @@ PREFIX = "{% from 'library.jinja' import " + IMPORTS_FROM_LIBRARY_JINJA + " %}"
 
 ###############################################################################
 
+<<<<<<< Updated upstream
+||||||| Stash base
+DEPENDENCIES = set()
+
+
+class MFSLoader(jinja2.FileSystemLoader):
+    """
+    A normal loader, just stores referenced tepmlates in dependencies
+    https://gist.github.com/Zoramite/f4c42620d7b564a26a398d8d25ecb419
+    """
+
+    def get_source(self, environment, template):
+        source, filename, uptodate = super(MFSLoader, self).get_source(
+            environment, template
+        )
+        global DEPENDENCIES
+        DEPENDENCIES.add(filename)
+        return source, filename, uptodate
+
+
+def shoulddoline(source):
+    global DEBUG
+    return (DEBUG and not re.match("NOLINE", source))
+
+
+class SuperPreprocess(jinja2.ext.Extension):
+    """
+    Custom plugin for preprocessing source files according to custom rules
+    basically signifiicantly extending jinja2
+    """
+=======
+DEPENDENCIES: Set[str] = set()
+
+
+class MFSLoader(jinja2.FileSystemLoader):
+    """
+    A normal loader, just stores referenced tepmlates in dependencies
+    https://gist.github.com/Zoramite/f4c42620d7b564a26a398d8d25ecb419
+    """
+
+    def get_source(self, environment, template):
+        source, filename, uptodate = super(MFSLoader, self).get_source(
+            environment, template
+        )
+        global DEPENDENCIES
+        DEPENDENCIES.add(filename)
+        return source, filename, uptodate
+
+
+def shoulddoline(source):
+    global DEBUG
+    return DEBUG and not re.match("NOLINE", source)
+
+
+class SuperPreprocess(jinja2.ext.Extension):
+    """
+    Custom plugin for preprocessing source files according to custom rules
+    basically signifiicantly extending jinja2
+    """
+>>>>>>> Stashed changes
 
 class MyPreprocess(jinja2.ext.Extension):
     def preprocess(self, source, name, filename=None):
@@ -217,6 +302,30 @@ def invert_template_data():
         TDATA += [tmp]
 
 
+<<<<<<< Updated upstream
+||||||| Stash base
+def find_dependencies():
+    """Find all files with .jinja suffix and add them as dependencies"""
+    global DEPENDENCIES
+    DEPENDENCIES = [__file__]
+    for (dirpath, _, filenames) in os.walk(SRCDIR):
+        for ff in filenames:
+            if ff.endswith(".jinja"):
+                DEPENDENCIES += [os.path.join(dirpath, ff)]
+
+
+=======
+def find_dependencies():
+    """Find all files with .jinja suffix and add them as dependencies"""
+    global DEPENDENCIES
+    DEPENDENCIES = [__file__]
+    for dirpath, _, filenames in os.walk(SRCDIR):
+        for ff in filenames:
+            if ff.endswith(".jinja"):
+                DEPENDENCIES += [os.path.join(dirpath, ff)]
+
+
+>>>>>>> Stashed changes
 def parse_arguments():
     # Parse arguments
     parser = argparse.ArgumentParser(description="")
@@ -286,4 +395,5 @@ if __name__ == "__main__":
     output = ttemplate.render()
     output = postprocess(output, infilename, mode)
     outfilename = args.output
+    assert infilename
     save_if_changed(output, outfilename, infilename + "\t->\t" + outfilename)
