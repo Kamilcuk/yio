@@ -1,6 +1,6 @@
 m4_divert(-1)
 dnl {{{ start
-dnl vim: filetype=m4 foldmethod=marker comments=s1\:/*,mb\:*,ex\:*/,\://,b\:#,\:%,\:XCOMM,n\:>,fb\:-,fb\:•,\:#,\:dnl,\:m4_dnl cindent tabstop=2 noexpandtab softtabstop=0 shiftwidth=2
+dnl vim: filetype=m4 foldmethod=marker comments=s1\:/*,mb\:*,ex\:*/,\://,b\:#,\:%,\:XCOMM,n\:>,fb\:-,fb\:•,\:#,\:dnl,\:m4_dnl cindent tabstop=2 noexpandtab softtabstop=0 shiftwidth=2 list
 /// @file
 
 m4_changequote(,)
@@ -101,6 +101,14 @@ m4_test(«m4_patsubst(«a», «a», «\&b»)», «ab»)
 
 dnl }}}
 dnl {{{ basic utilities
+
+m4_define(«m4_shift2», «m4_shift(m4_shift($@))»)
+
+m4_define(«m4_shift3», «m4_shift(m4_shift(m4_shift($@)))»)
+
+m4_define(«m4_shift4», «m4_shift(m4_shift(m4_shift(m4_shift($@))))»)
+
+m4_define(«m4_shift5», «m4_shift(m4_shift(m4_shift(m4_shift(m4_shift($@)))))»)
 
 m4_define(«m4_argn»,
 	«m4_ifelse(
@@ -284,11 +292,28 @@ m4_define(«m4_args_esc», «$@»)
 dnl }}}
 dnl {{{ m4_tuple
 
+m4_define_function(«m4_tuple_call(func, tuple)», «m4_cat(«$1», m4_rstrip(«$2»))»)
+
 m4_define_function(«m4_tuple_first(tuple)», «m4_args_first$1»)
-m4_define_function(«m4_tuple_shift(tuple)», «(m4_cat(«m4_shift», m4_rstrip(«$1»)))»)
-m4_define_function(«m4_tuple_len(tuple)», «m4_cat(«m4_args_len», m4_rstrip(«$1»))»)
-m4_define_function(«m4_tuple_isempty(tuple)», «m4_ifelse(m4_rstrip(«$2»), «()», «1», «0»)»)
-m4_define_function(«m4_tuple_push_back(tuple, elem)», «m4_cat(« m4_rstrip(«$1»)
+
+m4_define_function(«m4_tuple_shift(tuple)», «(m4_tuple_call(«m4_shift», «$1»))»)
+
+m4_define_function(«m4_tuple_len(tuple)», «m4_tuple_call(«m4_args_len», «$1»)»)
+
+m4_define_function(«m4_tuple_isempty(tuple)», «m4_ifelse(m4_rstrip(«$1»), «()», «1», «0»)»)
+m4_test(«m4_tuple_isempty(())», 1)
+m4_test(«m4_tuple_isempty((1,2))», 0)
+
+m4_define_function(«m4_tuple_push_back(tuple, elem)»,
+		«(m4_callif(
+				m4_strip(«$1»), «», «$2»,
+				m4_strip(«$1»), «()», «$2»,
+				«m4_tuple_call(«m4_args_esc», «$1»),m4_shift($@)»,
+		))»)
+m4_test(«m4_tuple_push_back(,1)», «(1)»)
+m4_test(«m4_tuple_push_back((),1)», «(1)»)
+m4_test(«m4_tuple_push_back((1),2)», «(1,2)»)
+m4_test(«m4_tuple_push_back((1,2,3),4)», «(1,2,3,4)»)
 
 m4_define_function(«m4_tuple_join(tuple1, tuple2)»,
 		«(m4_do(
@@ -301,21 +326,62 @@ m4_define_function(«m4_tuple_join(tuple1, tuple2)»,
 				))»)
 m4_test(«m4_tuple_join( (a,b,c), (1,2,3) )», «(a,b,c,1,2,3)»)
 
-m4_define(«m4_tuples_merge», «_m4_tuples_merge((), $@, «»)»)
-m4_define(«_m4_tuples_merge»,
+#define m4_tuples_merge(tuple1, tuple2)
+m4_define(«m4_tuples_merge», «(_m4_tuples_merge((), (), $@, «»))»)
+m4_define_function(
+	«_m4_tuples_merge(result, tmptuple, tuple1, tuple2, empty)»,
+	«m4_callif(
+		«$3», «», «$2»,
+		m4_tuple_isempty(«$3»), «1», «»,
+		«$0(
+			«m4_tuple_push_back(
+				«$1»,
+				«m4_tuple_join($2, m4_tuple_first($3)), m4_shift2($@))»,
+			«m4_callif(
+				m4_tuple_len(«$2»), 0, «»,
+				m4_tuple_len(«$2»), 1, «»,
+				«$0($1, m4_tuple_shift($2), m4_shift2($@))»,
+			)»,
+		)»,
+	)»)
+m4_define_function(«_m4_tuples_merge2(result, tuple1, tuple2, empty)»,
 	«m4_callif(
 		«$2», «», «$1»,
 		m4_tuple_isempty(«$2»), «1», «»,
 		«m4_do(
-			«$0(m4_tuple_join($1, m4_tuple_first($2)), m4_shift(m4_shift($@)))»,
+			«$0(m4_tuple_join($1, m4_tuple_first($2)), m4_shift2($@))»,
 			«m4_callif(
-				m4_tuple_len(«$2»), 0, «»,
-				m4_tuple_len(«$2»), 1, «»,
-				«$0($1, m4_tuple_shift($2), m4_shift(m4_shift($@)))»,
+				m4_tuple_len(«$2»), 0, «»,
+				m4_tuple_len(«$2»), 1, «»,
+				«$0($1, m4_tuple_shift($2), m4_shift2($@))»,
 			)»,
 		)»,
 	)»)
+m4_test(
+		«m4_tuples_merge( ((1,2),(a,b)), ((3,4),(d,c)))»,
+		«((1,2,3,4),(1,2,d,c),(a,b,3,4),(a,b,c,d))»)
 
+#define m4_tuple_has(tuple, elem)
+m4_define_function(«m4_tuple_has(tuple, elem)»,
+	«m4_ifelse(
+		«$1», «», «0»,
+		«$1», «()», «0»,
+		m4_tuple_first(«$1»), «$2», «1»,
+		«$0(m4_tuple_shift(«$1»), $2)»)»)
+m4_test(«m4_tuple_has((1,2,3,4), 5)», «0»)
+m4_test(«m4_tuple_has((1,2,3,4), 2)», «1»)
+
+#define m4_tuple_map(«tuple», «func»)
+m4_define(«m4_tuple_map», «_$0(«()», «$1», «$2»)»)
+m4_define(«_m4_tuple_map»,
+		«m4_callif(
+			«$2», «», «$1»,
+			«$2», «()», «$1»,
+			«$0(m4_tuple_push_back(«$1», $3(m4_tuple_first(«$2»))), m4_tuple_shift(«$2»), «$3»)»,
+		)»)
+m4_test(
+		«m4_define(«func», «m4_eval($1 * 2)»)m4_tuple_map(«(1, 2, 3)», «func»)»,
+		«(2,4,6)»)
 
 dnl }}}
 dnl {{{ forloop
@@ -403,7 +469,7 @@ m4_define_function(«m4_forloopdashY», «m4_forloopdash(«Y», «$1», «$2», 
  * the iterator in substitution string separating substitutiong
  * by the separator.
  */
-#define m4_forloop(i, 1, 1)
+#define m4_forloop(name, start, stop, subst, separator)
 m4_define_function(«m4_forloop»,
 	«m4_ifelse(
 		m4_eval(«($2) <= ($3)»),
@@ -426,17 +492,15 @@ m4_define_function(«m4_forloop»,
 				«$5»,
 				«m4_decr»)m4_popdef(«$1»)»,
 			«»)»)»)
-
-/**
- * @ingroup m4
- * Internal function
- */
 m4_define_function(«_m4_forloop»,
 	«$3«$1»$4«»m4_ifelse(
 		«$1»,
 		«$2»,
 		«»,
 		«$5$0($6(«$1»),«$2»,«$3»,«$4»,«$5»,«$6»)»)»)
+m4_test(«m4_forloop(«i», 1, 3, «i», «,»)», «1,2,3»)
+m4_test(«m4_forloop(«i», 1, 3, «a i»)», «a 1a 2a 3»)
+m4_test(«m4_forloop(«i», 1, 3, «i«»1», «|»)», «11|21|31»)
 
 /**
  * @ingroup m4
@@ -724,12 +788,14 @@ dnl }}}
 dnl {{{ include
 
 #define m4_include_relative »
-m4_define_function(«m4_include_relative»,
-«m4_include(m4_patsubst(m4___file__, «/«^/»*$»)/$1)»)
+m4_define_function(«m4_include_relative», «m4_include(m4_patsubst(m4___file__, «/«^/»*$»)/$1)»)
 
 #define m4_include_relative_quiet »
-m4_define_function(«m4_include_relative_quiet»,
-«m4_divert(-1)m4_include_relative(«$@»)m4_divert(0)»)
+m4_define_function(«m4_include_relative_quiet», «m4_divert(-1)m4_include_relative(«$@»)m4_divert(0)»)
+
+m4_define_function(«m4_included», «()»)
+m4_define_function(«m4_include_once»,
+	«m4_tuple_add(«m4_included», (m4_included, m4___file__, m4___line__))»)
 
 dnl }}}
 dnl {{{ seq
@@ -750,7 +816,7 @@ m4_define_function(«m4_seqcomma»,
 		«$1»,
 		«$2»,
 		«m4_ifelse(«$4», «», «m4_ifelse(«$3», «», «_m4_sEqCoMmA_vArIaBlE», «$3»)», «$4»)»,
-		«m4_ifelse(«$5», «», «,», «$5»)»)»)m4_dnl;
+		«m4_ifelse(«$5», «», «,», «$5»)»)»)
 m4_test(«m4_seqcomma(1, 5)», «1,2,3,4,5»)
 
 «/**
@@ -842,6 +908,3 @@ m4_define(«m4_sdivert», «m4_divert(m4_ifelse($#, 0, 0, $@))m4_S(,1)m4_dnl»)
 
 dnl }}}
 m4_divert(0)m4_dnl
-m4_traceon(«_m4_tuples_merage»)
-m4_tuple_len((a,b,c))
-m4_tuples_merge( ((a,b,c)), ((d,e,f),(4,5,6),()) )
