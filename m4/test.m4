@@ -89,6 +89,7 @@ m4_define(«m4_assert_regex»,
 		«-1»,
 	)»)
 
+#define m4_test(expr, rgx)
 m4_ifdef(
 	«m4_TEST»,
 	«m4_define(«m4_test», «m4_assert($@)»)»,
@@ -283,6 +284,12 @@ m4_define(«m4_args_esc», «$@»)
 dnl }}}
 dnl {{{ m4_tuple
 
+m4_define_function(«m4_tuple_first(tuple)», «m4_args_first$1»)
+m4_define_function(«m4_tuple_shift(tuple)», «(m4_cat(«m4_shift», m4_rstrip(«$1»)))»)
+m4_define_function(«m4_tuple_len(tuple)», «m4_cat(«m4_args_len», m4_rstrip(«$1»))»)
+m4_define_function(«m4_tuple_isempty(tuple)», «m4_ifelse(m4_rstrip(«$2»), «()», «1», «0»)»)
+m4_define_function(«m4_tuple_push_back(tuple, elem)», «m4_cat(« m4_rstrip(«$1»)
+
 m4_define_function(«m4_tuple_join(tuple1, tuple2)»,
 		«(m4_do(
 				«m4_cat(«m4_args_esc», m4_strip(«$1»))»,
@@ -294,10 +301,6 @@ m4_define_function(«m4_tuple_join(tuple1, tuple2)»,
 				))»)
 m4_test(«m4_tuple_join( (a,b,c), (1,2,3) )», «(a,b,c,1,2,3)»)
 
-m4_define_function(«m4_tuple_first(tuple)», «m4_args_first$1»)
-m4_define_function(«m4_tuple_shift(tuple)», «(m4_cat(«m4_shift», m4_rstrip(«$1»)))»)
-m4_define_function(«m4_tuple_len(tuple)», «m4_cat(«m4_args_len», m4_rstrip(«$1»))»)
-m4_define_function(«m4_tuple_isempty(tuple)», «m4_ifelse(m4_rstrip(«$2»), «()», «1», «0»)»)
 m4_define(«m4_tuples_merge», «_m4_tuples_merge((), $@, «»)»)
 m4_define(«_m4_tuples_merge»,
 	«m4_callif(
@@ -313,238 +316,6 @@ m4_define(«_m4_tuples_merge»,
 		)»,
 	)»)
 
-
-dnl }}}
-dnl {{{ m4 foreach
-
-/**
- * m4_foreach(x, (item_1, item_2, ..., item_n), stmt)
- *
- * https://www.gnu.org/software/m4/manual/m4-1.4.14/html_node/Foreach.html
- */
-#define m4_foreach(iterator, braces_item_list, statement)
-m4_define(«m4_foreach», «m4_pushdef(«$1»)_m4_foreach($@)m4_popdef(«$1»)»)
-m4_define(«_m4_foreach_arg1», «$1»)
-m4_define(«_m4_foreach», «m4_ifelse(«$2», «()», «»,
-  «m4_define_name(«$1», _m4_foreach_arg1$2)$3«»$0(«$1», (m4_shift$2), «$3»)»)»)
-
-«/**
- * @ingroup m4
- * @param macro A macro name to apply arguments to
- * @param argslist A list og macro arguments in the form of
- * «((arg1, arg2, ...), (args1, arg2, ...), ...)».
- * Remember to qoute it!!
- * @param separator An optional separator to separate elements.
- *
- * Apply macro on arguments in brackets.
- * The list of arguments is shifted and is applied on each argument.
- * Example:
- *     m4_define(«m4_func», «>1=$1 2=$2 3=$3<») m4_applyforeach(«m4_func», «((«a», «b», «c»), («d», «e», «f»), («g», «h», «i»))», « % »)
- * would output:
- *    >1=a 2=b 3=c< % >1=d 2=e 3=f< % >1=g 2=h 3=i<
- */
-#define m4_applyforeach(macro, args, separator) »
-m4_define(«_m4_applyforeach_arg1», «$1»)
-m4_define(«_m4_applyforeach_cat», «$1$2»)
-m4_define(«_m4_applyforeach_separator», «m4_ifelse(«$2», «()», «», «$1»)»)
-m4_define(«m4_applyforeach», «m4_ifelse(«$2», «()», «»,
-    «_m4_applyforeach_cat(
-    	«$1»,
-    	_m4_applyforeach_arg1$2)_m4_applyforeach_separator(
-    		«$3»,
-    		(m4_shift$2))m4_applyforeach(
-    			«$1»,
-    			(m4_shift$2),
-    			«$3»)»)»)
-m4_test(
-		«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeach(«m4_func», «((«a», «b», «c»), («d», «e», «f»), («g», «h», «i»))», « % »)»,
-		«>1=a 2=b 3=c< % >1=d 2=e 3=f< % >1=g 2=h 3=i<»)
-m4_test(
-		«m4_define(«m4_func», «@$1<»)m4_applyforeach(«m4_func», «((bar), (foo))», «:»)»,
-		«@bar<:@foo<»)
-m4_test(
-		«m4_define(«m4_func», «@$1<»)m4_applyforeach(«m4_func», «((bar), (foo),)», «:»)»,
-		«@bar<:@foo<»)
-
-/**
- * @ingroup m4
- *
- * Example:
- *
- *     m4_applyforeachdefine(«((1, 2), (3, 4))», «one=$1 two=$2 »)
- */
-#define m4_applyforeachdefine(bracket_list, function_body, separator)
-
-m4_define(«m4_applyforeachdefine»,
-		«m4_pushdef(
-			«_$0_function»,
-			«$2»)m4_applyforeach(
-				«_$0_function»,
-				«$1»,
-				«$3»)m4_popdef(
-					«_$0_function»)»)
-
-m4_test(
-		«m4_applyforeachdefine(«((1, 2), (3, 4))», «one=$1 two=$2», «,»)»,
-		«one=1 two=2,one=3 two=4»)
-m4_test(
-		«m4_applyforeachdefine(«((1, 2), (3, 4),)», «one=$1 two=$2», «,»)»,
-		«one=1 two=2,one=3 two=4»)
-
-/**
- * @ingroup m4
- *
- * Example:
- *
- *     m4_applyforeachqdefine(«««1», «2»», ««3», «4»»», «one=$1 two=$2 »)
- */
-#define m4_applyforeachqdefine(qouted_list, function_body, separator)
-
-m4_define(«m4_applyforeachqdefine», «m4_pushdef(
-	«_$0_function»,
-	«$2»)m4_applyforeachq(
-		«_$0_function»,
-		«$1»,
-		«$3»)m4_popdef(
-			«_$0_function»)»)
-
-m4_test(«m4_applyforeachqdefine(«««1», «2»», ««3», «4»»», «one=$1 two=$2», «,»)»)
-// PASS_REGULAR_EXPRESSION one=1 two=2,one=3 two=4
-m4_test(«m4_applyforeachqdefine(«a, b», «>>$1<<»)»)
-// PASS_REGULAR_EXPRESSION >>a<<>>b<<
-
-«/**
- * @ingroup m4
- *
- * Apply macro on quoted list
- * Example:
- *    m4_define(«m4_func», «>1=$1 2=$2 3=$3<
- *    »)
- *    m4_applyforeachq(«m4_func», «««a», «b», «c»», ««d», «e», «f»», ««g», «h», «i»»»)
- * would result in:
- *    >1=a 2=b 3=c<
- *    >1=d 2=e 3=f<
- *    >1=g 2=h 3=i<
- */
-#define m4_applyforeachq(function, qouted_list, separator) »
-
-m4_define(«_m4_applyforeachq_arg1», «$1»)
-m4_define(«_m4_applyforeachq_cat», «_m4_applyforeachq_arg1($@)(m4_shift($@))»)
-m4_define(«_m4_applyforeachq_quote», «m4_ifelse(«$#», «0», «», ««$*»»)»)
-m4_define(«_m4_applyforeachq_separator», «m4_ifelse(m4_eval(«$# > 2»), «1», «$1», «»)»)
-m4_define(«m4_applyforeachq», «m4_ifelse(
-		_$0_quote($2),
-		«»,
-		«»,
-		«_$0_cat(
-				«$1»,
-				_$0_arg1($2))_$0_separator(
-						«$3»,
-						$2)«»$0(
-								«$1»,
-								«m4_shift($2)»,
-								«$3»)»)»)
-
-m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeachq(«m4_func», «
-		a,
-		d,
-		g»)»)
-// PASS_REGULAR_EXPRESSION >1=a 2= 3=<>1=d 2= 3=<>1=g 2= 3=<
-m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeachq(«m4_func», «
-		z,
-		x,
-		y», « % »)»)
-// PASS_REGULAR_EXPRESSION >1=z 2= 3=< % >1=x 2= 3=< % >1=y 2= 3=<
-m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeachq(«m4_func», ««1», «2», «3»», « % »)»)
-// PASS_REGULAR_EXPRESSION >1=1 2= 3=< % >1=2 2= 3=< % >1=3 2= 3=<
-m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_dnl
-m4_applyforeachq(«m4_func», «««a», «b», «c»», ««d», «e», «f»», ««g», «h», «i»»», « % »)»)
-// PASS_REGULAR_EXPRESSION >1=a 2=b 3=c< % >1=d 2=e 3=f< % >1=g 2=h 3=i<
-
-«/**
- * @def m4_applyforloopdefine(start_range, end_range, function_body, separator)
- * @ingroup m4
- * @param start_range A number to start counting from, inclusive.
- * @param end_range A number to end counting on, inclusive.
- * @param function_body The body of a function to call. $1 will be substituted for the number
- * @param separator An optional separator to call.
- *
- * Defines a temporary function with the function body passed
- * as a paremeter. Generates numbers from start_range to end_range
- * and passes the numbe as the first (and only) argument of the
- * defined function. Optionally non-empty separator can be used
- * to separate elements.
- */
-#define m4_applyforloopdefine(start_range, end_range, function_body, separator) »
-
-m4_define(«m4_applyforloopdefine», «m4_pushdef(
-	«_$0_function»,
-	«$3»)m4_forloop(
-		«_$0_iterator»,
-		«$1»,
-		«$2»,
-		«_$0_function(_$0_iterator)»,
-		«$4»)m4_popdef(
-			«_$0_function»)»)
-
-m4_test(«m4_applyforloopdefine(1, 3, «arg=$1», « S »)»)
-// PASS_REGULAR_EXPRESSION arg=1 S arg=2 S arg=3
-m4_test(«m4_applyforloopdefine(1, 3, «ARG=$1 »)»)
-// PASS_REGULAR_EXPRESSION ARG=1 ARG=2 ARG=3« »*
-// Recursive calls have to be defined beforehand
-m4_test(«m4_define(«m4_func», «cnt=$1»)m4_applyforloopdefine(1, 3, «m4_applyforloop(1, $1, «m4_func», «,»)», « S »)»)
-// PASS_REGULAR_EXPRESSION cnt=1 S cnt=1,cnt=2 S cnt=1,cnt=2,cnt=3
-
-
-
-«/**
- * @ingroup m4
- */
-#define m4_applyforloop(...) »
-m4_define(«m4_applyforloop», «m4_forloop(
-	«_m4_applyforloop_iterator»,
-	«$1»,
-	«$2»,
-	«$3(_m4_applyforloop_iterator)»,
-	«$4»)»)
-
-m4_test(«m4_define(«m4_func», «m4_forloop(«J», 1, $1, «@$1, J%»)»)m4_applyforloop(1, 4, «m4_func»)»)
-// PASS_REGULAR_EXPRESSION @1, 1%@2, 1%@2, 2%@3, 1%@3, 2%@3, 3%@4, 1%@4, 2%@4, 3%@4, 4%
-
-dnl }}}
-dnl {{{ subprocess
-
-m4_define(«m4_shsplit_sh»,
-	«m4_patsubst(
-		m4_esyscmd(«printf "%s" »m4_shquote($1)« | xargs printf "«««%s»»,»"»),
-		«,$»)»)
-
-m4_define_function(«m4_erun», «m4_esyscmd(m4_shquote($@))»)
-
-m4_define_function(«m4_run», «m4_syscmd(m4_shquote($@))»)
-
-m4_define_function(«m4_redir», «m4_syscmd(m4_shquote(m4_shift($@)) « >> » m4_shquote(«$1»))»)
-
-/**
- * @brief Quote the argument according to the shell.
- */
-#define m4_shqoute(...)
-m4_define(«m4_shquote», «m4_applyforeachq(«_m4_shquote», «$@», « »)»)
-m4_define(«_m4_shquote», «'m4_patsubst(«$1», «'», «'\\''»)'»)
-
-dnl }}}
-dnl {{{ path
-
-/**
- * @ingroup m4
- * @return The filename from __file__
- */
-#define m4_filename(...)
-m4_define(«m4_filename», «m4_patsubst(m4___file__, «^.*\(/\|\\\)»)»)
-
-m4_define_function(«m4_write», «m4_redir(«$1», «printf», «%s», «$2»)»)
-
-m4_define_function(«m4_read», «m4_erun(«cat», «$1»)»)
 
 dnl }}}
 dnl {{{ forloop
@@ -608,10 +379,8 @@ m4_define(«_m4_forloopdash»,
 #define m4_forloopdashX(begin_range, end_range, template_with_X, separator) »
 m4_define_function(«m4_forloopdashX», «m4_forloopdash(«X», «$1», «$2», «$3», «$4»)»)m4_dnl;
 
-m4_test(«m4_forloopdashX(1, 5, ««hello»X», «, »)»)
-// PASS_REGULAR_EXPRESSION hello_1, hello_2, hello_3, hello_4, hello_5
-m4_test(«m4_forloopdashX(1, 5, ««hello»X»)»)
-// PASS_REGULAR_EXPRESSION hello_1hello_2hello_3hello_4hello_5
+m4_test(«m4_forloopdashX(1, 5, ««hello»X», «, »)», «hello_1, hello_2, hello_3, hello_4, hello_5»)
+m4_test(«m4_forloopdashX(1, 5, ««hello»X»)», «hello_1hello_2hello_3hello_4hello_5»)
 
 «/**
  * @ingroup m4
@@ -702,13 +471,253 @@ m4_define_function(«m4_forloopI»,«m4_forloop(«I»,«$1»,«$2»,«$3»,«$4�
 m4_define_function(«m4_forloopY»,«m4_forloop(«Y»,«$1»,«$2»,«$3»,«$4»)»)
 
 dnl }}}
+dnl {{{ m4 foreach
+
+/**
+ * m4_foreach(x, (item_1, item_2, ..., item_n), stmt)
+ *
+ * https://www.gnu.org/software/m4/manual/m4-1.4.14/html_node/Foreach.html
+ */
+#define m4_foreach(iterator, braces_item_list, statement)
+m4_define(«m4_foreach», «m4_pushdef(«$1»)_m4_foreach($@)m4_popdef(«$1»)»)
+m4_define(«_m4_foreach_arg1», «$1»)
+m4_define(«_m4_foreach», «m4_ifelse(«$2», «()», «»,
+  «m4_define_name(«$1», _m4_foreach_arg1$2)$3«»$0(«$1», (m4_shift$2), «$3»)»)»)
+
+«/**
+ * @ingroup m4
+ * @param macro A macro name to apply arguments to
+ * @param argslist A list og macro arguments in the form of
+ * «((arg1, arg2, ...), (args1, arg2, ...), ...)».
+ * Remember to qoute it!!
+ * @param separator An optional separator to separate elements.
+ *
+ * Apply macro on arguments in brackets.
+ * The list of arguments is shifted and is applied on each argument.
+ * Example:
+ *     m4_define(«m4_func», «>1=$1 2=$2 3=$3<») m4_applyforeach(«m4_func», «((«a», «b», «c»), («d», «e», «f»), («g», «h», «i»))», « % »)
+ * would output:
+ *    >1=a 2=b 3=c< % >1=d 2=e 3=f< % >1=g 2=h 3=i<
+ */
+#define m4_applyforeach(macro, args, separator) »
+m4_define(«_m4_applyforeach_arg1», «$1»)
+m4_define(«_m4_applyforeach_cat», «$1$2»)
+m4_define(«_m4_applyforeach_separator», «m4_ifelse(«$2», «()», «», «$1»)»)
+m4_define(«m4_applyforeach», «m4_ifelse(«$2», «()», «»,
+    «_m4_applyforeach_cat(
+    	«$1»,
+    	_m4_applyforeach_arg1$2)_m4_applyforeach_separator(
+    		«$3»,
+    		(m4_shift$2))m4_applyforeach(
+    			«$1»,
+    			(m4_shift$2),
+    			«$3»)»)»)
+m4_test(
+		«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeach(«m4_func», «((«a», «b», «c»), («d», «e», «f»), («g», «h», «i»))», « % »)»,
+		«>1=a 2=b 3=c< % >1=d 2=e 3=f< % >1=g 2=h 3=i<»)
+m4_test(
+		«m4_define(«m4_func», «@$1<»)m4_applyforeach(«m4_func», «((bar), (foo))», «:»)»,
+		«@bar<:@foo<»)
+m4_test(
+		«m4_define(«m4_func», «@$1<»)m4_applyforeach(«m4_func», «((bar), (foo),)», «:»)»,
+		«@bar<:@foo<»)
+
+/**
+ * @ingroup m4
+ *
+ * Example:
+ *
+ *     m4_applyforeachdefine(«((1, 2), (3, 4))», «one=$1 two=$2 »)
+ */
+#define m4_applyforeachdefine(bracket_list, function_body, separator)
+
+m4_define(«m4_applyforeachdefine»,
+		«m4_pushdef(
+			«_$0_function»,
+			«$2»)m4_applyforeach(
+				«_$0_function»,
+				«$1»,
+				«$3»)m4_popdef(
+					«_$0_function»)»)
+
+m4_test(
+		«m4_applyforeachdefine(«((1, 2), (3, 4))», «one=$1 two=$2», «,»)»,
+		«one=1 two=2,one=3 two=4»)
+m4_test(
+		«m4_applyforeachdefine(«((1, 2), (3, 4),)», «one=$1 two=$2», «,»)»,
+		«one=1 two=2,one=3 two=4»)
+
+«/**
+ * @ingroup m4
+ *
+ * Apply macro on quoted list
+ * Example:
+ *    m4_define(«m4_func», «>1=$1 2=$2 3=$3<
+ *    »)
+ *    m4_applyforeachq(«m4_func», «««a», «b», «c»», ««d», «e», «f»», ««g», «h», «i»»»)
+ * would result in:
+ *    >1=a 2=b 3=c<
+ *    >1=d 2=e 3=f<
+ *    >1=g 2=h 3=i<
+ */
+#define m4_applyforeachq(function, qouted_list, separator) »
+m4_define(«_m4_applyforeachq_arg1», «$1»)
+m4_define(«_m4_applyforeachq_cat», «_m4_applyforeachq_arg1($@)(m4_shift($@))»)
+m4_define(«_m4_applyforeachq_quote», «m4_ifelse(«$#», «0», «», ««$*»»)»)
+m4_define(«_m4_applyforeachq_separator», «m4_ifelse(m4_eval(«$# > 2»), «1», «$1», «»)»)
+m4_define(«m4_applyforeachq», «m4_ifelse(
+		_$0_quote($2),
+		«»,
+		«»,
+		«_$0_cat(
+				«$1»,
+				_$0_arg1($2))_$0_separator(
+						«$3»,
+						$2)«»$0(
+								«$1»,
+								«m4_shift($2)»,
+								«$3»)»)»)
+m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeachq(«m4_func», «
+		a,
+		d,
+		g»)»,
+		«>1=a 2= 3=<>1=d 2= 3=<>1=g 2= 3=<»)
+m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeachq(«m4_func», «
+		z,
+		x,
+		y», « % »)»,
+		«>1=z 2= 3=< % >1=x 2= 3=< % >1=y 2= 3=<»)
+m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_applyforeachq(«m4_func», ««1», «2», «3»», « % »)»,
+		«>1=1 2= 3=< % >1=2 2= 3=< % >1=3 2= 3=<»)
+m4_test(«m4_define(«m4_func», «>1=$1 2=$2 3=$3<»)m4_dnl
+m4_applyforeachq(«m4_func», «««a», «b», «c»», ««d», «e», «f»», ««g», «h», «i»»», « % »)»,
+	«>1=a 2=b 3=c< % >1=d 2=e 3=f< % >1=g 2=h 3=i<»)
+
+
+/**
+ * @ingroup m4
+ *
+ * Example:
+ *
+ *     m4_applyforeachqdefine(«««1», «2»», ««3», «4»»», «one=$1 two=$2 »)
+ */
+#define m4_applyforeachqdefine(qouted_list, function_body, separator)
+
+m4_define(«m4_applyforeachqdefine», «m4_pushdef(
+	«_$0_function»,
+	«$2»)m4_applyforeachq(
+		«_$0_function»,
+		«$1»,
+		«$3»)m4_popdef(
+			«_$0_function»)»)
+
+m4_test(«m4_applyforeachqdefine(«««1», «2»», ««3», «4»»», «one=$1 two=$2», «,»)», «one=1 two=2,one=3 two=4»)
+m4_test(«m4_applyforeachqdefine(«a, b», «>>$1<<»)», «>>a<<>>b<<»)
+
+«/**
+ * @ingroup m4
+ */
+#define m4_applyforloop(...) »
+m4_define(«m4_applyforloop», «m4_forloop(
+	«_m4_applyforloop_iterator»,
+	«$1»,
+	«$2»,
+	«$3(_m4_applyforloop_iterator)»,
+	«$4»)»)
+m4_test(«m4_define(«m4_func», «m4_forloop(«J», 1, $1, «@$1, J%»)»)m4_applyforloop(1, 4, «m4_func»)»,
+		«@1, 1%@2, 1%@2, 2%@3, 1%@3, 2%@3, 3%@4, 1%@4, 2%@4, 3%@4, 4%»)
+
+«/**
+ * @def m4_applyforloopdefine(start_range, end_range, function_body, separator)
+ * @ingroup m4
+ * @param start_range A number to start counting from, inclusive.
+ * @param end_range A number to end counting on, inclusive.
+ * @param function_body The body of a function to call. $1 will be substituted for the number
+ * @param separator An optional separator to call.
+ *
+ * Defines a temporary function with the function body passed
+ * as a paremeter. Generates numbers from start_range to end_range
+ * and passes the numbe as the first (and only) argument of the
+ * defined function. Optionally non-empty separator can be used
+ * to separate elements.
+ */
+#define m4_applyforloopdefine(start_range, end_range, function_body, separator) »
+
+m4_define(«m4_applyforloopdefine», «m4_pushdef(
+	«_$0_function»,
+	«$3»)m4_forloop(
+		«_$0_iterator»,
+		«$1»,
+		«$2»,
+		«_$0_function(_$0_iterator)»,
+		«$4»)m4_popdef(
+			«_$0_function»)»)
+
+m4_test(«m4_applyforloopdefine(1, 3, «arg=$1», « S »)», «arg=1 S arg=2 S arg=3»)
+m4_test(«m4_applyforloopdefine(1, 3, «ARG=$1 »)», «ARG=1 ARG=2 ARG=3 »)
+m4_test(
+		«m4_define(«m4_func», «cnt=$1»)m4_I(
+		)m4_applyforloopdefine(1, 3, «m4_applyforloop(1, $1, «m4_func», «,»)», « S »)»,
+		«cnt=1 S cnt=1,cnt=2 S cnt=1,cnt=2,cnt=3»)
+
+
+
+dnl }}}
+dnl {{{ subprocess
+
+m4_define_function(«m4_erun», «m4_esyscmd(m4_shquote($@))»)
+
+m4_define_function(«m4_run», «m4_syscmd(m4_shquote($@))»)
+
+/**
+ * @brief Quote the argument according to the shell.
+ */
+#define m4_shqoute(...)
+m4_define(«m4_shquote»,
+		«m4_ifelse(
+			«$#», 0, «»,
+			«$#», 1, «'m4_patsubst(«$1», «'», «'\\''»)'»,
+			«m4_shquote(«$1») m4_shquote(m4_shift($@))»)»)
+m4_test(«m4_shquote(a)», «'a'»)
+m4_test(«m4_shquote(a, b c, d)», «'a' 'b c' 'd'»)
+
+m4_define(«m4_shsplit_sh»,
+	«m4_patsubst(
+		m4_esyscmd(«printf "%s" »m4_shquote($1)« | xargs printf "«««%s»»,»"»),
+		«,$»)»)
+
+dnl }}}
+dnl {{{ path
+
+/**
+ * @ingroup m4
+ * @return The filename from __file__
+ */
+#define m4_filename(...)
+m4_define(«m4_filename», «m4_patsubst(m4___file__, «^.*\(/\|\\\)»)»)
+
+m4_define_function(«m4_write», «m4_syscmd(«printf "%s" »m4_shquote(«$2»)« > »m4_shquote(«$1»)»)
+
+m4_define_function(«m4_append», «m4_syscmd(«printf "%s" »m4_shquote(«$2»)« >> »m4_shquote(«$1»)»)
+
+m4_define_function(«m4_read», «m4_erun(«cat», «$1»)»)
+
+dnl }}}
 dnl {{{ math
 
-m4_define_function(«m4_max(numbers...)»,
+m4_define_function(«m4_max(number, ...)»,
 	«m4_case(«$#»,
 		«0», «»,
 		«1», «$1»,
 		«2», «m4_ifmath(«$1 > $2», «$1», «$2»)»,
+		«$0($0($1, $2), m4_shift(m4_shift($@)))»)»)
+
+
+m4_define_function(«m4_min(number, ...)»,
+	«m4_case(«$#»,
+		«0», «»,
+		«1», «$1»,
+		«2», «m4_ifmath(«$1 < $2», «$1», «$2»)»,
 		«$0($0($1, $2), m4_shift(m4_shift($@)))»)»)
 
 dnl }}}
@@ -742,8 +751,7 @@ m4_define_function(«m4_seqcomma»,
 		«$2»,
 		«m4_ifelse(«$4», «», «m4_ifelse(«$3», «», «_m4_sEqCoMmA_vArIaBlE», «$3»)», «$4»)»,
 		«m4_ifelse(«$5», «», «,», «$5»)»)»)m4_dnl;
-m4_test(«m4_seqcomma(1, 5)»)m4_dnl;
-// PASS_REGULAR_EXPRESSION 1,2,3,4,5
+m4_test(«m4_seqcomma(1, 5)», «1,2,3,4,5»)
 
 «/**
  * @ingroup m4
@@ -757,8 +765,7 @@ m4_define_function(«m4_seqdashcomma»,
 		«$2»,
 		«m4_ifelse(«$4», «», «m4_ifelse(«$3», «», «_m4_sEqCoMmA_vArIaBlE», «$3»)», «$4»)»,
 		«m4_ifelse(«$5», «», «,», «$5»)»)»)
-m4_test(«m4_seqdashcomma(1, 5)»)m4_dnl;
-// PASS_REGULAR_EXPRESSION _1,_2,_3,_4,_5
+m4_test(«m4_seqdashcomma(1, 5)», «_1,_2,_3,_4,_5»)
 
 «/**
  * @ingroup m4
@@ -774,8 +781,7 @@ m4_define_function(«m4_seqcommaX», «m4_seqcomma(«$1», «$2», «X», «$3»
  */
 #define m4_seqdashcommaX »
 m4_define(«m4_seqdashcommaX», «m4_seqdashcomma(«$1», «$2», «X», «$3», «$4»)»)m4_dnl;
-m4_test(«m4_seqdashcommaX(1, 5, «hello«»X»)»)m4_dnl;
-// PASS_REGULAR_EXPRESSION hello_1,hello_2,hello_3,hello_4,hello_5
+m4_test(«m4_seqdashcommaX(1, 5, «hello«»X»)», «hello_1,hello_2,hello_3,hello_4,hello_5»)
 
 «/**
  * @see m4_seqcomma
