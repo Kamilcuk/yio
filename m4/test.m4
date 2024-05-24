@@ -92,7 +92,7 @@ m4_define(«m4_assert_regex»,
 #define m4_test(expr, rgx)
 m4_ifdef(
 	«m4_TEST»,
-	«m4_define(«m4_test», «m4_assert($@)»)»,
+	«m4_define(«m4_test», «m4_errprint(m4___file__:m4___line__«: $1 -> »$1«»m4_nl)m4_assert($@)»)»,
 	«m4_define(«m4_test», «»)»
 )
 
@@ -157,8 +157,20 @@ m4_define(«m4_do»,
 /** concatenate all arguments */
 m4_define(«m4_cat», «$1$2$3$4$5$6$7$8$9»)»)
 
+m4_define(«m4_rshift»,
+		«m4_ifelse(
+			«$#», 0, «»,
+			«$#», 1, «»,
+			«$#», 2, «$1»,
+			«$1,$0(m4_shift($@))»)»)
+m4_test(«m4_rshift(1,2,3)», «1,2»)
+
 /** ignore last argument and call first argument with the rest of arguments */
-m4_define(«m4_call», «$1(m4_reverse(m4_shift(m4_reverse(m4_shift($@)))))»)
+m4_define(«m4_call», «$1(m4_rshift(m4_shift($@)))»)
+
+/** like m4_elseif, but ignore last argument */
+m4_define_function(«m4_callif», «m4_call(«m4_ifelse», $@)»)
+m4_test(«m4_callif(1, 1, 1, 2, 2, 2, 3, )», «1»)
 
 /** reverse list of arguments */
 m4_define(«m4_reverse»,
@@ -170,9 +182,6 @@ m4_define(«m4_reverse»,
 /** a newline */
 m4_define(«m4_nl», «
 »)
-
-/** like m4_elseif, but ignore last argument */
-m4_define_function(«m4_callif», «m4_call(«m4_ifelse», $@)»)
 
 dnl }}}
 dnl {{{ string utilities
@@ -188,8 +197,9 @@ m4_define_function(«m4_ifsubstr(str, needle, true, false)»,
 
 m4_define(«m4_regexquote», «m4_patsubst(«$@», «[]\/$*.^[]», «\&»)»)
 
-/** m4_quote(args) - convert args to single-quoted string *
+/** m4_quote(args) - convert args to single-quoted string */
 m4_define(«m4_quote», «m4_ifelse(«$#», «0», «», ««$*»»)»)
+m4_test(«m4_quote(a)», ««a»»)
 
 /** m4_dquote(args) - convert args to quoted list of quoted strings */
 m4_define(«m4_dquote», ««$@»»)
@@ -265,49 +275,94 @@ m4_test(«m4_count_lines(«ab
 			ef
 			»)», «3»)
 
+m4_define_function(«m4_rindex(str, needle)»,
+		«m4_ifelse(
+			m4_index(«$1», «$2»), -1, -1,
+			«m4_decr(m4_len(m4_patsubst(«$1», «^\(\(.*$2\)+\).*», ««\1»»)))»)»)
+m4_define_function(«_m4_rindex(pos, str, needle)»,
+		«m4_ifelse(
+			m4_eval(«$1 < 0»), «1», «-1»,
+			m4_substr(«$2», «$1», m4_len(«$3»)), «$3», «$1»,
+			«$a0(m4_decr(«$1»), «$2», «$3»)»)»)
+m4_test(«m4_rindex(«abc», «b»)», «1»)
+m4_test(«m4_rindex(«)», «)»)», «0»)
+m4_test(«m4_rindex(«,,,,», «,»)», «3»)
+m4_test(«m4_rindex(«abc», «d»)», «-1»)
+m4_test(«m4_rindex(«abc», «c»)», «2»)
+m4_test(«m4_rindex(«abc», «a»)», «0»)
+m4_test(«m4_rindex(«a,b,c», «b»)», «2»)
+m4_test(«m4_rindex(«a,b,c», «d»)», «-1»)
+m4_test(«m4_rindex(««a(a»», ««»»)», «-1»)
+
 dnl }}}
 dnl {{{ m4_args
 
-m4_define_function(«m4_args_pop_back(cnt, args...)»,
+m4_define_function(«m4_args_pop_back_n(cnt, args...)»,
 	«m4_ifelse(
-		«$1», 0, «m4_shift($@)»,
-		«m4_reverse(
-			m4_args_pop_front(
-				$1,
-				m4_reverse(
-					m4_shift($@))))»)»)
-m4_define_function(«m4_args_pop_front(cnt, args...)»,
+		m4_eval(«$1 < 0»), «1», «m4_fatal(«$0 cnt=$1 < 0»)»,
+		m4_eval(«$1 == 0»), «1», «m4_shift($@)»,
+		m4_eval(«$# <= $1 + 1»), «1», «»,
+		m4_eval(«$# == $1 + 2»), «1», «$2»,
+		«$2,$0($1, m4_shift2($@))»)»)
+m4_traceon(«m4_args_pop_back_n»)
+m4_traceon(«m4_ifelse»)
+m4_test(«m4_args_pop_back_n(0,1,2,3,4)», «1,2,3,4»)
+m4_test(«m4_args_pop_back_n(1,1,2,3,4)», «1,2,3»)
+m4_test(«m4_args_pop_back_n(2,1,2,3,4)», «1,2»)
+m4_test(«m4_args_pop_back_n(4,1,2,3,4)», «»)
+
+m4_define_function(«m4_args_pop_back(args...)», «m4_args_pop_back(1, $@)»)
+
+m4_define_function(«m4_args_pop_front_n(cnt, args...)»,
 	«m4_ifelse(
 		«$1», 0, «$@»,
 		«$1», 1, «m4_shift(m4_shift($@))»,
-		«m4_args_pop_front(m4_eval($1 - 1), m4_shift(m4_shift($@)))»)»)
+		«m4_args_pop_front_n(m4_eval($1 - 1), m4_shift(m4_shift($@)))»)»)
+
+m4_deifne_function(«m4_args_pop_fron(args...)», «m4_shift($@)»)
+
 m4_define_function(«m4_args_len(args...)», «$#»)
+
 m4_define_function(«m4_args_sub(start, len, args...)»,
 	«m4_args_pop_back(
 		m4_max(m4_eval($# - 2 - $1 - $2), 0),
-		m4_args_pop_front($1, m4_shift(m4_shift($@))))»)
+		m4_args_pop_front_n($1, m4_shift(m4_shift($@))))»)
+
 m4_define(«m4_args_first», «$1»)
+
 m4_define(«m4_args_esc», «$@»)
 
 dnl }}}
 dnl {{{ m4_tuple
 
-m4_define_function(«m4_tuple_call(func, tuple)», «m4_cat(«$1», m4_rstrip(«$2»))»)
+m4_define(«m4_tuple_L», «(»)
+m4_define(«m4_tuple_R», «)»)
 
-m4_define_function(«m4_tuple_first(tuple)», «m4_args_first$1»)
+m4_define_function(«m4_tuple_sane(tuple)», «_m4_tuple_sane(m4_strip(«$1»))»)
+m4_define_function(«_m4_tuple_sane(tuple)»,
+		«m4_ifelse(
+			«$1», «», «()»,
+			m4_eval(m4_index(«$1», «(») != 0),
+				«1», «m4_fatal(«L-index: »m4_index(«$1», «(»)«: not a valid tuple: "$1"»)»,
+			m4_eval(m4_rindex(«$1», «)») != m4_len(«$1») - 1),
+				«1», «m4_fatal(«R-index: »m4_rindex(«$1», «)»)«: not a valid tuple: "$1"»)»,
+			«$1»)»)
+
+m4_define_function(«m4_tuple_call(func, tuple)», «m4_cat(«$1», m4_tuple_sane(«$2»))»)
+
+m4_define_function(«m4_tuple_first(tuple)», «m4_tuple_call(«m4_args_first», «$1»)»)
 
 m4_define_function(«m4_tuple_shift(tuple)», «(m4_tuple_call(«m4_shift», «$1»))»)
 
 m4_define_function(«m4_tuple_len(tuple)», «m4_tuple_call(«m4_args_len», «$1»)»)
 
-m4_define_function(«m4_tuple_isempty(tuple)», «m4_ifelse(m4_rstrip(«$1»), «()», «1», «0»)»)
+m4_define_function(«m4_tuple_isempty(tuple)», «m4_ifelse(m4_tuple_sane(«$1»), «()», «1», «0»)»)
 m4_test(«m4_tuple_isempty(())», 1)
 m4_test(«m4_tuple_isempty((1,2))», 0)
 
-m4_define_function(«m4_tuple_push_back(tuple, elem)»,
+m4_define_function(«m4_tuple_push_back(tuple, elem, ...)»,
 		«(m4_callif(
-				m4_strip(«$1»), «», «$2»,
-				m4_strip(«$1»), «()», «$2»,
+				m4_tuple_sane(«$1»), «()», «$2»,
 				«m4_tuple_call(«m4_args_esc», «$1»),m4_shift($@)»,
 		))»)
 m4_test(«m4_tuple_push_back(,1)», «(1)»)
@@ -315,36 +370,22 @@ m4_test(«m4_tuple_push_back((),1)», «(1)»)
 m4_test(«m4_tuple_push_back((1),2)», «(1,2)»)
 m4_test(«m4_tuple_push_back((1,2,3),4)», «(1,2,3,4)»)
 
+m4_define_function(«m4_tuple_pop_back(tuple)», «m4_args_pop_back$1»)
+
 m4_define_function(«m4_tuple_join(tuple1, tuple2)»,
 		«(m4_do(
-				«m4_cat(«m4_args_esc», m4_strip(«$1»))»,
+				«m4_tuple_call(«m4_args_esc», «$1»)»,
 				«m4_ifelse(
-					m4_strip(«$1»), «()», «»,
-					m4_strip(«$2»), «()», «»,
+					m4_tuple_sane(«$1»), «()», «»,
+					m4_tuple_sane(«$2»), «()», «»,
 					«,»)»,
-				«m4_cat(«m4_args_esc», m4_strip(«$2»))»,
+				«m4_tuple_call(«m4_args_esc», «$2»)»,
 				))»)
 m4_test(«m4_tuple_join( (a,b,c), (1,2,3) )», «(a,b,c,1,2,3)»)
 
 #define m4_tuples_merge(tuple1, tuple2)
-m4_define(«m4_tuples_merge», «(_m4_tuples_merge((), (), $@, «»))»)
-m4_define_function(
-	«_m4_tuples_merge(result, tmptuple, tuple1, tuple2, empty)»,
-	«m4_callif(
-		«$3», «», «$2»,
-		m4_tuple_isempty(«$3»), «1», «»,
-		«$0(
-			«m4_tuple_push_back(
-				«$1»,
-				«m4_tuple_join($2, m4_tuple_first($3)), m4_shift2($@))»,
-			«m4_callif(
-				m4_tuple_len(«$2»), 0, «»,
-				m4_tuple_len(«$2»), 1, «»,
-				«$0($1, m4_tuple_shift($2), m4_shift2($@))»,
-			)»,
-		)»,
-	)»)
-m4_define_function(«_m4_tuples_merge2(result, tuple1, tuple2, empty)»,
+m4_define(«m4_tuples_merge», «(_m4_tuples_merge((), $@, «»))»)
+m4_define_function(«_m4_tuples_merge(result, tuple1, tuple2, empty)»,
 	«m4_callif(
 		«$2», «», «$1»,
 		m4_tuple_isempty(«$2»), «1», «»,
@@ -353,23 +394,47 @@ m4_define_function(«_m4_tuples_merge2(result, tuple1, tuple2, empty)»,
 			«m4_callif(
 				m4_tuple_len(«$2»), 0, «»,
 				m4_tuple_len(«$2»), 1, «»,
-				«$0($1, m4_tuple_shift($2), m4_shift2($@))»,
+				«,$0($1, m4_tuple_shift($2), m4_shift2($@))»,
 			)»,
 		)»,
 	)»)
 m4_test(
-		«m4_tuples_merge( ((1,2),(a,b)), ((3,4),(d,c)))»,
-		«((1,2,3,4),(1,2,d,c),(a,b,3,4),(a,b,c,d))»)
+		«m4_tuples_merge( ((1,2),(a,b)), ((3,4),(c,d)))»,
+		«((1,2,3,4),(1,2,c,d),(a,b,3,4),(a,b,c,d))»)
+m4_test(
+		«m4_tuples_merge( ((1,2),(a,b)), ((3,4),(d)))»,
+		«((1,2,3,4),(1,2,d),(a,b,3,4),(a,b,d))»)
+m4_test(
+		«m4_tuples_merge( ((1,2),(a,b)), ((3,4),(c,d)), ((5,6),(e,f)))»,
+		«((1,2,3,4,5,6),(1,2,3,4,e,f),(1,2,c,d,5,6),(1,2,c,d,e,f),(a,b,3,4,5,6),(a,b,3,4,e,f),(a,b,c,d,5,6),(a,b,c,d,e,f))»)
 
 #define m4_tuple_has(tuple, elem)
 m4_define_function(«m4_tuple_has(tuple, elem)»,
 	«m4_ifelse(
-		«$1», «», «0»,
-		«$1», «()», «0»,
+		m4_tuple_sane(«$1»), «()», «0»,
 		m4_tuple_first(«$1»), «$2», «1»,
 		«$0(m4_tuple_shift(«$1»), $2)»)»)
 m4_test(«m4_tuple_has((1,2,3,4), 5)», «0»)
 m4_test(«m4_tuple_has((1,2,3,4), 2)», «1»)
+
+m4_define_function(«m4_tuple_next(tuple, func)»,
+	«m4_ifelse(
+		m4_tuple_sane(«$1»), «()», «0»,
+		«$2(m4_tuple_first(«$1»))», «$2», «m4_tuple_first(«$1»)»,
+		«$0(m4_tuple_shift(«$1»), $2)»)»)
+
+m4_define_function(«m4_tuple_next_define(tuple, expr)»,
+	«m4_do(
+		m4_pushdef(«-$0», «$2»),
+		m4_tuple_next(«$1», «-$0»),
+		m4_popdef(«-$0»),
+	)»)
+
+m4_test(
+		«m4_tuple_next_define(
+			((1,2),(3,4),(5,6)),
+			««m4_eval(m4_tuple_first($1) * m4_tuple_get($1, 2) == 3 * 4)»»)»,
+		«(3,4)»)
 
 #define m4_tuple_map(«tuple», «func»)
 m4_define(«m4_tuple_map», «_$0(«()», «$1», «$2»)»)
@@ -794,8 +859,15 @@ m4_define_function(«m4_include_relative», «m4_include(m4_patsubst(m4___file__
 m4_define_function(«m4_include_relative_quiet», «m4_divert(-1)m4_include_relative(«$@»)m4_divert(0)»)
 
 m4_define_function(«m4_included», «()»)
-m4_define_function(«m4_include_once»,
-	«m4_tuple_add(«m4_included», (m4_included, m4___file__, m4___line__))»)
+
+m4_define_function(«m4_include_once(file)»,
+	«m4_callif(
+		m4_tuple_has(m4_included, «$1»), «1», «m4_fatal(«file $1 included twice»)»,
+		«m4_do(
+			«m4_define(«m4_included», m4_tuple_push_back(m4_included, «$1»))»,
+			«m4_include(«$1»)»,
+		)»,
+	)»)
 
 dnl }}}
 dnl {{{ seq
@@ -812,10 +884,10 @@ dnl {{{ seq
 #define m4_seqcomma(start_number, end_number, variable, replacement, separator) »
 m4_define_function(«m4_seqcomma»,
 	«m4_forloop(
-		m4_ifelse(«$3», «», «_m4_sEqCoMmA_vArIaBlE», «$3»),
+		m4_ifelse(«$3», «», ««_m4_sEqCoMmA_vArIaBlE»», «$3»),
 		«$1»,
 		«$2»,
-		«m4_ifelse(«$4», «», «m4_ifelse(«$3», «», «_m4_sEqCoMmA_vArIaBlE», «$3»)», «$4»)»,
+		«m4_ifelse(«$4», «», m4_ifelse(«$3», «», ««_m4_sEqCoMmA_vArIaBlE»», «$3»), «$4»)»,
 		«m4_ifelse(«$5», «», «,», «$5»)»)»)
 m4_test(«m4_seqcomma(1, 5)», «1,2,3,4,5»)
 
@@ -908,3 +980,7 @@ m4_define(«m4_sdivert», «m4_divert(m4_ifelse($#, 0, 0, $@))m4_S(,1)m4_dnl»)
 
 dnl }}}
 m4_divert(0)m4_dnl
+
+m4_include_once(test2.m4)
+m4_include_once(test2.m4)
+m4_included
