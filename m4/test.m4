@@ -3,9 +3,7 @@ dnl {{{ start
 dnl vim: filetype=m4 foldmethod=marker comments=s1\:/*,mb\:*,ex\:*/,\://,b\:#,\:%,\:XCOMM,n\:>,fb\:-,fb\:•,\:#,\:dnl,\:m4_dnl cindent tabstop=2 noexpandtab softtabstop=0 shiftwidth=2 list
 /// @file
 
-m4_changequote(,)
-m4_changequote(«, »)
-m4_changecom(«/*», «*/»)
+m4_include(init.m4)
 
 dnl }}}
 dnl {{{1 m4_define
@@ -61,41 +59,31 @@ dnl {{{ assert error test
 m4_define(«m4_fatal», «m4_errprint(m4___file__:m4___line__«: error: $*
 »)m4_m4exit(«1»)»)
 
-m4_define(«m4_assert_fail»,
+m4_define_function(«m4_assert_fail(expr1, expr2, str1, str2, ...)»,
 	«m4_fatal(
-«assert failed: $3$4
+«assert failed: $5$6$7$8$9
+  "$3" != "$4"
   "$1" != "$2"
-  "»$1«" != "»$2«"
 »)»)
 
 m4_define(«m4_assert_quote», «m4_ifelse(«$#», «0», «», ««$*»»)»)
 
-m4_define(«m4_assert»,
-	«m4_ifelse(
-		m4_assert_quote($1),
-		m4_assert_quote($2),
-		«»,
-		«m4_assert_fail($@)»)»)
+m4_define_function(«_m4_assert(expr1, expr2, str1, str2, ...)»,
+	«m4_ifelse(«$1», «$2», «», «m4_assert_fail($@)»)»)
+m4_define(«m4_assert», «_m4_assert($1, $2, $@)»)
 
-m4_define(«m4_assert_not»,
-	«m4_ifelse(
-		m4_assert_quote($1),
-		m4_assert_quote($2),
-		«m4_assert_fail($@)»)»)
-
-m4_define(«m4_assert_regex»,
-	«m4_assert_not(
-		«m4_regexp(«$1», «$2»)»,
-		«-1»,
-	)»)
+m4_define_function(«_m4_assert_not(expr1, expr2, str1, str2, ...)»,
+	«m4_ifelse(«$1», «$2», «m4_assert_fail($@)»)»)
+m4_define_function(«m4_assert_not», «_$0($1, $2, $@)»)
 
 #define m4_test(expr, rgx)
+m4_define(«_m4_test_in», «m4_errprint(m4___file__:m4___line__«: "$3" -> "$1" == "$2"
+»)_m4_assert($@)»)
 m4_ifdef(
 	«m4_TEST»,
-	«m4_define(«m4_test», «m4_errprint(m4___file__:m4___line__«: $1 -> »$1«»m4_nl)m4_assert($@)»)»,
+	«m4_define(«m4_test», «_m4_test_in(($1), ($2), $@)»)»,
 	«m4_define(«m4_test», «»)»
 )
-
 m4_test(«a», «a»)
 m4_test(«m4_patsubst(«a», «a», «\&b»)», «ab»)
 
@@ -151,7 +139,7 @@ m4_define(«m4_I», «»)
 m4_define(«m4_do»,
 	«m4_ifelse(
 		«$#», «0», «»,
-		«$#», «1», «m4_ifelse(«$1», «», «», $1)»,
+		«$#», «1», «m4_ifelse(«$1», «», «», «$1»)»,
 		«$1«»$0(m4_shift($@))»)»)
 
 /** concatenate all arguments */
@@ -304,8 +292,6 @@ m4_define_function(«m4_args_pop_back_n(cnt, args...)»,
 		m4_eval(«$# <= $1 + 1»), «1», «»,
 		m4_eval(«$# == $1 + 2»), «1», «$2»,
 		«$2,$0($1, m4_shift2($@))»)»)
-m4_traceon(«m4_args_pop_back_n»)
-m4_traceon(«m4_ifelse»)
 m4_test(«m4_args_pop_back_n(0,1,2,3,4)», «1,2,3,4»)
 m4_test(«m4_args_pop_back_n(1,1,2,3,4)», «1,2,3»)
 m4_test(«m4_args_pop_back_n(2,1,2,3,4)», «1,2»)
@@ -339,13 +325,12 @@ m4_define(«m4_tuple_L», «(»)
 m4_define(«m4_tuple_R», «)»)
 
 m4_define_function(«m4_tuple_sane(tuple)», «_m4_tuple_sane(m4_strip(«$1»))»)
+m4_define_function(«m4_tuple_sane(tuple)», «m4_ifelse(«$1», «», «()», «m4_strip(«$1»)»)»)
 m4_define_function(«_m4_tuple_sane(tuple)»,
 		«m4_ifelse(
+			m4_eval(«$# != 1»), «1», «m4_fatal(«m4_tuple_sane: wrong number of arguments: $#»)»,
 			«$1», «», «()»,
-			m4_eval(m4_index(«$1», «(») != 0),
-				«1», «m4_fatal(«L-index: »m4_index(«$1», «(»)«: not a valid tuple: "$1"»)»,
-			m4_eval(m4_rindex(«$1», «)») != m4_len(«$1») - 1),
-				«1», «m4_fatal(«R-index: »m4_rindex(«$1», «)»)«: not a valid tuple: "$1"»)»,
+			m4_regexp(«$1», «^(.*)$»), «-1», «m4_fatal(«not a valid tuple: "$1"»)»,
 			«$1»)»)
 
 m4_define_function(«m4_tuple_call(func, tuple)», «m4_cat(«$1», m4_tuple_sane(«$2»))»)
@@ -355,16 +340,17 @@ m4_define_function(«m4_tuple_first(tuple)», «m4_tuple_call(«m4_args_first»,
 m4_define_function(«m4_tuple_shift(tuple)», «(m4_tuple_call(«m4_shift», «$1»))»)
 
 m4_define_function(«m4_tuple_len(tuple)», «m4_tuple_call(«m4_args_len», «$1»)»)
+m4_test(«m4_tuple_len((1,2))», «2»)
+m4_test(«m4_tuple_len((1,2,3,4,5))», «5»)
 
 m4_define_function(«m4_tuple_isempty(tuple)», «m4_ifelse(m4_tuple_sane(«$1»), «()», «1», «0»)»)
 m4_test(«m4_tuple_isempty(())», 1)
 m4_test(«m4_tuple_isempty((1,2))», 0)
 
 m4_define_function(«m4_tuple_push_back(tuple, elem, ...)»,
-		«(m4_callif(
+		«(m4_ifelse(
 				m4_tuple_sane(«$1»), «()», «$2»,
-				«m4_tuple_call(«m4_args_esc», «$1»),m4_shift($@)»,
-		))»)
+				«m4_tuple_call(«m4_args_esc», «$1»),m4_shift($@)»))»)
 m4_test(«m4_tuple_push_back(,1)», «(1)»)
 m4_test(«m4_tuple_push_back((),1)», «(1)»)
 m4_test(«m4_tuple_push_back((1),2)», «(1,2)»)
@@ -382,22 +368,21 @@ m4_define_function(«m4_tuple_join(tuple1, tuple2)»,
 				«m4_tuple_call(«m4_args_esc», «$2»)»,
 				))»)
 m4_test(«m4_tuple_join( (a,b,c), (1,2,3) )», «(a,b,c,1,2,3)»)
+m4_test(«m4_tuple_join( (a,b,c), () )», «(a,b,c)»)
+m4_test(«m4_tuple_join( (), (1,2,3) )», «(1,2,3)»)
 
 #define m4_tuples_merge(tuple1, tuple2)
 m4_define(«m4_tuples_merge», «(_m4_tuples_merge((), $@, «»))»)
 m4_define_function(«_m4_tuples_merge(result, tuple1, tuple2, empty)»,
-	«m4_callif(
+	«m4_ifelse(
 		«$2», «», «$1»,
-		m4_tuple_isempty(«$2»), «1», «»,
+		m4_strip(«$2»), «()», «$1»,
 		«m4_do(
 			«$0(m4_tuple_join($1, m4_tuple_first($2)), m4_shift2($@))»,
-			«m4_callif(
+			«m4_ifelse(
 				m4_tuple_len(«$2»), 0, «»,
 				m4_tuple_len(«$2»), 1, «»,
-				«,$0($1, m4_tuple_shift($2), m4_shift2($@))»,
-			)»,
-		)»,
-	)»)
+				«,$0($1, m4_tuple_shift($2), m4_shift2($@))»)»)»)»)
 m4_test(
 		«m4_tuples_merge( ((1,2),(a,b)), ((3,4),(c,d)))»,
 		«((1,2,3,4),(1,2,c,d),(a,b,3,4),(a,b,c,d))»)
@@ -417,35 +402,41 @@ m4_define_function(«m4_tuple_has(tuple, elem)»,
 m4_test(«m4_tuple_has((1,2,3,4), 5)», «0»)
 m4_test(«m4_tuple_has((1,2,3,4), 2)», «1»)
 
-m4_define_function(«m4_tuple_next(tuple, func)»,
+m4_define_function(«m4_tuples_next(tuple, func)»,
 	«m4_ifelse(
-		m4_tuple_sane(«$1»), «()», «0»,
-		«$2(m4_tuple_first(«$1»))», «$2», «m4_tuple_first(«$1»)»,
-		«$0(m4_tuple_shift(«$1»), $2)»)»)
+		m4_tuple_sane(«$1»), «()», «»,
+		m4_cat(«$2», m4_tuple_first(«$1»)), «1», «m4_tuple_first(«$1»)»,
+		«$0(m4_tuple_shift(«$1»), «$2»)»)»)
 
-m4_define_function(«m4_tuple_next_define(tuple, expr)»,
+m4_define_function(«m4_tuples_next_define(tuple, expr)»,
 	«m4_do(
-		m4_pushdef(«-$0», «$2»),
-		m4_tuple_next(«$1», «-$0»),
-		m4_popdef(«-$0»),
+		m4_pushdef(«_$0», «$2»),
+		m4_tuples_next(«$1», «_$0»),
+		m4_popdef(«_$0»),
 	)»)
-
 m4_test(
-		«m4_tuple_next_define(
-			((1,2),(3,4),(5,6)),
-			««m4_eval(m4_tuple_first($1) * m4_tuple_get($1, 2) == 3 * 4)»»)»,
-		«(3,4)»)
+		«m4_tuples_next_define(
+			«((1,2),(3,4),(5,6))»,
+			«m4_eval($1 == 5 && $2 == 6)»)»,
+		«(5,6)»)
 
 #define m4_tuple_map(«tuple», «func»)
-m4_define(«m4_tuple_map», «_$0(«()», «$1», «$2»)»)
+m4_define(«m4_tuple_map», «(_$0(m4_tuple_len(«$1»), «$1», «$2»))»)
 m4_define(«_m4_tuple_map»,
-		«m4_callif(
-			«$2», «», «$1»,
-			«$2», «()», «$1»,
-			«$0(m4_tuple_push_back(«$1», $3(m4_tuple_first(«$2»))), m4_tuple_shift(«$2»), «$3»)»,
-		)»)
+		«m4_ifelse(
+			«$1», «0», «»,
+			«$3(m4_tuple_first(«$2»))m4_ifelse(
+					«$1», «1», «»,
+					«,$0(m4_decr(«$1»), m4_tuple_shift(«$2»), «$3»)»)»)»)»)
+m4_traceon(«m4_tuple_map», «_m4_tuple_map», «func»)
 m4_test(
-		«m4_define(«func», «m4_eval($1 * 2)»)m4_tuple_map(«(1, 2, 3)», «func»)»,
+		«m4_do(
+			«m4_define(«func»,
+				«m4_ifelse(
+					«m4_eval($# != 1)», «1», «m4_fatal(«not enough args: $@»)»,
+					«m4_eval($1 * 2)»)»)»,
+			«m4_tuple_map(«(1, 2, 3)», «func»)»,
+		)»,
 		«(2,4,6)»)
 
 dnl }}}
@@ -980,7 +971,3 @@ m4_define(«m4_sdivert», «m4_divert(m4_ifelse($#, 0, 0, $@))m4_S(,1)m4_dnl»)
 
 dnl }}}
 m4_divert(0)m4_dnl
-
-m4_include_once(test2.m4)
-m4_include_once(test2.m4)
-m4_included
