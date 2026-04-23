@@ -280,33 +280,6 @@ int yio_printctx_put_number(yio_printctx_t *t, const char str[], size_t str_len,
 	return YYIO_printformat_generic(t, str, str_len, true, is_positive);
 }
 
-{% if 1 != 1 %}
-
-/**
- * On modes different than normal, use this to output a @c char string.
- * Automatically converts @c char string into @c YCHAR string and then outputs it.
- */
-YYIO_wur YYIO_nn()
-int YYIO_printformat_generic_char(yio_printctx_t *t,
-		const char str[], size_t str_len, bool is_number, bool is_positive);
-
-/**
- * @see YYIO_printformat_generic_char
- */
-YYIO_wur YYIO_nn() static inline
-int yio_printctx_put(yio_printctx_t *t, const char str[], size_t str_len) {
-	return YYIO_printformat_generic_char(t, str, str_len, false, false);
-}
-
-/**
- * @see YYIO_printformat_generic_char
- */
-YYIO_wur YYIO_nn() static inline
-int yio_printctx_put_number(yio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
-	return YYIO_printformat_generic_char(t, str, str_len, true, is_positive);
-}
-
-{% endif %}
 
 /**
  * @}

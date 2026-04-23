@@ -7,11 +7,6 @@
  * @brief
  */
 #include "../yio_public.h"
-#if 1 == 2
-#include <wchar.h>
-#elif 1 == 3
-#include <uchar.h>
-#endif
 #include "ctx.h"
 #include "io.h"
 #include "manip/manip.h"
