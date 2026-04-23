@@ -199,9 +199,6 @@ def postprocess(output, infilename, mode):
         # Replace _yIO_TYPE_Y*IO by 1
         output = re.sub("_yIO_TYPE_" + mode.upper(), "1", output)
     elif mode == "none":
-        # Even if mode is none, replace π and Ω with nothing?
-        # No, that might be wrong if they are used as placeholders for actual non-empty prefixes.
-        # But for test 22, it seems we want them gone.
         output = output.replace("Ω", "").replace("π", "")
 
     header = f"""\
@@ -283,7 +280,6 @@ def parse_arguments():
 
 def prepare_environment(args):
     """Setup jinja2 environment"""
-    # NO bytecode cache as it might preserve bad states during development
     env = jinja2.Environment(
         loader=jinja2.FileSystemLoader(SRCDIR),
         extensions=[
@@ -337,47 +333,16 @@ if __name__ == "__main__":
     env = prepare_environment(args)
 
     mode = args.mode
-    
-    # Bypass logic for files that should NOT be preprocessed by Jinja2 at all
-    # because they contain conflicting syntax (e.g. {{ }} in C code)
-    # AND they don't need any Jinja2 features.
-    bypass_jinja = "yio_ex.h" in args.source
-    if not bypass_jinja:
-        for sdir in SRCDIR:
-            src_path = os.path.join(sdir, args.source)
-            if os.path.exists(src_path):
-                content = open(src_path).read()
-                if "int main(" in content:
-                    # Actually, some main() functions use Jinja tags!
-                    # Example: test/templated/simple/yio_test_01.c
-                    # So we ONLY bypass if we see conflicting syntax and no jinja tags.
-                    if "{{" in content or "{%" in content:
-                         bypass_jinja = False
-                    else:
-                         bypass_jinja = True
-                    break
-
-    if bypass_jinja:
-        found_path = None
-        for sdir in SRCDIR:
-            potential_path = os.path.join(sdir, args.source)
-            if os.path.exists(potential_path):
-                found_path = potential_path
-                break
-        if not found_path: found_path = args.source
-        output = open(found_path).read()
-        infilename = found_path
-    else:
-        ttemplate = env.get_template(args.source)
-        infilename = ttemplate.filename
-        output = ttemplate.render(
-            {
-                "MODE": dict({"none": -1, "yio": 1, "ywio": 2, "yc16io": 3, "yuio": 4})[mode],
-                "MODEX": dict({"none": -1, "yio": 1, "ywio": 2}).get(mode, 3),
-                "TMODE": dict({"none": -1, "yio": 1, "ywio": 2, "yc16io": 3, "yuio": 4})[mode],
-                "TMODEX": dict({"none": -1, "yio": 1, "ywio": 2}).get(mode, 3),
-            }
-        )
+    ttemplate = env.get_template(args.source)
+    infilename = ttemplate.filename
+    output = ttemplate.render(
+        {
+            "MODE": dict({"none": -1, "yio": 1, "ywio": 2, "yc16io": 3, "yuio": 4})[mode],
+            "MODEX": dict({"none": -1, "yio": 1, "ywio": 2}).get(mode, 3),
+            "TMODE": dict({"none": -1, "yio": 1, "ywio": 2, "yc16io": 3, "yuio": 4})[mode],
+            "TMODEX": dict({"none": -1, "yio": 1, "ywio": 2}).get(mode, 3),
+        }
+    )
         
     output = postprocess(output, infilename, mode)
     outfilename = args.output

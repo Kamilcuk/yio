@@ -122,14 +122,3 @@ _F_IN(patsubst($1, `\([^{]\){\([_a-zA-Z][_a-zA-Z0-9]*\)=', `\1\2={\2') _F_SHIFT(
 ')
 #endif
 
-int main() {
-	int var = 1;
-	int var2 = 2;
-	yprintf(F("pre {var} post"));
-	yprintf(F("pre {var1} {var2} post"));
-	yprintf(F("pre {{ }} {{ {var1} {{ {var2} }} {{ post"));
-	yprintf(F("pre {{}} {var1} {{ {var2} }} {{ post"));
-	yprintf(F("pre {0} {var} post", 1));
-	yprintf(F("pre {{}} {var1:{var2}} {{ post"));
-	yprintf(F("pre {{}} {var1=:{var2}} {{ post"));
-}
