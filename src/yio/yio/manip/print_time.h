@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
-#define YYIO_YIO_YΩIO_MANIP_PRINT_TIME_H_
+#ifndef YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
+#define YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
 #include "../ctx.h"
 #include <time.h>
 #ifndef YYIO_HAS_timespec
@@ -32,29 +32,29 @@
  * zero terminating character that would have been written to or were written to
  * @c dest depending if it's a null pointer or not.
  */
-int YYΩIO_print_time_in_extract_format_add_space(TCHAR *dest, const TCHAR *fmt, const TCHAR **enptr);
+int YYIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, const char **enptr);
 
-int YYΩIO_print_tm(yπio_printctx_t *t);
+int YYIO_print_tm(yio_printctx_t *t);
 
 #if YYIO_HAS_timespec
-int YYΩIO_print_timespec(yπio_printctx_t *t);
-#define YYΩIO_PRINT_GENERIC_TIMESPEC() \
-		struct timespec: YYΩIO_print_timespec,
+int YYIO_print_timespec(yio_printctx_t *t);
+#define YYIO_PRINT_GENERIC_TIMESPEC() \
+		struct timespec: YYIO_print_timespec,
 #else
-#define YYΩIO_PRINT_GENERIC_TIMESPEC()
+#define YYIO_PRINT_GENERIC_TIMESPEC()
 #endif
 
 #if YYIO_HAS_timeval
-int YYΩIO_print_timeval(yπio_printctx_t *t);
-#define YYΩIO_PRINT_GENERIC_TIMEVAL() \
-		struct timeval: YYΩIO_print_timeval,
+int YYIO_print_timeval(yio_printctx_t *t);
+#define YYIO_PRINT_GENERIC_TIMEVAL() \
+		struct timeval: YYIO_print_timeval,
 #else // YYIO_HAS_timeval
-#define YYΩIO_PRINT_GENERIC_TIMEVAL()
+#define YYIO_PRINT_GENERIC_TIMEVAL()
 #endif // YYIO_HAS_timeval
 
-#define YYΩIO_PRINT_GENERIC_TIME() \
-		struct tm: YYΩIO_print_tm, \
-		YYΩIO_PRINT_GENERIC_TIMESPEC() \
-		YYΩIO_PRINT_GENERIC_TIMEVAL()
+#define YYIO_PRINT_GENERIC_TIME() \
+		struct tm: YYIO_print_tm, \
+		YYIO_PRINT_GENERIC_TIMESPEC() \
+		YYIO_PRINT_GENERIC_TIMEVAL()
 
-#endif /* YYIO_YIO_YΩIO_MANIP_PRINT_TIME_H_ */
+#endif /* YYIO_YIO_YIO_MANIP_PRINT_TIME_H_ */

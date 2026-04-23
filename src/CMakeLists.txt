@@ -83,7 +83,7 @@ file(GLOB_RECURSE _srcs *.c *.h)
 foreach(source IN LISTS _srcs)
 	file(RELATIVE_PATH _output ${SRCDIR} ${source})
 	if(source MATCHES "yio/yio/.*")
-		foreach(mode IN ITEMS yio ywio yuio yc16io)
+		foreach(mode IN ITEMS yio)
 			string(REGEX REPLACE "yio/yio/" "yio/${mode}/" "_tmp" "${_output}")
 			jinja_generate(
 				TARGET yio_gen
@@ -318,20 +318,6 @@ set(_yio_sources
 	yio.h
 	${_yio_gensrcs}
 )
-if(YIO_HAS_WCHAR_H)
-  list(APPEND _yio_sources
-    ywio.h
-    ${_ywio_gensrcs}
-  )
-endif()
-if(UNISTRING_LIB)
-	list(APPEND _yio_sources
-		yc16io.h
-		${_yc16io_gensrcs}
-		yuio.h
-		${_yuio_gensrcs}
-	)
-endif()
 yio_add_library(yio ${_yio_sources})
 if(UNISTRING_LIB)
 	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})

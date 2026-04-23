@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include <yπio.h>
+#include <yio.h>
 #include <locale.h>
 int main() {
 	struct tm t = {
@@ -18,8 +18,8 @@ int main() {
 		.tm_sec  = 0,
 	};
 	setlocale(LC_ALL, "C");
-	yπprintf(TC("{}\n"), t);
-	yπprintf(TC("{:}\n"), t);
+	yprintf("{}\n", t);
+	yprintf("{:}\n", t);
 }
 // PASS_REGULAR_EXPRESSION Sun Jan  1 20:00:00 1900
 // PASS_REGULAR_EXPRESSION Sun Jan  1 20:00:00 1900

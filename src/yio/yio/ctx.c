@@ -32,32 +32,32 @@
 
 /* ------------------------------------------------------------------------- */
 
-static const TCHAR YYΩIO_ALIGN_LEFT = TC('<');
-static const TCHAR YYΩIO_ALIGN_RIGHT = TC('>');
-static const TCHAR YYΩIO_ALIGN_PADSIGN = TC('=');
-static const TCHAR YYΩIO_ALIGN_CENTER = TC('^');
+static const char YYIO_ALIGN_LEFT = '<';
+static const char YYIO_ALIGN_RIGHT = '>';
+static const char YYIO_ALIGN_PADSIGN = '=';
+static const char YYIO_ALIGN_CENTER = '^';
 
-static const TCHAR YYΩIO_SIGN_ALWAYS = TC('+');
-//static const TCHAR YYΩIO_SIGN_NEGATIVE = TC('-');
-static const TCHAR YYΩIO_SIGN_ALWAYSSPACE = TC(' ');
+static const char YYIO_SIGN_ALWAYS = '+';
+//static const char YYIO_SIGN_NEGATIVE = '-';
+static const char YYIO_SIGN_ALWAYSSPACE = ' ';
 
-const struct yπio_printfmt_s YYΩIO_printfmt_default = {
+const struct yio_printfmt_s YYIO_printfmt_default = {
 		.width = -1,
 		.precision = -1,
-		.fill = TC(' '),
-		.sign = TC('-'),
+		.fill = ' ',
+		.sign = '-',
 };
 
 /* ------------------------------------------------------------------------- */
 
-void YYΩIO_skip_arm(yπio_printctx_t *t, unsigned count) {
+void YYIO_skip_arm(yio_printctx_t *t, unsigned count) {
 	va_end(*t->va);
 	va_copy(*t->va, *t->startva);
 	t->ifunc = t->startifunc;
 	t->skip = count;
 }
 
-int YYΩIO_skip_do(yπio_printctx_t *t) {
+int YYIO_skip_do(yio_printctx_t *t) {
 	for (; t->skip != 0; --t->skip) {
 		if (*t->ifunc == NULL) {
 			return YIO_ERROR_TOO_MANY_FMT;
@@ -72,57 +72,57 @@ int YYΩIO_skip_do(yπio_printctx_t *t) {
 }
 
 static inline
-int YYΩIO_digit_to_number(TCHAR d) {
-	assert(TISDIGIT(d));
-#if TMODEX == 1
+int YYIO_digit_to_number(char d) {
+	assert(isdigit((unsigned char)(d)));
+#if 1 == 1
 	return d - '0';
 #else
-	const TCHAR table[] = TC("0123456789");
-	return (int)(TSTRCHR(table, d) - table);
+	const char table[] = "0123456789";
+	return (int)(strchr(table, d) - table);
 #endif
 }
 
-int YYΩIO_printctx_strtoi_noerr(const TCHAR **fmtpnt) {
-	const TCHAR *fmt = *fmtpnt;
-	assert(TISDIGIT(fmt[0]));
+int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
+	const char *fmt = *fmtpnt;
+	assert(isdigit((unsigned char)(fmt[0])));
 	int num = 0;
 	do {
 		assert(num < INT_MAX / 10);
 		num *= 10;
-		const int c = YYΩIO_digit_to_number(fmt[0]);
+		const int c = YYIO_digit_to_number(fmt[0]);
 		assert(num < INT_MAX - c);
 		num += c;
 		++fmt;
-	} while (TISDIGIT(fmt[0]));
+	} while (isdigit((unsigned char)(fmt[0])));
 	*fmtpnt = fmt;
 	return num;
 }
 
 static inline
-int YYΩIO_printctx_take_positional_param(yπio_printctx_t *t, const TCHAR *fmt, const TCHAR **endptr, int *res) {
-	assert(fmt[0] == TC('{'));
+int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, int *res) {
+	assert(fmt[0] == '{');
 	fmt++;
-	if (TISDIGIT(fmt[0])) {
-		YYΩIO_skip_arm(t, YYΩIO_printctx_strtoi_noerr(&fmt));
-		const int skiperr = YYΩIO_skip_do(t);
+	if (isdigit((unsigned char)(fmt[0]))) {
+		YYIO_skip_arm(t, YYIO_printctx_strtoi_noerr(&fmt));
+		const int skiperr = YYIO_skip_do(t);
 		if (skiperr) return skiperr;
 	}
 	if (t->ifunc == NULL) {
 		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NO_ARGS, "no arguments for positional width or precision");
 	}
 	int num;
-	const yπio_printdata_t ifunc = *t->ifunc++;
+	const yio_printdata_t ifunc = *t->ifunc++;
 	// TODO: conversions
-	if (ifunc == &YYΩIO_print_short)       num = yπio_printctx_va_arg_promote(t, short);
-	else if (ifunc == &YYΩIO_print_ushort) num = yπio_printctx_va_arg_promote(t, unsigned short);
-	else if (ifunc == &YYΩIO_print_int)    num = yπio_printctx_va_arg(t, int);
-	else if (ifunc == &YYΩIO_print_uint)   num = yπio_printctx_va_arg(t, unsigned int); // NOLINT
-	else if (ifunc == &YYΩIO_print_long)   num = yπio_printctx_va_arg(t, long);
-	else if (ifunc == &YYΩIO_print_ulong)  num = yπio_printctx_va_arg(t, unsigned long);
-	else if (ifunc == &YYΩIO_print_llong)  num = yπio_printctx_va_arg(t, long long);
-	else if (ifunc == &YYΩIO_print_ullong) num = yπio_printctx_va_arg(t, unsigned long long);
+	if (ifunc == &YYIO_print_short)       num = yio_printctx_va_arg_promote(t, short);
+	else if (ifunc == &YYIO_print_ushort) num = yio_printctx_va_arg_promote(t, unsigned short);
+	else if (ifunc == &YYIO_print_int)    num = yio_printctx_va_arg(t, int);
+	else if (ifunc == &YYIO_print_uint)   num = yio_printctx_va_arg(t, unsigned int); // NOLINT
+	else if (ifunc == &YYIO_print_long)   num = yio_printctx_va_arg(t, long);
+	else if (ifunc == &YYIO_print_ulong)  num = yio_printctx_va_arg(t, unsigned long);
+	else if (ifunc == &YYIO_print_llong)  num = yio_printctx_va_arg(t, long long);
+	else if (ifunc == &YYIO_print_ullong) num = yio_printctx_va_arg(t, unsigned long long);
 	else return YYIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number");
-	if (fmt++[0] != TC('}')) {
+	if (fmt++[0] != '}') {
 		return YYIO_ERROR(YIO_ERROR_POSITIONAL_MISSING_RIGHT_BRACE, "missing '}' when parsing positional width or precision specifier");
 	}
 	if (num < 0) {
@@ -133,12 +133,12 @@ int YYΩIO_printctx_take_positional_param(yπio_printctx_t *t, const TCHAR *fmt,
 	return 0;
 }
 
-int YYΩIO_printctx_stdintparam(yπio_printctx_t *t, const TCHAR *fmt, const TCHAR **endptr, int *res) {
-	if (fmt[0] == TC('{')) {
-		const int ret = YYΩIO_printctx_take_positional_param(t, fmt, endptr, res);
+int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, int *res) {
+	if (fmt[0] == '{') {
+		const int ret = YYIO_printctx_take_positional_param(t, fmt, endptr, res);
 		if (ret) return ret;
-	} else if (TISDIGIT(fmt[0])) {
-		*res = YYΩIO_printctx_strtoi_noerr(&fmt);
+	} else if (isdigit((unsigned char)(fmt[0]))) {
+		*res = YYIO_printctx_strtoi_noerr(&fmt);
 		*endptr = fmt;
 	} else {
 		// do nothing
@@ -147,12 +147,12 @@ int YYΩIO_printctx_stdintparam(yπio_printctx_t *t, const TCHAR *fmt, const TCH
 	return 0;
 }
 
-bool YYΩIO_strnulchrbool(const TCHAR *s, TCHAR c) {
-	return c != TC('\0') && TSTRCHR(s, c) != NULL;
+bool YYIO_strnulchrbool(const char *s, char c) {
+	return c != '\0' && strchr(s, c) != NULL;
 }
 
-int YYΩIO_pfmt_parse(struct YYΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
-		const TCHAR *fmt, const TCHAR **endptr) {
+int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
+		const char *fmt, const char **endptr) {
 	/*
 	https://fmt.dev/latest/syntax.html#format-specification-mini-language
 	format_spec     ::=  [[fill]align][sign][#][0][width][grouping_option][.precision]["L"][type]
@@ -166,60 +166,60 @@ int YYΩIO_pfmt_parse(struct YYΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
 	 */
 
 	// fill and align must be first
-	if (fmt[0] != TC('\0') && YYΩIO_strnulchrbool(TC("<>=^"), fmt[1])) {
+	if (fmt[0] != '\0' && YYIO_strnulchrbool("<>=^", fmt[1])) {
 		pf->fill = fmt++[0];
 		pf->align = fmt++[0];
-	} else if (YYΩIO_strnulchrbool(TC("<>=^"), fmt[0])) {
+	} else if (YYIO_strnulchrbool("<>=^", fmt[0])) {
 		pf->align = fmt++[0];
 	}
 
 	int ret = 0;
 	// I am parsing in a loop, but still it is undefined behavior to specify them out-of-place.
 	while (1) {
-		const TCHAR ch = fmt++[0];
+		const char ch = fmt++[0];
 		switch (ch) {
-		case TC('}'):
+		case '}':
 			goto EXIT;
-		case TC('\0'):
+		case '\0':
 			ret = YYIO_ERROR(YIO_ERROR_MISSING_RIGHT_BRACE, "missing '}' when parsing common format specification");
 			goto EXIT;
-		case TC('+'):
-		case TC('-'):
-		case TC(' '):
+		case '+':
+		case '-':
+		case ' ':
 			pf->sign = ch;
 			break;
-		case TC('#'):
+		case '#':
 			pf->hash = true;
 			break;
-		case TC('0'):
-			if (pf->align == TC('\0')) {
-				pf->fill = TC('0');
-				pf->align = TC('=');
+		case '0':
+			if (pf->align == '\0') {
+				pf->fill = '0';
+				pf->align = '=';
 			}
 			break;
-		case TC('1'):
-		case TC('2'):
-		case TC('3'):
-		case TC('4'):
-		case TC('5'):
-		case TC('6'):
-		case TC('7'):
-		case TC('8'):
-		case TC('9'):
-		case TC('{'):
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+		case '{':
 			--fmt;
-			ret = YYΩIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
+			ret = YYIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
 			if (ret) goto EXIT;
 			break;
-		case TC('_'):
-		case TC(','):
-		case TC('L'):
+		case '_':
+		case ',':
+		case 'L':
 			pf->grouping = ch;
 			break;
-		case TC('.'):
+		case '.':
 			{
-				const TCHAR *endparamptr;
-				ret = YYΩIO_printctx_stdintparam(t, fmt, &endparamptr, &pf->precision);
+				const char *endparamptr;
+				ret = YYIO_printctx_stdintparam(t, fmt, &endparamptr, &pf->precision);
 				if (ret) goto EXIT;
 				// If there is a dot, there must be precision.
 				if (endparamptr == fmt) {
@@ -229,18 +229,18 @@ int YYΩIO_pfmt_parse(struct YYΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
 				fmt = endparamptr;
 			}
 			break;
-		case TC('c'):
-		case TC('s'):
-		case TC('d'):
-		case TC('e'): case TC('E'):
-		case TC('f'): case TC('F'):
-		case TC('a'): case TC('A'):
-		case TC('g'): case TC('G'):
-		case TC('b'): case TC('B'):
-		case TC('o'): case TC('O'):
-		case TC('x'): case TC('X'):
-		case TC('n'):
-		case TC('p'):
+		case 'c':
+		case 's':
+		case 'd':
+		case 'e': case 'E':
+		case 'f': case 'F':
+		case 'a': case 'A':
+		case 'g': case 'G':
+		case 'b': case 'B':
+		case 'o': case 'O':
+		case 'x': case 'X':
+		case 'n':
+		case 'p':
 			pf->type = ch;
 			break;
 		default:
@@ -257,18 +257,18 @@ int YYΩIO_pfmt_parse(struct YYΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
 
 /* printctx ---------------------------------------------------- */
 
-int yπio_printctx_init(yπio_printctx_t *t) {
+int yio_printctx_init(yio_printctx_t *t) {
 	if (t->skip != 0) {
 		return YIO_ERROR_SKIPPING;
 	}
 	if (t->fmt) {
-		const int err = YYΩIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
+		const int err = YYIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
 		if (err) return err;
 	}
 	return 0;
 }
 
-int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *restrict ptr, size_t size) {
+int yio_printctx_raw_write(yio_printctx_t *t, const char *restrict ptr, size_t size) {
 	assert(t->out != NULL);
 	assert(ptr != NULL);
 	const int ret = (*t->out)(t->outarg, ptr, size);
@@ -278,7 +278,7 @@ int yπio_printctx_raw_write(yπio_printctx_t *t, const TCHAR *restrict ptr, siz
 	return 0;
 }
 
-int yπio_printctx_next(yπio_printctx_t *t) {
+int yio_printctx_next(yio_printctx_t *t) {
 	assert(t->ifunc != NULL);
 	assert(*t->ifunc != NULL);
 	++t->ifunc;
@@ -288,10 +288,10 @@ int yπio_printctx_next(yπio_printctx_t *t) {
 	return (*t->ifunc)(t);
 }
 
-int YYΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const TCHAR *fmt, ...) {
+int YYIO_printctx_print_in(yio_printctx_t *t, yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int ret = yπvbprintf(t->out, t->outarg, data, fmt, &va);
+	const int ret = yvbprintf(t->out, t->outarg, data, fmt, &va);
 	va_end(va);
 	if (ret < 0) {
 		return ret;
@@ -309,28 +309,28 @@ int YYΩIO_printctx_print_in(yπio_printctx_t *t, yπio_printdata_t *data, const
 #error
 #endif
 static inline
-size_t YYΩIO_width(const TCHAR *str, size_t str_len) {
-#if TMODE == 1 && YYIO_HAS_UNISTRING
+size_t YYIO_width(const char *str, size_t str_len) {
+#if 1 == 1 && YYIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
-#elif TMODE == 2 && YYIO_HAS_wcswidth
+#elif 1 == 2 && YYIO_HAS_wcswidth
 	const int width = wcswidth(str, str_len);
 	return width < 0 ? str_len : (size_t)width;
-#elif TMODE == 3
+#elif 1 == 3
 	return u16_width(str, str_len, locale_charset());
-#elif TMODE == 4
+#elif 1 == 4
 	return u32_width(str, str_len, locale_charset());
 #else
 	return str_len;
 #endif
 }
 
-typedef struct YYΩIO_printformat_t {
-	yπio_printctx_t *t;
+typedef struct YYIO_printformat_t {
+	yio_printctx_t *t;
 	size_t str_len;
 	size_t alllen;
 	bool is_number;
 	bool is_positive;
-} YYΩIO_printformat_t;
+} YYIO_printformat_t;
 
 /**
  * Construct print formatting options.
@@ -348,11 +348,11 @@ typedef struct YYΩIO_printformat_t {
  * @return
  */
 static inline
-void YYΩIO_printformat_init(YYΩIO_printformat_t *pf, yπio_printctx_t *t,
-		const TCHAR *str, size_t str_len, bool is_number, bool is_positive) {
-	YYΩIO_printformat_t ret = {
+void YYIO_printformat_init(YYIO_printformat_t *pf, yio_printctx_t *t,
+		const char *str, size_t str_len, bool is_number, bool is_positive) {
+	YYIO_printformat_t ret = {
 			.t = t,
-			.str_len = (is_number ? str_len : YYΩIO_width(str, str_len)),
+			.str_len = (is_number ? str_len : YYIO_width(str, str_len)),
 			.is_number = is_number,
 			.is_positive = is_positive,
 	};
@@ -360,62 +360,62 @@ void YYΩIO_printformat_init(YYΩIO_printformat_t *pf, yπio_printctx_t *t,
 }
 
 static inline
-int YYΩIO_printformat_prefix__print_sign_hash(yπio_printctx_t *t,
-		const struct yπio_printfmt_s *f,
+int YYIO_printformat_prefix__print_sign_hash(yio_printctx_t *t,
+		const struct yio_printfmt_s *f,
 		bool has_sign, bool has_hash, bool is_positive) {
 	if (has_sign) {
-		const TCHAR c = (TCHAR)(is_positive ? f->sign : TC('-'));
-		const int err = yπio_printctx_raw_write(t, &c, 1);
+		const char c = (char)(is_positive ? f->sign : '-');
+		const int err = yio_printctx_raw_write(t, &c, 1);
 		if (err) return err;
 	}
 	if (has_hash) {
-		const TCHAR buf[2] = { TC('0'), f->type, };
-		const int err = yπio_printctx_raw_write(t, buf, 2);
+		const char buf[2] = { '0', f->type, };
+		const int err = yio_printctx_raw_write(t, buf, 2);
 		if (err) return err;
 	}
 	return 0;
 }
 
 static inline
-int YYΩIO_printformat_prefix(YYΩIO_printformat_t *pf) {
-	yπio_printctx_t * const t = pf->t;
-	struct yπio_printfmt_s * const f = &pf->t->pf;
+int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
+	yio_printctx_t * const t = pf->t;
+	struct yio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	const bool is_positive = pf->is_positive;
 	size_t * const alllen0 = &pf->alllen;
 	const size_t len = pf->str_len;
 
-	const bool has_hash = is_number && f->hash && TSTRCHR(TC("xXoObB"), f->type) != NULL;
-	const bool has_sign = is_number && (f->sign == YYΩIO_SIGN_ALWAYS ||
-					f->sign == YYΩIO_SIGN_ALWAYSSPACE || is_positive == false);
+	const bool has_hash = is_number && f->hash && strchr("xXoObB", f->type) != NULL;
+	const bool has_sign = is_number && (f->sign == YYIO_SIGN_ALWAYS ||
+					f->sign == YYIO_SIGN_ALWAYSSPACE || is_positive == false);
 	const size_t alllen = len + (size_t)( 2U * has_hash + has_sign );
 	*alllen0 = alllen;
 	const size_t width = f->width > 0 ? f->width : 0;
 
-	if (f->align == TC('\0')) {
+	if (f->align == '\0') {
 		// The default for numbers is right, otherwise it's left.
-		f->align = pf->is_number ? YYΩIO_ALIGN_RIGHT : YYΩIO_ALIGN_LEFT;
+		f->align = pf->is_number ? YYIO_ALIGN_RIGHT : YYIO_ALIGN_LEFT;
 	}
 
-	if (f->align == YYΩIO_ALIGN_PADSIGN) {
-		const int err = YYΩIO_printformat_prefix__print_sign_hash(t, f,
+	if (f->align == YYIO_ALIGN_PADSIGN) {
+		const int err = YYIO_printformat_prefix__print_sign_hash(t, f,
 				has_sign, has_hash, is_positive);
 		if (err) return err;
 	}
 
-	if ((f->align == YYΩIO_ALIGN_PADSIGN ||
-			f->align == YYΩIO_ALIGN_RIGHT ||
-			f->align == YYΩIO_ALIGN_CENTER) && width > alllen) {
+	if ((f->align == YYIO_ALIGN_PADSIGN ||
+			f->align == YYIO_ALIGN_RIGHT ||
+			f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = width - alllen;
-		size_t diff = f->align == YYΩIO_ALIGN_CENTER ? tmp / 2 : tmp;
+		size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 : tmp;
 		while (diff--) {
-			const int err = yπio_printctx_raw_write(t, &f->fill, 1);
+			const int err = yio_printctx_raw_write(t, &f->fill, 1);
 			if (err) return err;
 		}
 	}
 
-	if (f->align != YYΩIO_ALIGN_PADSIGN) {
-		const int err = YYΩIO_printformat_prefix__print_sign_hash(t, f,
+	if (f->align != YYIO_ALIGN_PADSIGN) {
+		const int err = YYIO_printformat_prefix__print_sign_hash(t, f,
 				has_sign, has_hash, is_positive);
 		if (err) return err;
 	}
@@ -424,16 +424,16 @@ int YYΩIO_printformat_prefix(YYΩIO_printformat_t *pf) {
 }
 
 static inline
-int YYΩIO_printformat_suffix(YYΩIO_printformat_t *pf) {
-	yπio_printctx_t * const t = pf->t;
-	struct yπio_printfmt_s * const f = &pf->t->pf;
+int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
+	yio_printctx_t * const t = pf->t;
+	struct yio_printfmt_s * const f = &pf->t->pf;
 	const size_t alllen = pf->alllen;
 	const size_t width = f->width > 0 ? f->width : 0;
-	if ((f->align == YYΩIO_ALIGN_LEFT || f->align == YYΩIO_ALIGN_CENTER) && width > alllen) {
+	if ((f->align == YYIO_ALIGN_LEFT || f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
-		size_t diff = f->align == YYΩIO_ALIGN_CENTER ? tmp / 2 + !!(tmp % 2) : tmp;
+		size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + !!(tmp % 2) : tmp;
 		while (diff--) {
-			const int err = yπio_printctx_raw_write(t, &f->fill, 1);
+			const int err = yio_printctx_raw_write(t, &f->fill, 1);
 			if (err) return err;
 		}
 	}
@@ -441,8 +441,8 @@ int YYΩIO_printformat_suffix(YYΩIO_printformat_t *pf) {
 }
 
 static inline
-const TCHAR *str_dot_or_end(const TCHAR str[], size_t len) {
-	for (; len != 0 && str[0] != TC('.') && str[0] != TC(','); ++str, --len) {
+const char *str_dot_or_end(const char str[], size_t len) {
+	for (; len != 0 && str[0] != '.' && str[0] != ','; ++str, --len) {
 	}
 	return str;
 }
@@ -454,28 +454,28 @@ static const char GROUP3[2] = "\x03";
 static const char GROUP4[2] = "\x04";
 
 static inline
-const char *get_group(yπio_printctx_t *t) {
+const char *get_group(yio_printctx_t *t) {
 #if YIO_USE_LOCALE && defined(GROUPING)
-	if (t->pf.grouping == TC('L')) {
+	if (t->pf.grouping == 'L') {
 		const char *r = nl_langinfo(GROUPING);
 		return r != NULL && *r != '\0' ? r : NOGROUP;
 	}
 #endif
 	//dbgln("HERE %c", (int)t->pf.type);
-	return YYΩIO_strnulchrbool(TC("bBxX"), t->pf.type) ? GROUP4 : GROUP3;
+	return YYIO_strnulchrbool("bBxX", t->pf.type) ? GROUP4 : GROUP3;
 }
 
 struct numsep {
-	const TCHAR *sep;
+	const char *sep;
 	size_t len;
 };
 
-static const TCHAR DEFAULT_THOUSEND_SEP[1] = { TC(',') };
+static const char DEFAULT_THOUSEND_SEP[1] = { ',' };
 
 static inline
-int print_numsep(yπio_printctx_t *t, struct numsep *ns) {
+int print_numsep(yio_printctx_t *t, struct numsep *ns) {
 	if (ns->sep == NULL) {
-		if (t->pf.grouping == TC('L')) {
+		if (t->pf.grouping == 'L') {
 #if YIO_USE_LOCALE
 			const char *sep = nl_langinfo(THOUSEP); // THOUSEND_SEP
 			if (sep == NULL) {
@@ -483,12 +483,12 @@ int print_numsep(yπio_printctx_t *t, struct numsep *ns) {
 				ns->sep = DEFAULT_THOUSEND_SEP;
 				ns->len = 0;
 			} else {
-#if TMODEX == 1
+#if 1 == 1
 				ns->sep = sep;
 				ns->len = strlen(ns->sep);
 #else
 				// Convert separator to wchar/char16/char32.
-				const int err = YYIO_strconv_str_to_πstr(sep, strlen(sep), &ns->sep, &ns->len);
+				const int err = YYIO_strconv_str_to_str(sep, strlen(sep), &ns->sep, &ns->len);
 				if (err) return err;
 #endif
 			}
@@ -502,12 +502,12 @@ int print_numsep(yπio_printctx_t *t, struct numsep *ns) {
 		}
 	}
 	if (ns->len == 0) return 0;
-	return yπio_printctx_raw_write(t, ns->sep, ns->len);
+	return yio_printctx_raw_write(t, ns->sep, ns->len);
 }
 
 static inline
-void print_numsep_end(yπio_printctx_t *t, struct numsep *ns) {
-#if TMODEX != 1
+void print_numsep_end(yio_printctx_t *t, struct numsep *ns) {
+#if 1 != 1
 	if (ns->sep != &t->pf.grouping && ns->sep != DEFAULT_THOUSEND_SEP) {
 		free((void *)ns->sep); // cppcheck-suppress cert-EXP05-C
 	}
@@ -515,28 +515,28 @@ void print_numsep_end(yπio_printctx_t *t, struct numsep *ns) {
 }
 
 static inline
-int print_dot(yπio_printctx_t *t) {
+int print_dot(yio_printctx_t *t) {
 #if YIO_USE_LOCALE
-	if (t->pf.grouping == TC('L')) {
+	if (t->pf.grouping == 'L') {
 		const char *dot = nl_langinfo(RADIXCHAR); // DECIMAL_POINT
 		if (dot == NULL) return 0;
-		const TCHAR *tmpstr = NULL;
+		const char *tmpstr = NULL;
 		size_t tmpstrlen = 0;
-		int err = YYIO_strconv_str_to_πstr(dot, strlen(dot), &tmpstr, &tmpstrlen);
+		int err = YYIO_strconv_str_to_str(dot, strlen(dot), &tmpstr, &tmpstrlen);
 		if (err) return err;
-		err = yπio_printctx_raw_write(t, tmpstr, tmpstrlen);
-		YYIO_strconv_free_str_to_πstr(dot, tmpstr);
+		err = yio_printctx_raw_write(t, tmpstr, tmpstrlen);
+		YYIO_strconv_free_str_to_str(dot, tmpstr);
 		return err;
 	}
 #endif
-	const TCHAR DEFAULT_DOT[1] = { TC('.') };
-	return yπio_printctx_raw_write(t, DEFAULT_DOT, 1);
+	const char DEFAULT_DOT[1] = { '.' };
+	return yio_printctx_raw_write(t, DEFAULT_DOT, 1);
 }
 
 static inline
-int YYΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR str[], size_t str_len) {
-	const TCHAR *num = str;
-	const TCHAR *const dotorend = str_dot_or_end(str, str_len);
+int YYIO_print_format_generic_number_grouping(yio_printctx_t *t, const char str[], size_t str_len) {
+	const char *num = str;
+	const char *const dotorend = str_dot_or_end(str, str_len);
 	size_t numlen = dotorend - str;
 	const char *group = get_group(t);
 	const char *gri = group;
@@ -555,22 +555,22 @@ int YYΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR
 			const char lastgroup = gri[-1];
 			const unsigned odd = before % lastgroup;
 			if (odd) {
-				err = yπio_printctx_raw_write(t, num, odd);
+				err = yio_printctx_raw_write(t, num, odd);
 				if (err) goto NUMSEP_END;
 				num += odd;
 				before -= odd;
 				err = print_numsep(t, &ns);
 				if (err) goto NUMSEP_END;
 			}
-			for (const TCHAR *const endbefore = num + before; num != endbefore; num += lastgroup) {
-				err = yπio_printctx_raw_write(t, num, lastgroup);
+			for (const char *const endbefore = num + before; num != endbefore; num += lastgroup) {
+				err = yio_printctx_raw_write(t, num, lastgroup);
 				if (err) goto NUMSEP_END;
 				err = print_numsep(t, &ns);
 				if (err) goto NUMSEP_END;
 			}
 		} else {
 			assert(c == CHAR_MAX);
-			err = yπio_printctx_raw_write(t, num, before);
+			err = yio_printctx_raw_write(t, num, before);
 			if (err) goto NUMSEP_END;
 			num += before;
 			if (groupsum) {
@@ -584,7 +584,7 @@ int YYΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR
 		groupsum -= *--gri;
 		if (numlen > groupsum) {
 			const unsigned left = numlen - groupsum;
-			err = yπio_printctx_raw_write(t, num, left);
+			err = yio_printctx_raw_write(t, num, left);
 			if (err) goto NUMSEP_END;
 			num += left;
 			while (groupsum) {
@@ -592,7 +592,7 @@ int YYΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR
 				if (err) goto NUMSEP_END;
 				c = *--gri;
 				groupsum -= c;
-				err = yπio_printctx_raw_write(t, num, c);
+				err = yio_printctx_raw_write(t, num, c);
 				if (err) goto NUMSEP_END;
 				num += c;
 			}
@@ -608,12 +608,12 @@ int YYΩIO_print_format_generic_number_grouping(yπio_printctx_t *t, const TCHAR
 	const size_t postdotlen = str_len - (num - str);
 	if (postdotlen) {
 		// We are at dot
-		assert(*num == TC('.') || *num == TC(','));
+		assert(*num == '.' || *num == ',');
 		err = print_dot(t);
 		if (err) return err;
 		if (postdotlen > 1) {
 			// We are after dot
-			err = yπio_printctx_raw_write(t, num + 1, postdotlen - 1);
+			err = yio_printctx_raw_write(t, num + 1, postdotlen - 1);
 			if (err) return err;
 		}
 		num += postdotlen;
@@ -627,64 +627,64 @@ NUMSEP_END:
 }
 
 static inline
-int YYΩIO_printformat_print(YYΩIO_printformat_t *pf, const TCHAR str[], size_t str_len) {
-	yπio_printctx_t * const t = pf->t;
-	struct yπio_printfmt_s * const f = &pf->t->pf;
+int YYIO_printformat_print(YYIO_printformat_t *pf, const char str[], size_t str_len) {
+	yio_printctx_t * const t = pf->t;
+	struct yio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
-	if (is_number == true && f->grouping != TC('\0')) {
-		const int err = YYΩIO_print_format_generic_number_grouping(t, str, str_len);
+	if (is_number == true && f->grouping != '\0') {
+		const int err = YYIO_print_format_generic_number_grouping(t, str, str_len);
 		if (err) return err;
 	} else {
-		const int err = yπio_printctx_raw_write(t, str, str_len);
+		const int err = yio_printctx_raw_write(t, str, str_len);
 		if (err) return err;
 	}
 	return 0;
 }
 
 static inline
-bool is_one_of_or_nul(TCHAR c, const TCHAR *str) {
-	return c == TC('\0') || YYΩIO_strnulchrbool(str, c);
+bool is_one_of_or_nul(char c, const char *str) {
+	return c == '\0' || YYIO_strnulchrbool(str, c);
 }
 
 static inline
-void YYΩIO_printformat_assert_valid(const struct yπio_printfmt_s *pf) {
-	assert(is_one_of_or_nul(pf->align, TC("<>=^")));
-	assert(is_one_of_or_nul(pf->sign, TC("+- ")));
-	assert(pf->fill != TC('{') && pf->fill != TC('}'));
-	assert(is_one_of_or_nul(pf->grouping, TC("_,L")));
-	assert(is_one_of_or_nul(pf->c_onversion, TC("a")));
+void YYIO_printformat_assert_valid(const struct yio_printfmt_s *pf) {
+	assert(is_one_of_or_nul(pf->align, "<>=^"));
+	assert(is_one_of_or_nul(pf->sign, "+- "));
+	assert(pf->fill != '{' && pf->fill != '}');
+	assert(is_one_of_or_nul(pf->grouping, "_,L"));
+	assert(is_one_of_or_nul(pf->c_onversion, "a"));
 }
 
 /* ------------------------------------------------------------------------- */
 
 static inline
-bool is_print_ascii(TCHAR tcc) {
+bool is_print_ascii(char tcc) {
 	const unsigned char ascii_min_printable = 32U;
 	const unsigned char ascii_max_printable = 126U;
-#if TMODE == 1 || \
-		(TMODE == 2 && !defined(__STDC_MB_MIGHT_NEQ_WC__)) || \
-		(TMODE == 3 && defined(__STDC_UTF_16__)) || \
-		(TMODE == 4 && defined(__STDC_UTF_32__))
+#if 1 == 1 || \
+		(1 == 2 && !defined(__STDC_MB_MIGHT_NEQ_WC__)) || \
+		(1 == 3 && defined(__STDC_UTF_16__)) || \
+		(1 == 4 && defined(__STDC_UTF_32__))
 #else
 #warning TODO: conversion
 #endif
-	const TCHAR cc = tcc;
+	const char cc = tcc;
 	return ascii_min_printable <= cc && cc <= ascii_max_printable;
 }
 
 struct ss_s {
-	TCHAR *newstr;
+	char *newstr;
 	size_t cnt;
 };
 
 static inline
-struct ss_s ss_init(TCHAR *newstr) {
+struct ss_s ss_init(char *newstr) {
 	struct ss_s rr = { .newstr = newstr, .cnt = 0 };
 	return rr;
 }
 
 static inline
-void ss_out(struct ss_s *t, TCHAR cc) {
+void ss_out(struct ss_s *t, char cc) {
 	if (t->newstr) {
 		*t->newstr++ = cc;
 	} else {
@@ -692,20 +692,20 @@ void ss_out(struct ss_s *t, TCHAR cc) {
 	}
 }
 
-static const TCHAR *const xdigits = TC("0123456789abcdef");
+static const char *const xdigits = "0123456789abcdef";
 static const unsigned char four = 0xfU;
 
 static inline
-void ascii_encode_x(struct ss_s *ss, TCHAR cc, TCHAR next) {
+void ascii_encode_x(struct ss_s *ss, char cc, char next) {
 	static_assert(CHAR_BIT == 8, "Really? TODO");
-	const bool nextdigit = !!TISXDIGIT(next);
+	const bool nextdigit = !!isxdigit((unsigned char)(next));
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
 		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
-		ss_out(ss, TC('\\'));
-		ss_out(ss, TC('x'));
-		if (nextdigit || bbv > (TCHAR)16U) {
+		ss_out(ss, '\\');
+		ss_out(ss, 'x');
+		if (nextdigit || bbv > (char)16U) {
 			ss_out(ss, xdigits[(bbv >> 4U) & four]);
 		}
 		ss_out(ss, xdigits[bbv & four]);
@@ -713,16 +713,16 @@ void ascii_encode_x(struct ss_s *ss, TCHAR cc, TCHAR next) {
 }
 
 static inline
-void ascii_encode_o(struct ss_s *ss, TCHAR cc, TCHAR next) {
+void ascii_encode_o(struct ss_s *ss, char cc, char next) {
 	static const unsigned char three = 0x7U;
-	const bool nextdigit = !!TISDIGIT(next);
+	const bool nextdigit = !!isdigit((unsigned char)(next));
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
 		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
-		ss_out(ss, TC('\\'));
+		ss_out(ss, '\\');
 		for (unsigned ii = 3U * 2U; ii > 0U; ii -= 3U) {
-			if (nextdigit || bbv > (TCHAR)(1U << ii)) {
+			if (nextdigit || bbv > (char)(1U << ii)) {
 				ss_out(ss, xdigits[(bbv >> ii) & three]);
 			}
 		}
@@ -731,12 +731,12 @@ void ascii_encode_o(struct ss_s *ss, TCHAR cc, TCHAR next) {
 }
 
 static inline
-void ascii_encode_u(struct ss_s *ss, TCHAR cc, TCHAR next) {
-	const bool nextdigit = !!TISXDIGIT(next);
-	ss_out(ss, TC('\\'));
-	ss_out(ss, TC('u'));
+void ascii_encode_u(struct ss_s *ss, char cc, char next) {
+	const bool nextdigit = !!isxdigit((unsigned char)(next));
+	ss_out(ss, '\\');
+	ss_out(ss, 'u');
 	for (unsigned ii = 4U * 3U; ii > 0U; ii -= 4U) {
-		if (nextdigit || cc > (TCHAR)(1U << ii)) {
+		if (nextdigit || cc > (char)(1U << ii)) {
 			ss_out(ss, xdigits[(cc >> ii) & four]);
 		}
 	}
@@ -744,12 +744,12 @@ void ascii_encode_u(struct ss_s *ss, TCHAR cc, TCHAR next) {
 }
 
 static inline
-void ascii_encode_U(struct ss_s *ss, TCHAR cc, TCHAR next) {
-	const bool nextdigit = !!TISXDIGIT(next);
-	ss_out(ss, TC('\\'));
-	ss_out(ss, TC('U'));
+void ascii_encode_U(struct ss_s *ss, char cc, char next) {
+	const bool nextdigit = !!isxdigit((unsigned char)(next));
+	ss_out(ss, '\\');
+	ss_out(ss, 'U');
 	for (unsigned ii = 4U * 7U; ii > 0U; ii -= 4U) {
-		if (nextdigit || cc > (TCHAR)(1U << ii)) {
+		if (nextdigit || cc > (char)(1U << ii)) {
 			ss_out(ss, xdigits[(cc >> ii) & four]);
 		}
 	}
@@ -757,50 +757,50 @@ void ascii_encode_U(struct ss_s *ss, TCHAR cc, TCHAR next) {
 }
 
 static inline
-TCHAR ascii_encode_get_esc(TCHAR prev, TCHAR cc) {
+char ascii_encode_get_esc(char prev, char cc) {
 	switch (cc) {
-	case TC('\''): return TC('\'');
-	case TC('\"'): return TC('\"');
-	case TC('\a'): return TC('t');
-	case TC('\b'): return TC('b');
-	case TC('\f'): return TC('f');
-	case TC('\n'): return TC('n');
-	case TC('\r'): return TC('r');
-	case TC('\t'): return TC('t');
-	case TC('\v'): return TC('v');
-	case TC('\?'):
+	case '\'': return '\'';
+	case '\"': return '\"';
+	case '\a': return 't';
+	case '\b': return 'b';
+	case '\f': return 'f';
+	case '\n': return 'n';
+	case '\r': return 'r';
+	case '\t': return 't';
+	case '\v': return 'v';
+	case '\?':
 		// If the previous character was ?, then watch out for trigraphs.
 		if (prev == '?') {
-			return TC('?');
+			return '?';
 		}
 		break;
 	}
-	return TC('\0');
+	return '\0';
 }
 
 #define CSTRLEN(x)  (sizeof(x) - 1)
 
-#if (TMODE == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT16_MAX) || (TMODE == 3 && defined(__STDC_UTF_16__))
+#if (1 == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT16_MAX) || (1 == 3 && defined(__STDC_UTF_16__))
 #define ASCII_ENCODE  ascii_encode_u  // \u1234
-#elif (TMODE == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT32_MAX) || (TMODE == 4 && defined(__STDC_UTF_32__))
+#elif (1 == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT32_MAX) || (1 == 4 && defined(__STDC_UTF_32__))
 #define ASCII_ENCODE  ascii_encode_U  // \U12345678
 #else
 #define ASCII_ENCODE  ascii_encode_o  // \1\123\377...
 #endif
 
 static inline
-struct ss_s ascii_encode_do(const TCHAR str[restrict], size_t str_len, TCHAR *restrict newstr, size_t newstr_len) {
+struct ss_s ascii_encode_do(const char str[restrict], size_t str_len, char *restrict newstr, size_t newstr_len) {
 	struct ss_s ss_mem = ss_init(newstr);
 	struct ss_s *ss = &ss_mem;
-	for (TCHAR prev = TC('\0'), next = *str, cc = next;
-			cc != TC('\0');
+	for (char prev = '\0', next = *str, cc = next;
+			cc != '\0';
 			prev = cc, cc = next) {
 		next = *(++str);
 		//
-		const TCHAR esc = ascii_encode_get_esc(prev, cc);
-		if (esc != TC('\0')) {
+		const char esc = ascii_encode_get_esc(prev, cc);
+		if (esc != '\0') {
 			//dbgln("%c  %#x adding\\%c", cc, cc, esc);
-			ss_out(ss, TC('\\'));
+			ss_out(ss, '\\');
 			ss_out(ss, esc);
 		} else if (is_print_ascii(cc)) {
 			//dbgln("%c  %#x is_ascii", cc, cc);
@@ -817,21 +817,21 @@ struct ss_s ascii_encode_do(const TCHAR str[restrict], size_t str_len, TCHAR *re
 }
 
 static inline
-size_t ascii_encode_get_length(const TCHAR str[restrict], size_t str_len) {
+size_t ascii_encode_get_length(const char str[restrict], size_t str_len) {
 	return ascii_encode_do(str, str_len, NULL, 0).cnt;
 }
 
 static inline
-int YYΩIO_printformat_conversion(yπio_printctx_t *restrict t,
-		const TCHAR *restrict *restrict pstr, size_t *pstr_len) {
+int YYIO_printformat_conversion(yio_printctx_t *restrict t,
+		const char *restrict *restrict pstr, size_t *pstr_len) {
 	//dbgln("%c", t->pf.c_onversion);
-	if (t->pf.c_onversion != TC('a')) return 0;
-	const TCHAR *restrict str = *pstr;
+	if (t->pf.c_onversion != 'a') return 0;
+	const char *restrict str = *pstr;
 	const size_t str_len = *pstr_len;
 	const size_t newstr_len = ascii_encode_get_length(str, str_len);
 	if (newstr_len == str_len) return 0;
 	assert(newstr_len > str_len);
-	TCHAR *const newstr = malloc(newstr_len * sizeof(*newstr));
+	char *const newstr = malloc(newstr_len * sizeof(*newstr));
 	if (newstr == NULL) return YIO_ERROR_ENOMEM;
 	(void)ascii_encode_do(str, str_len, newstr, newstr_len);
 	*pstr_len = newstr_len;
@@ -841,32 +841,32 @@ int YYΩIO_printformat_conversion(yπio_printctx_t *restrict t,
 
 /* ------------------------------------------------------------------------- */
 
-int YYΩIO_printformat_generic(yπio_printctx_t *restrict t,
-		const TCHAR str[restrict], size_t str_len, bool is_number, bool is_positive) {
+int YYIO_printformat_generic(yio_printctx_t *restrict t,
+		const char str[restrict], size_t str_len, bool is_number, bool is_positive) {
 	int err = 0;
 	// Detect inf/nan
 	const bool is_infnan = is_number && str_len >= 3 && (
-			(str[0] == TC('i') || str[0] == TC('I')) ||
-			(str[0] == TC('n') || str[0] == TC('N'))
+			(str[0] == 'i' || str[0] == 'I') ||
+			(str[0] == 'n' || str[0] == 'N')
 	);
 	if (is_infnan) {
-		t->pf.grouping = TC('\0');
-		if (t->pf.fill == TC('0') && t->pf.align == TC('=')) {
-			t->pf.fill = TC(' ');
-			t->pf.align = TC('>');
+		t->pf.grouping = '\0';
+		if (t->pf.fill == '0' && t->pf.align == '=') {
+			t->pf.fill = ' ';
+			t->pf.align = '>';
 		}
 	}
-	const int converted = YYΩIO_printformat_conversion(t, &str, &str_len);
+	const int converted = YYIO_printformat_conversion(t, &str, &str_len);
 	if (converted < 0) return converted;
 	//
-	YYΩIO_printformat_assert_valid(&t->pf);
-	YYΩIO_printformat_t pf;
-	YYΩIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
-	err = YYΩIO_printformat_prefix(&pf);
+	YYIO_printformat_assert_valid(&t->pf);
+	YYIO_printformat_t pf;
+	YYIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
+	err = YYIO_printformat_prefix(&pf);
 	if (err) goto EXIT;
-	err = YYΩIO_printformat_print(&pf, str, str_len);
+	err = YYIO_printformat_print(&pf, str, str_len);
 	if (err) goto EXIT;
-	err = YYΩIO_printformat_suffix(&pf);
+	err = YYIO_printformat_suffix(&pf);
 	if (err) goto EXIT;
 	//
 EXIT:
@@ -876,15 +876,15 @@ EXIT:
 	return err;
 }
 
-#if TMODE != 1
-int YYΩIO_printformat_generic_char(yπio_printctx_t *t,
+#if 1 != 1
+int YYIO_printformat_generic_char(yio_printctx_t *t,
 		const char str[], size_t str_len, bool is_number, bool is_positive) {
-	const TCHAR *dest = NULL;
+	const char *dest = NULL;
 	size_t dest_len = 0;
-	int ret = YYIO_strconv_str_to_πstr(str, str_len, &dest, &dest_len);
+	int ret = YYIO_strconv_str_to_str(str, str_len, &dest, &dest_len);
 	if (ret) return ret;
-	ret = YYΩIO_printformat_generic(t, dest, dest_len, is_number, is_positive);
-	YYIO_strconv_free_str_to_πstr(str, dest);
+	ret = YYIO_printformat_generic(t, dest, dest_len, is_number, is_positive);
+	YYIO_strconv_free_str_to_str(str, dest);
 	return ret;
 }
 #endif

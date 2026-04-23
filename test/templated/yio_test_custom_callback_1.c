@@ -4,8 +4,8 @@
  *  Created on: 1 kwi 2020
  *      Author: Kamil
  */
-#include <yπio.h>
-#define dbgln(...)  yπprint(__FILE__, ":", __LINE__, ":", __func__, ": ", ##__VA_ARGS__, "\n")
+#include <yio.h>
+#define dbgln(...)  yprint(__FILE__, ":", __LINE__, ":", __func__, ": ", ##__VA_ARGS__, "\n")
 int main() {
 	dbgln("debugging test1");
 	dbgln("debugging ", "test2");

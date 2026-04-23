@@ -8,9 +8,9 @@
  */
 #include "private.h"
 
-int YYΩIO_print_count(yπio_printctx_t *t) {
-	int *arg = yπio_printctx_va_arg(t, int *);
-	int err = yπio_printctx_init(t);
+int YYIO_print_count(yio_printctx_t *t) {
+	int *arg = yio_printctx_va_arg(t, int *);
+	int err = yio_printctx_init(t);
 	if (err) return err;
 	const size_t writtencnt = t->writtencnt;
 	if (writtencnt > INT_MAX) {

@@ -8,24 +8,24 @@
 #include "private.h"
 #include <stddef.h>
 
-int YYΩIO_print_pfmt(yπio_printctx_t *t) {
-	const TCHAR *str = yπio_printctx_va_arg(t, const TCHAR *);
-	const TCHAR *endptr = NULL;
-	if (str[0] == TC('{')) {
+int YYIO_print_pfmt(yio_printctx_t *t) {
+	const char *str = yio_printctx_va_arg(t, const char *);
+	const char *endptr = NULL;
+	if (str[0] == '{') {
 		str++;
 	}
-	if (str[0] != TC('}') && str[0] != TC(':')) {
+	if (str[0] != '}' && str[0] != ':') {
 		return YIO_ERROR_PYFMT_INVALID;
 	}
-	if (str[0] == TC(':')) {
+	if (str[0] == ':') {
 		str++;
-		int err = YYΩIO_pfmt_parse(t, &t->pf, str, &endptr);
+		int err = YYIO_pfmt_parse(t, &t->pf, str, &endptr);
 		if (err) return err;
 	}
-	if ((size_t)(endptr - str) != TSTRLEN(str)) {
+	if ((size_t)(endptr - str) != strlen(str)) {
 		return YIO_ERROR_PYFMT_INVALID;
 	}
-	return yπio_printctx_next(t);
+	return yio_printctx_next(t);
 }
 
 

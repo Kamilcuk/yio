@@ -14,7 +14,7 @@ struct YYIO_yp_arr_s {
 	size_t count;
 	const void *arr;
 	const char *sep;
-	yπio_printdata_t printfunc;
+	yio_printdata_t printfunc;
 };
 static inline int YYIO_yp_arr(yio_printctx_t *t) {
 	const struct YYIO_yp_arr_s *const arr =
@@ -27,7 +27,7 @@ static inline int YYIO_yp_arr(yio_printctx_t *t) {
 	const char *const fmtend = t->fmt;
 	int err = yio_printctx_init(t);
 	if (err) return err;
-	const struct yπio_printfmt_s *const pf = yπio_printctx_get_fmt(t);
+	const struct yio_printfmt_s *const pf = yio_printctx_get_fmt(t);
 	const size_t fmtlen = fmtend - fmtbegin;
 	char *const fmt = malloc(fmtlen * sizeof(char));
 	memcpy(fmt, fmtbegin, fmtlen);
@@ -51,7 +51,7 @@ static inline int YYIO_yp_arr(yio_printctx_t *t) {
 				.count = (COUNT), \
 				.arr = (ARR), \
 				.sep = (SEP), \
-				.printfunc = YYΩIO_PRINT_FUNC_GENERIC((ARR)[0]),
+				.printfunc = YYIO_PRINT_FUNC_GENERIC((ARR)[0]),
 			})
 #define YYIO_yp_arr_N(_3,_2,_1,N,...)  YYIO_yp_arr_##N
 /**

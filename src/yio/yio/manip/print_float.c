@@ -22,15 +22,15 @@
 {% if V.0 == "d" %}
 #line
 // For double, we export the prototype.
-int YYΩIO_print_float_$2$1_in(yπio_printctx_t *t, YYIO_FLOAT$1 var);
+int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var);
 {% else %}
 #line
 // Otherwise, the function is local.
 static inline
 {% endif %}
 #line
-int YYΩIO_print_float_$2$1_in(yπio_printctx_t *t, YYIO_FLOAT$1 var) {
-	int err = yπio_printctx_init(t);
+int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var) {
+	int err = yio_printctx_init(t);
 	if (err) return err;
 	// TODO: fun fact, this converts from wchar/char16/char32 -> char. Convert for real with some checks here.
 	const char type = (char)(t->pf.type ? t->pf.type : 'g');
@@ -45,37 +45,37 @@ int YYΩIO_print_float_$2$1_in(yπio_printctx_t *t, YYIO_FLOAT$1 var) {
 			//isdigit((unsigned char)result[0]) ||
 			//(is_negative && isdigit((unsigned char)result[1]))
 	//) {
-		err = yπio_printctx_put_number(t, result + is_negative, length - is_negative, !is_negative);
+		err = yio_printctx_put_number(t, result + is_negative, length - is_negative, !is_negative);
 	//} else {
-		//err = yπio_printctx_put(t, result, length);
+		//err = yio_printctx_put(t, result, length);
 	//}
 	YYIO_res_end(&res);
 	return err;
 }
 
-int YYΩIO_print_float_$2$1(yπio_printctx_t *t) {
+int YYIO_print_float_$2$1(yio_printctx_t *t) {
 #line
 	// Not float.
-	const YYIO_FLOAT$1 var = yπio_printctx_va_arg_promote(t, YYIO_FLOAT$1);
-	return YYΩIO_print_float_$2$1_in(t, var);
+	const YYIO_FLOAT$1 var = yio_printctx_va_arg_promote(t, YYIO_FLOAT$1);
+	return YYIO_print_float_$2$1_in(t, var);
 }
 
 {% else %}
 #line
-int YYΩIO_print_float_$2$1(yπio_printctx_t *t) {
+int YYIO_print_float_$2$1(yio_printctx_t *t) {
 	// Float calls double
-	const double var = yπio_printctx_va_arg_promote(t, YYIO_FLOAT$1);
-	int YYΩIO_print_float_$2d_in(yπio_printctx_t *t, YYIO_FLOATd var);
-	return YYΩIO_print_float_$2d_in(t, var);
+	const double var = yio_printctx_va_arg_promote(t, YYIO_FLOAT$1);
+	int YYIO_print_float_$2d_in(yio_printctx_t *t, YYIO_FLOATd var);
+	return YYIO_print_float_$2d_in(t, var);
 }
 {% endif %}
 
 #if 0
 {% if V.1 == "f" %}
 #line
-int YYΩIO_print_float_$2$1pnt(yπio_printctx_t *t) {
-	const YYIO_FLOAT$1 var = * yπio_printctx_va_arg(t, YYIO_FLOAT$1 *);
-	return YYΩIO_print_float_$2$1_in(t, var);
+int YYIO_print_float_$2$1pnt(yio_printctx_t *t) {
+	const YYIO_FLOAT$1 var = * yio_printctx_va_arg(t, YYIO_FLOAT$1 *);
+	return YYIO_print_float_$2$1_in(t, var);
 }
 {% endif %}
 #endif

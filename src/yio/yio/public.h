@@ -7,17 +7,17 @@
  * @brief
  */
 #include "../yio_public.h"
-#if TMODEX == 2
+#if 1 == 2
 #include <wchar.h>
-#elif TMODEX == 3
+#elif 1 == 3
 #include <uchar.h>
 #endif
 #include "ctx.h"
 #include "io.h"
 #include "manip/manip.h"
 /**
- * @defgroup yπio TMODEN yπio
- * @brief All stuff related to TMODEN / π / Ω mode.
+ * @defgroup yio 1 yio
+ * @brief All stuff related to 1 /  /  mode.
  * @{
  * @}
  */

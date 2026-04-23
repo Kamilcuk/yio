@@ -20,14 +20,14 @@
 
 // {#
 #ifdef YYIO_CDT_PARSER
-int YYIO_strconv_str_to_πstr(const char *, size_t, const void *, size_t*);
-int YYIO_strconv_wstr_to_πstr(const wchar_t *, size_t, const void *, size_t *);
-int YYIO_strconv_c16str_to_πstr(const char16_t *, size_t, const void *, size_t *);
-int YYIO_strconv_ustr_to_πstr(const char32_t *, size_t, const void *, size_t *);
-int YYIO_strconv_πstr_to_str(const void *, size_t, const char **, size_t*);
-int YYIO_strconv_πstr_to_wstr(const void *, size_t, const wchar_t **, size_t *);
-int YYIO_strconv_πstr_to_c16str(const void *, size_t, const char16_t **, size_t *);
-int YYIO_strconv_πstr_to_ustr(const void *, size_t, const char32_t **, size_t *);
+int YYIO_strconv_str_to_str(const char *, size_t, const void *, size_t*);
+int YYIO_strconv_wstr_to_str(const wchar_t *, size_t, const void *, size_t *);
+int YYIO_strconv_c16str_to_str(const char16_t *, size_t, const void *, size_t *);
+int YYIO_strconv_ustr_to_str(const char32_t *, size_t, const void *, size_t *);
+int YYIO_strconv_str_to_str(const void *, size_t, const char **, size_t*);
+int YYIO_strconv_str_to_wstr(const void *, size_t, const wchar_t **, size_t *);
+int YYIO_strconv_str_to_c16str(const void *, size_t, const char16_t **, size_t *);
+int YYIO_strconv_str_to_ustr(const void *, size_t, const char32_t **, size_t *);
 int YYIO_strconv_str_to_str(const char *, size_t, const char **, size_t*);
 int YYIO_strconv_wstr_to_str(const wchar_t *, size_t, const char **, size_t *);
 int YYIO_strconv_c16str_to_str(const char16_t *, size_t, const char **, size_t *);
@@ -43,10 +43,10 @@ int YYIO_strconv_c16str_to_ustr(const char16_t *, size_t, const char32_t **, siz
 int YYIO_strconv_ustr_to_wstr(const char32_t *, size_t, const wchar_t **, size_t *);
 int YYIO_strconv_ustr_to_c16str(const char32_t *, size_t, const char16_t **, size_t *);
 int YYIO_strconv_ustr_to_ustr(const char32_t *, size_t, const char32_t **, size_t *);
-int YYIO_strconv_free_str_to_πstr(const char *, const void *);
-int YYIO_strconv_free_wstr_to_πstr(const wchar_t *, const void *);
-int YYIO_strconv_free_c16str_to_πstr(const char16_t *, const void *);
-int YYIO_strconv_free_ustr_to_πstr(const char32_t *, const void *);
+int YYIO_strconv_free_str_to_str(const char *, const void *);
+int YYIO_strconv_free_wstr_to_str(const wchar_t *, const void *);
+int YYIO_strconv_free_c16str_to_str(const char16_t *, const void *);
+int YYIO_strconv_free_ustr_to_str(const char32_t *, const void *);
 #define YYIO_$1char_t  wchar_t
 #define YYIO_$2char_t  wchar_t
 #endif

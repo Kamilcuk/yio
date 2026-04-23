@@ -6,14 +6,11 @@
 #error YIO_HAS_WCHAR_H
 #endif
 #if YIO_HAS_WCHAR_H
-#include <ywio.h>
 #endif
 #ifndef YIO_HAS_UCHAR_H
 #error YIO_HAS_UCHAR_H
 #endif
 #if YIO_HAS_UCHAR_H
-#include <yc16io.h>
-#include <yuio.h>
 #endif
 #include <ctype.h>
 #ifndef YYIO_HAS_UNISTRING

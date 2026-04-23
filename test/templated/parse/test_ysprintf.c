@@ -7,35 +7,35 @@
  * @brief
  */
 #include <yio_test.h>
-#include <yπio.h>
+#include <yio.h>
 #include <stdint.h> // SIZE_MAX
 int main() {
-	TCHAR buf[200];
+	char buf[200];
 	int err = 0;
 
-	err = yπsprintf(buf, sizeof(buf)/sizeof(*buf), TC("123"));
+	err = ysprintf(buf, sizeof(buf)/sizeof(*buf), "123");
 	YIO_TESTEXPR(err > 0, "err=%s", yio_strerror(err));
-	YIO_TESTEXPR(TSTRCMP(buf, TC("123")) == 0);
+	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = yπsprintf(buf, SIZE_MAX, TC("123"));
+	err = ysprintf(buf, SIZE_MAX, "123");
 	YIO_TESTEXPR(err > 0);
-	YIO_TESTEXPR(TSTRCMP(buf, TC("123")) == 0);
+	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = yπsprintf(buf, 2, TC("123"));
+	err = ysprintf(buf, 2, "123");
 	YIO_TESTEXPR(err < 0);
-	YIO_TESTEXPR(TSTRCMP(buf, TC("1")) == 0);
+	YIO_TESTEXPR(strcmp(buf, "1") == 0);
 
-	err = yπsprintf(buf, 3, TC("123"));
+	err = ysprintf(buf, 3, "123");
 	YIO_TESTEXPR(err < 0);
-	YIO_TESTEXPR(TSTRCMP(buf, TC("12")) == 0);
+	YIO_TESTEXPR(strcmp(buf, "12") == 0);
 
-	err = yπsprintf(buf, 4, TC("123"));
+	err = ysprintf(buf, 4, "123");
 	YIO_TESTEXPR(err > 0);
-	YIO_TESTEXPR(TSTRCMP(buf, TC("123")) == 0);
+	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = yπsprintf(buf, 1, TC("123"));
+	err = ysprintf(buf, 1, "123");
 	YIO_TESTEXPR(err < 0);
-	YIO_TESTEXPR(TSTRCMP(buf, TC("")) == 0);
+	YIO_TESTEXPR(strcmp(buf, "") == 0);
 
 	return 0;
 }

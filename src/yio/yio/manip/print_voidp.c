@@ -9,17 +9,17 @@
 #include "private.h"
 #include <stdint.h>
 
-int YYΩIO_print_voidp(yπio_printctx_t *t) {
-	const void *val = yπio_printctx_va_arg(t, void *);
-	int err = yπio_printctx_init(t);
+int YYIO_print_voidp(yio_printctx_t *t) {
+	const void *val = yio_printctx_va_arg(t, void *);
+	int err = yio_printctx_init(t);
 	if (err) return err;
-	const struct yπio_printfmt_s *const pf = yπio_printctx_get_fmt(t);
-	if (pf->type != TC('\0') && pf->type != TC('p')) {
+	const struct yio_printfmt_s *const pf = yio_printctx_get_fmt(t);
+	if (pf->type != '\0' && pf->type != 'p') {
 		return YIO_ERROR_INVALID_TYPE;
 	}
 #ifdef UINTPTR_MAX
 	const uintptr_t var = (uintptr_t)val;
-	return yπio_printctx_printf(t, TC("{:#x}"), var);
+	return yio_printctx_printf(t, "{:#x}", var);
 #else
 	return YIO_ERROR_ENOSYS;
 #endif

@@ -15,12 +15,6 @@ endif()
 
 
 set(modes yio)
-if(YIO_HAS_WCHAR_H)
-	list(APPEND modes "ywio")
-endif()
-if(YIO_HAS_UCHAR_H AND UNISTRING_LIB)
-	list(APPEND modes "yc16io" "yuio")
-endif()
 
 file(GLOB_RECURSE srcs RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" *.c *.h)
 if(NOT YYIO_HAS_STDFIX_TYPES)
@@ -38,11 +32,6 @@ add_custom_target(yio_templated_gen
 
 foreach(src IN LISTS srcs)
 
-	# Print an erro mesasge if the file doesn't contain neither pi nor omega
-	file(READ "${src}" _content)
-	if(NOT _content MATCHES "π" AND NOT _content MATCHES "Ω")
-		message(FATAL_ERROR "File ${src} doesn't contain pi nor omega characters.")
-	endif()
 
 	foreach(mode IN ITEMS ${modes})
 		set(genout ${CMAKE_CURRENT_BINARY_DIR}/gen/${mode}/${src})

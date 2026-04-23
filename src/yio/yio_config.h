@@ -9,26 +9,15 @@
 #define YYIO_YIO_YIO_CONFIG_H_
 
 // {#+
+// {#+
 #ifndef YYIO_CDT_PARSER
 // +#} //
 #include "yio_config_gen.h"
 // {#+
 #else // YYIO_CDT_PARSER
-
 #include <yio/yio_config_gen.h>
-
-#include <wchar.h>
-/// The character, changes depending on mode.
-#define TCHAR          wchar_t
-/// The character constant.
-#define TC(x)          L##x
-#define TEOF           WEOF
-#define TISDIGIT(x)    iswdigit(x)
-#define TSTRCHR(x, y)  wcschr(x, y)
-#define TSTRCMP(x, y)  wcscmp(x, y)
-#define TFPRINTF(...)  fprintf(__VA_ARGS__)
-#define TSTRLEN(x)     wcslen(x)
 #endif // YYIO_CDT_PARSER
+// +#} //
 // +#} //
 
 #ifdef __SIZEOF_INT128__

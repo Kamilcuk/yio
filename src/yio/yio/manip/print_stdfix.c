@@ -18,18 +18,18 @@
 
 {% call j_FOREACHAPPLY(j_STDFIX) %}
 #line
-int YYΩIO_print_$3(yπio_printctx_t *t) {
-	const YYIO_STDFIX_$3 v = yπio_printctx_va_arg(t, YYIO_STDFIX_$3);
-	int err = yπio_printctx_init(t);
+int YYIO_print_$3(yio_printctx_t *t) {
+	const YYIO_STDFIX_$3 v = yio_printctx_va_arg(t, YYIO_STDFIX_$3);
+	int err = yio_printctx_init(t);
 	if (err) return err;
-	struct yπio_printfmt_s *pf = yπio_printctx_get_fmt(t);
+	struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
 	YYIO_RES_AUTO_DECL(res);
 	err = YYIO_astrfrom$1(&res, pf->precision, pf->type, v);
 	if (err) return err;
 	const char *const result = YYIO_res_begin(&res);
 	const size_t length = YYIO_res_used(&res);
 	const bool negative = result[0] == '-';
-	err = yπio_printctx_put_number(t, result + negative, length - negative, !negative);
+	err = yio_printctx_put_number(t, result + negative, length - negative, !negative);
 	YYIO_res_end(&res);
 	return err;
 }

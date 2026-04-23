@@ -5,14 +5,14 @@
  *      Author: Kamil
  */
 #include <yio.h>
-#include <yπio.h>
+#include <yio.h>
 #include <stdlib.h>
 
-static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const TCHAR *fmt, ...) {
+static void _dbgln(const char file[], int line, const char func[], yio_printdata_t *data, const char *fmt, ...) {
 	yprintf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
-	TCHAR * const ret = yπvformatf(data, fmt, &va);
+	char * const ret = yvformatf(data, fmt, &va);
 	va_end(va);
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);
@@ -22,7 +22,7 @@ static void _dbgln(const char file[], int line, const char func[], yπio_printda
 	yprintf("\n");
 }
 
-#define dbgln(...)  _dbgln(__FILE__, __LINE__, __func__, YΩIO_PRINT_ARGUMENTS(NULL, ##__VA_ARGS__))
+#define dbgln(...)  _dbgln(__FILE__, __LINE__, __func__, YIO_PRINT_ARGUMENTS(NULL, ##__VA_ARGS__))
 
 int main() {
 	dbgln("debugging test1");

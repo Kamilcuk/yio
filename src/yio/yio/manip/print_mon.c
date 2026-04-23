@@ -21,26 +21,26 @@
 #include <stdlib.h>
 #include <string.h>
 
-int YYΩIO_print_mon(yπio_printctx_t *t) {
-	const double vv = yπio_printctx_va_arg(t, double);
-	const TCHAR *const fmtbegin = t->fmt;
-	while (t->fmt[0] != TC('}') && t->fmt[0] != TC('\0')) t->fmt++;
-	if (t->fmt[0] != TC('}')) {
+int YYIO_print_mon(yio_printctx_t *t) {
+	const double vv = yio_printctx_va_arg(t, double);
+	const char *const fmtbegin = t->fmt;
+	while (t->fmt[0] != '}' && t->fmt[0] != '\0') t->fmt++;
+	if (t->fmt[0] != '}') {
 		return YYIO_ERROR(YIO_ERROR_MON_MISSING_RIGHT_BRACE, "missing '}' when parsing monetary format specifier");
 	}
-	const TCHAR *const fmtend = t->fmt;
-	int err = yπio_printctx_init(t);
+	const char *const fmtend = t->fmt;
+	int err = yio_printctx_init(t);
 	if (err) return err;
 	//
 	const size_t realfmtlen = fmtend - fmtbegin;
 	char *format;
-#if TMODE == 1
+#if 1 == 1
 	format = malloc(sizeof(*format) * (realfmtlen + 1));
 	if (format == NULL) return YIO_ERROR_ENOMEM;
 	memcpy(format, fmtbegin, realfmtlen);
-	format[realfmtlen] = TC('\0');
-#elif TMODE == 2 || TMODE == 3 || TMODE == 4
-	err = YYIO_strconv_πstr_to_str(fmtbegin, realfmtlen, (const char **)&format, NULL);
+	format[realfmtlen] = '\0';
+#elif 1 == 2 || 1 == 3 || 1 == 4
+	err = YYIO_strconv_str_to_str(fmtbegin, realfmtlen, (const char **)&format, NULL);
 	if (err) return err;
 #else
 #error
@@ -53,7 +53,7 @@ int YYΩIO_print_mon(yπio_printctx_t *t) {
 	err = YYIO_astrfmon(&res, format, arg);
 	free(format);
 	if (err == 0) {
-		err = yπio_printctx_put(t, YYIO_res_begin(&res), YYIO_res_used(&res));
+		err = yio_printctx_put(t, YYIO_res_begin(&res), YYIO_res_used(&res));
 	}
 	YYIO_res_end(&res);
 	return err;

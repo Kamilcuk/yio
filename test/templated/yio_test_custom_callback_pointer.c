@@ -5,17 +5,17 @@
  *      Author: Kamil
  */
 #include <yio.h>
-#include <yπio.h>
+#include <yio.h>
 #include <stdlib.h>
 
-static TCHAR *(* const f_vpnt)(yπio_printdata_t *, const TCHAR *fmt, va_list *va) = yπvformatf;
-static int (* const f_pnt)(yπio_printdata_t *, const TCHAR *fmt, ...) = YYΩIO_yprintf;
+static char *(* const f_vpnt)(yio_printdata_t *, const char *fmt, va_list *va) = yvformatf;
+static int (* const f_pnt)(yio_printdata_t *, const char *fmt, ...) = YYIO_yprintf;
 
-static void _dbgln(const char file[], int line, const char func[], yπio_printdata_t *data, const TCHAR *fmt, ...) {
+static void _dbgln(const char file[], int line, const char func[], yio_printdata_t *data, const char *fmt, ...) {
 	yprintf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
-	TCHAR * const ret = f_vpnt(data, fmt, &va);
+	char * const ret = f_vpnt(data, fmt, &va);
 	va_end(va);
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);
@@ -26,8 +26,8 @@ static void _dbgln(const char file[], int line, const char func[], yπio_printda
 	fflush(stdout);
 }
 
-#define dbgln(...)  _dbgln(__FILE__, __LINE__, __func__, YΩIO_PRINT_ARGUMENTS(NULL, ##__VA_ARGS__))
-#define dbgln2(...)  f_pnt(YΩIO_PRINT_ARGUMENTS(NULL, __FILE__, ":", __LINE__, ":", __func__, ": ", ##__VA_ARGS__, "\n"))
+#define dbgln(...)  _dbgln(__FILE__, __LINE__, __func__, YIO_PRINT_ARGUMENTS(NULL, ##__VA_ARGS__))
+#define dbgln2(...)  f_pnt(YIO_PRINT_ARGUMENTS(NULL, __FILE__, ":", __LINE__, ":", __func__, ": ", ##__VA_ARGS__, "\n"))
 
 int main() {
 	dbgln("debugging test", 1);

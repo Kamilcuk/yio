@@ -1,6 +1,6 @@
-#include <yπio.h>
+#include <yio.h>
 #include <stdlib.h>
 int main() {
-	yπprintf(TC("Paded {:%>20}\n"), TC("word"));
+	yprintf("Paded {:%>20}\n", "word");
 }
 // PASS_REGULAR_EXPRESSION Paded %%%%%%%%%%%%%%%%word

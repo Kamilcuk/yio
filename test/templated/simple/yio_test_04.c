@@ -1,7 +1,7 @@
-#include <yπio.h>
+#include <yio.h>
 int main() {
-	yπprint("Hello world\n");
-	yπprint("Hello world\n");
+	yprint("Hello world\n");
+	yprint("Hello world\n");
 }
 // PASS_REGULAR_EXPRESSION Hello world
 // PASS_REGULAR_EXPRESSION Hello world

@@ -14,7 +14,7 @@
 #include <errno.h>
 
 static inline YYIO_access_r(2, 3)
-int YYΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
+int YYIO_yvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	const int fd = *(int*)arg;
 	int ret = 0;
 	while (size) {
@@ -32,7 +32,7 @@ int YYΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	return ret;
 }
 
-#if TMODEX == 2 && defined __NEWLIB__ && defined _FORTIFY_SOURCE
+#if 1 == 2 && defined __NEWLIB__ && defined _FORTIFY_SOURCE
 		// there is a bug in newlib
 		// in include/ssp/wchar.h when checking size for wcrtomb
 #define SUPER_MB_LEN_MAX  (MB_LEN_MAX > sizeof(wchar_t) ? MB_LEN_MAX :  sizeof(wchar_t))
@@ -41,17 +41,17 @@ int YYΩIO_yπvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 #endif
 
 static inline YYIO_access_r(2, 3)
-int YYΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
-#if TMODE == 1
-	return YYΩIO_yπvdprintf_cb_in(arg, ptr, size);
-#elif TMODE == 2 || TMODE == 3 || TMODE == 4
-#if TMODE == 2
+int YYIO_yvdprintf_cb(void *arg, const char *ptr, size_t size) {
+#if 1 == 1
+	return YYIO_yvdprintf_cb_in(arg, ptr, size);
+#elif 1 == 2 || 1 == 3 || 1 == 4
+#if 1 == 2
 #define STUFF_rtomb  wcrtomb
 #define STUFF_ERROR  YIO_ERROR_WCRTOMB
-#elif TMODE == 3
+#elif 1 == 3
 #define STUFF_rtomb  c16rtomb
 #define STUFF_ERROR  YIO_ERROR_C16RTOMB
-#elif TMODE == 4
+#elif 1 == 4
 #define STUFF_rtomb  c32rtomb
 #define STUFF_ERROR  YIO_ERROR_C32RTOMB
 #else
@@ -64,7 +64,7 @@ int YYΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 		const size_t wr = STUFF_rtomb(s, *ptr, &ps);
 		if (wr == (size_t)-1) return STUFF_ERROR;
 		ptr++;
-		const int r = YYΩIO_yπvdprintf_cb_in(arg, s, wr);
+		const int r = YYIO_yvdprintf_cb_in(arg, s, wr);
 		if (r < 0) return r;
 	}
 	return 0;
@@ -73,14 +73,14 @@ int YYΩIO_yπvdprintf_cb(void *arg, const TCHAR *ptr, size_t size) {
 #endif
 }
 
-int yπvdprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, va_list *va) {
-	return yπvbprintf(YYΩIO_yπvdprintf_cb, &fd, data, fmt, va);
+int yvdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *va) {
+	return yvbprintf(YYIO_yvdprintf_cb, &fd, data, fmt, va);
 }
 
-int YYΩIO_ydprintf(int fd, const yπio_printdata_t *data, const TCHAR *fmt, ...) {
+int YYIO_ydprintf(int fd, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int ret = yπvdprintf(fd, data, fmt, &va);
+	const int ret = yvdprintf(fd, data, fmt, &va);
 	va_end(va);
 	return ret;
 }

@@ -14,10 +14,7 @@ int main() {
 	YIO_TEST("?\\?=", "{!a}", "?\?=");
 #if YIO_HAS_WCHAR_H
 #if defined(__STDC_ISO_10646__) && WCHAR_MAX == INT32_MAX
-	YWIO_TEST("ab\\U00000424cd", "a{!a}d", L"b\U00000424c");
-	YWIO_TEST("ab\\U424!d", "a{!a}d", L"b\U00000424!");
 #else
-	YWIO_TEST("ab\\44\\4\\0\\0""cd", "a{!a}d", L"b\U00000424c");
 #endif
 #endif
 #if YYIO_HAS_UNISTRING

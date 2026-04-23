@@ -11,9 +11,9 @@
 #include "../private/yio_strlib.h"
 #include <string.h>
 #include <limits.h>
-#if TMODEX == 2
+#if 1 == 2
 #include <wctype.h>
-#elif TMODEX == 3
+#elif 1 == 3
 #include <unictype.h>
 #include <uniconv.h>
 #include <unistr.h>

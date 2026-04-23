@@ -460,7 +460,7 @@ int YYIO_strconv_c16str_to_ustr(const char16_t *c16, size_t c16_len, const char3
 	}
 	return 0;
 #else
-	return YYIO_strconv_ustr_to_c16str_no_unistring(c16, c16_len, c32, c32_len);
+	return YYIO_strconv_c16str_to_ustr_no_unistring(c16, c16_len, c32, c32_len);
 #endif
 }
 
@@ -480,7 +480,7 @@ int YYIO_strconv_ustr_to_c16str(const char32_t *c32, size_t c32_len, const char1
 	}
 	return 0;
 #else
-	return YYIO_strconv_c16str_to_ustr_no_unistring(c32, c32_len, c16, c16_len);
+	return YYIO_strconv_ustr_to_c16str_no_unistring(c32, c32_len, c16, c16_len);
 #endif
 }
 

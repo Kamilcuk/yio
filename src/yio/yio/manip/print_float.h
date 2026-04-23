@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YΩIO_MANIP_PRINT_FLOAT_H_
-#define YYIO_YIO_YΩIO_MANIP_PRINT_FLOAT_H_
+#ifndef YYIO_YIO_YIO_MANIP_PRINT_FLOAT_H_
+#define YYIO_YIO_YIO_MANIP_PRINT_FLOAT_H_
 #include "../../private/yio_float.h"
 #include "../../private/yio_float_strfrom_custom.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
@@ -54,52 +54,52 @@
 #error  YYIO_has_float_ryu$1
 #endif
 
-int YYΩIO_print_float_strfrom$1(yπio_printctx_t *t);
+int YYIO_print_float_strfrom$1(yio_printctx_t *t);
 #if YYIO_has_float_custom$1
-int YYΩIO_print_float_custom$1(yπio_printctx_t *t);
+int YYIO_print_float_custom$1(yio_printctx_t *t);
 #endif
 #if YYIO_has_float_printf$1
-int YYΩIO_print_float_printf$1(yπio_printctx_t *t);
+int YYIO_print_float_printf$1(yio_printctx_t *t);
 #endif
 #if YYIO_has_float_ryu$1
-int YYΩIO_print_float_ryu$1(yπio_printctx_t *t);
+int YYIO_print_float_ryu$1(yio_printctx_t *t);
 #endif
 
-#ifndef YYΩIO_PRINT_FLOAT$1
+#ifndef YYIO_PRINT_FLOAT$1
 #	if YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_STRFROM
-#		define YYΩIO_PRINT_FLOAT$1  YYΩIO_print_float_strfrom$1
+#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
 #	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_CUSTOM && YYIO_has_float_custom$1
-#		define YYΩIO_PRINT_FLOAT$1  YYΩIO_print_float_custom$1
+#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_custom$1
 #	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_PRINTF && YYIO_has_float_printf$1
-#		define YYΩIO_PRINT_FLOAT$1  YYΩIO_print_float_printf$1
+#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_printf$1
 #	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_RYU && YYIO_has_float_ryu$1
-#		define YYΩIO_PRINT_FLOAT$1  YYΩIO_print_float_ryu$1
+#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_ryu$1
 #	else
 #		if YYIO_HAS_strfrom$1
-#			define YYΩIO_PRINT_FLOAT$1  YYΩIO_print_float_strfrom$1
+#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
 #		elif YYIO_has_float_custom$1
-#			define YYΩIO_PRINT_FLOAT$1  YYΩIO_print_float_custom$1
+#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_custom$1
 #		else
-#			define YYΩIO_PRINT_FLOAT$1  YYΩIO_print_float_strfrom$1
+#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
 #		endif
 #	endif
 #endif
 
-#define YYΩIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
-		YYIO_FLOAT$1: YYΩIO_PRINT_FLOAT$1,
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
+		YYIO_FLOAT$1: YYIO_PRINT_FLOAT$1,
 
 #else
 
-#define YYΩIO_PRINT_FUNC_GENERIC_FLOAT$1()
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()
 
 #endif
 
 {% endcall %}
 
-#define YYΩIO_PRINT_FUNC_GENERIC_FLOATS() \
+#define YYIO_PRINT_FUNC_GENERIC_FLOATS() \
 		{% call j_FOREACHAPPLY(j_FLOATS) %}
-		YYΩIO_PRINT_FUNC_GENERIC_FLOAT$1() \
+		YYIO_PRINT_FUNC_GENERIC_FLOAT$1() \
 		{% endcall %}
 		/**/
 
-#endif /* YYIO_YIO_YΩIO_MANIP_PRINT_FLOAT_H_ */
+#endif /* YYIO_YIO_YIO_MANIP_PRINT_FLOAT_H_ */

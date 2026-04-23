@@ -15,14 +15,14 @@
 int main() {
 	{
 		const short _Fract a = 0.123456789;
-		YΩIO_TEST("f 0.12[^ ]* [^ ]*", "{:x} {} {:a}", a, a, a);
+		YIO_TEST("f 0.12[^ ]* [^ ]*", "{:x} {} {:a}", a, a, a);
 	}
 	{
 		const _Fract a = 0.123456789;
-		YΩIO_TEST("fcd 0.123[^ ]* [^ ]*", "{:x} {} {:a}", a, a, a);
+		YIO_TEST("fcd 0.123[^ ]* [^ ]*", "{:x} {} {:a}", a, a, a);
 	}
 	{
 		const long _Fract a = 0.123456789;
-		YΩIO_TEST("fcd6e9b 0.123457 [^ ]*", "{:x} {} {:a}", a, a, a);
+		YIO_TEST("fcd6e9b 0.123457 [^ ]*", "{:x} {} {:a}", a, a, a);
 	}
 }

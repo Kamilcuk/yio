@@ -7,7 +7,7 @@
  * @brief
  */
 #include <yio_test.h>
-#include <yπio.h>
+#include <yio.h>
 #include <assert.h>
 int main() {
 	struct tm t = {
@@ -19,16 +19,16 @@ int main() {
 		.tm_sec  = 20,
 	};
 	int err = 0;
-	err |= yπprintf(TC("{:%Y-%m-%d %H:%M:%S}\n"), t);
+	err |= yprintf("{:%Y-%m-%d %H:%M:%S}\n", t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	err |= yπprintf(TC("{:%D}\n"), t);
+	err |= yprintf("{:%D}\n", t);
 // PASS_REGULAR_EXPRESSION 10/09/12
-	err |= yπprintf(TC("{:%F %T}\n"), t);
+	err |= yprintf("{:%F %T}\n", t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
 // FUN FACT: this file is templated with jinja, so {_{ are parsed by jinja.
-	err |= yπprintf(TC("{:A%%B{""{C}""}""}D\n"), t);
+	err |= yprintf("{:A%%B{""{C}""}""}D\n", t);
 // PASS_REGULAR_EXPRESSION A%B{[{]C}D
-	err |= yπprintf(TC("{:%y %w %u}\n"), t);
+	err |= yprintf("{:%y %w %u}\n", t);
 // PASS_REGULAR_EXPRESSION 12 0 7
 	YIO_TESTEXPR(err > 0);
 }

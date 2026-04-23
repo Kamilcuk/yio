@@ -16,26 +16,26 @@ log = logging.getLogger(os.path.basename(__file__))
 
 # fmt: off
 template_data = {
-    "mode":  ["yio", "ywio", "yc16io", "yuio", ],
-    "omega": ["",    "W",    "C16",    "U", ],
-    "pi":    ["",    "w",    "c16",    "u", ],
+    "mode":  ["yio", ],
+    "omega": ["", ],
+    "pi":    ["", ],
     "names": {
-        "TMODEX": [1,       2,         3,            3, ],
-        "TMODE":  [1,       2,         3,            4, ],
-        "TMODEN": [1,       2,         3,            4, ],
-        "TCHAR":  ["char",  "wchar_t", "uint16_t",   "uint32_t", ],
-        "TINT":   ["int",   "wint_t",  "uint16_t",   "uint32_t", ],
-        "TEOF":   ["EOF",   "WEOF",    "UINT16_MAX", "UINT32_MAX", ],
-        "TPRI":   ["\"s\"", "\"ls\"",  "\"lU\"",     "\"llU\"", ],
+        "TMODEX": [1, ],
+        "TMODE":  [1, ],
+        "TMODEN": [1, ],
+        "TCHAR":  ["char", ],
+        "TINT":   ["int", ],
+        "TEOF":   ["EOF", ],
+        "TPRI":   ["\"s\"", ],
     },
     "funcs": {
-        "TC":        ["{}",                          "L{}",           "u{}",              "U{}", ],
-        "TFPRINTF":  ["fprintf({})",                 "fprintf({})",   "ulc_fprintf({})",  "ulc_fprintf({})", ],
-        "TISDIGIT":  ["isdigit((unsigned char){})",  "iswdigit({})",  "uc_is_digit({})",  "uc_is_digit({})", ],
-        "TISXDIGIT": ["isxdigit((unsigned char){})", "iswxdigit({})", "uc_is_xdigit({})", "uc_is_xdigit({})", ],
-        "TSTRCHR":   ["strchr({})",                  "wcschr({})",    "u16_strchr({})",   "u32_strchr({})", ],
-        "TSTRCMP":   ["strcmp({})",                  "wcscmp({})",    "u16_strcmp({})",   "u32_strcmp({})", ],
-        "TSTRLEN":   ["strlen({})",                  "wcslen({})",    "u16_strlen({})",   "u32_strlen({})", ],
+        "TC":        ["{}", ],
+        "TFPRINTF":  ["fprintf({})", ],
+        "TISDIGIT":  ["isdigit((unsigned char){})", ],
+        "TISXDIGIT": ["isxdigit((unsigned char){})", ],
+        "TSTRCHR":   ["strchr({})", ],
+        "TSTRCMP":   ["strcmp({})", ],
+        "TSTRLEN":   ["strlen({})", ],
     },
 }
 # fmt: on
@@ -229,7 +229,7 @@ def invert_template_data():
     # Invert template_data
     global TDATA, template_data
     TDATA = []
-    for i in range(4):
+    for i in range(1):
         tmp = {}
         for k in template_data.keys():
             if isinstance(template_data[k], list):
@@ -337,10 +337,10 @@ if __name__ == "__main__":
     infilename = ttemplate.filename
     output = ttemplate.render(
         {
-            "MODE": dict({"none": -1, "yio": 1, "ywio": 2, "yc16io": 3, "yuio": 4})[mode],
-            "MODEX": dict({"none": -1, "yio": 1, "ywio": 2}).get(mode, 3),
-            "TMODE": dict({"none": -1, "yio": 1, "ywio": 2, "yc16io": 3, "yuio": 4})[mode],
-            "TMODEX": dict({"none": -1, "yio": 1, "ywio": 2}).get(mode, 3),
+            "MODE": dict({"none": -1, "yio": 1})[mode],
+            "MODEX": dict({"none": -1, "yio": 1}).get(mode, 3),
+            "TMODE": dict({"none": -1, "yio": 1})[mode],
+            "TMODEX": dict({"none": -1, "yio": 1}).get(mode, 3),
         }
     )
         

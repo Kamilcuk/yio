@@ -34,7 +34,7 @@ static const struct formats_s formats[] = {
 		{ 1e-9, "{:.10g}" },
 		{ 1e-20, "{:+#100.20a}" },
 		{ 1e-40, "{:+#100.40a}" },
-#if YYΩIO_PRINT_FLOATd != YYIO_print_float_customd
+#if YYIO_PRINT_FLOATd != YYIO_print_float_customd
 		{ 1e-20, "{:-#100.20f}" },
 		{ 1e-20, "{:-#100.20e}" },
 		{ 1e-20, "{:+#100.20g}" },
@@ -53,7 +53,7 @@ static const struct formats_s formats[] = {
 			"\typrintf(\"%s\", %s)=%s\n" \
 			"\tstrto(res)=%.40"PRI"f = %"PRI"a\n" \
 			"\tdiff=%.10"PRI"g < %.10g\n", \
-			"π", MODE, \
+			"", MODE, \
 			format, instr, str, \
 			res, res, \
 			diff, diffatmost
@@ -111,15 +111,15 @@ static inline
 void test_onefloat_$1(const char *instr, TYPE$1 in,
 		const char *format, double diffatmost) {
 	errno = 0;
-	TCHAR *const format_native = yπformatf(TC("{}"), format);
+	char *const format_native = yformatf("{}", format);
 	YIO_TESTEXPR_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
 	YIO_TESTEXPR_ASSERT(format_native != NULL);
 
 	if (!instr) instr = "(null)";
 
-	TCHAR *str_native = NULL;
+	char *str_native = NULL;
 	errno = 0;
-	int err = yπaprintf(&str_native, format_native, in);
+	int err = yaprintf(&str_native, format_native, in);
 	YIO_TESTEXPR_NOFAIL(errno == 0, "%s,%s %d %s", format, instr, errno, strerror(errno));
 	free(format_native);
 	if (strstr(instr, "_MAX") != NULL && (
@@ -130,7 +130,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 		free(str_native);
 		// if (verbose)
 		printf("%4s %1s%7s,%-15s OK_FAILURE %d %s\n",
-					"π", "$1", format, instr, err, yio_strerror(err));
+					"", "$1", format, instr, err, yio_strerror(err));
 		return;
 	}
 	YIO_TESTEXPR_ASSERT(str_native != NULL);
@@ -158,7 +158,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 		}
 	} else if ((strstr(instr, "_MIN") || strstr(instr, "_EPSILON")) && strstr(format, "f")) {
 	} else {
-		failed |= YIO_TESTEXPR_ASSERT(diff <= diffatmost, "π %s,%s %"PRI$1"g<%g", format, instr, diff, diffatmost);
+		failed |= YIO_TESTEXPR_ASSERT(diff <= diffatmost, " %s,%s %"PRI$1"g<%g", format, instr, diff, diffatmost);
 	}
 	if (res == 0) {
 #ifdef __INTEL_COMPILER
@@ -173,7 +173,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 		printf(VERBOSEARGS("$1", PRI$1));
 	}
 
-	// YIO_TESTEXPR_NOFAIL(fabs$1(in - res) < 0.05, "π %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
+	// YIO_TESTEXPR_NOFAIL(fabs$1(in - res) < 0.05, " %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
 	YIO_TESTEXPR_ASSERT(endp == str + strlen(str));
 
 	free(str);
@@ -181,7 +181,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 
 static void test_floats_$1(void) {
 	size_t start = 0;
-#if defined(__INTEL_COMPILER) && YYΩIO_PRINT_FLOATd == YYIO_print_float_customd
+#if defined(__INTEL_COMPILER) && YYIO_PRINT_FLOATd == YYIO_print_float_customd
 	// icc bug: double d = 1e-307; d *= 0.1; assert(d == 1e-308); - fails
 	start = YYIO_floatlist_exotics_cnt;
 #endif

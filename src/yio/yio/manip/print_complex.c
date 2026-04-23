@@ -20,22 +20,22 @@
 
 {% call j_FOREACHAPPLY(j_complex_types) %}
 #line
-int YYΩIO_print_complex_$1(yπio_printctx_t *t) {
-	const $2 val = yπio_printctx_va_arg(t, $2); // NOLINT(clang-analyzer-valist.Uninitialized)
-	int err = yπio_printctx_init(t);
+int YYIO_print_complex_$1(yio_printctx_t *t) {
+	const $2 val = yio_printctx_va_arg(t, $2); // NOLINT(clang-analyzer-valist.Uninitialized)
+	int err = yio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, TC("{}{:+}i"), creal$3(val), cimag$3(val));
+	return yio_printctx_printf(t, "{}{:+}i", creal$3(val), cimag$3(val));
 }
 {% endcall %}
 
 #if YYIO_HAS_IMAGINARY
 {% call j_FOREACHAPPLY(j_imaginary_types) %}
 #line
-int YYΩIO_print_complex_$1(yπio_printctx_t *t) {
-	const $2 val = yπio_printctx_va_arg(t, $2);
-	int err = yπio_printctx_init(t);
+int YYIO_print_complex_$1(yio_printctx_t *t) {
+	const $2 val = yio_printctx_va_arg(t, $2);
+	int err = yio_printctx_init(t);
 	if (err) return err;
-	return yπio_printctx_printf(t, TC("0{:+}i"), cimag$3(val));
+	return yio_printctx_printf(t, "0{:+}i", cimag$3(val));
 }
 {% endcall %}
 #endif // YYIO_HAS_IMAGINARY

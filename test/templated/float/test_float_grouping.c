@@ -4,25 +4,25 @@
  *  Created on: 3 kwi 2020
  *      Author: kamil
  */
-#include <yπio.h>
+#include <yio.h>
 int main() {
 
-	yπprintf(TC("{:_f}\n"), 1.125);
-	yπprintf(TC("{:_f}\n"), 21.125);
-	yπprintf(TC("{:_f}\n"), 321.125);
-	yπprintf(TC("{:_f}\n"), 4321.125);
-	yπprintf(TC("{:_f}\n"), 54321.125);
-	yπprintf(TC("{:_f}\n"), 654321.125);
-	yπprintf(TC("{:_f}\n"), 7654321.125);
-	yπprintf(TC("{:_f}\n"), 87654321.125);
-	yπprintf(TC("{:_f}\n"), 987654321.125);
-	yπprintf(TC("{:_f}\n"), 1987654321.125);
-	yπprintf(TC("{:_f}\n"), 21987654321.125);
-	yπprintf(TC("{:_f}\n"), 321987654321.125);
-	yπprintf(TC("{:_f}\n"), 4321987654321.125);
-	yπprintf(TC("{:_f}\n"), 54321987654321.125);
-	yπprintf(TC("{:_f}\n"), 654321987654321.125);
-	yπprintf(TC("{:_f}\n"), 7654321987654321.000);
+	yprintf("{:_f}\n", 1.125);
+	yprintf("{:_f}\n", 21.125);
+	yprintf("{:_f}\n", 321.125);
+	yprintf("{:_f}\n", 4321.125);
+	yprintf("{:_f}\n", 54321.125);
+	yprintf("{:_f}\n", 654321.125);
+	yprintf("{:_f}\n", 7654321.125);
+	yprintf("{:_f}\n", 87654321.125);
+	yprintf("{:_f}\n", 987654321.125);
+	yprintf("{:_f}\n", 1987654321.125);
+	yprintf("{:_f}\n", 21987654321.125);
+	yprintf("{:_f}\n", 321987654321.125);
+	yprintf("{:_f}\n", 4321987654321.125);
+	yprintf("{:_f}\n", 54321987654321.125);
+	yprintf("{:_f}\n", 654321987654321.125);
+	yprintf("{:_f}\n", 7654321987654321.000);
 
 // PASS_REGULAR_EXPRESSION 1.125000
 // PASS_REGULAR_EXPRESSION 21.125000
@@ -41,22 +41,22 @@ int main() {
 // PASS_REGULAR_EXPRESSION 654_321_987_654_321.[0-9][0-9][0-9][0-9][0-9][0-9]
 // PASS_REGULAR_EXPRESSION 7_654_321_987_654_321.[0-9][0-9][0-9][0-9][0-9][0-9]
 
-	yπprintf(TC("{:,f}\n"), 1.125);
-	yπprintf(TC("{:,f}\n"), 21.125);
-	yπprintf(TC("{:,f}\n"), 321.125);
-	yπprintf(TC("{:,f}\n"), 4321.125);
-	yπprintf(TC("{:,f}\n"), 54321.125);
-	yπprintf(TC("{:,f}\n"), 654321.125);
-	yπprintf(TC("{:,f}\n"), 7654321.125);
-	yπprintf(TC("{:,f}\n"), 87654321.125);
-	yπprintf(TC("{:,f}\n"), 987654321.125);
-	yπprintf(TC("{:,f}\n"), 1987654321.125);
-	yπprintf(TC("{:,f}\n"), 21987654321.125);
-	yπprintf(TC("{:,f}\n"), 321987654321.125);
-	yπprintf(TC("{:,f}\n"), 4321987654321.125);
-	yπprintf(TC("{:,f}\n"), 54321987654321.125);
-	yπprintf(TC("{:,f}\n"), 654321987654321.125);
-	yπprintf(TC("{:,f}\n"), 7654321987654321.000);
+	yprintf("{:,f}\n", 1.125);
+	yprintf("{:,f}\n", 21.125);
+	yprintf("{:,f}\n", 321.125);
+	yprintf("{:,f}\n", 4321.125);
+	yprintf("{:,f}\n", 54321.125);
+	yprintf("{:,f}\n", 654321.125);
+	yprintf("{:,f}\n", 7654321.125);
+	yprintf("{:,f}\n", 87654321.125);
+	yprintf("{:,f}\n", 987654321.125);
+	yprintf("{:,f}\n", 1987654321.125);
+	yprintf("{:,f}\n", 21987654321.125);
+	yprintf("{:,f}\n", 321987654321.125);
+	yprintf("{:,f}\n", 4321987654321.125);
+	yprintf("{:,f}\n", 54321987654321.125);
+	yprintf("{:,f}\n", 654321987654321.125);
+	yprintf("{:,f}\n", 7654321987654321.000);
 
 // PASS_REGULAR_EXPRESSION 1.125000
 // PASS_REGULAR_EXPRESSION 21.125000

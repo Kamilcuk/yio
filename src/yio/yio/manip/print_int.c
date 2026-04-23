@@ -19,11 +19,11 @@
 /* ------------------------------------------------------------------------------- */
 
 static inline
-const TCHAR *YYΩIO_printint_to_fmt(TCHAR type) {
-	if (type == TC('x')) {
-		return TC("0123456789abcdef");
+const char *YYIO_printint_to_fmt(char type) {
+	if (type == 'x') {
+		return "0123456789abcdef";
 	}
-	return TC("0123456789ABCDEF");
+	return "0123456789ABCDEF";
 }
 
 {% call(V) j_FOREACHAPPLY([
@@ -54,64 +54,64 @@ const TCHAR *YYΩIO_printint_to_fmt(TCHAR type) {
 #line
 
 static inline
-int YYΩIO_print_$1_inradix(yπio_printctx_t *t, $2 arg, bool is_negative,
-		TCHAR type, $2 radix, TCHAR *res, size_t ressize) {
-	const TCHAR *fmt = YYΩIO_printint_to_fmt(type);
-	TCHAR *const resend = res + (ressize / sizeof(*res));
-	TCHAR *num = resend;
+int YYIO_print_$1_inradix(yio_printctx_t *t, $2 arg, bool is_negative,
+		char type, $2 radix, char *res, size_t ressize) {
+	const char *fmt = YYIO_printint_to_fmt(type);
+	char *const resend = res + (ressize / sizeof(*res));
+	char *num = resend;
 	do {
 		(--num)[0] = fmt[arg % radix];
 	} while (arg /= radix);
 	assert(res <= num);
 	const size_t length = resend - num;
-	return yπio_printctx_putπ_number(t, num, length, !is_negative);
+	return yio_printctx_put_number(t, num, length, !is_negative);
 }
 
-int YYΩIO_print_$1_in(yπio_printctx_t *t, $2 arg, bool is_negative) {
-	const TCHAR type = yπio_printctx_get_fmt(t)->type;
+int YYIO_print_$1_in(yio_printctx_t *t, $2 arg, bool is_negative) {
+	const char type = yio_printctx_get_fmt(t)->type;
 	switch (type) {
-		case TC('\0'):
-		case TC('d'):
+		case '\0':
+		case 'd':
 			{
-				TCHAR buf[YYIO_LOG10_POW2(sizeof($2) * CHAR_BIT)];
-				return YYΩIO_print_$1_inradix(t, arg, is_negative, type, 10, buf, sizeof(buf));
+				char buf[YYIO_LOG10_POW2(sizeof($2) * CHAR_BIT)];
+				return YYIO_print_$1_inradix(t, arg, is_negative, type, 10, buf, sizeof(buf));
 			}
-		case TC('o'):
-		case TC('O'):
+		case 'o':
+		case 'O':
 			{
-				TCHAR buf[(sizeof($2) * CHAR_BIT) / 3 + !!((sizeof($2) * CHAR_BIT) % 3)];
-				return YYΩIO_print_$1_inradix(t, arg, is_negative, type, 8, buf, sizeof(buf));
+				char buf[(sizeof($2) * CHAR_BIT) / 3 + !!((sizeof($2) * CHAR_BIT) % 3)];
+				return YYIO_print_$1_inradix(t, arg, is_negative, type, 8, buf, sizeof(buf));
 			}
-		case TC('x'):
-		case TC('X'):
+		case 'x':
+		case 'X':
 			{
-				TCHAR buf[(sizeof($2) * CHAR_BIT) / 4 + !!((sizeof($2) * CHAR_BIT) % 4)];
-				return YYΩIO_print_$1_inradix(t, arg, is_negative, type, 16, buf, sizeof(buf));
+				char buf[(sizeof($2) * CHAR_BIT) / 4 + !!((sizeof($2) * CHAR_BIT) % 4)];
+				return YYIO_print_$1_inradix(t, arg, is_negative, type, 16, buf, sizeof(buf));
 			}
-		case TC('b'):
-		case TC('B'):
+		case 'b':
+		case 'B':
 			{
-				TCHAR buf[sizeof($2) * CHAR_BIT];
-				return YYΩIO_print_$1_inradix(t, arg, is_negative, type, 2, buf, sizeof(buf));
+				char buf[sizeof($2) * CHAR_BIT];
+				return YYIO_print_$1_inradix(t, arg, is_negative, type, 2, buf, sizeof(buf));
 			}
 		default:
 			return YIO_ERROR_UNKNOWN_FMT;
 	}
 }
 
-int YYΩIO_print_$1(yπio_printctx_t *t) {
-	const $2 arg = yπio_printctx_va_arg_promote(t, $2);
-	const int err = yπio_printctx_init(t);
+int YYIO_print_$1(yio_printctx_t *t) {
+	const $2 arg = yio_printctx_va_arg_promote(t, $2);
+	const int err = yio_printctx_init(t);
 	if (err) return err;
-	return YYΩIO_print_$1_in(t, arg, false);
+	return YYIO_print_$1_in(t, arg, false);
 }
 
 {% else %}
 #line
 
-int YYΩIO_print_$1(yπio_printctx_t *t) {
-	const $2 arg = yπio_printctx_va_arg_promote(t, $2);
-	const int err = yπio_printctx_init(t);
+int YYIO_print_$1(yio_printctx_t *t) {
+	const $2 arg = yio_printctx_va_arg_promote(t, $2);
+	const int err = yio_printctx_init(t);
 	if (err) return err;
 	const bool is_negative = arg < 0;
 {% if j_match(V.1, "signed char") %} #line
@@ -120,7 +120,7 @@ int YYΩIO_print_$1(yπio_printctx_t *t) {
 	typedef unsigned $2 unsignedtype;
 {% endif %} #line
 	const unsignedtype uarg = is_negative ? -((unsignedtype)arg) : (unsignedtype)arg;
-	return YYΩIO_print_u$1_in(t, uarg, is_negative);
+	return YYIO_print_u$1_in(t, uarg, is_negative);
 }
 
 {% endif %}

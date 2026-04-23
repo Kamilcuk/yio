@@ -16,17 +16,17 @@
 #include "test_print_float_on_strto.c"
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
-#ifndef YYΩIO_PRINT_FLOAT$1
-#error YYΩIO_PRINT_FLOAT$1
+#ifndef YYIO_PRINT_FLOAT$1
+#error YYIO_PRINT_FLOAT$1
 #endif
 #if defined __GNUC__ && ! defined __clang__ && ! defined __INTEL_COMPILER
-static_assert(YYΩIO_PRINT_FLOAT$1 == YYΩIO_print_float_strfrom$1, "");
+static_assert(YYIO_PRINT_FLOAT$1 == YYIO_print_float_strfrom$1, "");
 #endif
 {% endcall %}
 #line
 #else
-#include <yπio.h>
+#include <yio.h>
 int main() {
-	return yπprint("");
+	return yprint("");
 }
 #endif

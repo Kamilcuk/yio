@@ -5,18 +5,18 @@
  *      Author: Kamil
  */
 #include <yio_test.h>
-#include <yπio.h>
+#include <yio.h>
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
 
-#if TMODE == 1
+#if 1 == 1
 #define shouldbe_snprintf snprintf
-#elif TMODE == 2
+#elif 1 == 2
 #define shouldbe_snprintf swprintf
-#elif TMODE == 3
+#elif 1 == 3
 #define shouldbe_snprintf u16_u16_snprintf
-#elif TMODE == 4
+#elif 1 == 4
 #define shouldbe_snprintf u32_u32_snprintf
 #else
 #error
@@ -24,28 +24,28 @@
 
 #define _yio_inttest2(SUFFIX, TYPE) \
 static inline \
-int _yio_inttest2_ ## SUFFIX(int *err, const TCHAR *fmt, \
-		const TCHAR *printfmt, TYPE arg) { \
-	TCHAR shouldbe[256]; \
-	TCHAR buf[256]; \
+int _yio_inttest2_ ## SUFFIX(int *err, const char *fmt, \
+		const char *printfmt, TYPE arg) { \
+	char shouldbe[256]; \
+	char buf[256]; \
 	shouldbe_snprintf(shouldbe, sizeof(shouldbe)/sizeof(*shouldbe), printfmt, arg); \
 	if (1) { \
-		TFPRINTF(stdout, "Testing %s yprint|\"%"TPRI"\", ", #TYPE, fmt); \
-		TFPRINTF(stdout, "| \tvs snprintf|\"%"TPRI"\", ", printfmt ? printfmt : TC("?")); \
-		TFPRINTF(stdout, "| \t-> %d\"%"TPRI"\"\n", \
-				(int)TSTRLEN(shouldbe), shouldbe); \
+		fprintf(stdout, "Testing %s yprint|\"%""s""\", ", #TYPE, fmt); \
+		fprintf(stdout, "| \tvs snprintf|\"%""s""\", ", printfmt ? printfmt : "?"); \
+		TFPRINTF(stdout, "| \t-> %d\"%""s""\"\n", \
+				(int)strlen(shouldbe), shouldbe); \
 	} \
-	const int ret = yπsprintf(buf, sizeof(buf), fmt, arg); \
+	const int ret = ysprintf(buf, sizeof(buf), fmt, arg); \
 	if (ret < 0) { \
-		TFPRINTF(stderr, "%s:%d: yprint \"%"TPRI"\", ", __FILE__, __LINE__, fmt); \
-		TFPRINTF(stderr, " -> %d\n", ret); \
+		fprintf(stderr, "%s:%d: yprint \"%""s""\", ", __FILE__, __LINE__, fmt); \
+		fprintf(stderr, " -> %d\n", ret); \
 		*err = __LINE__; \
 	} \
-	if (TSTRCMP(shouldbe, buf) != 0) { \
-		TFPRINTF(stderr, "%s:%d: yprint|\"%"TPRI"\", ", __FILE__, __LINE__, fmt); \
-		TFPRINTF(stderr, "| -> %d\"%"TPRI"\" != %d\"%"TPRI"\"\n", \
-				(int)TSTRLEN(buf), buf, \
-				(int)TSTRLEN(shouldbe), shouldbe); \
+	if (strcmp(shouldbe, buf) != 0) { \
+		fprintf(stderr, "%s:%d: yprint|\"%""s""\", ", __FILE__, __LINE__, fmt); \
+		TFPRINTF(stderr, "| -> %d\"%""s""\" != %d\"%""s""\"\n", \
+				(int)strlen(buf), buf, \
+				(int)strlen(shouldbe), shouldbe); \
 		*err = __LINE__; \
 	} \
 	return 0; \
@@ -62,22 +62,22 @@ _yio_inttest2(ullong, unsigned long long)
 
 int main() {
 	int err = 0;
-	_yio_inttest2_int(&err, TC("{}"), TC("%d"), 5);
-	_yio_inttest2_int(&err, TC("{}"), TC("%d"), 5);
-	_yio_inttest2_int(&err, TC("{}"), TC("%d"), INT_MAX);
-	_yio_inttest2_int(&err, TC("{}"), TC("%d"), INT_MIN);
-	_yio_inttest2_uint(&err, TC("{}"), TC("%u"), UINT_MAX);
-	_yio_inttest2_short(&err, TC("{}"), TC("%hd"), SHRT_MIN);
-	_yio_inttest2_short(&err, TC("{}"), TC("%hd"), SHRT_MAX);
-	_yio_inttest2_ushort(&err, TC("{}"), TC("%hu"), USHRT_MAX);
-	_yio_inttest2_long(&err, TC("{}"), TC("%ld"), LONG_MIN);
-	_yio_inttest2_long(&err, TC("{}"), TC("%ld"), LONG_MAX);
-	_yio_inttest2_ulong(&err, TC("{}"), TC("%lu"), ULONG_MAX);
-	_yio_inttest2_llong(&err, TC("{}"), TC("%lld"), LLONG_MIN);
-	_yio_inttest2_llong(&err, TC("{}"), TC("%lld"), LLONG_MAX);
-	_yio_inttest2_ullong(&err, TC("{}"), TC("%llu"), ULLONG_MAX);
-	_yio_inttest2_ullong(&err, TC("{: 30}"), TC("% 30llu"), ULLONG_MAX);
-	_yio_inttest2_ullong(&err, TC("{:#030X}"), TC("%+#030llX"), ULLONG_MAX);
+	_yio_inttest2_int(&err, "{}", "%d", 5);
+	_yio_inttest2_int(&err, "{}", "%d", 5);
+	_yio_inttest2_int(&err, "{}", "%d", INT_MAX);
+	_yio_inttest2_int(&err, "{}", "%d", INT_MIN);
+	_yio_inttest2_uint(&err, "{}", "%u", UINT_MAX);
+	_yio_inttest2_short(&err, "{}", "%hd", SHRT_MIN);
+	_yio_inttest2_short(&err, "{}", "%hd", SHRT_MAX);
+	_yio_inttest2_ushort(&err, "{}", "%hu", USHRT_MAX);
+	_yio_inttest2_long(&err, "{}", "%ld", LONG_MIN);
+	_yio_inttest2_long(&err, "{}", "%ld", LONG_MAX);
+	_yio_inttest2_ulong(&err, "{}", "%lu", ULONG_MAX);
+	_yio_inttest2_llong(&err, "{}", "%lld", LLONG_MIN);
+	_yio_inttest2_llong(&err, "{}", "%lld", LLONG_MAX);
+	_yio_inttest2_ullong(&err, "{}", "%llu", ULLONG_MAX);
+	_yio_inttest2_ullong(&err, "{: 30}", "% 30llu", ULLONG_MAX);
+	_yio_inttest2_ullong(&err, "{:#030X}", "%+#030llX", ULLONG_MAX);
 
 	return err;
 }

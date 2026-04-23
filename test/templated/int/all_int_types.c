@@ -9,7 +9,7 @@
 // Type your code here.
 #define _GNU_SOURCE
 #include <yio_test.h>
-#include <yπio.h>
+#include <yio.h>
 #include <time.h>
 #include <signal.h>
 #include <stdint.h>
@@ -48,16 +48,16 @@
 #define TEST_in(type, value) \
     do { \
         type _var = value; \
-        TCHAR *_ptr = yπformat("("#type")"#value" -> ", _var, "\n"); \
-        yπprint(_ptr); \
-        YIO_TESTEXPR(TSTRCMP(_ptr, #value) == 0, "%"TPRI" failed", _ptr); \
+        char *_ptr = yformat("("#type")"#value" -> ", _var, "\n"); \
+        yprint(_ptr); \
+        YIO_TESTEXPR(strcmp(_ptr, #value) == 0, "%""s"" failed", _ptr); \
         free(_ptr); \
     } while(0)
 #undef TEST_in
 #define TEST_in(type, value) \
     do { \
         type _var = value; \
-        yπprint("(", #type ")(", #value, ") = ", _var, "\n"); \
+        yprint("(", #type ")(", #value, ") = ", _var, "\n"); \
     } while(0)
 
 
