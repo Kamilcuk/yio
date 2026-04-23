@@ -222,25 +222,12 @@ endfunction()
 ###############################################################################
 
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
-set(JINJASCRIPT ${CMAKE_CURRENT_BINARY_DIR}/jinja2script.pyc)
+set(JINJASCRIPT ${SRCDIR}/preprocess.py)
 set(JINJAPROJECTSRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
-add_custom_command(
-	OUTPUT "${JINJASCRIPT}"
-	COMMENT "jinja2: compiling preprocess script"
-	COMMAND
-		${Python3_EXECUTABLE}
-    -X pycache_prefix=${CMAKE_CURRENT_BINARY_DIR}
-		-c
-		"import py_compile, sys ; py_compile.compile(sys.argv[1], cfile=sys.argv[2], doraise=True)"
-		"${SRCDIR}/preprocess.py"
-		"${JINJASCRIPT}"
-	DEPENDS "${SRCDIR}/preprocess.py"
-	VERBATIM
-)
 add_custom_target(yio_gen_prepare
 	DEPENDS "${JINJASCRIPT}"
-	COMMENT "jinja2: compiling preproces script target"
+	COMMENT "jinja2: preproces script target"
 )
 
 #!
@@ -277,7 +264,6 @@ function(jinja_generate)
 		COMMENT "jinja2: ${A_SOURCE} -> ${reloutputf}"
 		COMMAND
 			"${Python3_EXECUTABLE}"
-      -X pycache_prefix=${CMAKE_CURRENT_BINARY_DIR}
 			"${JINJASCRIPT}"
 			-S "${JINJAPROJECTSRC}"
 			-S "${CMAKE_CURRENT_SOURCE_DIR}"

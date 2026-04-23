@@ -18,7 +18,7 @@ set(modes yio)
 if(YIO_HAS_WCHAR_H)
 	list(APPEND modes "ywio")
 endif()
-if(YIO_HAS_UCHAR_H)
+if(YIO_HAS_UCHAR_H AND UNISTRING_LIB)
 	list(APPEND modes "yc16io" "yuio")
 endif()
 

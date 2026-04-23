@@ -32,7 +32,9 @@ int main() {
 	YIO_TEST_FAIL("{:{}f}", pi, 10.0);     // throws: width is not of integral type
 	YIO_TEST_FAIL("{:{}f}", pi, -10);      // throws: width is negative
 										   //
+#if YYIO_HAS_UNISTRING
 	YIO_TEST_EQ(".🐱..", "{:.^5s}",   "🐱");
 	YIO_TEST_EQ("🐱🐱",  "{:.8s}",    "🐱🐱🐱");
 	YIO_TEST_EQ("🐱🐱.", "{:.<5.8s}", "🐱🐱🐱");
+#endif
 }

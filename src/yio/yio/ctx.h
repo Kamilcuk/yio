@@ -280,7 +280,7 @@ int yπio_printctx_putπ_number(yπio_printctx_t *t, const TCHAR str[], size_t s
 	return YYΩIO_printformat_generic(t, str, str_len, true, is_positive);
 }
 
-#if TMODE != 1
+{% if TMODE != 1 %}
 
 /**
  * On modes different than normal, use this to output a @c char string.
@@ -299,14 +299,14 @@ int yπio_printctx_put(yπio_printctx_t *t, const char str[], size_t str_len) {
 }
 
 /**
- * @see YYΩIO_printformat_generic_char
+ * @see YYIO_printformat_generic_char
  */
 YYIO_wur YYIO_nn() static inline
 int yπio_printctx_put_number(yπio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
 	return YYΩIO_printformat_generic_char(t, str, str_len, true, is_positive);
 }
 
-#endif
+{% endif %}
 
 /**
  * @}

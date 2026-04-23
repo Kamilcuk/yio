@@ -193,7 +193,8 @@ int YYΩIO_pfmt_parse(struct YYΩIO_printctx_s *t, struct yπio_printfmt_s *pf,
 			break;
 		case TC('0'):
 			if (pf->align == TC('\0')) {
-				pf->align = TC('0');
+				pf->fill = TC('0');
+				pf->align = TC('=');
 			}
 			break;
 		case TC('1'):
@@ -678,7 +679,7 @@ struct ss_s {
 
 static inline
 struct ss_s ss_init(TCHAR *newstr) {
-	struct ss_s rr = {newstr};
+	struct ss_s rr = { .newstr = newstr, .cnt = 0 };
 	return rr;
 }
 
@@ -810,7 +811,7 @@ struct ss_s ascii_encode_do(const TCHAR str[restrict], size_t str_len, TCHAR *re
 	}
 	if (newstr != NULL) {
 		(void)newstr_len;
-		assert(ss->uu.newstr == newstr + newstr_len);
+		assert(ss->newstr == newstr + newstr_len);
 	}
 	return ss_mem;
 }
@@ -843,6 +844,18 @@ int YYΩIO_printformat_conversion(yπio_printctx_t *restrict t,
 int YYΩIO_printformat_generic(yπio_printctx_t *restrict t,
 		const TCHAR str[restrict], size_t str_len, bool is_number, bool is_positive) {
 	int err = 0;
+	// Detect inf/nan
+	const bool is_infnan = is_number && str_len >= 3 && (
+			(str[0] == TC('i') || str[0] == TC('I')) ||
+			(str[0] == TC('n') || str[0] == TC('N'))
+	);
+	if (is_infnan) {
+		t->pf.grouping = TC('\0');
+		if (t->pf.fill == TC('0') && t->pf.align == TC('=')) {
+			t->pf.fill = TC(' ');
+			t->pf.align = TC('>');
+		}
+	}
 	const int converted = YYΩIO_printformat_conversion(t, &str, &str_len);
 	if (converted < 0) return converted;
 	//

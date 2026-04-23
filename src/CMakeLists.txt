@@ -58,7 +58,6 @@ add_custom_command(
     ${GENDIR}/yio/yio_error_genmsg.h
   COMMAND
     ${Python3_EXECUTABLE}
-    -X pycache_prefix=${CMAKE_CURRENT_BINARY_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
     ${GENDIR}/yio/yio_error_genenum.h
     ${GENDIR}/yio/yio_error_genmsg.h
