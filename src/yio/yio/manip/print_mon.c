@@ -33,18 +33,10 @@ int YYIO_print_mon(yio_printctx_t *t) {
 	if (err) return err;
 	//
 	const size_t realfmtlen = fmtend - fmtbegin;
-	char *format;
-#if 1 == 1
-	format = malloc(sizeof(*format) * (realfmtlen + 1));
+	char *format = malloc(sizeof(*format) * (realfmtlen + 1));
 	if (format == NULL) return YIO_ERROR_ENOMEM;
 	memcpy(format, fmtbegin, realfmtlen);
 	format[realfmtlen] = '\0';
-#elif 1 == 2 || 1 == 3 || 1 == 4
-	err = YYIO_strconv_str_to_str(fmtbegin, realfmtlen, (const char **)&format, NULL);
-	if (err) return err;
-#else
-#error
-#endif
 	const struct YYIO_astrfmon_arg arg = {
 		.v.d = vv,
 		.isldbl = false,

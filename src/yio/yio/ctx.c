@@ -74,12 +74,7 @@ int YYIO_skip_do(yio_printctx_t *t) {
 static inline
 int YYIO_digit_to_number(char d) {
 	assert(isdigit((unsigned char)(d)));
-#if 1 == 1
 	return d - '0';
-#else
-	const char table[] = "0123456789";
-	return (int)(strchr(table, d) - table);
-#endif
 }
 
 int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
@@ -310,15 +305,8 @@ int YYIO_printctx_print_in(yio_printctx_t *t, yio_printdata_t *data, const char 
 #endif
 static inline
 size_t YYIO_width(const char *str, size_t str_len) {
-#if 1 == 1 && YYIO_HAS_UNISTRING
+#if YYIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
-#elif 1 == 2 && YYIO_HAS_wcswidth
-	const int width = wcswidth(str, str_len);
-	return width < 0 ? str_len : (size_t)width;
-#elif 1 == 3
-	return u16_width(str, str_len, locale_charset());
-#elif 1 == 4
-	return u32_width(str, str_len, locale_charset());
 #else
 	return str_len;
 #endif
@@ -483,14 +471,8 @@ int print_numsep(yio_printctx_t *t, struct numsep *ns) {
 				ns->sep = DEFAULT_THOUSEND_SEP;
 				ns->len = 0;
 			} else {
-#if 1 == 1
 				ns->sep = sep;
 				ns->len = strlen(ns->sep);
-#else
-				// Convert separator to wchar/char16/char32.
-				const int err = YYIO_strconv_str_to_str(sep, strlen(sep), &ns->sep, &ns->len);
-				if (err) return err;
-#endif
 			}
 #else
 			ns->sep = DEFAULT_THOUSEND_SEP;
@@ -507,11 +489,8 @@ int print_numsep(yio_printctx_t *t, struct numsep *ns) {
 
 static inline
 void print_numsep_end(yio_printctx_t *t, struct numsep *ns) {
-#if 1 != 1
-	if (ns->sep != &t->pf.grouping && ns->sep != DEFAULT_THOUSEND_SEP) {
-		free((void *)ns->sep); // cppcheck-suppress cert-EXP05-C
-	}
-#endif
+	(void)t;
+	(void)ns;
 }
 
 static inline
@@ -661,13 +640,6 @@ static inline
 bool is_print_ascii(char tcc) {
 	const unsigned char ascii_min_printable = 32U;
 	const unsigned char ascii_max_printable = 126U;
-#if 1 == 1 || \
-		(1 == 2 && !defined(__STDC_MB_MIGHT_NEQ_WC__)) || \
-		(1 == 3 && defined(__STDC_UTF_16__)) || \
-		(1 == 4 && defined(__STDC_UTF_32__))
-#else
-#warning TODO: conversion
-#endif
 	const char cc = tcc;
 	return ascii_min_printable <= cc && cc <= ascii_max_printable;
 }
@@ -780,13 +752,7 @@ char ascii_encode_get_esc(char prev, char cc) {
 
 #define CSTRLEN(x)  (sizeof(x) - 1)
 
-#if (1 == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT16_MAX) || (1 == 3 && defined(__STDC_UTF_16__))
-#define ASCII_ENCODE  ascii_encode_u  // \u1234
-#elif (1 == 2 && defined(__STDC_ISO_10646__) && WCHAR_MAX == INT32_MAX) || (1 == 4 && defined(__STDC_UTF_32__))
-#define ASCII_ENCODE  ascii_encode_U  // \U12345678
-#else
 #define ASCII_ENCODE  ascii_encode_o  // \1\123\377...
-#endif
 
 static inline
 struct ss_s ascii_encode_do(const char str[restrict], size_t str_len, char *restrict newstr, size_t newstr_len) {
@@ -875,16 +841,3 @@ EXIT:
 	}
 	return err;
 }
-
-#if 1 != 1
-int YYIO_printformat_generic_char(yio_printctx_t *t,
-		const char str[], size_t str_len, bool is_number, bool is_positive) {
-	const char *dest = NULL;
-	size_t dest_len = 0;
-	int ret = YYIO_strconv_str_to_str(str, str_len, &dest, &dest_len);
-	if (ret) return ret;
-	ret = YYIO_printformat_generic(t, dest, dest_len, is_number, is_positive);
-	YYIO_strconv_free_str_to_str(str, dest);
-	return ret;
-}
-#endif

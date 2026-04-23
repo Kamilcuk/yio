@@ -11,12 +11,4 @@
 #include "../private/yio_strlib.h"
 #include <string.h>
 #include <limits.h>
-#if 1 == 2
-#include <wctype.h>
-#elif 1 == 3
-#include <unictype.h>
-#include <uniconv.h>
-#include <unistr.h>
-#include <uniwidth.h>
-#include <unistdio.h>
-#endif
+

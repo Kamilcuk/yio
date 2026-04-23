@@ -92,23 +92,11 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	} else {
 		// Add additional space.
 		const ptrdiff_t fmtlen = realfmtlen + 2;
-		char *formatbuf = NULL;
-#if 1 == 1
-		formatbuf = malloc(sizeof(*formatbuf) * fmtlen);
+		char *formatbuf = malloc(sizeof(*formatbuf) * fmtlen);
 		if (formatbuf == NULL) {
 			return YIO_ERROR_ENOMEM;
 		}
 		memcpy(formatbuf, fmtbegin, sizeof(*formatbuf) * realfmtlen);
-#else
-		ret = YYIO_strconv_str_to_str(fmtbegin, realfmtlen, (const char **)&formatbuf, NULL);
-		if (ret) return ret;
-		void *pnt = realloc((void *)formatbuf, sizeof(*formatbuf) * fmtlen);
-		if (pnt == NULL) {
-			free(formatbuf);
-			return YIO_ERROR_ENOMEM;
-		}
-		formatbuf = pnt;
-#endif
 		formatbuf[fmtlen - 2] = ' ';
 		formatbuf[fmtlen - 1] = '\0';
 		format = formatbuf;

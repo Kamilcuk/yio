@@ -32,45 +32,9 @@ int YYIO_yvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	return ret;
 }
 
-#if 1 == 2 && defined __NEWLIB__ && defined _FORTIFY_SOURCE
-		// there is a bug in newlib
-		// in include/ssp/wchar.h when checking size for wcrtomb
-#define SUPER_MB_LEN_MAX  (MB_LEN_MAX > sizeof(wchar_t) ? MB_LEN_MAX :  sizeof(wchar_t))
-#else
-#define SUPER_MB_LEN_MAX  (MB_LEN_MAX)
-#endif
-
 static inline YYIO_access_r(2, 3)
 int YYIO_yvdprintf_cb(void *arg, const char *ptr, size_t size) {
-#if 1 == 1
 	return YYIO_yvdprintf_cb_in(arg, ptr, size);
-#elif 1 == 2 || 1 == 3 || 1 == 4
-#if 1 == 2
-#define STUFF_rtomb  wcrtomb
-#define STUFF_ERROR  YIO_ERROR_WCRTOMB
-#elif 1 == 3
-#define STUFF_rtomb  c16rtomb
-#define STUFF_ERROR  YIO_ERROR_C16RTOMB
-#elif 1 == 4
-#define STUFF_rtomb  c32rtomb
-#define STUFF_ERROR  YIO_ERROR_C32RTOMB
-#else
-#error
-#endif
-	mbstate_t ps;
-	memset(&ps, 0, sizeof(ps));
-	while (size--) {
-		char s[SUPER_MB_LEN_MAX];
-		const size_t wr = STUFF_rtomb(s, *ptr, &ps);
-		if (wr == (size_t)-1) return STUFF_ERROR;
-		ptr++;
-		const int r = YYIO_yvdprintf_cb_in(arg, s, wr);
-		if (r < 0) return r;
-	}
-	return 0;
-#else
-#error
-#endif
 }
 
 int yvdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *va) {
