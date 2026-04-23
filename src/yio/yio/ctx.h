@@ -15,7 +15,7 @@
 #include <stdint.h>
 
 /**
- * @defgroup yio_printctx 1 yio_printctx
+ * @defgroup yio_printctx yio_printctx
  * @ingroup yio
  * @brief Printing context.
  * @{

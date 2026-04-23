@@ -11,7 +11,7 @@
 #include "../ctx.h"
 
 /**
- * @defgroup yppfmt 1 yppfmt
+ * @defgroup yppfmt yppfmt
  * @ingroup yio
  * @brief Python printing manipulator.
  * @{

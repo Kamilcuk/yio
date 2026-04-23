@@ -18,7 +18,7 @@ int YYIO_print_wchar(yio_printctx_t *t);
 int YYIO_print_constwcharpnt(yio_printctx_t *t);
 
 /**
- * @defgroup ypw 1 ypw
+ * @defgroup ypw ypw
  * @ingroup yio
  * @brief Wide characters printers.
  * @{

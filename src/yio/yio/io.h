@@ -15,7 +15,7 @@
 /* Exported Print Symbols --------------------------------------------------- */
 
 /**
- * @defgroup yv__print 1 yv__print
+ * @defgroup yv__print yv__print
  * @ingroup yio
  * @brief Printing functions with va_list.
  * @{
@@ -101,7 +101,7 @@ int yvdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *va)
  */
 
 /**
- * @defgroup YYIO_printf 1 YYIO_printf
+ * @defgroup YYIO_printf YYIO_printf
  * @ingroup yio
  * @brief Printing macro callbacks.
  * @see yvbprintf
@@ -130,7 +130,7 @@ int YYIO_ydprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
  */
 
 /**
- * @defgroup y__printf 1 y__printf
+ * @defgroup y__printf y__printf
  * @ingroup yio
  * @brief Constructs yio printing data and calls internal Yio operation function.
  * @see yvbprintf
@@ -150,7 +150,7 @@ int YYIO_ydprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
  */
 
 /**
- * @defgroup y__print 1 y__print
+ * @defgroup y__print y__print
  * @ingroup yio
  * @brief Constructs yio printing data and calls internal Yio operation function.
  * @see yvbprintf

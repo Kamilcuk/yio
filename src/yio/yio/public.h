@@ -11,8 +11,8 @@
 #include "io.h"
 #include "manip/manip.h"
 /**
- * @defgroup yio 1 yio
- * @brief All stuff related to 1 /  /  mode.
+ * @defgroup yio yio
+ * @brief All stuff related to yio mode.
  * @{
  * @}
  */

@@ -17,33 +17,37 @@ struct YYIO_yp_arr_s {
 	yio_printdata_t printfunc;
 };
 static inline int YYIO_yp_arr(yio_printctx_t *t) {
-	const struct YYIO_yp_arr_s *const arr =
-		yio_printctx_va_arg(ctx, const struct YYIO_yp_arr_s*);
-	const char *const fmtbegin = t->fmt;
-	while (t->fmt[0] != '}' && t->fmt[0] != '\0') t->fmt++;
-	if (t->fmt[0] != '}') {
-		return YYIO_ERROR(YIO_ERROR_MON_MISSING_RIGHT_BRACE, "missing '}' when parsing yp_arr format specifier");
-	}
-	const char *const fmtend = t->fmt;
-	int err = yio_printctx_init(t);
-	if (err) return err;
-	const struct yio_printfmt_s *const pf = yio_printctx_get_fmt(t);
-	const size_t fmtlen = fmtend - fmtbegin;
-	char *const fmt = malloc(fmtlen * sizeof(char));
-	memcpy(fmt, fmtbegin, fmtlen);
-	const char *const sep = arr->sep != NULL ? arr->sep : ", ";
-	while (count--) {
-		err = yio_printctx_printf(t, fmt, yiocb(arr->printfunc, arr->arr));
-		if (err) return err;
-		if (count > 1) {
-			err = yio_printctx_printf(t, "{}", sep);
-			if (err) return err;
-		}
-		arr->arr = (const char *)arr->arr + arr->elemsize;
-	}
-	return err;
-}
-#define YYIO_yp_arr_1(ARR)       YYIO_yp_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), 0)
+        const struct YYIO_yp_arr_s *const arr =
+                yio_printctx_va_arg(t, const struct YYIO_yp_arr_s*);
+        const char *const fmtbegin = t->fmt;
+        while (t->fmt[0] != '}' && t->fmt[0] != '\0') t->fmt++;
+        if (t->fmt[0] != '}') {
+                return YYIO_ERROR(YIO_ERROR_MON_MISSING_RIGHT_BRACE, "missing '}' when parsing yp_arr format specifier");
+        }
+        const char *const fmtend = t->fmt;
+        int err = yio_printctx_init(t);
+        if (err) return err;
+        const size_t fmtlen = fmtend - fmtbegin;
+        char *const fmt = malloc(fmtlen + 3);
+        if (fmt == NULL) return YIO_ERROR_ENOMEM;
+        fmt[0] = '{';
+        memcpy(fmt + 1, fmtbegin, fmtlen);
+        fmt[fmtlen + 1] = '}';
+        fmt[fmtlen + 2] = '\0';
+        const char *const sep = arr->sep != NULL ? arr->sep : ", ";
+        const void *it = arr->arr;
+        for (size_t i = 0; i < arr->count; ++i) {
+                err = yio_printctx_printf(t, fmt, yiocb(arr->printfunc, it));
+                if (err) break;
+                if (i + 1 < arr->count) {
+                        err = yio_printctx_printf(t, "{}", sep);
+                        if (err) break;
+                }
+                it = (const char *)it + arr->elemsize;
+        }
+        free(fmt);
+        return err;
+}#define YYIO_yp_arr_1(ARR)       YYIO_yp_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), 0)
 #define YYIO_yp_arr_2(ARR, SEP)  YYIO_yp_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), SEP)
 #define YYIO_yp_arr_3(ARR, COUNT, SEP) \
 		yiocb(YYIO_yp_arr, &(const struct YYIO_yp_arr_s){ \
