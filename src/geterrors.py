@@ -59,7 +59,7 @@ def write_to_argv_on_change(idx, str_content):
         print(str_content)
         return
     file_path = sys.argv[idx]
-    save_if_changed(str_content, file_path, file_path)
+    save_if_changed(str_content, file_path)
 
 
 def main():

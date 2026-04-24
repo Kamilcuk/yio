@@ -231,58 +231,63 @@ add_custom_target(yio_gen_prepare
 )
 
 #!
+set_property(GLOBAL PROPERTY YIO_JINJA_TASKS)
+set_property(GLOBAL PROPERTY YIO_JINJA_OUTPUTS)
+set_property(GLOBAL PROPERTY YIO_JINJA_DEPENDS)
+
 function(jinja_generate)
 	cmake_parse_arguments(A "" "SOURCE;OUTPUT;TARGET" "DEPENDS" ${ARGN})
 	if(NOT A_TARGET)
 		message(FATAL_ERROR "jinja_generate: You have to give a target to append source into")
 	endif()
-	string(MD5 depfilename "${A_OUTPUT}")
-	set(depfile "${CMAKE_CURRENT_BINARY_DIR}/jinjadepfiles/${depfilename}.depfile")
-	file(RELATIVE_PATH reloutputf ${CMAKE_CURRENT_BINARY_DIR} ${A_OUTPUT})
+
 	if(IS_ABSOLUTE "${A_SOURCE}")
-		file(RELATIVE_PATH A_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}" "${A_SOURCE}")
-		if(A_SOURCE MATCHES "\\.\\.")
-			message(FATAL_ERROR "A_SOURCE=${A_SOURCE} is not in SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
-		endif()
+		set(source_abs "${A_SOURCE}")
+	else()
+		set(source_abs "${CMAKE_CURRENT_SOURCE_DIR}/${A_SOURCE}")
 	endif()
-	if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${A_SOURCE}")
-		message(FATAL_ERROR "Source file does not exist: ${A_SOURCE}")
-	endif()
-	#
-	set(debug)
-	if(YIO_LINE)
-		set(debug --debug)
-	endif()
-	#
-  # Handle CMake dependencies.
+
+	# Handle CMake dependencies for the target
 	set_property(TARGET "${A_TARGET}" APPEND PROPERTY SOURCES "${A_OUTPUT}")
 	add_dependencies(yio_gen ${A_TARGET})
-  #
+
+	# Collect task
+	set_property(GLOBAL APPEND PROPERTY YIO_JINJA_TASKS "--task" "${source_abs}" "${A_OUTPUT}")
+	set_property(GLOBAL APPEND PROPERTY YIO_JINJA_OUTPUTS "${A_OUTPUT}")
+	set_property(GLOBAL APPEND PROPERTY YIO_JINJA_DEPENDS "${source_abs}" ${A_DEPENDS})
+endfunction()
+
+function(yio_jinja_finalize)
+	get_property(tasks GLOBAL PROPERTY YIO_JINJA_TASKS)
+	get_property(outputs GLOBAL PROPERTY YIO_JINJA_OUTPUTS)
+	get_property(depends GLOBAL PROPERTY YIO_JINJA_DEPENDS)
+
+	if(NOT tasks)
+		return()
+	endif()
+
+	set(depfile "${CMAKE_CURRENT_BINARY_DIR}/yio_jinja_batch.depfile")
+
 	add_custom_command(
-		OUTPUT
-			"${A_OUTPUT}"
-		COMMENT "jinja2: ${A_SOURCE} -> ${reloutputf}"
+		OUTPUT ${outputs}
 		COMMAND
-			"${Python3_EXECUTABLE}"
-			"${JINJASCRIPT}"
+			"${Python3_EXECUTABLE}" "${JINJASCRIPT}"
 			-S "${JINJAPROJECTSRC}"
-			-S "${CMAKE_CURRENT_SOURCE_DIR}"
+			-S "${CMAKE_CURRENT_SOURCE_DIR}/src"
+			-S "${CMAKE_CURRENT_SOURCE_DIR}/test/templated"
 			-D "j_MLVLS=${YIO_MLVLS}"
 			-D "j_SLOTS=${YIO_SLOTS}"
-			--depfile "${depfile}"
 			--cachedir "${CMAKE_CURRENT_BINARY_DIR}/jinjacache"
-			${debug}
-			${A_UNPARSED_ARGUMENTS}
-			"${A_SOURCE}"
-			"${A_OUTPUT}"
+			--depfile "${depfile}"
+			-j 8
+			${tasks}
 		DEPFILE "${depfile}"
-		DEPENDS
-			yio_gen_prepare
-			"${JINJASCRIPT}"
-			"${A_SOURCE}"
-			${A_DEPENDS}
+		DEPENDS yio_gen_prepare "${JINJASCRIPT}" ${depends}
+		COMMENT "jinja2: batch processing all templates"
 		VERBATIM
 	)
+	add_custom_target(yio_jinja_batch DEPENDS ${outputs})
+	add_dependencies(yio_gen yio_jinja_batch)
 endfunction()
 
 ###############################################################################
@@ -297,4 +302,6 @@ if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
 	add_subdirectory(./test)
 	add_subdirectory(./examples)
 endif()
+
+yio_jinja_finalize()
 
