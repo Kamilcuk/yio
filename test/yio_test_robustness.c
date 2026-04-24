@@ -89,22 +89,22 @@ static void test_sso_transition(void) {
     YYIO_string s = {0};
     
     /* SSO mode */
-    YYIO_string_puts(&s, "Small");
+    YIO_TESTEXPR(YYIO_string_puts(&s, "Small") == 0);
     YIO_TESTEXPR(!YYIO_string_is_dynamic(&s));
     YIO_TESTEXPR(YYIO_string_len(&s) == 5);
     /* Need null terminator for strcmp */
-    YYIO_string_putc(&s, '\0');
+    YIO_TESTEXPR(YYIO_string_putc(&s, '\0') == 0);
     YIO_TESTEXPR(strcmp(YYIO_string_data(&s), "Small") == 0);
     YYIO_string_set_used(&s, 5); /* Reset length back to 5 */
 
     /* Fill SSO to the limit (16 on 64-bit, 12 on 32-bit) */
     while (YYIO_string_len(&s) < YYIO_string_capacity(&s)) {
-        YYIO_string_putc(&s, 'A');
+        YIO_TESTEXPR(YYIO_string_putc(&s, 'A') == 0);
     }
     YIO_TESTEXPR(!YYIO_string_is_dynamic(&s));
 
     /* Transition to dynamic */
-    YYIO_string_putc(&s, 'B');
+    YIO_TESTEXPR(YYIO_string_putc(&s, 'B') == 0);
     YIO_TESTEXPR(YYIO_string_is_dynamic(&s));
     YIO_TESTEXPR(YYIO_string_data(&s)[YYIO_string_len(&s)-1] == 'B');
 
