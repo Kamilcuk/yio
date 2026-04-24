@@ -194,14 +194,14 @@ yio_printf("Above expression printed {} characters.\n", count);
 
 There are available:
 
-- `yio_count` (shortcut: `ycount`) - for getting the count of characters printed
-- `yio_localtime` (shortcut: `ylocaltime`) - calls `localtime()` on `time_t` argument and prints it like `struct tm`
-- `yio_gmtime` (shortcut: `ygmtime`) - as above, just calls `gmtime()`
-- `yio_pwchar` (shortcut: `ywchar`) - for printing a `wchar_t` variable
-- `yio_pwstring` (shortcut: `ywstring`) - for printing a `wchar_t` string
-- `yio_arr` (shortcut: `yarr`) - for printing arrays
-- `yio_mon` (shortcut: `ymon`) - for printing monetary values
-- `yio_pfmt` (shortcut: `ypfmt`) - for applying python-like format string manually
+- `yio_count` - for getting the count of characters printed
+- `yio_localtime` - calls `localtime()` on `time_t` argument and prints it like `struct tm`
+- `yio_gmtime` - as above, just calls `gmtime()`
+- `yio_pwchar` - for printing a `wchar_t` variable
+- `yio_pwstring` - for printing a `wchar_t` string
+- `yio_arr` - for printing arrays
+- `yio_mon` - for printing monetary values
+- `yio_pfmt` - for applying python-like format string manually
 
 
 ## Extending the library
@@ -255,9 +255,9 @@ That's why [python Format String](https://docs.python.org/3/library/string.html#
 Finally I settled for:
 
 ```
-yio_print("How old are you?", yendl());
+yio_print("How old are you?\n");
 yscan(&i);
-yio_print("You are ", yiofmt("#10.5"), i, " years old.", yendl());
+yio_print("You are ", yiofmt("#10.5"), i, " years old.\n");
 ```
 
 Which is basically the same as C++ version, but just adds a custom flags modifier/function `yiofmt` that transforms the string in C specification to flags. But this, this is not enough. Cause we want `printf(_("locale strings %s \n"), "string")` which are really hard to do with streams. Also, we want choose position of arguments with that.
@@ -273,21 +273,21 @@ yio_print("Array is ", yioarr(arr, 5, ", "), "\n");
 Then I wen to implementing python like syntax:
 
 ```
-yio_printf("How old are you?{}", yendl());
+yio_printf("How old are you?\n");
 yscanf("{}", &i);
-yio_printf("You are {} years old.{}", yiofmt("#10.5"), i, yendl());
+yio_printf("You are {} years old.\n", yiofmt("#10.5"), i);
 ```
 
 But that is not nice - some of the arguments get a `{}`, but some don't. 
 Only those get a `{}` which output anything. This is confusing. 
 This breaks existent practice. My C eye is telling me - the number of `{}`
 doesn't match the count of arguments. Really, even
-`yio_printf("You are {}{} years old.{}", yiofmt("#10.5"), i, yendl());` would be more readable.
+`yio_printf("You are {}{} years old.\n", yiofmt("#10.5"), i);` would be more readable.
 
 So I decided to go with python/C++ mix:
 
 ```
-yio_printf("You are {:#10.5} years old.{}", i, yendl());
+yio_printf("You are {:#10.5} years old.\n", i);
 ```
 
 No the `:#10.5` doesn't really print the number. It is parsed the same way as `yiofmt("#10.5")` - it only set's some internal flags. Even with using `#str` macro stringify operator we could even do this:
@@ -300,7 +300,7 @@ because the names of the variables could be stringified with `#` operator and
 then we would have a table we would need to look for the proper variables name. 
 it would be a mess with expanding macros, but anyway. But that offers
 no static type checking against the number of arguments.
-Because of how I decided to pass contexts to callbacks are checked here, both approuches are possibel 
+Because of how I decided to pass contexts to callbacks are checked here, both approaches are possible 
 
 But that is bad also. Because we don't want "one central point of all possible combinations". 
 Because [customizing printf](https://www.gnu.org/software/libc/manual/html_node/Customizing-Printf.html) 
@@ -315,12 +315,12 @@ So let's take another look at what we want:
 2. Easy to customize. Easy to add your own handling functions.
 
 And I think I've got it. It works the same as above, but the formatting is not done 
-by printf. The formatting is done at the handler site. And for each type you have a 
+by yio_printf. The formatting is done at the handler site. And for each type you have a 
 handler.
 
 So the float should be that way:
 
-1. The printf prints everything up until first `{`. The it extracts the string between 
+1. The yio_printf prints everything up until first `{`. The it extracts the string between 
    `{` and `}`, including optional two positional arguments if needed, and hands it 
    to the next handler function.
 2. Each type has a handler, ex. `int` has ex. `YYIO_print_int` handler chosen with _Generic. 
@@ -334,7 +334,15 @@ Because it came to me that `y*scan*` functions are hard to implement and they do
 to the library, I decided to remove all `scan` functions from the library. The library named stayed.
 
 Also the library was rewritten from M4 preprocessor to python jinja2. Jinja2 is way simpler and easier to maintain.
-This increased readability and maintanability of the library.
+This increased readability and maintainability of the library.
+
+#### Changes in 2026
+
+The API was standardized to use the `yio_` prefix for all primary functions (e.g., `yio_printf`, `yio_print`).
+Obsolete short aliases and "weird" naming conventions (like `yp*`, `yiocb`) were removed to ensure
+a single, consistent, and professional interface.
+The library now focuses on a single "normal" character mode (`char`) while supporting wide characters and UTF modes via multibyte conversion.
+It also fully supports modern formatting standards like Python and C++20 for nested replacement fields (e.g., `{:{}.{}f}`).
 
 # :family: User reviews :scroll:
 

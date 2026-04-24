@@ -67,9 +67,8 @@ Most of the codebase is generated from templates in `src/yio/yio/`. When editing
 
 ### Namespace Guidelines
 - `yio_printf`, `yio_print`: Primary type-safe API.
-- `yprintf`, `yprint`: Short aliases (opt-out shortcuts).
-- `yio_count` (ycount), `yio_arr` (yarr), `yio_mon` (ymon): Standardized modifier naming.
-- `yio_callback` (ycb): Custom callback registration.
+- `yio_count`, `yio_arr`, `yio_mon`: Standardized modifier naming.
+- `yio_callback`: Custom callback registration.
 - `yio_*`: Public internal functions and custom modifier symbols.
 - `YIO_*`: Public macros, configuration, and constants.
 - `YYIO_*`: Private library symbols.

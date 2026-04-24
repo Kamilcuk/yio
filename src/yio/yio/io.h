@@ -145,19 +145,6 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_formatf(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_reformatf(str, ...)       YYIO_yio_reformatf(str, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_dprintf(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-
-/**
- * Short versions
- */
-#define ybprintf   yio_bprintf
-#define yprintf    yio_printf
-#define yfprintf   yio_fprintf
-#define ysprintf   yio_sprintf
-#define yaprintf   yio_aprintf
-#define yreaprintf yio_reaprintf
-#define yformatf   yio_formatf
-#define yreformatf yio_reformatf
-#define ydprintf   yio_dprintf
 /**
  * @}
  */
@@ -178,19 +165,6 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_format(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_reformat(str, ...)       YYIO_yio_reformatf(str, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_dprint(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-
-/**
- * Short versions
- */
-#define ybprint     yio_bprint
-#define yprint      yio_print
-#define yfprint     yio_fprint
-#define ysprint     yio_sprint
-#define yaprint     yio_aprint
-#define yreaprint   yio_reaprint
-#define yformat     yio_format
-#define yreformat   yio_reformat
-#define ydprint     yio_dprint
 /**
  * @}
  */

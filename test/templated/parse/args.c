@@ -11,19 +11,19 @@
 
 int main() {
 	char *buf;
-	buf = yformatf("{:+0{}}", 3, 10);
+	buf = yio_formatf("{:+0{}}", 3, 10);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "+000000003") == 0);
 	free(buf);
-	buf = yformatf("{:+0.{}}", 3, 10);
+	buf = yio_formatf("{:+0.{}}", 3, 10);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "+3") == 0);
 	free(buf);
-	buf = yformatf("{:+0{}.{}}", 3, 10, 10);
+	buf = yio_formatf("{:+0{}.{}}", 3, 10, 10);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "+000000003") == 0);
 	free(buf);
-	buf = yformatf("{:+0.{}}", "12345678901234567890", 10);
+	buf = yio_formatf("{:+0.{}}", "12345678901234567890", 10);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "1234567890") == 0);
 	free(buf);

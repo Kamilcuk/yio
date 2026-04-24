@@ -71,11 +71,6 @@ static inline int YYIO_yio_arr(yio_printctx_t *t) {
  *     yio_printf("{:02x}", yarr(pnt, 3, "|"));    // -> "04|03|02"
  */
 #define yio_arr(...)  YYIO_yio_arr_N(__VA_ARGS__, 3, 2, 1)(__VA_ARGS__)
-/**
- * Short versions
- */
-#define yarr    yio_arr
-#define yp_arr  yio_arr
 
 
 /* ------------------------------------------------------------------------- */

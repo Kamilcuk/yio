@@ -28,14 +28,6 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t);
 /// Print a string of wchar_t characters.
 #define yio_pwstring(wstring)     yio_callback(YYIO_print_constwcharpnt, (const wchar_t*)(wstring))
 /**
- * Short versions
- */
-#define ywchar     yio_pwchar
-#define ypwchar    yio_pwchar
-#define ywstring   yio_pwstring
-#define ypwstring  yio_pwstring
-
-/**
  * @}
  */
 

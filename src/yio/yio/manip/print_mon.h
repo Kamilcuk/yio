@@ -18,12 +18,6 @@
 int YYIO_print_mon(yio_printctx_t *t);
 
 #define yio_mon(doublev)  yio_callback(YYIO_print_mon, _Generic((doublev), double: (doublev)))
-/**
- * Short versions
- */
-#define ymon   yio_mon
-#define ypmon  yio_mon
-
 
 #endif
 

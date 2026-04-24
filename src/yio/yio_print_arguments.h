@@ -32,11 +32,6 @@
  * @param ... Additional arguments to call.
  */
 #define yio_callback(callback, ...)  ((callback, ##__VA_ARGS__),YYIO_61COMMAS)
-/**
- * Short versions of yio_callback
- */
-#define ycb    yio_callback
-#define yiocb  yio_callback
 
 
 

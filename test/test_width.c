@@ -19,7 +19,7 @@ int main() {
 
 #if YYIO_HAS_UNISTRING
         // This needs unistring support from u8_width
-        char *str = yformatf("{:5s}", "Ω");
+        char *str = yio_formatf("{:5s}", "Ω");
         YIO_TESTEXPR(strcmp(str, "Ω    ") == 0, "'%s'", str);
         YIO_TESTEXPR(strlen(str) == strlen("Ω    "));
         free(str);

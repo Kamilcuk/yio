@@ -89,12 +89,6 @@ int YYIO_print_count(yio_printctx_t *t);
  * count of codepoints written by the function.
  */
 #define yio_count(v)  yio_callback(YYIO_print_count, _Generic((v),int *:(v)))
-/**
- * Short versions of yio_count
- */
-#define ycount   yio_count
-#define ypcount  yio_count
-
 
 
 #define YYIO_PRINT_FUNC_GENERIC_COUNT() \
