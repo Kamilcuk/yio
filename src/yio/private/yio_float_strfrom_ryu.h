@@ -10,7 +10,7 @@
 #define YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_
 #include "../yio_config.h"
 #ifdef YYIO_PRIVATE
-#include "yio_res.h"
+#include "yio_string.h"
 #endif
 
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
@@ -30,7 +30,7 @@
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int YYIO_float_astrfrom_ryu$1(YYIO_res *res, int precision, char spec0, YYIO_FLOAT$1 val);
+int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT$1 val);
 #endif
 
 #define YYIO_has_float_ryu$1  1

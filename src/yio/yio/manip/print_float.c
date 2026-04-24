@@ -35,11 +35,11 @@ int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var) {
 	// TODO: fun fact, this converts from wchar/char16/char32 -> char. Convert for real with some checks here.
 	const char type = (char)(t->pf.type ? t->pf.type : 'g');
 	const int precision =  t->pf.precision;
-	YYIO_RES_AUTO_DECL(res);
+	YYIO_STRING_AUTO_DECL(res);
 	err = YYIO_float_astrfrom_$2$1(&res, precision, type, var);
 	if (err) return err;
-	const char *const result = YYIO_res_begin(&res);
-	const size_t length = YYIO_res_used(&res);
+	const char *const result = YYIO_string_begin(&res);
+	const size_t length = YYIO_string_used(&res);
 	const bool is_negative = result[0] == '-';
 	//if (
 			//isdigit((unsigned char)result[0]) ||
@@ -49,7 +49,7 @@ int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var) {
 	//} else {
 		//err = yio_printctx_put(t, result, length);
 	//}
-	YYIO_res_end(&res);
+	YYIO_string_end(&res);
 	return err;
 }
 

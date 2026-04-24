@@ -15,21 +15,21 @@
 #if YYIO_HAS_STDFIX_TYPES
 
 #ifdef YYIO_PRIVATE
-#include "yio_res.h"
+#include "yio_string.h"
 {% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
 {% call j_FOREACHAPPLY(j_STDFIX) %}
 #line
 
 /**
  * Converts a $2 value to a string.
- * @param o YYIO_res object for result
+ * @param o YYIO_string object for result
  * @param precision0 Precision or negative when no precision.
  * @param spec0 The formatting specifier character or '\0' when missing.
  * @param val The value to convert.
  * @return 0 on success, negative on error.
  */
 YYIO_wur YYIO_nn()
-int YYIO_astrfrom$1(YYIO_res *o, int precision0, char spec0, $2 val);
+int YYIO_astrfrom$1(YYIO_string *o, int precision0, char spec0, $2 val);
 
 {% endcall %}
 #endif

@@ -82,11 +82,41 @@ static void test_type_edges(void) {
     YIO_TEST("4294967295", "{}", 4294967295U);     /* UINT_MAX */
 }
 
+#include <yio/private/yio_string.h>
+
+/* 6. SSO and Dynamic Transition */
+static void test_sso_transition(void) {
+    YYIO_STRING_AUTO_DECL(s);
+    
+    /* SSO mode */
+    YYIO_string_puts(&s, "Small");
+    YIO_TESTEXPR(!YYIO_string_is_dynamic(&s));
+    YIO_TESTEXPR(YYIO_string_len(&s) == 5);
+    /* Need null terminator for strcmp */
+    YYIO_string_putc(&s, '\0');
+    YIO_TESTEXPR(strcmp(YYIO_string_data(&s), "Small") == 0);
+    YYIO_string_set_used(&s, 5); /* Reset length back to 5 */
+
+    /* Fill SSO to the limit (16 on 64-bit, 12 on 32-bit) */
+    while (YYIO_string_len(&s) < YYIO_string_capacity(&s)) {
+        YYIO_string_putc(&s, 'A');
+    }
+    YIO_TESTEXPR(!YYIO_string_is_dynamic(&s));
+
+    /* Transition to dynamic */
+    YYIO_string_putc(&s, 'B');
+    YIO_TESTEXPR(YYIO_string_is_dynamic(&s));
+    YIO_TESTEXPR(YYIO_string_data(&s)[YYIO_string_len(&s)-1] == 'B');
+
+    YYIO_string_end(&s);
+}
+
 int main() {
     test_escapes();
     test_recursive_callbacks();
     test_memory();
     test_time_api();
     test_type_edges();
+    test_sso_transition();
     return 0;
 }

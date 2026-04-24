@@ -24,7 +24,7 @@
 #include "yio/yio_error.h"
 #include "yio_float.h"
 #include "yio_float_strfrom_custom.h"
-#include "yio_res.h"
+#include "yio_string.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -79,7 +79,7 @@ struct floating_decimal_128 {
 struct floating_decimal_128 long_double_to_fd128(long double d);
 int generic_to_chars(struct floating_decimal_128 v, char *result);
 
-int YYIO_float_astrfrom_ryul(YYIO_res *res, const int precision0, const char spec, YYIO_FLOATl val) {
+int YYIO_float_astrfrom_ryul(YYIO_string *res, const int precision0, const char spec, YYIO_FLOATl val) {
 	if (spec == 'a' || spec == 'A') {
 		return YYIO_float_astrfrom_customl(res, precision0, spec, val);
 	}
@@ -91,13 +91,14 @@ int YYIO_float_astrfrom_ryul(YYIO_res *res, const int precision0, const char spe
 	}
 	// https://github.com/ulfjack/ryu/blob/master/ryu/ryu_generic_128.h#L65
 	const size_t maximal_char_buffer_requirement_for_ryu = 53;
-	int err = YYIO_res_reserve(res, maximal_char_buffer_requirement_for_ryu);
+	int err = YYIO_string_reserve(res, maximal_char_buffer_requirement_for_ryu);
 	if (err) return err;
-	int lengthp = generic_to_chars(long_double_to_fd128(val), YYIO_res_begin(res));
+	int lengthp = generic_to_chars(long_double_to_fd128(val), YYIO_string_begin(res));
 	if (spec == 'e') {
-		*strchr(YYIO_res_begin(res), 'E') = 'e';
+		char *const e = strchr(YYIO_string_begin(res), 'E');
+		if (e) *e = 'e';
 	}
-	YYIO_res_set_used(res, lengthp);
+	YYIO_string_set_used(res, lengthp);
 	return 0;
 }
 
@@ -112,15 +113,15 @@ int YYIO_float_astrfrom_ryul(YYIO_res *res, const int precision0, const char spe
 #if YIO_HAS_FLOAT$1
 
 static inline
-int YYIO_float_astrfrom_ryu$1_in(YYIO_res *res, const int precision0, const char spec, YYIO_FLOAT$1 val) {
+int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, const int precision0, const char spec, YYIO_FLOAT$1 val) {
 	// https://github.com/ulfjack/ryu/issues/197
 	const size_t minsize = 2000;
 	const int precision = precision0 < 0 ? 6 : precision0;
 	const size_t toalloc = minsize + precision + 1;
-	int err = YYIO_res_reserve(res, toalloc);
+	int err = YYIO_string_reserve(res, toalloc);
 	if (err) return err;
 	int len = 0;
-	char *const buf = YYIO_res_begin(res);
+	char *const buf = YYIO_string_begin(res);
 	//
 	if (spec == 'g' || spec == 'G') {
 		if (precision0 >= 0) {
@@ -136,14 +137,14 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_res *res, const int precision0, const char
 	} else {
 		goto ERROR_ENOSYS;
 	}
-	YYIO_res_set_used(res, len);
+	YYIO_string_set_used(res, len);
 	//
 	return 0;
 ERROR_ENOSYS:
 	return YIO_ERROR_ENOSYS;
 }
 
-int YYIO_float_astrfrom_ryu$1(YYIO_res *res, const int precision, const char spec, YYIO_FLOAT$1 val) {
+int YYIO_float_astrfrom_ryu$1(YYIO_string *res, const int precision, const char spec, YYIO_FLOAT$1 val) {
 	if (spec == 'a' || spec == 'A') {
 		return YYIO_float_astrfrom_custom$1(res, precision, spec, val);
 	}

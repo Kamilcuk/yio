@@ -8,5 +8,5 @@
  */
 #define YYIO_PRIVATE  1
 #include <yio/yio/private.h>
-#include <yio/private/yio_res.h>
+#include <yio/private/yio_string.h>
 #include "yio_test.h"

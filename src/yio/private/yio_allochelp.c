@@ -24,14 +24,14 @@
 
 static const size_t MAXSIZE = 4096U;
 
-int YYIO_astrftime_nonzero(YYIO_res *res, const char *fmt, const struct tm *tm) {
+int YYIO_astrftime_nonzero(YYIO_string *res, const char *fmt, const struct tm *tm) {
 	while (1) {
-		const size_t bufsize = YYIO_res_size(res);
+		const size_t bufsize = YYIO_string_size(res);
 		errno = 0;
-		size_t count = strftime(YYIO_res_begin(res), bufsize, fmt, tm);
-		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, YYIO_res_size(res));
+		size_t count = strftime(YYIO_string_begin(res), bufsize, fmt, tm);
+		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, YYIO_string_size(res));
 		if (count != (size_t)0) {
-			YYIO_res_set_used(res, count);
+			YYIO_string_set_used(res, count);
 			break;
 		}
 		// MUSL set's EINVAL when buffer is too small
@@ -41,17 +41,17 @@ int YYIO_astrftime_nonzero(YYIO_res *res, const char *fmt, const struct tm *tm) 
 		if (bufsize > MAXSIZE) {
 			return YYIO_ERROR(YIO_ERROR_STRFTIME_TOOBIG, "strftime needed more than 4096 bytes to write");
 		}
-		int err = YYIO_res_reserve_more(res);
+		int err = YYIO_string_reserve_more(res);
 		if (err) return err;
 	}
 	return 0;
 }
 
 #if YYIO_HAS_MONETARY_H
-int YYIO_astrfmon(YYIO_res *res, const char *fmt, struct YYIO_astrfmon_arg arg) {
+int YYIO_astrfmon(YYIO_string *res, const char *fmt, struct YYIO_astrfmon_arg arg) {
 	while (1) {
-		char *const buf = YYIO_res_begin(res);
-		const size_t bufsize = YYIO_res_size(res);
+		char *const buf = YYIO_string_begin(res);
+		const size_t bufsize = YYIO_string_size(res);
 		errno = 0;
 		const ssize_t count =
 #if YIO_HAS_FLOATl
@@ -72,14 +72,14 @@ int YYIO_astrfmon(YYIO_res *res, const char *fmt, struct YYIO_astrfmon_arg arg) 
 			// Musl does that.
 			if (count < (ssize_t)bufsize) {
 				//dbgln("%d %d %d %s", (int)count, (int)bufsize, errno, strerror(errno));
-				YYIO_res_set_used(res, count);
+				YYIO_string_set_used(res, count);
 				break;
 			}
 		}
 		if (bufsize > MAXSIZE) {
 			return YYIO_ERROR(YIO_ERROR_STRFMON_TOOBIG, "strfmon needed more than 4096 bytes to write");
 		}
-		int err = YYIO_res_reserve_more(res);
+		int err = YYIO_string_reserve_more(res);
 		if (err) return err;
 	}
 	return 0;

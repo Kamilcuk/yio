@@ -20,7 +20,7 @@
 #define __STDC_WANT_IEC_60559_FUNCS_EXT__  1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
 #include "yio_float_strfrom_custom.h"
-#include "yio_res.h"
+#include "yio_string.h"
 #include "yio_float.h"
 #include "private.h"
 
@@ -61,15 +61,15 @@ static const char YYIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9'
 static const char (*const YYIO_digit_to_hexs[16])[] = { &YYIO_digit_to_HEX, &YYIO_digit_to_hex, };
 
 static inline
-int YYIO_print_scientific_suffix(YYIO_res *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
+int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
 	int err = 0;
 	const bool print_scientific_suffix = speclower == 'e' || speclower == 'a';
 	if (print_scientific_suffix) {
 		assert(strchr("eEaA", spec) != NULL);
 		const char letter = (char)(dec ? spec : is_lower_spec ? 'p' : 'P');
-		err = YYIO_res_putc(v, letter);
+		err = YYIO_string_putc(v, letter);
 		if (err) return err;
-		err = YYIO_res_yprintf(v, "{:+0{}}", val_is_zero ? 0 : (exponent - 1), dec ? 3 : 0);
+		err = YYIO_string_yprintf(v, "{:+0{}}", val_is_zero ? 0 : (exponent - 1), dec ? 3 : 0);
 		if (err) return err;
 	}
 	return err;
@@ -114,7 +114,7 @@ int YYIO_print_scientific_suffix(YYIO_res *v, char speclower, char spec, bool is
 #line
 
 static inline
-int get_next_digit$1(YYIO_res *v, TYPE *val,
+int get_next_digit$1(YYIO_string *v, TYPE *val,
 		bool dec, const char *to_digit_str, bool is_last) {
 	*val = dec ? (*val * FC(10.0)) : (*val * FC(16.0));
 	const int digit = (int)*val;
@@ -127,7 +127,7 @@ int get_next_digit$1(YYIO_res *v, TYPE *val,
 		return YIO_ERROR_ENOSYS;
 	}
 	const char c = to_digit_str[digit];
-	const int err = YYIO_res_putc(v, c);
+	const int err = YYIO_string_putc(v, c);
 	if (err != 0) return err;
 	if (!is_last) {
 		*val -= (TYPE)digit;
@@ -135,7 +135,7 @@ int get_next_digit$1(YYIO_res *v, TYPE *val,
 	return 0;
 }
 
-int YYIO_float_astrfrom_custom$1(YYIO_res *v, const int precision0, const char spec0, TYPE val) {
+int YYIO_float_astrfrom_custom$1(YYIO_string *v, const int precision0, const char spec0, TYPE val) {
 	static const int a_max_precision =
 #if FLT_RADIX == 2
 // if the precision is missing and FLT_RADIX is a power of 2,
@@ -154,7 +154,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_res *v, const int precision0, const char s
 	// take minus out of the way
 	const bool negative = signbit(val);
 	if (negative) {
-		err = YYIO_res_putc(v, '-');
+		err = YYIO_string_putc(v, '-');
 		if (err) return err;
 		val = FABS(val);
 	}
@@ -169,7 +169,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_res *v, const int precision0, const char s
 					val_class == FP_INFINITE ? YYIO_infs[is_lower_spec] :
 							NULL;
 	if (nan_or_inf_str != NULL) {
-		return YYIO_res_putsn(v, *nan_or_inf_str, 3);
+		return YYIO_string_putsn(v, *nan_or_inf_str, 3);
 	}
 
 	// All the happy rest.
@@ -277,7 +277,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_res *v, const int precision0, const char s
 	// Convert number before the dot
 	if (speclower == 'f') {
 		if (exponent <= 0) {
-			err = YYIO_res_putc(v, '0');
+			err = YYIO_string_putc(v, '0');
 			if (err) return err;
 		} else {
 			assert(exponent > 0);
@@ -288,19 +288,19 @@ int YYIO_float_astrfrom_custom$1(YYIO_res *v, const int precision0, const char s
 		}
 	} else if (speclower == 'e') {
 		if (val_is_zero) {
-			err = YYIO_res_putc(v, '0');
+			err = YYIO_string_putc(v, '0');
 			if (err) return err;
 		} else {
 			err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
 			if (err) return err;
 		}
 	} else if (speclower == 'a') {
-		err = YYIO_res_putc(v, '0');
+		err = YYIO_string_putc(v, '0');
 		if (err) return err;
-		err = YYIO_res_putc(v, is_lower_spec ? 'x': 'X');
+		err = YYIO_string_putc(v, is_lower_spec ? 'x': 'X');
 		if (err) return err;
 		if (val_is_zero) {
-			err = YYIO_res_putc(v, '0');
+			err = YYIO_string_putc(v, '0');
 			if (err) return err;
 		} else {
 			// print first number
@@ -310,13 +310,13 @@ int YYIO_float_astrfrom_custom$1(YYIO_res *v, const int precision0, const char s
 	}
 
 	if (precision) {
-		err = YYIO_res_putc(v, '.');
+		err = YYIO_string_putc(v, '.');
 		if (err) return err;
 		int zeros = (speclower == 'f' && exponent < 0) ? -exponent : 0;
 		while (precision--) {
 			if (zeros) {
 				--zeros;
-				err = YYIO_res_putc(v, '0');
+				err = YYIO_string_putc(v, '0');
 				if (err) return err;
 			} else {
 				err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
@@ -324,7 +324,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_res *v, const int precision0, const char s
 			}
 		}
 		if (spec0lower == 'g' || spec0lower == 'a') {
-			YYIO_res_remove_trailing_zeros_and_comma(v);
+			YYIO_string_remove_trailing_zeros_and_comma(v);
 		}
 	}
 

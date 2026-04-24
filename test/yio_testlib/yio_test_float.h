@@ -196,7 +196,7 @@ static const struct YYIO_test_floatlist$1_s YYIO_test_floatlist$1[] = {
 };
 
 struct YYIO_astrfroms$1_s {
-	int (*astrfrom)(YYIO_res *res, int precision, char type, YYIO_FLOAT$1 val);
+	int (*astrfrom)(YYIO_string *res, int precision, char type, YYIO_FLOAT$1 val);
 	const char *astrfrom_str;
 };
 

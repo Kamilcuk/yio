@@ -41,13 +41,13 @@ int YYIO_print_mon(yio_printctx_t *t) {
 		.v.d = vv,
 		.isldbl = false,
 	};
-	YYIO_RES_AUTO_DECL(res);
+	YYIO_STRING_AUTO_DECL(res);
 	err = YYIO_astrfmon(&res, format, arg);
 	free(format);
 	if (err == 0) {
-		err = yio_printctx_put(t, YYIO_res_begin(&res), YYIO_res_used(&res));
+		err = yio_printctx_put(t, YYIO_string_begin(&res), YYIO_string_used(&res));
 	}
-	YYIO_res_end(&res);
+	YYIO_string_end(&res);
 	return err;
 }
 
