@@ -105,7 +105,7 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	assert(strlen(format) >= 1);
 	assert(format[strlen(format) - 1] == ' ');
 
-	YYIO_STRING_AUTO_DECL(res);
+	YYIO_string res = {0};
 	ret = YYIO_astrftime_nonzero(&res, format, tm);
 	if (format != emptyformat) {
 		free((void *)format); // cppcheck-suppress cert-EXP05-C
@@ -116,7 +116,7 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 		const struct yio_printfmt_s *const pf = &t->pf;
 		const size_t toprint = pf->precision == -1 ? reslen :
 			reslen < (size_t)pf->precision ? reslen : (size_t)pf->precision;
-		ret = yio_printctx_put(t, YYIO_string_begin(&res), toprint);
+		ret = yio_printctx_put(t, YYIO_string_data(&res), toprint);
 	}
 	YYIO_string_end(&res);
 	return ret;

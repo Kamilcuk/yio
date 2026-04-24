@@ -86,7 +86,7 @@ static void test_type_edges(void) {
 
 /* 6. SSO and Dynamic Transition */
 static void test_sso_transition(void) {
-    YYIO_STRING_AUTO_DECL(s);
+    YYIO_string s = {0};
     
     /* SSO mode */
     YYIO_string_puts(&s, "Small");

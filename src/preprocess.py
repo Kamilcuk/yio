@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
+import datetime
+import inspect
 import jinja2
 import jinja2.ext
 import jinja2.meta
@@ -8,37 +10,10 @@ import logging
 import os
 import re
 import sys
-import datetime
 
 ###############################################################################
 
 log = logging.getLogger(os.path.basename(__file__))
-
-# fmt: off
-template_data = {
-    "mode":  ["yio", ],
-    "omega": ["", ],
-    "pi":    ["", ],
-    "names": {
-        "TMODEX": [1, ],
-        "TMODE":  [1, ],
-        "TMODEN": [1, ],
-        "TCHAR":  ["char", ],
-        "TINT":   ["int", ],
-        "TEOF":   ["EOF", ],
-        "TPRI":   ["\"s\"", ],
-    },
-    "funcs": {
-        "TC":        ["{}", ],
-        "TFPRINTF":  ["fprintf({})", ],
-        "TISDIGIT":  ["isdigit((unsigned char){})", ],
-        "TISXDIGIT": ["isxdigit((unsigned char){})", ],
-        "TSTRCHR":   ["strchr({})", ],
-        "TSTRCMP":   ["strcmp({})", ],
-        "TSTRLEN":   ["strlen({})", ],
-    },
-}
-# fmt: on
 
 j_FLOATS = [
     # N - "name"
@@ -88,8 +63,6 @@ def j_fatal(value="fatal error"):
 
 
 def j_frametemplate():
-    import inspect
-
     template = None
     for frameInfo in inspect.stack():
         if frameInfo.frame.f_globals.get("__jinja_template__") is not None:
@@ -98,104 +71,125 @@ def j_frametemplate():
     return template
 
 
-def j_lineno():
-    import inspect
+DEPENDENCIES = []
 
-    return j_frametemplate().get_corresponding_lineno(
-        inspect.currentframe().f_back.f_lineno
+
+class MyInclude(jinja2.ext.ExprStmtExtension):
+    def parse(self, parser):
+        node = super().parse(parser)
+        return node
+
+
+class MyEnvironment(jinja2.Environment):
+    def get_template(self, name, parent=None, globals=None):
+        if name not in DEPENDENCIES:
+            DEPENDENCIES.append(name)
+        return super().get_template(name, parent, globals)
+
+
+def prepare_environment(args):
+    global DEPENDENCIES
+    DEPENDENCIES = [args.source]
+    env = MyEnvironment(
+        loader=jinja2.FileSystemLoader(args.srcdir),
+        trim_blocks=True,
+        lstrip_blocks=True,
+        keep_trailing_newline=True,
+        extensions=[MyInclude],
     )
-
-
-def test_integer(value) -> bool:
-    """Return true if the object is an integer.
-    .. versionadded:: 2.11
-    """
-    return isinstance(value, int) and value is not True and value is not False
-
-
-###############################################################################
-
-DEPENDENCIES = set()
-
-
-class MFSLoader(jinja2.FileSystemLoader):
-    """
-    A normal loader, just stores referenced tepmlates in dependencies
-    https://gist.github.com/Zoramite/f4c42620d7b564a26a398d8d25ecb419
-    """
-
-    def get_source(self, environment, template):
-        source, filename, uptodate = super(MFSLoader, self).get_source(
-            environment, template
-        )
-        global DEPENDENCIES
-        DEPENDENCIES.add(filename)
-        return source, filename, uptodate
+    defines = {}
+    for d in args.define:
+        k, v = d.split("=", 1)
+        defines[k] = v
+    env.globals.update(
+        {
+            "j_FLOATS": j_FLOATS,
+            "j_MLVLS": int(defines.get("j_MLVLS", 32)),
+            "j_range": j_range,
+            "j_match": j_match,
+            "j_fatal": j_fatal,
+            "j_frametemplate": j_frametemplate,
+        }
+    )
+    env.filters.update(
+        {
+            "j_range": j_range,
+            "j_match": j_match,
+        }
+    )
+    env.preprocess = lambda source, name, filename: preprocess_source(source, filename)
+    return env
 
 
 def shoulddoline(source):
-    global DEBUG
-    return DEBUG and not re.match("NOLINE", source)
+    return "# NOLINE" not in source
 
 
-class SuperPreprocess(jinja2.ext.Extension):
-    """
-    Custom plugin for preprocessing source files according to custom rules
-    basically signifiicantly extending jinja2
-    """
+def preprocess_source(source, filename):
+    if not filename.endswith(".c") and not filename.endswith(".h"):
+        return source
 
-    def preprocess(self, source, name, filename=None):
-        # Determine if this is library.jinja to avoid infinite recursion
-        if name and name.endswith("library.jinja"):
-            return source
-        
-        # If the file already contains from library.jinja, skip adding it
-        if "{% from 'library.jinja'" in source:
-             return source
+    # If the file already contains from library.jinja, skip adding it
+    if "{% from 'library.jinja'" in source:
+        return source
 
-        imports = [
-            "j_seq",
-            "j_seqcomma",
-            "j_seqdashcomma",
-            "j_APPLY_IN",
-            "j_APPLY",
-            "j_FOREACHAPPLY",
-            "j_FUNC",
-        ]
-        output = "{% from 'library.jinja' import " + ",".join(imports) + " %}\n"
-        
-        doline = shoulddoline(source)
-        # Replace '#line' by the proper C directive.
-        for lineno, line in enumerate(source.split("\n")):
-            if "#line" in line:
-                replacement = (f'#line {lineno + 2} "{filename}"') if doline else ""
-                output += line.replace("#line", replacement) + "\n"
-            else:
-                output += line + "\n"
-        return output
+    imports = [
+        "j_seq",
+        "j_seqcomma",
+        "j_seqdashcomma",
+        "j_APPLY_IN",
+        "j_APPLY",
+        "j_FOREACHAPPLY",
+        "j_FUNC",
+    ]
+    output = "{% from 'library.jinja' import " + ",".join(imports) + " %}\n"
+
+    doline = shoulddoline(source)
+    # Replace '#line' by the proper C directive.
+    for lineno, line in enumerate(source.split("\n")):
+        if "#line" in line:
+            replacement = (f'#line {lineno + 2} "{filename}"') if doline else ""
+            output += line.replace("#line", replacement) + "\n"
+        else:
+            output += line + "\n"
+    return output
 
 
 def postprocess(output, infilename, mode):
-    global TDATA
     log.debug(f"mode={mode}\t{infilename}")
-    tmpl = None
-    if mode is not None and mode != "none":
-        tmpl = TDATA[template_data["mode"].index(mode)]
+    if mode == "yio":
         # Replace Ω and π.
-        output = output.replace("Ω", str(tmpl["omega"])).replace("π", str(tmpl["pi"]))
-        
+        output = output.replace("Ω", "").replace("π", "")
+
         # Replace names.
-        if "names" in tmpl:
-            for kk, vv in tmpl["names"]:
-                output = re.sub(r"\b{}\b".format(kk), str(vv), output)
+        names = {
+            "TMODEX": 1,
+            "TMODE": 1,
+            "TMODEN": 1,
+            "TCHAR": "char",
+            "TINT": "int",
+            "TEOF": "EOF",
+            "TPRI": '"s"',
+        }
+        for kk, vv in names.items():
+            output = re.sub(r"\b{}\b".format(kk), str(vv), output)
+
         # Replace function calls
-        if "funcs" in tmpl:
-            for kk, vv in tmpl["funcs"]:
-                output = re.sub(
-                    r"\b{}\b\s*\(([^\)]*)\)".format(kk),
-                    str(vv).replace("{}", r"\1"),
-                    output,
-                )
+        funcs = {
+            "TC": "{}",
+            "TFPRINTF": "fprintf({})",
+            "TISDIGIT": "isdigit((unsigned char){})",
+            "TISXDIGIT": "isxdigit((unsigned char){})",
+            "TSTRCHR": "strchr({})",
+            "TSTRCMP": "strcmp({})",
+            "TSTRLEN": "strlen({})",
+        }
+        for kk, vv in funcs.items():
+            output = re.sub(
+                r"\b{}\b\s*\(([^\)]*)\)".format(kk),
+                str(vv).replace("{}", r"\1"),
+                output,
+            )
         # Replace _yIO_TYPE_Y*IO by 1
         output = re.sub("_yIO_TYPE_" + mode.upper(), "1", output)
     elif mode == "none":
@@ -211,100 +205,29 @@ def postprocess(output, infilename, mode):
     return output
 
 
-def save_if_changed(output, infilename, outfilename):
-    if os.path.exists(outfilename):
-        if open(outfilename, "r").read() == output:
-            log.debug(f"NOCHANGE: {infilename}\t->\t{outfilename}")
-            return
-        os.chmod(outfilename, 0o644)
-    else:
-        os.makedirs(os.path.dirname(os.path.realpath(outfilename)), exist_ok=True)
-    with open(outfilename, "w") as outfile:
-        os.chmod(outfilename, 0o444)
-        log.debug(f"{infilename}\t->\t{outfilename}")
-        outfile.write(output)
-
-
-def invert_template_data():
-    # Invert template_data
-    global TDATA, template_data
-    TDATA = []
-    for i in range(1):
-        tmp = {}
-        for k in template_data.keys():
-            if isinstance(template_data[k], list):
-                tmp[k] = template_data[k][i]
-            else:
-                tmp[k] = []
-                for k2 in template_data[k]:
-                    tmp[k] += [(k2, template_data[k][k2][i])]
-        TDATA += [tmp]
-
-
-def find_dependencies():
-    """Find all files with .jinja suffix and add them as dependencies"""
-    global DEPENDENCIES
-    DEPENDENCIES = [__file__]
-    for (dirpath, _, filenames) in os.walk(SRCDIR):
-        for ff in filenames:
-            if ff.endswith(".jinja"):
-                DEPENDENCIES += [os.path.join(dirpath, ff)]
-
-
 def parse_arguments():
-    # Parse arguments
-    parser = argparse.ArgumentParser(description="")
+    parser = argparse.ArgumentParser()
     parser.add_argument("-S", "--srcdir", default=[], action="append")
-    parser.add_argument("-D", "--define", action="append", default=[])
-    parser.add_argument("-C", "--cachedir")
-    parser.add_argument("-T", "--depfile")
-    parser.add_argument(
-        "-m", "--mode", default="none", choices=(["none"] + template_data["mode"])
-    )
-    parser.add_argument("-v", "--verbose", action="store_true")
-    parser.add_argument("-d", "--debug", action="store_true")
+    parser.add_argument("-D", "--define", default=[], action="append")
+    parser.add_argument("--cachedir")
+    parser.add_argument("--depfile")
+    parser.add_argument("-m", "--mode", default="yio", choices=["none", "yio"])
+    parser.add_argument("--debug", action="store_true")
     parser.add_argument("source")
     parser.add_argument("output")
-    args = parser.parse_args()
-    global LL
-    logging.basicConfig(
-        format="%(funcName)s:%(lineno)s:\t%(message)s",
-        level=logging.DEBUG if args.verbose else logging.INFO,
-    )
-    LL = logging.getLogger(os.path.basename(__file__))
-    global SRCDIR, DEBUG
-    SRCDIR = args.srcdir
-    DEBUG = args.debug
-    return args
+    return parser.parse_args()
 
 
-def prepare_environment(args):
-    """Setup jinja2 environment"""
-    env = jinja2.Environment(
-        loader=jinja2.FileSystemLoader(SRCDIR),
-        extensions=[
-            SuperPreprocess,
-        ],
-        trim_blocks=True,
-        lstrip_blocks=True,
-        cache_size=0,
-        undefined=jinja2.StrictUndefined,
-    )
-    defglobals = {
-        "j_MLVLS": 5,
-        "j_SLOTS": 5,
-        "j_range": j_range,
-        "j_match": j_match,
-        "j_fatal": j_fatal,
-        "j_FLOATS": j_FLOATS,
-        "j_lineno": j_lineno,
-    }
-    for ii in args.define:
-        kk, vv = ii.split("=", 2)
-        defglobals[kk] = vv
-    env.globals.update(defglobals)
-    env.tests["integer"] = test_integer
-    return env
+def save_if_changed(output, outfilename, infilename):
+    if os.path.exists(outfilename):
+        with open(outfilename, "r") as f:
+            if f.read() == output:
+                log.debug(f"No changes in {outfilename}")
+                return
+    log.info(f"Writing {outfilename}")
+    os.makedirs(os.path.dirname(outfilename), exist_ok=True)
+    with open(outfilename, "w") as f:
+        f.write(output)
 
 
 def depfile_path(path):
@@ -329,7 +252,6 @@ def generate_depfile(depfile, env, infilename, outfilename):
 
 if __name__ == "__main__":
     args = parse_arguments()
-    invert_template_data()
     env = prepare_environment(args)
 
     mode = args.mode
@@ -337,13 +259,13 @@ if __name__ == "__main__":
     infilename = ttemplate.filename
     output = ttemplate.render(
         {
-            "MODE": dict({"none": -1, "yio": 1})[mode],
-            "MODEX": dict({"none": -1, "yio": 1}).get(mode, 3),
-            "TMODE": dict({"none": -1, "yio": 1})[mode],
-            "TMODEX": dict({"none": -1, "yio": 1}).get(mode, 3),
+            "MODE": 1 if mode == "yio" else -1,
+            "MODEX": 3 if mode == "yio" else -1,
+            "TMODE": 1 if mode == "yio" else -1,
+            "TMODEX": 3 if mode == "yio" else -1,
         }
     )
-        
+
     output = postprocess(output, infilename, mode)
     outfilename = args.output
     save_if_changed(output, outfilename, outfilename)

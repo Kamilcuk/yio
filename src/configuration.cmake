@@ -44,7 +44,7 @@ of memory that is allocated statically. If the number of bytes needed is greater
 this number, only than the memory is allocated dynamically. This is to reduce the number
 of malloc calls for small allocations
 ]=])
-set(YIO_CACHE_STACK_SIZE 32 CACHE STRING "${YIO_CACHE_STACK_SIZE_COMMENT}")
+set(YIO_CACHE_STACK_SIZE 31 CACHE STRING "${YIO_CACHE_STACK_SIZE_COMMENT}")
 yio_config_gen_add_value(YIO_CACHE_STACK_SIZE "${YIO_CACHE_STACK_SIZE}")
 
 set(YIO_NO_MALLOC_COMMENT [=[

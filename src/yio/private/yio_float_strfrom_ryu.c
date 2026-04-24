@@ -93,9 +93,9 @@ int YYIO_float_astrfrom_ryul(YYIO_string *res, const int precision0, const char 
 	const size_t maximal_char_buffer_requirement_for_ryu = 53;
 	int err = YYIO_string_reserve(res, maximal_char_buffer_requirement_for_ryu);
 	if (err) return err;
-	int lengthp = generic_to_chars(long_double_to_fd128(val), YYIO_string_begin(res));
+	int lengthp = generic_to_chars(long_double_to_fd128(val), YYIO_string_data(res));
 	if (spec == 'e') {
-		char *const e = strchr(YYIO_string_begin(res), 'E');
+		char *const e = strchr(YYIO_string_data(res), 'E');
 		if (e) *e = 'e';
 	}
 	YYIO_string_set_used(res, lengthp);
@@ -121,7 +121,7 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, const int precision0, const c
 	int err = YYIO_string_reserve(res, toalloc);
 	if (err) return err;
 	int len = 0;
-	char *const buf = YYIO_string_begin(res);
+	char *const buf = YYIO_string_data(res);
 	//
 	if (spec == 'g' || spec == 'G') {
 		if (precision0 >= 0) {

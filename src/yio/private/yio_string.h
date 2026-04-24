@@ -17,6 +17,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define YYIO_MAX(a, b)  ((a) > (b) ? (a) : (b))
+#define YYIO_SSO_SIZE   YYIO_MAX((size_t)YIO_CACHE_STACK_SIZE, sizeof(size_t) * 2)
+
 typedef struct YYIO_string {
 	union {
 		struct {
@@ -30,7 +33,7 @@ typedef struct YYIO_string {
 			/* Bit 0: dynamic_flag (0=SSO)
 			 * Bits 1-63: SSO_len */
 			size_t info;
-			char buf[sizeof(size_t) * 2]; /* 16 bytes on 64-bit */
+			char buf[YYIO_SSO_SIZE];
 		} s;
 	};
 } YYIO_string;
@@ -59,18 +62,12 @@ static inline size_t YYIO_string_capacity(const YYIO_string *t) {
 	return YYIO_string_is_dynamic(t) ? (t->h.info >> 1) : sizeof(t->s.buf);
 }
 
-/// End the object in case of error.
+/// End the string object, freeing any dynamic memory.
 static inline YYIO_access_rw(1)
 void YYIO_string_end(YYIO_string *t) {
 	if (YYIO_string_is_dynamic(t)) {
 		free(t->h.ptr);
 	}
-}
-
-/// @see YYIO_string_data
-static inline YYIO_wur YYIO_nn()
-char *YYIO_string_begin(const YYIO_string *t) {
-	return YYIO_string_data(t);
 }
 
 /// Return the size of the container (capacity)
@@ -155,14 +152,5 @@ int YYIO_string_yprintf_in(YYIO_string *t, yio_printdata_t *data, const char *fm
  * @return Did we remove the dot too?
  */
 bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t);
-
-/**
- * @def YYIO_STRING_AUTO_DECL(var)
- * @param var Name of the variable.
- * @brief Create a YYIO_string variable.
- */
-#define YYIO_STRING_AUTO_DECL(var)  \
-		YYIO_string var; \
-		YYIO_string_init(&(var))
 
 #endif /* YYIO_YIO_PRIVATE_YIO_STRING_H_ */

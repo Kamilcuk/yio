@@ -23,10 +23,10 @@ int YYIO_print_$3(yio_printctx_t *t) {
 	int err = yio_printctx_init(t);
 	if (err) return err;
 	struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	YYIO_STRING_AUTO_DECL(res);
+	YYIO_string res = {0};
 	err = YYIO_astrfrom$1(&res, pf->precision, pf->type, v);
 	if (err) return err;
-	const char *const result = YYIO_string_begin(&res);
+	const char *const result = YYIO_string_data(&res);
 	const size_t length = YYIO_string_used(&res);
 	const bool negative = result[0] == '-';
 	err = yio_printctx_put_number(t, result + negative, length - negative, !negative);

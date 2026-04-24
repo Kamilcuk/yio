@@ -45,7 +45,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
         char type, YYIO_FLOAT$1 val, const char *valstr0,
 		int (*astrfrom)(YYIO_string *res, int precision, char type, YYIO_FLOAT$1 val),
 		const char *astrfrom_str) {
-	YYIO_STRING_AUTO_DECL(res);
+	YYIO_string res = {0};
 	int err = astrfrom(&res, precision, type, val);
 	if (err) {
 		YIO_TESTEXPR(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
@@ -73,7 +73,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 		free(fmt);
 	}
 
-	const char *const result = YYIO_string_begin(&res);
+	const char *const result = YYIO_string_data(&res);
 	const bool differ = strcmp(result, valstr) != 0;
 	if (differ) {
 		const bool only_last_char_differs = get_only_last_char_differs(result, valstr);

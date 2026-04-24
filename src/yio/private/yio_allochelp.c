@@ -28,7 +28,7 @@ int YYIO_astrftime_nonzero(YYIO_string *res, const char *fmt, const struct tm *t
 	while (1) {
 		const size_t bufsize = YYIO_string_size(res);
 		errno = 0;
-		size_t count = strftime(YYIO_string_begin(res), bufsize, fmt, tm);
+		size_t count = strftime(YYIO_string_data(res), bufsize, fmt, tm);
 		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, YYIO_string_size(res));
 		if (count != (size_t)0) {
 			YYIO_string_set_used(res, count);
@@ -50,7 +50,7 @@ int YYIO_astrftime_nonzero(YYIO_string *res, const char *fmt, const struct tm *t
 #if YYIO_HAS_MONETARY_H
 int YYIO_astrfmon(YYIO_string *res, const char *fmt, struct YYIO_astrfmon_arg arg) {
 	while (1) {
-		char *const buf = YYIO_string_begin(res);
+		char *const buf = YYIO_string_data(res);
 		const size_t bufsize = YYIO_string_size(res);
 		errno = 0;
 		const ssize_t count =
