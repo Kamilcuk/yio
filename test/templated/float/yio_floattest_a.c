@@ -8,6 +8,6 @@
  */
 #include <yio_test.h>
 int main() {
-	return yprintf("{:a}\n", 123.456) <= 0;
+	return yio_printf("{:a}\n", 123.456) <= 0;
 }
 // PASS_REGULAR_EXPRESSION 0x

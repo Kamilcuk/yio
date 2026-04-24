@@ -83,12 +83,19 @@ int YYIO_print_voidp(yio_printctx_t *t);
 int YYIO_print_count(yio_printctx_t *t);
 
 /**
- * @define ypcount(v)
+ * @define yio_count(v)
  * @param v A pointer to an int.
  * This callback functions sets the pointed to integer by @c v to the
  * count of codepoints written by the function.
  */
-#define ypcount(v)  yiocb(YYIO_print_count, _Generic((v),int *:(v)))
+#define yio_count(v)  yio_callback(YYIO_print_count, _Generic((v),int *:(v)))
+/**
+ * Short versions of yio_count
+ */
+#define ycount   yio_count
+#define ypcount  yio_count
+
+
 
 #define YYIO_PRINT_FUNC_GENERIC_COUNT() \
 		int *: YYIO_print_count,
@@ -143,7 +150,7 @@ int YYIO_print_count(yio_printctx_t *t);
  *
  *     int main() {
  *        struct my_type var;
- *        yprintf("{}", var);  // Will use my_print_function to print the variable.
+ *        yio_printf("{}", var);  // Will use my_print_function to print the variable.
  *     }
  */
 #define YIO_ADD_TYPE_INC()   <yio/yio/manip/slots.h>  // NOLINT

@@ -8,7 +8,7 @@
 #define __STDC_WANT_IEC_60559_TYPES_EXT__ 1
 #include <yio.h>
 #include <float.h>
-#define _(x)  yprint( #x "123.456=", (x)123.456, "\n");
+#define _(x)  yio_print( #x "123.456=", (x)123.456, "\n");
 int main() {
 #if YYIO_USE__FLOATN
 #ifdef FLT16_DECIMAL_DIG

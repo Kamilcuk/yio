@@ -9,17 +9,17 @@
 #include <stdlib.h>
 
 static void _dbgln(const char file[], int line, const char func[], yio_printdata_t *data, const char *fmt, ...) {
-	yprintf("{}:{}:{}: ", file, line, func);
+	yio_printf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
-	char * const ret = yvformatf(data, fmt, &va);
+	char * const ret = yio_vformatf(data, fmt, &va);
 	va_end(va);
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);
 	}
-	yprintf("{}", ret);
+	yio_printf("{}", ret);
 	free(ret);
-	yprintf("\n");
+	yio_printf("\n");
 }
 
 #define dbgln(...)  _dbgln(__FILE__, __LINE__, __func__, YIO_PRINT_ARGUMENTS(NULL, ##__VA_ARGS__))

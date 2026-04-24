@@ -12,16 +12,16 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-/* yvbprintf helpers ------------------------------------------------------ */
+/* yio_vbprintf helpers ------------------------------------------------------ */
 
 static inline
-int YYIO_yvbprintf_iterate_until_format_callback(yio_printctx_t *t, const char *begin, const char *end) {
+int YYIO_yio_vbprintf_iterate_until_format_callback(yio_printctx_t *t, const char *begin, const char *end) {
 	//fprintf(stderr, "PO:out=`%.*s`\n", (int)(end - begin), begin);
-	return yio_printctx_raw_write(t, begin, end - begin);
+	return yio_printctx_raw_write(t, begin, (size_t)(end - begin));
 }
 
 static inline
-int YYIO_yvbgeneric_iterate_until_format(yio_printctx_t *t, const char fmt[restrict], const char **restrict endptr) {
+int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *t, const char fmt[restrict], const char **restrict endptr) {
 	const char *pos = fmt;
 	while (fmt[0] != '\0') {
 		//fprintf(stderr, "P1:pos=`%s` fmt=`%s`\n", pos, fmt);
@@ -32,7 +32,7 @@ int YYIO_yvbgeneric_iterate_until_format(yio_printctx_t *t, const char fmt[restr
 					//fprintf(stderr, "P2\n");
 					// If we are at start, we can flush already known characters,
 					// and continue one after.
-					const int err = YYIO_yvbprintf_iterate_until_format_callback(t, pos, fmt + 1);
+					const int err = YYIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt + 1);
 					if (err) return err;
 					pos = fmt + 2;
 					fmt = pos;
@@ -53,7 +53,7 @@ int YYIO_yvbgeneric_iterate_until_format(yio_printctx_t *t, const char fmt[restr
 	}
 	if (fmt != pos) {
 		// Flush skipped characters up until now.
-		const int err = YYIO_yvbprintf_iterate_until_format_callback(t, pos, fmt);
+		const int err = YYIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt);
 		if (err) return err;
 	}
 	//
@@ -61,10 +61,10 @@ int YYIO_yvbgeneric_iterate_until_format(yio_printctx_t *t, const char fmt[restr
 	return 0;
 }
 
-/* yvbprintf ----------------------------------------------------------- */
+/* yio_vbprintf ----------------------------------------------------------- */
 
 static inline
-int YYIO_yvbprintf_in(yio_printctx_t *t) {
+int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 	if (t->fmt == NULL) {
 		if (t->ifunc == NULL) {
 			return 0;
@@ -79,7 +79,7 @@ int YYIO_yvbprintf_in(yio_printctx_t *t) {
 		return 0;
 	}
 	while (1) {
-		int err = YYIO_yvbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
+		int err = YYIO_yio_vbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
 		if (err) return err;
 		if (t->fmt[0] == '\0') break;
 		assert(t->fmt[0] == '{');
@@ -87,7 +87,7 @@ int YYIO_yvbprintf_in(yio_printctx_t *t) {
 		//
 		t->pf = YYIO_printfmt_default;
 		if (isdigit((unsigned char)(t->fmt[0]))) {
-			YYIO_skip_arm(t, YYIO_printctx_strtoi_noerr(&t->fmt));
+			YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&t->fmt));
 		}
 		if (t->fmt[0] == '!') {
 			// Handle conversion specifier.
@@ -114,7 +114,7 @@ int YYIO_yvbprintf_in(yio_printctx_t *t) {
 	return 0;
 }
 
-int yvbprintf(YYIO_printcb_t *out, void *arg, yio_printdata_t *data, const char *fmt, va_list *va) {
+int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, va_list *va) {
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
@@ -124,13 +124,13 @@ int yvbprintf(YYIO_printcb_t *out, void *arg, yio_printdata_t *data, const char 
 		.va = va,
 		.startva = &startva,
 		.fmt = fmt,
-		.ifunc = data,
-		.startifunc = data,
+		.ifunc = (yio_printdata_t *)data,
+		.startifunc = (yio_printdata_t *)data,
 		.out = out,
 		.outarg = arg,
 	};
 	yio_printctx_t * const t = &_ctx;
-	const int err = YYIO_yvbprintf_in(t);
+	const int err = YYIO_yio_vbprintf_in(t);
 	va_end(startva);
 	if (err) {
 		return -abs(err);

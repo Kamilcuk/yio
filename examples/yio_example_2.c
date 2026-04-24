@@ -22,15 +22,15 @@ static void streamed() {
 	float flt = 10.234;
 	int no = 150;
 	double dbl = 20.123456;
-	yprint("Character is ", ch, "\n");
-	yprint("String is ", str, "\n");
-	yprint("Float value is ", yppfmt("{:f}"), flt, "\n");
-	yprint("Integer value is ", no, "\n");
-	yprint("Double value is ", yppfmt("{:f}"), dbl, "\n");
-	yprint("Octal value is ", yppfmt("{:o}"), no, "\n");
-	yprint("Octal value is ", yppfmt("{:o}"), no, "\n");
-	yprint("Hexadecimal value is ", yppfmt("{:x}"), no, "\n");
-	yprint("Hexadecimal value is ", yppfmt("{:x}"), no, "\n");
+	yio_print("Character is ", ch, "\n");
+	yio_print("String is ", str, "\n");
+	yio_print("Float value is ", yio_pfmt("{:f}"), flt, "\n");
+	yio_print("Integer value is ", no, "\n");
+	yio_print("Double value is ", yio_pfmt("{:f}"), dbl, "\n");
+	yio_print("Octal value is ", yio_pfmt("{:o}"), no, "\n");
+	yio_print("Octal value is ", yio_pfmt("{:o}"), no, "\n");
+	yio_print("Hexadecimal value is ", yio_pfmt("{:x}"), no, "\n");
+	yio_print("Hexadecimal value is ", yio_pfmt("{:x}"), no, "\n");
 }
 
 static void formatted() {
@@ -39,13 +39,13 @@ static void formatted() {
 	float flt = 10.234;
 	int no = 150;
 	double dbl = 20.123456;
-	yprintf("Character is {}\n", ch);
-	yprintf("String is {}\n", str);
-	yprintf("Float value is {:f}\n", flt);
-	yprintf("Integer value is {}\n", no);
-	yprintf("Double value is {:f}\n", dbl);
-	yprintf("Octal value is {:o}\n", no);
-	yprintf("Hexadecimal value is {:x}\n", no);
+	yio_printf("Character is {}\n", ch);
+	yio_printf("String is {}\n", str);
+	yio_printf("Float value is {:f}\n", flt);
+	yio_printf("Integer value is {}\n", no);
+	yio_printf("Double value is {:f}\n", dbl);
+	yio_printf("Octal value is {:o}\n", no);
+	yio_printf("Hexadecimal value is {:x}\n", no);
 }
 
 int main() {

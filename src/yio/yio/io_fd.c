@@ -14,37 +14,37 @@
 #include <errno.h>
 
 static inline YYIO_access_r(2, 3)
-int YYIO_yvdprintf_cb_in(void *arg, const char *ptr, size_t size) {
+int YYIO_yio_vdprintf_cb_in(void *arg, const char *ptr, size_t size) {
 	const int fd = *(int*)arg;
 	int ret = 0;
 	while (size) {
 		const ssize_t written = write(fd, ptr, size);
-		if (ret < 0) {
+		if (written < 0) {
 			if (errno == EAGAIN) {
 				continue;
 			}
 			ret = EIO;
 			break;
 		}
-		size -= written;
+		size -= (size_t)written;
 		ptr += written;
 	}
 	return ret;
 }
 
 static inline YYIO_access_r(2, 3)
-int YYIO_yvdprintf_cb(void *arg, const char *ptr, size_t size) {
-	return YYIO_yvdprintf_cb_in(arg, ptr, size);
+int YYIO_yio_vdprintf_cb(void *arg, const char *ptr, size_t size) {
+	return YYIO_yio_vdprintf_cb_in(arg, ptr, size);
 }
 
-int yvdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *va) {
-	return yvbprintf(YYIO_yvdprintf_cb, &fd, data, fmt, va);
+int yio_vdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *va) {
+	return yio_vbprintf(YYIO_yio_vdprintf_cb, &fd, data, fmt, va);
 }
 
-int YYIO_ydprintf(int fd, const yio_printdata_t *data, const char *fmt, ...) {
+int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int ret = yvdprintf(fd, data, fmt, &va);
+	const int ret = yio_vdprintf(fd, data, fmt, &va);
 	va_end(va);
 	return ret;
 }

@@ -111,7 +111,7 @@ static inline
 void test_onefloat_$1(const char *instr, TYPE$1 in,
 		const char *format, double diffatmost) {
 	errno = 0;
-	char *const format_native = yformatf("{}", format);
+	char *const format_native = yio_formatf("{}", format);
 	YIO_TESTEXPR_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
 	YIO_TESTEXPR_ASSERT(format_native != NULL);
 
@@ -119,7 +119,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 
 	char *str_native = NULL;
 	errno = 0;
-	int err = yaprintf(&str_native, format_native, in);
+	int err = yio_aprintf(&str_native, format_native, in);
 	YIO_TESTEXPR_NOFAIL(errno == 0, "%s,%s %d %s", format, instr, errno, strerror(errno));
 	free(format_native);
 	if (strstr(instr, "_MAX") != NULL && (
@@ -135,7 +135,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	}
 	YIO_TESTEXPR_ASSERT(str_native != NULL);
 
-	char *const str = yformatf("{}", str_native);
+	char *const str = yio_formatf("{}", str_native);
 	free(str_native);
 	YIO_TESTEXPR_ASSERT(str != NULL);
 
@@ -209,7 +209,7 @@ int main() {
 	setvbuf(stdout, NULL, _IOLBF, 0);
 	// The first call suprisingly returns errno=2. Curiosly where.
 	// Anyway, call it here, so it doesn't return errno=2 later.
-	free(yformatf("{}", "{}"));
+	free(yio_formatf("{}", "{}"));
 
 	test_floats_f();
 	if (!YYIO_test_is_in_valgrind()) test_floats_l();

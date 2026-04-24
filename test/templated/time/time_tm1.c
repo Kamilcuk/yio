@@ -19,16 +19,16 @@ int main() {
 		.tm_sec  = 20,
 	};
 	int err = 0;
-	err |= yprintf("{:%Y-%m-%d %H:%M:%S}\n", t);
+	err |= yio_printf("{:%Y-%m-%d %H:%M:%S}\n", t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
-	err |= yprintf("{:%D}\n", t);
+	err |= yio_printf("{:%D}\n", t);
 // PASS_REGULAR_EXPRESSION 10/09/12
-	err |= yprintf("{:%F %T}\n", t);
+	err |= yio_printf("{:%F %T}\n", t);
 // PASS_REGULAR_EXPRESSION 2012-10-09 08:10:20
 // FUN FACT: this file is templated with jinja, so {_{ are parsed by jinja.
-	err |= yprintf("{:A%%B{""{C}""}""}D\n", t);
+	err |= yio_printf("{:A%%B{""{C}""}""}D\n", t);
 // PASS_REGULAR_EXPRESSION A%B{[{]C}D
-	err |= yprintf("{:%y %w %u}\n", t);
+	err |= yio_printf("{:%y %w %u}\n", t);
 // PASS_REGULAR_EXPRESSION 12 0 7
 	YIO_TESTEXPR(err > 0);
 }

@@ -1,7 +1,7 @@
 
 set(YIO_MLVLS_COMMENT [=[
 The count of levels variadic macros expand to.  This specifies the maximum
-number of arguments that can be passed to yprintf functions.
+number of arguments that can be passed to yio_printf functions.
 A bigger number will generate longer and bigger include files.
 ]=])
 set(YIO_MLVLS 32 CACHE STRING "${YIO_MLVLS_COMMENT}")
@@ -33,7 +33,7 @@ set(YIO_PRINT_FLOATS_WITH 0 CACHE STRING "${YIO_PRINT_FLOATS_WITH_COMMENT}")
 yio_config_gen_add(YIO_PRINT_FLOATS_WITH ADDIFNDEF)
 
 set(YIO_USE_OUTPUT_FD_COMMENT [=[
-When set to true, yprint will write from file descriptor 1 instead of using FILE * stdout.
+When set to true, yio_print will write from file descriptor 1 instead of using FILE * stdout.
 ]=])
 set(YIO_USE_OUTPUT_FD 1 CACHE BOOL "${YIO_USE_OUTPUT_FD_COMMENT}")
 yio_config_gen_add(YIO_USE_OUTPUT_FD)

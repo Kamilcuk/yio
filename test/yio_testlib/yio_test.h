@@ -113,7 +113,7 @@ struct testparam {
 
 #define YIO_TEST(shouldbe, fmt, ...)  do { \
 		char buf[1024]; \
-		const int err = ysprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
+		const int err = yio_sprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
 		in_YIO_TEST(shouldbe, fmt, buf, err); \
 	} while(0)
 

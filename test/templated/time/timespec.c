@@ -14,6 +14,6 @@ int main() {
 		.tv_sec = 1234567,
 		.tv_nsec = 1,
 	};
-	return yprintf("{}", t) == strlen("1234567.000000001") ? 0 : 1;
+	return yio_printf("{}", t) == strlen("1234567.000000001") ? 0 : 1;
 #endif
 }

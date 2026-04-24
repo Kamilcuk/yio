@@ -5,11 +5,11 @@ int main() {
 	time_t mytime = 123;
 	long long value = 456;
 
-   	yprint(yppfmt("{:>10}"), "time", " ", yppfmt("{:<10}"), "value", "\n");
-   	yprint(yppfmt("{:>10}"), mytime, " ", yppfmt("{:<10}"), value, "\n");
+   	yio_print(yio_pfmt("{:>10}"), "time", " ", yio_pfmt("{:<10}"), "value", "\n");
+   	yio_print(yio_pfmt("{:>10}"), mytime, " ", yio_pfmt("{:<10}"), value, "\n");
 
-   	yprintf("{:>10} {:<10}\n", "time", "value");
-   	yprintf("{:>10} {:<10}\n", mytime, value);
+   	yio_printf("{:>10} {:<10}\n", "time", "value");
+   	yio_printf("{:>10} {:<10}\n", mytime, value);
 }
 // PASS_REGULAR_EXPRESSION       time value[ ]*
 // PASS_REGULAR_EXPRESSION        123 456[ ]*

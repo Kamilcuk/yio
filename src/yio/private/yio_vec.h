@@ -101,7 +101,7 @@ static inline
 int YYIO_vec_yprintf(YYIO_vec *t, yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int err = yvbprintf(YYIO_vec_yprintf_cb, t, data, fmt, &va);
+	const int err = yio_vbprintf(YYIO_vec_yprintf_cb, t, data, fmt, &va);
 	va_end(va);
 	if (err < 0) {
 		YYIO_vec_fini(t);

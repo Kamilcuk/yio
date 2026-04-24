@@ -48,8 +48,8 @@
 #define TEST_in(type, value) \
     do { \
         type _var = value; \
-        char *_ptr = yformat("("#type")"#value" -> ", _var, "\n"); \
-        yprint(_ptr); \
+        char *_ptr = yio_format("("#type")"#value" -> ", _var, "\n"); \
+        yio_print(_ptr); \
         YIO_TESTEXPR(strcmp(_ptr, #value) == 0, "%""s"" failed", _ptr); \
         free(_ptr); \
     } while(0)
@@ -57,7 +57,7 @@
 #define TEST_in(type, value) \
     do { \
         type _var = value; \
-        yprint("(", #type ")(", #value, ") = ", _var, "\n"); \
+        yio_print("(", #type ")(", #value, ") = ", _var, "\n"); \
     } while(0)
 
 

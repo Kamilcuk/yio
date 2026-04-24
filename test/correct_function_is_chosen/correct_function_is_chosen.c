@@ -52,7 +52,7 @@ MASK(YYIO_print_float_customl)
 
 int main() {
 #if YIO_HAS_FLOATf
-	yprintf("{}", 1.0f);
+	yio_printf("{}", 1.0f);
 #if YYIO_HAS_strfromf
 	CHECK("YYIO_print_float_strfromf");
 #else
@@ -62,7 +62,7 @@ int main() {
 #endif
 
 #if YIO_HAS_FLOATd
-	yprintf("{}", 1.0);
+	yio_printf("{}", 1.0);
 #if YYIO_HAS_strfromd
 	CHECK("YYIO_print_float_strfromd");
 #else
@@ -72,7 +72,7 @@ int main() {
 #endif
 
 #if YIO_HAS_FLOATl
-	yprintf("{}", 1.0l);
+	yio_printf("{}", 1.0l);
 #if YYIO_HAS_strfroml
 	CHECK("YYIO_print_float_strfroml");
 #else

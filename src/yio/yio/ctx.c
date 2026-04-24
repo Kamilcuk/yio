@@ -286,7 +286,7 @@ int yio_printctx_next(yio_printctx_t *t) {
 int YYIO_printctx_print_in(yio_printctx_t *t, yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int ret = yvbprintf(t->out, t->outarg, data, fmt, &va);
+	const int ret = yio_vbprintf(t->out, t->outarg, data, fmt, &va);
 	va_end(va);
 	if (ret < 0) {
 		return ret;

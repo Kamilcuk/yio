@@ -9,25 +9,25 @@
 
 /* ------------------------------------------------------------------------- */
 
-struct YYIO_yp_arr_s {
+struct YYIO_yio_arr_s {
 	size_t elemsize;
 	size_t count;
 	const void *arr;
 	const char *sep;
 	yio_printdata_t printfunc;
 };
-static inline int YYIO_yp_arr(yio_printctx_t *t) {
-        const struct YYIO_yp_arr_s *const arr =
-                yio_printctx_va_arg(t, const struct YYIO_yp_arr_s*);
+static inline int YYIO_yio_arr(yio_printctx_t *t) {
+        const struct YYIO_yio_arr_s *const arr =
+                yio_printctx_va_arg(t, const struct YYIO_yio_arr_s*);
         const char *const fmtbegin = t->fmt;
         while (t->fmt[0] != '}' && t->fmt[0] != '\0') t->fmt++;
         if (t->fmt[0] != '}') {
-                return YYIO_ERROR(YIO_ERROR_MON_MISSING_RIGHT_BRACE, "missing '}' when parsing yp_arr format specifier");
+                return YYIO_ERROR(YIO_ERROR_MON_MISSING_RIGHT_BRACE, "missing '}' when parsing yio_arr format specifier");
         }
         const char *const fmtend = t->fmt;
         int err = yio_printctx_init(t);
         if (err) return err;
-        const size_t fmtlen = fmtend - fmtbegin;
+        const size_t fmtlen = (size_t)(fmtend - fmtbegin);
         char *const fmt = malloc(fmtlen + 3);
         if (fmt == NULL) return YIO_ERROR_ENOMEM;
         fmt[0] = '{';
@@ -37,7 +37,7 @@ static inline int YYIO_yp_arr(yio_printctx_t *t) {
         const char *const sep = arr->sep != NULL ? arr->sep : ", ";
         const void *it = arr->arr;
         for (size_t i = 0; i < arr->count; ++i) {
-                err = yio_printctx_printf(t, fmt, yiocb(arr->printfunc, it));
+                err = yio_printctx_printf(t, fmt, yio_callback(arr->printfunc, it));
                 if (err) break;
                 if (i + 1 < arr->count) {
                         err = yio_printctx_printf(t, "{}", sep);
@@ -47,30 +47,36 @@ static inline int YYIO_yp_arr(yio_printctx_t *t) {
         }
         free(fmt);
         return err;
-}#define YYIO_yp_arr_1(ARR)       YYIO_yp_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), 0)
-#define YYIO_yp_arr_2(ARR, SEP)  YYIO_yp_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), SEP)
-#define YYIO_yp_arr_3(ARR, COUNT, SEP) \
-		yiocb(YYIO_yp_arr, &(const struct YYIO_yp_arr_s){ \
+}#define YYIO_yio_arr_1(ARR)       YYIO_yio_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), 0)
+#define YYIO_yio_arr_2(ARR, SEP)  YYIO_yio_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), SEP)
+#define YYIO_yio_arr_3(ARR, COUNT, SEP) \
+		yio_callback(YYIO_yio_arr, &(const struct YYIO_yio_arr_s){ \
 				.elemsize = sizeof((ARR)[0]), \
 				.count = (COUNT), \
 				.arr = (ARR), \
 				.sep = (SEP), \
 				.printfunc = YYIO_PRINT_FUNC_GENERIC((ARR)[0]),
 			})
-#define YYIO_yp_arr_N(_3,_2,_1,N,...)  YYIO_yp_arr_##N
+#define YYIO_yio_arr_N(_3,_2,_1,N,...)  YYIO_yio_arr_##N
 /**
- * @def pr_arr
+ * @def yio_arr
  * @brief Print an array using custom format specifier and separator.
  * The format string is used for each element.
- * @exmaple
+ * @example
  *     int arr[] = {4, 3, 2, 1};
- *     yprintf("{}", yp_arr(arr));             // -> "4, 3, 2, 1"
- *     yprintf("{}", yp_arr(arr, "|"));        // -> "4|3|2|1"
- *     yprintf("{:02x}", yp_arr(arr, "|"));    // -> "04|03|02|01"
+ *     yio_printf("{}", yio_arr(arr));             // -> "4, 3, 2, 1"
+ *     yio_printf("{}", yarr(arr, "|"));           // -> "4|3|2|1"
+ *     yio_printf("{:02x}", yarr(arr, "|"));       // -> "04|03|02|01"
  *     int *pnt = arr;
- *     yprintf("{:02x}", yp_arr(pnt, 3, "|"));  // -> "04|03|02"
+ *     yio_printf("{:02x}", yarr(pnt, 3, "|"));    // -> "04|03|02"
  */
-#define yp_arr(...)  YYIO_yp_arr_N(__VA_ARGS__, 3, 2, 1)(__VA_ARGS__)
+#define yio_arr(...)  YYIO_yio_arr_N(__VA_ARGS__, 3, 2, 1)(__VA_ARGS__)
+/**
+ * Short versions
+ */
+#define yarr    yio_arr
+#define yp_arr  yio_arr
+
 
 /* ------------------------------------------------------------------------- */
 
@@ -91,7 +97,7 @@ static inline int YYIO_yp_arr(yio_printctx_t *t) {
  * @example
  *
  *    int var = 1;
- *    yprintf(F("{var=:4d}"));  // -> yprintf("var={:4d}", var);
+ *    yio_printf(F("{var=:4d}"));  // -> yio_printf("var={:4d}", var);
  */
 #define F(...)  __VA_ARGS__
 #else
@@ -125,4 +131,3 @@ dnl Preprocess - extract the variable in front of = and place them in the string
 _F_IN(patsubst($1, `\([^{]\){\([_a-zA-Z][_a-zA-Z0-9]*\)=', `\1\2={\2') _F_SHIFT($@))`'dnl
 ')
 #endif
-

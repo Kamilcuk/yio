@@ -58,7 +58,7 @@ FetchContent_MakeAvailable(yio)
 file(WRITE main.c [=[
 #include <yio.h>
 int main() {
-  yprintf("{}\n", 123);
+  yio_printf("{}\n", 123);
 }
 ]=])
 add_executable(yourtarget main.c)
@@ -91,39 +91,39 @@ See [python Format specification Mini-Language](https://docs.python.org/3/librar
 
 The library exposes its features using the header `yio.h`.
 
-The heart of the library is the function `yprintf`:
+The heart of the library is the function `yio_printf`:
 
 ```
 long yes_votes = 42572654;
 long no_votes = 43132495;
 double percentage = (double)yes_votes / (yes_votes + no_votes);
-yprint("{:-9} YES votes  {:2.2%}\n", yes_votes, percentage);
+yio_print("{:-9} YES votes  {:2.2%}\n", yes_votes, percentage);
 // ' 42572654 YES votes  49.67%'
 ```
 
-Another way of printing is using the `yprint` which doesn't take format string and just prints all arguments.
+Another way of printing is using the `yio_print` which doesn't take format string and just prints all arguments.
 
 ```
 int year = 2016;
 const char *event = "Referendum";
-yprint("Results of the ", event, " ", event, "\n");
+yio_print("Results of the ", event, " ", event, "\n");
 // 'Results of the 2016 Referendum'
 ```
 
 These are two main functions. Additionally, various other variations are provided:
 
-- `ybprint`/`ybprintf` - functions that take custom output callback
-- `yfprint[f]?` - functions for printing into `FILE*`
-- `yaprint[f]?` - functions just like `aprintf`, for allocating memory
+- `yio_bprint`/`yio_bprintf` - functions that take custom output callback
+- `yio_fprint[f]?` - functions for printing into `FILE*`
+- `yio_aprint[f]?` - functions just like `aprintf`, for allocating memory
 
 Additionally:
 
-- `yreaprint[f]?` - reallocate given memory
-- `yformat[f]?` - just like `yaprintf`, but only return `NULL` in case of errors
-- `yreformat[f]?` - reallocate given memory, and return a pointer to it
-- `ydprint[f]?` - print into a file descriptor
+- `yio_reaprint[f]?` - reallocate given memory
+- `yio_format[f]?` - just like `yio_aprintf`, but only return `NULL` in case of errors
+- `yio_reformat[f]?` - reallocate given memory, and return a pointer to it
+- `yio_dprint[f]?` - print into a file descriptor
 
-To all options a `va_list` version is provided, which has the letter `v` after the mode prefix. For example `yvformatf` or `yvprintf`.
+To all options a `va_list` version is provided, which has the letter `v` after the mode prefix. For example `yio_vformatf` or `yio_vprintf`.
 
 ### Features
 
@@ -172,7 +172,7 @@ Implemented:
 
 ### Namespaces
 
- - `y*` - Many "short" common public symbols, like `yprintf`, `ysnprintf`.
+ - `y*` - Many "short" common public symbols, like `yio_printf`, `ysnprintf`.
  - `yio_*` - Public internal functions, symbols for implementators of _custom modifiers_.
  - `YIO_*` - Public symbols, macros, configuration options, constants, error codes.
  - `YYIO_*` - All the plethora of private symbols that is used by the library.
@@ -184,19 +184,25 @@ See [examples](examples) and overall all in [test](test) directory.
 ## Custom callbacks
 
 For a given variable a custom callback can be provided for invoking a custom function when given as a parameter to string. The function replaces the auto-deduced callback.
-The are number of given provided callbacks for various things, for example to replace `%n` printf format specifier:
+The are number of provided callbacks for various things, for example to replace `%n` printf format specifier:
 
 ```
 int count;
-yprintf('The value of pi is approximately {:.3f}.\n{}', 3.14, ypcount(&count));
-yprintf("Above expression printed {} characters.\n", count);
+yio_printf("The value of pi is approximately {:.3f}.\n{}", 3.14, yio_count(&count));
+yio_printf("Above expression printed {} characters.\n", count);
 ```
 
 There are available:
 
-- `ypcount` - for getting the count of characters printed
-- `yptlocaltime` - calls `localtime()` on `time_t` argument and prints it like `struct tm`
-- `yptgtime` - as above, just calls `gmtime()`
+- `yio_count` (shortcut: `ycount`) - for getting the count of characters printed
+- `yio_localtime` (shortcut: `ylocaltime`) - calls `localtime()` on `time_t` argument and prints it like `struct tm`
+- `yio_gmtime` (shortcut: `ygmtime`) - as above, just calls `gmtime()`
+- `yio_pwchar` (shortcut: `ywchar`) - for printing a `wchar_t` variable
+- `yio_pwstring` (shortcut: `ywstring`) - for printing a `wchar_t` string
+- `yio_arr` (shortcut: `yarr`) - for printing arrays
+- `yio_mon` (shortcut: `ymon`) - for printing monetary values
+- `yio_pfmt` (shortcut: `ypfmt`) - for applying python-like format string manually
+
 
 ## Extending the library
 
@@ -206,7 +212,7 @@ This is to ensure that `va_list` stack is properly managed and that "jumping" ab
 
 #### Creating a custom callback.
 
-Callbacks are written with special `yiocb()` callback modifier function. An example can be found at [examples/yio_example_custom_type_callback.c](examples/yio_example_custom_type_callback.c).
+Callbacks are written with special `yio_callback()` (shortcut: `ycb()`) callback modifier function. An example can be found at [examples/yio_example_custom_type_callback.c](examples/yio_example_custom_type_callback.c).
 
 ### Slots
 
@@ -249,9 +255,9 @@ That's why [python Format String](https://docs.python.org/3/library/string.html#
 Finally I settled for:
 
 ```
-yprint("How old are you?", yendl());
+yio_print("How old are you?", yendl());
 yscan(&i);
-yprint("You are ", yiofmt("#10.5"), i, " years old.", yendl());
+yio_print("You are ", yiofmt("#10.5"), i, " years old.", yendl());
 ```
 
 Which is basically the same as C++ version, but just adds a custom flags modifier/function `yiofmt` that transforms the string in C specification to flags. But this, this is not enough. Cause we want `printf(_("locale strings %s \n"), "string")` which are really hard to do with streams. Also, we want choose position of arguments with that.
@@ -261,33 +267,33 @@ This also allowed for custom overloads with custom functions:
 ```
 #define yioarr(arr, count, sep) /* some _Generic magic with custom callback*/
 const int arr[10];
-yprint("Array is ", yioarr(arr, 5, ", "), "\n");
+yio_print("Array is ", yioarr(arr, 5, ", "), "\n");
 ```
 
 Then I wen to implementing python like syntax:
 
 ```
-yprintf("How old are you?{}", yendl());
+yio_printf("How old are you?{}", yendl());
 yscanf("{}", &i);
-yprintf("You are {} years old.{}", yiofmt("#10.5"), i, yendl());
+yio_printf("You are {} years old.{}", yiofmt("#10.5"), i, yendl());
 ```
 
 But that is not nice - some of the arguments get a `{}`, but some don't. 
 Only those get a `{}` which output anything. This is confusing. 
 This breaks existent practice. My C eye is telling me - the number of `{}`
 doesn't match the count of arguments. Really, even
-`yprintf("You are {}{} years old.{}", yiofmt("#10.5"), i, yendl());` would be more readable.
+`yio_printf("You are {}{} years old.{}", yiofmt("#10.5"), i, yendl());` would be more readable.
 
 So I decided to go with python/C++ mix:
 
 ```
-yprintf("You are {:#10.5} years old.{}", i, yendl());
+yio_printf("You are {:#10.5} years old.{}", i, yendl());
 ```
 
 No the `:#10.5` doesn't really print the number. It is parsed the same way as `yiofmt("#10.5")` - it only set's some internal flags. Even with using `#str` macro stringify operator we could even do this:
 
 ```
-yprintf("{arg1} {arg2}", arg2, arg1);
+yio_printf("{arg1} {arg2}", arg2, arg1);
 ```
 
 because the names of the variables could be stringified with `#` operator and

@@ -13,27 +13,27 @@ int main() {
 	char buf[200];
 	int err = 0;
 
-	err = ysprintf(buf, sizeof(buf)/sizeof(*buf), "123");
+	err = yio_sprintf(buf, sizeof(buf)/sizeof(*buf), "123");
 	YIO_TESTEXPR(err > 0, "err=%s", yio_strerror(err));
 	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = ysprintf(buf, SIZE_MAX, "123");
+	err = yio_sprintf(buf, SIZE_MAX, "123");
 	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = ysprintf(buf, 2, "123");
+	err = yio_sprintf(buf, 2, "123");
 	YIO_TESTEXPR(err < 0);
 	YIO_TESTEXPR(strcmp(buf, "1") == 0);
 
-	err = ysprintf(buf, 3, "123");
+	err = yio_sprintf(buf, 3, "123");
 	YIO_TESTEXPR(err < 0);
 	YIO_TESTEXPR(strcmp(buf, "12") == 0);
 
-	err = ysprintf(buf, 4, "123");
+	err = yio_sprintf(buf, 4, "123");
 	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = ysprintf(buf, 1, "123");
+	err = yio_sprintf(buf, 1, "123");
 	YIO_TESTEXPR(err < 0);
 	YIO_TESTEXPR(strcmp(buf, "") == 0);
 

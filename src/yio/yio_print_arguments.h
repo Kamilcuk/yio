@@ -27,11 +27,18 @@
 /**
  * Print the arguments using a custom callback function.
  * Actually we could name it: "register" function to print those arguments.
- * void yiocb(int callback(yio_printctx_t *), ...);
+ * void yio_callback(int callback(yio_printctx_t *), ...);
  * @param callback The callback to call.
  * @param ... Additional arguments to call.
  */
-#define yiocb(callback, ...)  ((callback, ##__VA_ARGS__),YYIO_61COMMAS)
+#define yio_callback(callback, ...)  ((callback, ##__VA_ARGS__),YYIO_61COMMAS)
+/**
+ * Short versions of yio_callback
+ */
+#define ycb    yio_callback
+#define yiocb  yio_callback
+
+
 
 /**
  * @def YYIO_IFBA62A(expr, then, else)

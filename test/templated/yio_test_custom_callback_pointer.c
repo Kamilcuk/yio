@@ -8,11 +8,11 @@
 #include <yio.h>
 #include <stdlib.h>
 
-static char *(* const f_vpnt)(yio_printdata_t *, const char *fmt, va_list *va) = yvformatf;
-static int (* const f_pnt)(yio_printdata_t *, const char *fmt, ...) = YYIO_yprintf;
+static char *(* const f_vpnt)(yio_printdata_t *, const char *fmt, va_list *va) = yio_vformatf;
+static int (* const f_pnt)(yio_printdata_t *, const char *fmt, ...) = YYIO_yio_printf;
 
 static void _dbgln(const char file[], int line, const char func[], yio_printdata_t *data, const char *fmt, ...) {
-	yprintf("{}:{}:{}: ", file, line, func);
+	yio_printf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
 	char * const ret = f_vpnt(data, fmt, &va);
@@ -20,9 +20,9 @@ static void _dbgln(const char file[], int line, const char func[], yio_printdata
 	if (ret == NULL) {
 		exit(EXIT_FAILURE);
 	}
-	yprintf("{}", ret);
+	yio_printf("{}", ret);
 	free(ret);
-	yprintf("\n");
+	yio_printf("\n");
 	fflush(stdout);
 }
 

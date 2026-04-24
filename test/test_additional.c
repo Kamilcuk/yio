@@ -17,14 +17,14 @@ int main() {
 	YIO_TEST("BAB", "{:B^3.3A}", tm);
 
 	int count;
-	int count2 = yprintf("Hello\n{}", ypcount(&count));
+	int count2 = yio_printf("Hello\n{}", yio_count(&count));
 	YIO_TESTEXPR(count2 == 6);
 	YIO_TESTEXPR(count == 6);
 
 	//YIO_TEST("\\x02", "{!a}", "\x02");
 
 	const void *p = &tm;
-	yprintf("{}", p);
-	yprintf("{:p}", p);
+	yio_printf("{}", p);
+	yio_printf("{:p}", p);
 }
 

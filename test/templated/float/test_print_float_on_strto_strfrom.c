@@ -27,6 +27,6 @@ static_assert(YYIO_PRINT_FLOAT$1 == YYIO_print_float_strfrom$1, "");
 #else
 #include <yio.h>
 int main() {
-	return yprint("");
+	return yio_print("");
 }
 #endif

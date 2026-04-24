@@ -35,7 +35,7 @@ YIO_ADD_TYPE(const struct A, yio_print_A)
 // Custom yio callbacks to be used with yio invokations.
 // For type safety, make sure your arguments are proper type with _Generic.
 #define yprint_A(var)  \
-		yiocb( yio_print_A, ( (void)_Generic((var), struct A: 1, const struct A: 1), (var)) )
+		yio_callback( yio_print_A, ( (void)_Generic((var), struct A: 1, const struct A: 1), (var)) )
 //                                  ^^^^^^^^ - protect against invalid arguments
 //             ^^^^^^^^^^^ - the callback to call
 
@@ -47,12 +47,12 @@ int main() {
 
 	// The custom printing modifier is applied "on top" the argument.
 	// It calls the function given in the callback.
-	char *str = yformatf("{}\n", yprint_A(var_a));
-	yprintf("{}\n", str);
+	char *str = yio_formatf("{}\n", yprint_A(var_a));
+	yio_printf("{}\n", str);
 
 	// This uses the PRINT_SLOT_100 above.
-	str = yreformatf(str, "{}\n", var_a);
-	yprintf("{}\n", str);
+	str = yio_reformatf(str, "{}\n", var_a);
+	yio_printf("{}\n", str);
 
 	if (str == NULL) abort();
 	free(str);

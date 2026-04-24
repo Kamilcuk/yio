@@ -4,7 +4,7 @@
 Yio is a modern C11 library providing type-safe string formatting, inspired by Python's `str.format` and C++'s `std::format`. It leverages C11 `_Generic` to provide a seamless and safe alternative to traditional `printf`.
 
 The library supports multiple character types:
-- **Normal (`char`):** `yprintf`, etc.
+- **Normal (`char`):** `yio_printf`, etc.
 - **Wide (`wchar_t`):** `ywprintf`, etc.
 - **UTF-16 (`char16_t`):** `yc16printf`, etc. (Requires `libunistring`)
 - **UTF-32 (`char32_t`):** `yuprintf`, etc. (Requires `libunistring`)
@@ -62,7 +62,7 @@ Most of the codebase is generated from templates in `src/yio/yio/`. When editing
 - Tests use a simple pass/fail mechanism, often checked by `ctest` against regex patterns in comments (e.g., `// PASS_REGULAR_EXPRESSION 1`).
 
 ### Namespace Guidelines
-- `y*`: Common public symbols (e.g., `yprintf`).
+- `y*`: Common public symbols (e.g., `yio_printf`).
 - `yio_*`: Public internal functions and custom modifier symbols.
 - `YIO_*`: Public macros, configuration, and constants.
 - `YYIO_*`: Private library symbols.

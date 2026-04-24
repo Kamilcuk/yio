@@ -1,6 +1,6 @@
 # Format specification
 
-Formatting functions like `yprintf` use the format string syntax described here.
+Formatting functions like `yio_printf` use the format string syntax described here.
 
 The intention is to align the format specification to be similar to
 Python Format Specification Mini-Language and `fmt::format()` Format

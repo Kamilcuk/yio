@@ -1,4 +1,4 @@
 #include <yio.h>
 int main() {
-	yprintf("{}\n", undefined);
+	yio_printf("{}\n", undefined);
 }

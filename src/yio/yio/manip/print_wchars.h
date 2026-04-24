@@ -24,12 +24,21 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t);
  * @{
  */
 /// Print wchar_t character.
-#define ypwchar(wchar)         yiocb(YYIO_print_wchar, (wchar_t)(wchar))
+#define yio_pwchar(wchar)         yio_callback(YYIO_print_wchar, (wchar_t)(wchar))
 /// Print a string of wchar_t characters.
-#define ypwstring(wstring)     yiocb(YYIO_print_constwcharpnt, (const wchar_t*)(wstring))
+#define yio_pwstring(wstring)     yio_callback(YYIO_print_constwcharpnt, (const wchar_t*)(wstring))
+/**
+ * Short versions
+ */
+#define ywchar     yio_pwchar
+#define ypwchar    yio_pwchar
+#define ywstring   yio_pwstring
+#define ypwstring  yio_pwstring
+
 /**
  * @}
  */
+
 
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS() \
 		wchar_t *: YYIO_print_constwcharpnt, \

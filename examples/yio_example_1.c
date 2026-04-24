@@ -8,12 +8,12 @@ static void normal() {
 
 static void streamed() {
     int number = 2;
-    yprint("number: ", number, "\n");
+    yio_print("number: ", number, "\n");
 }
 
 static void formatted() {
     int number = 3;
-    yprintf("number: {}\n", number);
+    yio_printf("number: {}\n", number);
 }
 
 int main() {

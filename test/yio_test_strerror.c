@@ -8,14 +8,14 @@
 #include <limits.h>
 int main() {
 	int err;
-	err = yprintf("{} {}", 1);
-	yprintf("{}\n", yio_strerror(err));
-	yprintf("{}\n", yio_strerror(-616278361));
-	yprintf("{}\n", yio_strerror(-1));
-	yprintf("{}\n", yio_strerror(YYIO_ERROR_START));
-	yprintf("{}\n", yio_strerror(YYIO_ERROR_STOP));
-	yprintf("{}\n", yio_strerror(INT_MIN));
-	yprintf("{}\n", yio_strerror(INT_MAX));
+	err = yio_printf("{} {}", 1);
+	yio_printf("{}\n", yio_strerror(err));
+	yio_printf("{}\n", yio_strerror(-616278361));
+	yio_printf("{}\n", yio_strerror(-1));
+	yio_printf("{}\n", yio_strerror(YYIO_ERROR_START));
+	yio_printf("{}\n", yio_strerror(YYIO_ERROR_STOP));
+	yio_printf("{}\n", yio_strerror(INT_MIN));
+	yio_printf("{}\n", yio_strerror(INT_MAX));
 }
 // PASS_REGULAR_EXPRESSION 1 Too many .*
 // PASS_REGULAR_EXPRESSION unknown error

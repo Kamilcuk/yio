@@ -29,20 +29,20 @@ static int hex_dot_hex_to_int(char *str) {
 int main() {
 	{
 		const short _Fract x = 0.123456789;
-		char *tmp = yformatf("{:.1a}\n", x);
+		char *tmp = yio_formatf("{:.1a}\n", x);
 		unsigned a, b; int c;
 		YIO_TESTEXPR(sscanf(tmp, "0x%x.%xp%x", &a, &b, &c) == 3, "%s", tmp);
 		free(tmp);
 		int v = b << 4 | a;
-		yprintf("{:x} {:x}\n", v, x);
+		yio_printf("{:x} {:x}\n", v, x);
 
 	}
 	{
 		const _Fract a = 0.123456789;
-		yprintf("{:x} {} {:a}\n", a, a, a);
+		yio_printf("{:x} {} {:a}\n", a, a, a);
 	}
 	{
 		const long _Fract a = 0.123456789;
-		yprintf("{:x} {} {:a}\n", a, a, a);
+		yio_printf("{:x} {} {:a}\n", a, a, a);
 	}
 }
