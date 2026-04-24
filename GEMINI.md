@@ -3,11 +3,7 @@
 ## Project Overview
 Yio is a modern C11 library providing type-safe string formatting, inspired by Python's `str.format` and C++'s `std::format`. It leverages C11 `_Generic` to provide a seamless and safe alternative to traditional `printf`.
 
-The library supports multiple character types:
-- **Normal (`char`):** `yio_printf`, etc.
-- **Wide (`wchar_t`):** `ywprintf`, etc.
-- **UTF-16 (`char16_t`):** `yc16printf`, etc. (Requires `libunistring`)
-- **UTF-32 (`char32_t`):** `yuprintf`, etc. (Requires `libunistring`)
+The library focuses on a single "normal" character mode (`char`), but handles `wchar_t`, `char16_t`, and `char32_t` by converting them to multibyte strings (UTF-8).
 
 ### Key Technologies
 - **C11:** Core language, uses `_Generic`.
@@ -21,7 +17,7 @@ The library supports multiple character types:
   - `src/preprocess.py`: The Jinja2-based preprocessor.
   - `src/library.jinja`: Jinja2 macros and shared template logic.
 - `test/`: Comprehensive test suite.
-  - `test/templated/`: Tests that are also processed by the preprocessor to cover all character modes.
+  - `test/templated/`: Tests that are also processed by the preprocessor to cover the library character mode.
 - `examples/`: Usage examples.
 - `doc/`: Documentation, including Doxygen configuration.
 - `kcmakelib/`: Internal CMake utility library.
@@ -41,6 +37,12 @@ make build
 make test
 ```
 
+### Quick Test
+For quick one-liner tests:
+```bash
+./scripts/compile_test_run.sh 'yio_printf("{}\n", 123);'
+```
+
 ### Advanced Tasks
 - **Linting:** `make lint` (runs `clang-tidy`, `cpplint`, `cppcheck`).
 - **Memory Safety:** `make valgrind` (runs tests under Valgrind).
@@ -51,18 +53,23 @@ make test
 ### Templating System
 Most of the codebase is generated from templates in `src/yio/yio/`. When editing implementation:
 - Edit the files in `src/yio/yio/`, NOT the generated files in the build directory.
-- Use `π` as a placeholder for the mode prefix (empty, `w`, `c16`, `u`).
-- Use `Ω` as a placeholder for the uppercase mode prefix (empty, `W`, `C16`, `U`).
-- Use `TC("...")` macro in templates to handle string literal prefixes.
-- `preprocess.py` is invoked during the build process to generate the actual C source files for each mode.
+- Use `TC("...")` macro in templates to handle string literals correctly.
+- `preprocess.py` is invoked during the build process to generate the actual C source files.
+
+### Format Specification
+- Supports nested replacement fields: `{:{}.{}f}` (compatible with Python and C++20).
+- Supports positional arguments: `{0:{1}.{2}f}`.
 
 ### Testing
 - New features should include tests in `test/`.
-- Prefer adding tests to `test/templated/` if they apply to all character modes.
+- Prefer adding tests to `test/templated/`.
 - Tests use a simple pass/fail mechanism, often checked by `ctest` against regex patterns in comments (e.g., `// PASS_REGULAR_EXPRESSION 1`).
 
 ### Namespace Guidelines
-- `y*`: Common public symbols (e.g., `yio_printf`).
+- `yio_printf`, `yio_print`: Primary type-safe API.
+- `yprintf`, `yprint`: Short aliases (opt-out shortcuts).
+- `yio_count` (ycount), `yio_arr` (yarr), `yio_mon` (ymon): Standardized modifier naming.
+- `yio_callback` (ycb): Custom callback registration.
 - `yio_*`: Public internal functions and custom modifier symbols.
 - `YIO_*`: Public macros, configuration, and constants.
 - `YYIO_*`: Private library symbols.
