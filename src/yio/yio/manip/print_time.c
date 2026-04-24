@@ -145,3 +145,19 @@ int YYIO_print_timeval(yio_printctx_t *t) {
 }
 #endif // YYIO_HAS_timeval
 
+static inline
+int YYIO_print_time_t(yio_printctx_t *t, struct tm *(*func)(const time_t *)) {
+	const time_t arg = yio_printctx_va_arg(t, time_t);
+	struct tm *tm = func(&arg);
+	if (tm == NULL) return YIO_ERROR_EIO;
+	return YYIO_print_time_strftime(t, tm);
+}
+
+int YYIO_print_localtime(yio_printctx_t *t) {
+	return YYIO_print_time_t(t, localtime);
+}
+
+int YYIO_print_gmtime(yio_printctx_t *t) {
+	return YYIO_print_time_t(t, gmtime);
+}
+

@@ -35,6 +35,21 @@
 int YYIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, const char **enptr);
 
 int YYIO_print_tm(yio_printctx_t *t);
+int YYIO_print_localtime(yio_printctx_t *t);
+int YYIO_print_gmtime(yio_printctx_t *t);
+
+/**
+ * @define yio_localtime(v)
+ * @param v time_t value
+ * Calls localtime() on v and prints it.
+ */
+#define yio_localtime(v)  yio_callback(YYIO_print_localtime, (time_t)(v))
+/**
+ * @define yio_gmtime(v)
+ * @param v time_t value
+ * Calls gmtime() on v and prints it.
+ */
+#define yio_gmtime(v)     yio_callback(YYIO_print_gmtime, (time_t)(v))
 
 #if YYIO_HAS_timespec
 int YYIO_print_timespec(yio_printctx_t *t);
