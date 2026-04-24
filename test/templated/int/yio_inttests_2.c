@@ -32,7 +32,7 @@ int _yio_inttest2_ ## SUFFIX(int *err, const char *fmt, \
 	if (1) { \
 		fprintf(stdout, "Testing %s yio_print|\"%""s""\", ", #TYPE, fmt); \
 		fprintf(stdout, "| \tvs snprintf|\"%""s""\", ", printfmt ? printfmt : "?"); \
-		TFPRINTF(stdout, "| \t-> %d\"%""s""\"\n", \
+		fprintf(stdout, "| \t-> %d\"%""s""\"\n", \
 				(int)strlen(shouldbe), shouldbe); \
 	} \
 	const int ret = yio_sprintf(buf, sizeof(buf), fmt, arg); \
@@ -43,7 +43,7 @@ int _yio_inttest2_ ## SUFFIX(int *err, const char *fmt, \
 	} \
 	if (strcmp(shouldbe, buf) != 0) { \
 		fprintf(stderr, "%s:%d: yio_print|\"%""s""\", ", __FILE__, __LINE__, fmt); \
-		TFPRINTF(stderr, "| -> %d\"%""s""\" != %d\"%""s""\"\n", \
+		fprintf(stderr, "| -> %d\"%""s""\" != %d\"%""s""\"\n", \
 				(int)strlen(buf), buf, \
 				(int)strlen(shouldbe), shouldbe); \
 		*err = __LINE__; \
