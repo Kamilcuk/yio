@@ -105,9 +105,10 @@ class MyEnvironment(jinja2.Environment):
         self.dependencies = []
 
     def get_template(self, name, parent=None, globals=None):
-        if name not in self.dependencies:
-            self.dependencies.append(name)
-        return super().get_template(name, parent, globals)
+        template = super().get_template(name, parent, globals)
+        if template.filename and template.filename not in self.dependencies:
+            self.dependencies.append(template.filename)
+        return template
 
 
 def shoulddoline(source):

@@ -282,7 +282,7 @@ function(yio_jinja_finalize)
 			-j 8
 			${tasks}
 		DEPFILE "${depfile}"
-		DEPENDS yio_gen_prepare "${JINJASCRIPT}" ${depends}
+		DEPENDS "${JINJASCRIPT}" ${depends}
 		COMMENT "jinja2: batch processing all templates"
 		VERBATIM
 	)
