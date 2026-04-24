@@ -19,6 +19,10 @@ int main() { return 100; }
 int main() {
 	const char *const loc = setlocale(LC_ALL, "en_US.UTF-8");
 	if (loc == NULL) {
+		fprintf(stderr, "Skipping test: locale 'en_US.UTF-8' not found.\n"
+				"To run this test, install the locale, e.g., on Debian/Ubuntu:\n"
+				"  sudo locale-gen en_US.UTF-8\n"
+				"  sudo update-locale\n");
 		return 100;
 		// SKIP_RETURN_CODE 100
 	}
