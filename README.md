@@ -11,7 +11,7 @@
 # dev
 
 [doxygen documentation](https://kamcuk.gitlab.io/yio/doxygen/index.html)
-[TEMPLATING.md](./doc/TEMPLATING.md]
+[TEMPLATING.md](./doc/TEMPLATING.md)
 
 master: ![pipeline master status badge](https://gitlab.com/kamcuk/yio/badges/master/pipeline.svg)
 devel: ![pipeline dev status badge](https://gitlab.com/kamcuk/yio/badges/devel/pipeline.svg)
@@ -89,7 +89,7 @@ See [python Format specification Mini-Language](https://docs.python.org/3/librar
 
 ## :beginner: Basic functionality
 
-The library exposes it's feature using headers `yio.h`, `ywio.h`, `yc16io.h` and `yuio.h`.
+The library exposes its features using the header `yio.h`.
 
 The heart of the library is the function `yprintf`:
 
@@ -123,18 +123,7 @@ Additionally:
 - `yreformat[f]?` - reallocate given memory, and return a pointer to it
 - `ydprint[f]?` - print into a file descriptor
 
-Next, the library comes in 4 flavors - normal or multi-byte character mode, wide character mode, UTF-16 mode and UTF-32 mode.
-Normal mode has no prefix, wide has `w`, UTF-16 uses `c16` and UTF-32 uses `u`.
-Below the character `π` is used to represent the prefix.
-UTF-16 and UTF-32 require libunistring library.
-The prefix comes after `y` character in function names. So we have:
-
-- `char *normal    = yformatf("Hello");` for printing using normal strings
-- `wchar_t *wide   = ywformatf(L"Hello")` for printing using wide strings
-- `char16_t *utf16 = yc16formatf(u"Hello")` for printing using UTF-16 strings
-- `char32_t *utf32 = yuformatf(U"Hello")` for printing using UTF-32 strings
-
-To all options a `va_list` version is provided, which has letter `v` after mode prefix. For example `yuvformatf` or `yc16vprintf`.
+To all options a `va_list` version is provided, which has the letter `v` after the mode prefix. For example `yvformatf` or `yvprintf`.
 
 ### Features
 
@@ -175,10 +164,6 @@ Implemented:
     - the pointer is just converted to appropriate size integer type and printed as `{:#x}`
 - `struct tm` time formatting
     - the formatting string is straight passed to `strftime`
-- `wchar_t *`
-    - `s` specifier
-- `ypmon` for printing using `strfmon`
-    - formatting string is just passed to `strfmon`
 - Positional arguments `{1:{2}.{3}}` are implemented
 - `struct timeval` and `struct timespec`
     - format string ignored
@@ -188,9 +173,9 @@ Implemented:
 ### Namespaces
 
  - `y*` - Many "short" common public symbols, like `yprintf`, `ysnprintf`.
- - `yio_*` `ywio_*` `yc16io_*` `yuio_*` - Public internal functions, symbols for implementators of _custom modifiers_.
+ - `yio_*` - Public internal functions, symbols for implementators of _custom modifiers_.
  - `YIO_*` - Public symbols, macros, configuration options, constants, error codes.
- - `YYIO_*` `YYWIO_*` `YYC16IO_*` `YUIO_*` - All the plethora of private symbols that is used by the library.
+ - `YYIO_*` - All the plethora of private symbols that is used by the library.
 
 ### Examples :heart_eyes:
 
@@ -207,27 +192,25 @@ yprintf('The value of pi is approximately {:.3f}.\n{}', 3.14, ypcount(&count));
 yprintf("Above expression printed {} characters.\n", count);
 ```
 
-There are available, where `π` represents mode prefix (see above):
+There are available:
 
-- `yπcount` - for getting the count of characters printed
-- `yπptlocaltime` - calls `localtime()` on `time_t` argument and prints it like `struct tm`
-- `yπptgtime` - as above, just calls `gmtime()`
-- `yπpwchar` - for printing a `wchar_t` variable, and
-- `yπpwstring` - for printing a `wchar_t` string
+- `ypcount` - for getting the count of characters printed
+- `yptlocaltime` - calls `localtime()` on `time_t` argument and prints it like `struct tm`
+- `yptgtime` - as above, just calls `gmtime()`
 
 ## Extending the library
 
-The argument to a callback function is solely `yπio_printctx_t`.
-Each callback function is _required_ to first call `yπio_printctx_va_arg` to "eat" the arguments and after that the callback function _has to_ call `yπio_printctx_t` and if it's argument is not zero, return it.
+The argument to a callback function is solely `yio_printctx_t`.
+Each callback function is _required_ to first call `yio_printctx_va_arg` to "eat" the arguments and after that the callback function _has to_ call `yio_printctx_t` and if its argument is not zero, return it.
 This is to ensure that `va_list` stack is properly managed and that "jumping" above `va_list` elements is properly done.
 
 #### Creating a custom callback.
 
-Callbacks are written with special `yiocb()` callback modifier function. An example can be found at [test/examples/yio_test_custom_type_slot.c](test/examples/yio_test_custom_type_slot.).
+Callbacks are written with special `yiocb()` callback modifier function. An example can be found at [examples/yio_example_custom_type_callback.c](examples/yio_example_custom_type_callback.c).
 
 ### Slots
 
-User can provide override for custom types in the form of "slot" macro expansions. An example is available at [test/examples/yio_test_custom_type_slot.c](test/examples/yio_test_custom_type_slot.c).
+User can provide override for custom types in the form of "slot" macro expansions. An example is available at [examples/yio_example_custom_type_callback.c](examples/yio_example_custom_type_callback.c).
 
 # Internal info
 
@@ -238,7 +221,7 @@ User can provide override for custom types in the form of "slot" macro expansion
 > [You should read more history books.](https://www.youtube.com/watch?v=tiiI5UbySSw)  
 > -- Captain Jean-Luc Picard :stars: :ship:
 
-So at first there was nothing. Then I learned about [overloading macro on number of arguments](https://stackoverflow.com/questions/11761703/overloading-macro-on-number-of-arguments) and of course abuot newest C11 addition - `_Generic`.
+So at first there was nothing. Then I learned about [overloading macro on number of arguments](https://stackoverflow.com/questions/11761703/overloading-macro-on-number-of-arguments) and of course about newest C11 addition - `_Generic`.
 
 > If you want to succeed, double your failure rate.  
 > -- Thomas J. Watson :computer:
