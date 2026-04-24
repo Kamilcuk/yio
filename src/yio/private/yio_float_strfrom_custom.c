@@ -140,7 +140,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, const int precision0, const cha
 #if FLT_RADIX == 2
 // if the precision is missing and FLT_RADIX is a power of 2,
 // then the precision is sufficient for an exact representation of the value
-			YYIO_FLOAT_MANT_DIG$1 / 4 + !!(YYIO_FLOAT_MANT_DIG$1 % 4);
+			YYIO_FLOAT_MANT_DIG$1 / 4 + ((YYIO_FLOAT_MANT_DIG$1 % 4) != 0);
 #else
 // if the precision is missing and FLT_RADIX is not a power of 2,
 // then the precision is sufficient to distinguish values of type double,

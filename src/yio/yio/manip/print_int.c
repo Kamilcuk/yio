@@ -79,13 +79,13 @@ int YYIO_print_$1_in(yio_printctx_t *t, $2 arg, bool is_negative) {
 		case 'o':
 		case 'O':
 			{
-				char buf[(sizeof($2) * CHAR_BIT) / 3 + !!((sizeof($2) * CHAR_BIT) % 3)];
+				char buf[(sizeof($2) * CHAR_BIT) / 3 + (((sizeof($2) * CHAR_BIT) % 3) != 0)];
 				return YYIO_print_$1_inradix(t, arg, is_negative, type, 8, buf, sizeof(buf));
 			}
 		case 'x':
 		case 'X':
 			{
-				char buf[(sizeof($2) * CHAR_BIT) / 4 + !!((sizeof($2) * CHAR_BIT) % 4)];
+				char buf[(sizeof($2) * CHAR_BIT) / 4 + (((sizeof($2) * CHAR_BIT) % 4) != 0)];
 				return YYIO_print_$1_inradix(t, arg, is_negative, type, 16, buf, sizeof(buf));
 			}
 		case 'b':

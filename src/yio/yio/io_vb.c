@@ -10,7 +10,6 @@
 #include "ctx.h"
 #include <assert.h>
 #include <stdlib.h>
-#include <ctype.h>
 
 /* yio_vbprintf helpers ------------------------------------------------------ */
 
@@ -24,32 +23,31 @@ static inline
 int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *t, const char fmt[restrict], const char **restrict endptr) {
 	const char *pos = fmt;
 	while (fmt[0] != '\0') {
-		//fprintf(stderr, "P1:pos=`%s` fmt=`%s`\n", pos, fmt);
-		if (fmt[0] == '{' || fmt[0] == '}') {
-			if (fmt[0] == fmt[1]) {
-				// double { { or } }
-				if (fmt != pos) {
-					//fprintf(stderr, "P2\n");
-					// If we are at start, we can flush already known characters,
-					// and continue one after.
-					const int err = YYIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt + 1);
-					if (err) return err;
-					pos = fmt + 2;
-					fmt = pos;
-				} else {
-					// We can optimize a bit - continue from the next character.
-					pos += 1;
-					fmt = pos + 1;
-				}
-				continue;
-			}
-			if (fmt[0] == '}') {
-				return YYIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
-			}
-			// {} or {:stuff} found
+		fmt += strcspn(fmt, "{}");
+		if (fmt[0] == '\0') {
 			break;
 		}
-		fmt++;
+		if (fmt[0] == fmt[1]) {
+			// double { { or } }
+			if (fmt != pos) {
+				// If we are at start, we can flush already known characters,
+				// and continue one after.
+				const int err = YYIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt + 1);
+				if (err) return err;
+				pos = fmt + 2;
+				fmt = pos;
+			} else {
+				// We can optimize a bit - continue from the next character.
+				pos += 1;
+				fmt = pos + 1;
+			}
+			continue;
+		}
+		if (fmt[0] == '}') {
+			return YYIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
+		}
+		// {} or {:stuff} found
+		break;
 	}
 	if (fmt != pos) {
 		// Flush skipped characters up until now.
@@ -86,7 +84,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		t->fmt++;
 		//
 		t->pf = YYIO_printfmt_default;
-		if (isdigit((unsigned char)(t->fmt[0]))) {
+		if (YYIO_ISDIGIT(t->fmt[0])) {
 			YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&t->fmt));
 		}
 		if (t->fmt[0] == '!') {

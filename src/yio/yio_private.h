@@ -9,6 +9,7 @@
 #define YYIO_YIO_YIO_PRIVATE_H_
 #include "yio_public.h"
 #include <string.h>
+#include <stdbool.h>
 
 #ifndef YYIO_PRIVATE
 #error YYIO_PRIVATE
@@ -68,5 +69,33 @@
  * @short Is used to automatically parse and register an error code with description.
  */
 #define YYIO_ERROR(ENUM, DESC)  ENUM
+
+/**
+ * @def YYIO_ISDIGIT
+ * @brief Fastest check if a character is a digit.
+ */
+#define YYIO_ISDIGIT(c) ((unsigned char)(c) - '0' <= 9u)
+
+/**
+ * @def YYIO_ISXDIGIT
+ * @brief Fastest check if a character is a hex digit.
+ */
+#define YYIO_ISXDIGIT(c) (YYIO_ISDIGIT(c) || YYIO_ANYEQ(((unsigned char)(c) | 32), 'a', 'b', 'c', 'd', 'e', 'f'))
+
+/**
+ * @def YYIO_ANYEQ
+ * @brief Checks if a value is equal to any of the arguments.
+ */
+#define YYIO_GET_COUNT(_1, _2, _3, _4, _5, _6, _7, _8, N, ...) N
+#define YYIO_COUNT_ARGS(...) YYIO_GET_COUNT(__VA_ARGS__, 8, 7, 6, 5, 4, 3, 2, 1)
+
+static inline bool YYIO_anyeq1(unsigned char v, unsigned char a) { return v == a; }
+static inline bool YYIO_anyeq2(unsigned char v, unsigned char a, unsigned char b) { return v == a || v == b; }
+static inline bool YYIO_anyeq3(unsigned char v, unsigned char a, unsigned char b, unsigned char c) { return v == a || v == b || v == c; }
+static inline bool YYIO_anyeq4(unsigned char v, unsigned char a, unsigned char b, unsigned char c, unsigned char d) { return v == a || v == b || v == c || v == d; }
+static inline bool YYIO_anyeq5(unsigned char v, unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e) { return v == a || v == b || v == c || v == d || v == e; }
+static inline bool YYIO_anyeq6(unsigned char v, unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e, unsigned char f) { return v == a || v == b || v == c || v == d || v == e || v == f; }
+
+#define YYIO_ANYEQ(v, ...) YYIO_XCONCAT(YYIO_anyeq, YYIO_COUNT_ARGS(__VA_ARGS__))(v, __VA_ARGS__)
 
 #endif /* YYIO_YIO_YIO_PRIVATE_H_ */

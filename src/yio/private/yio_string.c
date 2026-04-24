@@ -7,10 +7,10 @@
  * @brief
  */
 #include "yio_string.h"
+#include "private.h"
 #include "../yio_error.h"
 #include <stddef.h>
 #include <stdbool.h>
-#include <ctype.h>
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -86,7 +86,7 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 	while (p != data && *p == '0') {
 		--p;
 	}
-	assert(isdigit((unsigned char)*p) || *p == '.' || strchr("abcdefABCDEF", *p));
+	assert(YYIO_ISXDIGIT((unsigned char)*p) || *p == '.');
 	if (*p != '.') {
 		++p;
 	} else {

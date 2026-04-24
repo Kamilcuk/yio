@@ -20,7 +20,6 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <ctype.h>
 #include <limits.h>
 #include <stdlib.h>
 #ifndef YIO_USE_LOCALE
@@ -73,13 +72,13 @@ int YYIO_skip_do(yio_printctx_t *t) {
 
 static inline
 int YYIO_digit_to_number(char d) {
-	assert(isdigit((unsigned char)(d)));
+	assert(YYIO_ISDIGIT(d));
 	return d - '0';
 }
 
 int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 	const char *fmt = *fmtpnt;
-	assert(isdigit((unsigned char)(fmt[0])));
+	assert(YYIO_ISDIGIT(fmt[0]));
 	int num = 0;
 	do {
 		assert(num < INT_MAX / 10);
@@ -88,7 +87,7 @@ int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 		assert(num < INT_MAX - c);
 		num += c;
 		++fmt;
-	} while (isdigit((unsigned char)(fmt[0])));
+	} while (YYIO_ISDIGIT(fmt[0]));
 	*fmtpnt = fmt;
 	return num;
 }
@@ -97,8 +96,8 @@ static inline
 int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, int *res) {
 	assert(fmt[0] == '{');
 	fmt++;
-	if (isdigit((unsigned char)(fmt[0]))) {
-		YYIO_skip_arm(t, YYIO_printctx_strtoi_noerr(&fmt));
+	if (YYIO_ISDIGIT(fmt[0])) {
+		YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&fmt));
 		const int skiperr = YYIO_skip_do(t);
 		if (skiperr) return skiperr;
 	}
@@ -132,7 +131,7 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **e
 	if (fmt[0] == '{') {
 		const int ret = YYIO_printctx_take_positional_param(t, fmt, endptr, res);
 		if (ret) return ret;
-	} else if (isdigit((unsigned char)(fmt[0]))) {
+	} else if (YYIO_ISDIGIT(fmt[0])) {
 		*res = YYIO_printctx_strtoi_noerr(&fmt);
 		*endptr = fmt;
 	} else {
@@ -140,10 +139,6 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **e
 		*endptr = fmt;
 	}
 	return 0;
-}
-
-bool YYIO_strnulchrbool(const char *s, char c) {
-	return c != '\0' && strchr(s, c) != NULL;
 }
 
 int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
@@ -161,10 +156,10 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 	 */
 
 	// fill and align must be first
-	if (fmt[0] != '\0' && YYIO_strnulchrbool("<>=^", fmt[1])) {
+	if (fmt[0] != '\0' && YYIO_ANYEQ(fmt[1], '<', '>', '=', '^')) {
 		pf->fill = fmt++[0];
 		pf->align = fmt++[0];
-	} else if (YYIO_strnulchrbool("<>=^", fmt[0])) {
+	} else if (YYIO_ANYEQ(fmt[0], '<', '>', '=', '^')) {
 		pf->align = fmt++[0];
 	}
 
@@ -419,7 +414,7 @@ int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
 	const size_t width = f->width > 0 ? f->width : 0;
 	if ((f->align == YYIO_ALIGN_LEFT || f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
-		size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + !!(tmp % 2) : tmp;
+		size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + (tmp % 2) : tmp;
 		while (diff--) {
 			const int err = yio_printctx_raw_write(t, &f->fill, 1);
 			if (err) return err;
@@ -450,7 +445,7 @@ const char *get_group(yio_printctx_t *t) {
 	}
 #endif
 	//dbgln("HERE %c", (int)t->pf.type);
-	return YYIO_strnulchrbool("bBxX", t->pf.type) ? GROUP4 : GROUP3;
+	return YYIO_ANYEQ(t->pf.type, 'b', 'B', 'x', 'X') ? GROUP4 : GROUP3;
 }
 
 struct numsep {
@@ -622,7 +617,12 @@ int YYIO_printformat_print(YYIO_printformat_t *pf, const char str[], size_t str_
 
 static inline
 bool is_one_of_or_nul(char c, const char *str) {
-	return c == '\0' || YYIO_strnulchrbool(str, c);
+	if (c == '\0') return true;
+	if (str[0] == '<') return YYIO_ANYEQ(c, '<', '>', '=', '^');
+	if (str[0] == '+') return YYIO_ANYEQ(c, '+', '-', ' ');
+	if (str[0] == '_') return YYIO_ANYEQ(c, '_', ',', 'L');
+	if (str[0] == 'a') return c == 'a';
+	return false;
 }
 
 static inline
@@ -670,7 +670,7 @@ static const unsigned char four = 0xfU;
 static inline
 void ascii_encode_x(struct ss_s *ss, char cc, char next) {
 	static_assert(CHAR_BIT == 8, "Really? TODO");
-	const bool nextdigit = !!isxdigit((unsigned char)(next));
+	const bool nextdigit = YYIO_ISXDIGIT(next);
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
@@ -687,7 +687,7 @@ void ascii_encode_x(struct ss_s *ss, char cc, char next) {
 static inline
 void ascii_encode_o(struct ss_s *ss, char cc, char next) {
 	static const unsigned char three = 0x7U;
-	const bool nextdigit = !!isdigit((unsigned char)(next));
+	const bool nextdigit = YYIO_ISDIGIT(next);
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
@@ -704,7 +704,7 @@ void ascii_encode_o(struct ss_s *ss, char cc, char next) {
 
 static inline
 void ascii_encode_u(struct ss_s *ss, char cc, char next) {
-	const bool nextdigit = !!isxdigit((unsigned char)(next));
+	const bool nextdigit = YYIO_ISXDIGIT(next);
 	ss_out(ss, '\\');
 	ss_out(ss, 'u');
 	for (unsigned ii = 4U * 3U; ii > 0U; ii -= 4U) {
@@ -717,7 +717,7 @@ void ascii_encode_u(struct ss_s *ss, char cc, char next) {
 
 static inline
 void ascii_encode_U(struct ss_s *ss, char cc, char next) {
-	const bool nextdigit = !!isxdigit((unsigned char)(next));
+	const bool nextdigit = YYIO_ISXDIGIT(next);
 	ss_out(ss, '\\');
 	ss_out(ss, 'U');
 	for (unsigned ii = 4U * 7U; ii > 0U; ii -= 4U) {

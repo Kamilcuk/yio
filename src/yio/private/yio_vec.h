@@ -13,7 +13,6 @@
 #include "private.h"
 #include <stddef.h>
 #include <stdbool.h>
-#include <ctype.h>
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
@@ -128,7 +127,7 @@ bool YYIO_vec_remove_trailing_zeros(YYIO_vec *t) {
 	while (*p == '0' && p != t->beg) {
 		--p;
 	}
-	assert(isdigit((unsigned char)*p) || *p == '.');
+	assert(YYIO_ISDIGIT((unsigned char)*p) || *p == '.');
 	if (*p != '.') {
 		++p;
 	} else {

@@ -29,10 +29,10 @@ int YYIO_print_time_parse_format(yio_printctx_t *t, const char **beginptr, const
 	if (fmt != NULL) {
 		if (fmt[0] != '\0') {
 			// guess [[fill]align]
-			if (YYIO_strnulchrbool("<>=^", fmt[1])) {
+			if (YYIO_ANYEQ(fmt[1], '<', '>', '=', '^')) {
 				pf->fill = fmt++[0];
 				pf->align = fmt++[0];
-			} else if (YYIO_strnulchrbool("<>=^", fmt[0])) {
+			} else if (YYIO_ANYEQ(fmt[0], '<', '>', '=', '^')) {
 				pf->align = fmt++[0];
 			}
 		}
