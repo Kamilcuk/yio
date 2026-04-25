@@ -26,3 +26,4 @@ __pycache__
 coverage
 tmp/
 plan.md
+_build*

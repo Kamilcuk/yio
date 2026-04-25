@@ -133,6 +133,16 @@ test: build testonly
 testonly:
 	ulimit -c 0 ; cd $(B) && $(CTEST) $(TESTFLAGS) $(CTESTFLAGS)
 
+HELP +=~ benchmark_setup - Setup environment for hardware counters (requires sudo)
+benchmark_setup:
+	sudo sysctl -w kernel.perf_event_paranoid=-1
+
+HELP +=~ benchmark - Run benchmarks
+benchmark: CMAKE_BUILD_TYPE = Release
+benchmark: CMAKEFLAGS += -DYIO_BUILD_BENCHMARKS=ON
+benchmark: .build_yio_benchmark
+	taskset -c $$(($(shell nproc) - 1)) $(B)/bin/yio_benchmark --benchmark_repetitions=10 --benchmark_min_time=0.1s --benchmark_display_aggregates_only=true
+
 TESTPROGRAM ?=
 testprogram: export TESTPROGRAM := $(TESTPROGRAM)
 testprogram: R = yio_testprogram

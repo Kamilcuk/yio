@@ -86,7 +86,7 @@ if(YIO_DEV)
 		)
 	endif()
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		if(NOT YIO_CLANG_TIDY)
+		if(NOT YIO_CLANG_TIDY AND NOT YIO_BUILD_BENCHMARKS)
 			check_c_compiler_flag(-fanalyzer HAS_ANALYZER)
 			if(HAS_ANALYZER)
 				add_compile_options(-fanalyzer)
@@ -98,7 +98,7 @@ if(YIO_DEV)
 		endif()
 		add_compile_definitions(_FORTIFY_SOURCE=2)
 		add_compile_options(
-			-Wmissing-prototypes
+			$<$<COMPILE_LANGUAGE:C>:-Wmissing-prototypes>
 			-O  # _FORTIFY_SOURCE needs it
 		)
 	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
@@ -293,6 +293,8 @@ endfunction()
 
 ###############################################################################
 
+option(YIO_BUILD_BENCHMARKS "Build benchmarks" OFF)
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
 
 add_subdirectory(src)
@@ -302,6 +304,10 @@ if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
   add_subdirectory(./third_party/sstest EXCLUDE_FROM_ALL)
 	add_subdirectory(./test)
 	add_subdirectory(./examples)
+endif()
+
+if(YIO_BUILD_BENCHMARKS)
+    add_subdirectory(benchmark)
 endif()
 
 yio_jinja_finalize()
