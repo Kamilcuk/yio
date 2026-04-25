@@ -37,7 +37,7 @@ static inline
 void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision, char spec) {
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
-	if (precision >= 0) {
+	if (yio_precision_isset(precision)) {
 		*fmtpnt++ = '.';
 		const int len = yio_sprint(fmtpnt, INT_MAX, precision);
 		(void)len;

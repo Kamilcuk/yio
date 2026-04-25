@@ -51,7 +51,7 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t) {
 	int ret = yio_printctx_init(t);
 	if (ret) return ret;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	const size_t ws_len = pf->precision >= 0 ? YYIO_wstrnlen(ws, pf->precision) : wcslen(ws);
+	const size_t ws_len = yio_precision_isset(pf->precision) ? YYIO_wstrnlen(ws, pf->precision) : wcslen(ws);
 	const char *dst = NULL;
 	size_t dst_len = 0;
 	ret = YYIO_strconv_wstr_to_str(ws, ws_len, &dst, &dst_len);

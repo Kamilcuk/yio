@@ -97,10 +97,10 @@ int YYIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 				v <<= 1;
 				--exponent;
 			}
-			precision = precision0 < 0 ? ((int)sizeof(v) * CHAR_BIT / 4 - 1) : precision0;
+			precision = !yio_precision_isset(precision0) ? ((int)sizeof(v) * CHAR_BIT / 4 - 1) : precision0;
 			exponent += ibit - 4;
 		} else {
-			precision = precision0 < 0 ? 0 : precision0;
+			precision = !yio_precision_isset(precision0) ? 0 : precision0;
 		}
 
 		const int digits = precision + 1;
@@ -112,7 +112,7 @@ int YYIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 		}
 
 		for (int i = 0; i < digits; ++i) {
-			if (precision0 < 0 && v == 0 && i > 0) {
+			if (!yio_precision_isset(precision0) && v == 0 && i > 0) {
 				break;
 			}
 			const int c = v >> (sizeof(v) * CHAR_BIT - 4);

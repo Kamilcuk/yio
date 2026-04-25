@@ -14,7 +14,7 @@ int YYIO_print_constchar16pnt(yio_printctx_t *t) {
 	int err = yio_printctx_init(t);
 	if (err) return err;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	const size_t len = YYIO_c16strnlen(str, pf->precision >= 0 ? (size_t)pf->precision : SIZE_MAX);
+	const size_t len = YYIO_c16strnlen(str, yio_precision_isset(pf->precision) ? pf->precision : SIZE_MAX);
 	const char *dest = NULL;
 	size_t dest_len = 0;
 	err = YYIO_strconv_c16str_to_str(str, len, &dest, &dest_len);
@@ -30,7 +30,7 @@ int YYIO_print_constchar32pnt(yio_printctx_t *t) {
 	int err = yio_printctx_init(t);
 	if (err) return err;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	const size_t len = YYIO_ustrnlen(str, pf->precision >= 0 ? (size_t)pf->precision : SIZE_MAX);
+	const size_t len = YYIO_ustrnlen(str, yio_precision_isset(pf->precision) ? pf->precision : SIZE_MAX);
 	const char *dest = NULL;
 	size_t dest_len = 0;
 	err = YYIO_strconv_ustr_to_str(str, len, &dest, &dest_len);

@@ -187,7 +187,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, const int precision0, const cha
 	// The printed exponent is one less, cause of the initial digit!
 	int exponent = 0;
 
-	if (precision0 < 0) {
+	if (!yio_precision_isset(precision0)) {
 		if (spec0lower == 'a') {
 			precision = a_max_precision;
 		} else {

@@ -57,7 +57,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 	if (err) return err;
 
 	char *valstr = NULL;
-	if (precision < 0) {
+	if (!yio_precision_isset(precision)) {
 		char *fmt = NULL;
 		err = asprintf(&fmt, "%%" YYIO_FLOAT_PRI$1 "%c", type);
 		YIO_TESTEXPR(err > 0, "asprintf(&fmt, ...) failed err=%d", err);

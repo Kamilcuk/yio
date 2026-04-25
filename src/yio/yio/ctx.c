@@ -40,12 +40,7 @@ static const char YYIO_SIGN_ALWAYS = '+';
 //static const char YYIO_SIGN_NEGATIVE = '-';
 static const char YYIO_SIGN_ALWAYSSPACE = ' ';
 
-const struct yio_printfmt_s YYIO_printfmt_default = {
-		.width = -1,
-		.precision = -1,
-		.fill = ' ',
-		.sign = '-',
-};
+static const uint8_t YYIO_LIMIT_MAX = 254;
 
 /* ------------------------------------------------------------------------- */
 
@@ -93,7 +88,7 @@ int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 }
 
 static inline
-int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, int *res) {
+int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
 	assert(fmt[0] == '{');
 	fmt++;
 	if (YYIO_isdigit(fmt[0])) {
@@ -120,8 +115,8 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 	else if (ifunc == &YYIO_print_llong)  num = yio_printctx_va_arg(t, long long);
 	else if (ifunc == &YYIO_print_ullong) num = yio_printctx_va_arg(t, unsigned long long);
 #if YYIO_HAS_INT128
-	else if (ifunc == &YYIO_print___int128)  num = (int)yio_printctx_va_arg(t, __int128);
-	else if (ifunc == &YYIO_print_u__int128) num = (int)yio_printctx_va_arg(t, unsigned __int128);
+	else if (ifunc == &YYIO_print___int128)  num = yio_printctx_va_arg(t, __int128);
+	else if (ifunc == &YYIO_print_u__int128) num = yio_printctx_va_arg(t, unsigned __int128);
 #endif
 	else return YYIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number");
 	if (fmt++[0] != '}') {
@@ -131,16 +126,17 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NEGATIVE, "positional width or precision specifier cannot be negative");
 	}
 	*endptr = fmt;
-	*res = num;
+	*res = num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num;
 	return 0;
 }
 
-int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, int *res) {
+int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
 	if (fmt[0] == '{') {
 		const int ret = YYIO_printctx_take_positional_param(t, fmt, endptr, res);
 		if (ret) return ret;
 	} else if (YYIO_isdigit(fmt[0])) {
-		*res = YYIO_printctx_strtoi_noerr(&fmt);
+		const int num = YYIO_printctx_strtoi_noerr(&fmt);
+		*res = num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num;
 		*endptr = fmt;
 	} else {
 		// do nothing
@@ -395,7 +391,7 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 					f->sign == YYIO_SIGN_ALWAYSSPACE || is_positive == false);
 	const size_t alllen = len + (size_t)( 2U * has_hash + has_sign );
 	*alllen0 = alllen;
-	const size_t width = f->width > 0 ? f->width : 0;
+	const size_t width = yio_width_isset(f->width) ? f->width : 0;
 
 	if (f->align == '\0') {
 		// The default for numbers is right, otherwise it's left.
@@ -431,7 +427,7 @@ int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
 	yio_printctx_t * const t = pf->t;
 	struct yio_printfmt_s * const f = &pf->t->pf;
 	const size_t alllen = pf->alllen;
-	const size_t width = f->width > 0 ? f->width : 0;
+	const size_t width = yio_width_isset(f->width) ? f->width : 0;
 	if ((f->align == YYIO_ALIGN_LEFT || f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
 		const size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + (tmp % 2) : tmp;

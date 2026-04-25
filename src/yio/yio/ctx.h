@@ -25,10 +25,10 @@
 
 /// Printing formatting options.
 struct yio_printfmt_s {
-	/// The field width. -1 when unset.
-	int width;
-	/// The field precision. -1 when unset.
-	int precision;
+	/// The field width. (uint8_t)-1 when unset. Values capped at 254.
+	uint8_t width;
+	/// The field precision. (uint8_t)-1 when unset. Values capped at 254.
+	uint8_t precision;
 	/// Filling character.
 	char fill;
 	/// May be one of '<' '>' '^' '=' characters or 0 when unset.
@@ -46,9 +46,32 @@ struct yio_printfmt_s {
 };
 
 /**
+ * Check if width is set in the formatting options.
+ * @param width The width value.
+ * @return true if width is set, false if it is unset.
+ */
+static inline bool yio_width_isset(uint8_t width) {
+	return width != (uint8_t)-1;
+}
+
+/**
+ * Check if precision is set in the formatting options.
+ * @param precision The precision value.
+ * @return true if precision is set, false if it is unset.
+ */
+static inline bool yio_precision_isset(uint8_t precision) {
+	return precision != (uint8_t)-1;
+}
+
+/**
  * The default values of printfmt.
  */
-extern const struct yio_printfmt_s YYIO_printfmt_default;
+static const struct yio_printfmt_s YYIO_printfmt_default = {
+		.width = -1,
+		.precision = -1,
+		.fill = ' ',
+		.sign = '-',
+};
 
 /**
  * Print context.
@@ -135,7 +158,7 @@ int YYIO_printctx_strtoi_noerr(const char **ptr);
  * Parse the width or precision param, that can be either a number of a positional parameter.
  */
 int YYIO_printctx_stdintparam(yio_printctx_t *t,
-		const char *ptr, const char **endptr, int *res);
+		const char *ptr, const char **endptr, uint8_t *res);
 
 /**
  * Check if @c c is not nul and is one of characters in @c s.
