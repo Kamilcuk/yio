@@ -248,6 +248,7 @@ function(jinja_generate)
 	endif()
 
 	# Handle CMake dependencies for the target
+	set_source_files_properties("${A_OUTPUT}" PROPERTIES GENERATED TRUE)
 	set_property(TARGET "${A_TARGET}" APPEND PROPERTY SOURCES "${A_OUTPUT}")
 	add_dependencies(yio_gen ${A_TARGET})
 

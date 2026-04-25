@@ -29,10 +29,9 @@
 /**
  * Convert the floating number val according to specified precision
  * and specification using method written by myself.
- * @param resultp @see YYIO_vec
- * @param lengthp @see YYIO_vec
- * @param precision Negative if unset
- * @param spec a, A, e, E, f, F, g, or G
+ * @param v @see YYIO_string
+ * @param precision0 Negative if unset
+ * @param spec0 a, A, e, E, f, F, g, or G
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
