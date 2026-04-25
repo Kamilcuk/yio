@@ -507,13 +507,7 @@ int print_dot(yio_printctx_t *t) {
 	if (t->pf.grouping == 'L') {
 		const char *dot = nl_langinfo(RADIXCHAR); // DECIMAL_POINT
 		if (dot == NULL) return 0;
-		const char *tmpstr = NULL;
-		size_t tmpstrlen = 0;
-		int err = YYIO_strconv_str_to_str(dot, strlen(dot), &tmpstr, &tmpstrlen);
-		if (err) return err;
-		err = yio_printctx_raw_write(t, tmpstr, tmpstrlen);
-		YYIO_strconv_free_str_to_str(dot, tmpstr);
-		return err;
+		return yio_printctx_raw_write(t, dot, strlen(dot));
 	}
 #endif
 	const char DEFAULT_DOT[1] = { '.' };

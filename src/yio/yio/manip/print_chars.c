@@ -7,6 +7,18 @@
  */
 #include "private.h"
 
+static size_t YYIO_strnlen(const char *str, size_t maxlen) {
+#if YYIO_HAS_strnlen
+	return strnlen(str, maxlen);
+#else
+	const char *str0 = str;
+	while (maxlen-- > 0 && *str) {
+		++str;
+	}
+	return str - str0;
+#endif
+}
+
 int YYIO_print_char(yio_printctx_t *t) {
 	const int arg = yio_printctx_va_arg_promote(t, char);
 	const int err = yio_printctx_init(t);

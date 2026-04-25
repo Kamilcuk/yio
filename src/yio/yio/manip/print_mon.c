@@ -12,7 +12,6 @@
 #endif
 #if YYIO_HAS_MONETARY_H
 #include "../../private/yio_allochelp.h"
-#include "../../private/yio_strlib.h"
 #include "print_mon.h"
 #include <monetary.h>
 #include <assert.h>

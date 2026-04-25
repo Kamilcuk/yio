@@ -353,7 +353,6 @@ endif()
 set(_lintsrcs ${_gensrcs})
 list(FILTER _lintsrcs EXCLUDE REGEX ".*yio_error_gen.*")
 list(FILTER _lintsrcs EXCLUDE REGEX ".*/yio/private.h")
-list(FILTER _lintsrcs EXCLUDE REGEX ".*/yio_strlib.h")
 #list(FILTER _lintsrcs EXCLUDE REGEX ".*\\.h")
 
 function(yio_add_linter A_NAME)

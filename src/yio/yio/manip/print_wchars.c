@@ -7,24 +7,68 @@
  * @brief
  */
 #include "private.h"
+#if YIO_HAS_WCHAR_H
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <wchar.h>
+
+static int wstr_to_yyiostring(const wchar_t *ws, size_t ws_maxlen, YYIO_string *out) {
+	mbstate_t state;
+	memset(&state, 0, sizeof(state));
+	const size_t mb_cur_max = MB_CUR_MAX;
+#if YYIO_HAS_wcsnrtombs
+	const wchar_t *psrc = ws;
+	while (psrc != NULL && ws_maxlen > 0) {
+		if (YYIO_string_free_size(out) < mb_cur_max) {
+			const int err = YYIO_string_reserve_more(out);
+			if (err) return err;
+		}
+		const size_t cap = YYIO_string_free_size(out);
+		const wchar_t *const psrc_old = psrc;
+		const size_t r = wcsnrtombs(YYIO_string_data(out) + YYIO_string_len(out), &psrc, ws_maxlen, cap, &state);
+		if (r == (size_t)-1) return YIO_ERROR_WCRTOMB;
+		YYIO_string_set_used(out, YYIO_string_len(out) + r);
+		if (psrc == NULL) break; // L'\0' reached
+		const size_t consumed = (size_t)(psrc - psrc_old);
+		if (consumed >= ws_maxlen) break;
+		ws_maxlen -= consumed;
+		if (r == 0 && consumed == 0) {
+			// Buffer too small to even convert one character? Should not happen due to caching.
+			const int err = YYIO_string_reserve_more(out);
+			if (err) return err;
+		}
+	}
+#else
+	for (size_t i = 0; i < ws_maxlen && ws[i] != L'\0'; ++i) {
+		if (YYIO_string_free_size(out) < mb_cur_max) {
+			const int err = YYIO_string_reserve_more(out);
+			if (err) return err;
+		}
+		const size_t r = wcrtomb(YYIO_string_data(out) + YYIO_string_len(out), ws[i], &state);
+		if (r == (size_t)-1) return YIO_ERROR_WCRTOMB;
+		YYIO_string_set_used(out, YYIO_string_len(out) + r);
+	}
+#endif
+	return 0;
+}
 
 int YYIO_print_wchar(yio_printctx_t *t) {
 	const wchar_t wc = yio_printctx_va_arg(t, wchar_t);
 	int ret = yio_printctx_init(t);
 	if (ret) return ret;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	const char *dst = NULL;
-	size_t dst_len = 0;
 	switch (pf->type) {
 	case '\0':
-	case 'c':
-		ret = YYIO_strconv_wstr_to_str(&wc, 1, &dst, &dst_len);
-		if (ret) return ret;
-		ret = yio_printctx_put(t, dst, dst_len);
-		YYIO_strconv_free_wstr_to_str(&wc, dst);
-		break;
+	case 'c': {
+		char buf[MB_LEN_MAX];
+		mbstate_t state;
+		memset(&state, 0, sizeof(state));
+		const size_t r = wcrtomb(buf, wc, &state);
+		if (r == (size_t)-1) return YIO_ERROR_WCRTOMB;
+		return yio_printctx_put(t, buf, r);
+	}
 	case 'b':
 	case 'B':
 	case 'd':
@@ -32,11 +76,11 @@ int YYIO_print_wchar(yio_printctx_t *t) {
 	case 'x':
 	case 'X':
 #if WCHAR_MAX <= UINT_MAX
-		ret = YYIO_print_uint_in(t, wc, false);
+		ret = YYIO_print_uint_in(t, (unsigned int)wc, false);
 #elif WCHAR_MAX <= ULONG_MAX
-		ret = YYIO_print_ulong_in(t, wc, false);
+		ret = YYIO_print_ulong_in(t, (unsigned long)wc, false);
 #else
-		ret = YYIO_print_ullong_in(t, wc, false);
+		ret = YYIO_print_ullong_in(t, (unsigned long long)wc, false);
 #endif
 		break;
 	default:
@@ -51,13 +95,16 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t) {
 	int ret = yio_printctx_init(t);
 	if (ret) return ret;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	const size_t ws_len = yio_precision_isset(pf->precision) ? YYIO_wstrnlen(ws, pf->precision) : wcslen(ws);
-	const char *dst = NULL;
-	size_t dst_len = 0;
-	ret = YYIO_strconv_wstr_to_str(ws, ws_len, &dst, &dst_len);
-	if (ret) return ret;
-	ret = yio_printctx_put(t, dst, dst_len);
-	YYIO_strconv_free_wstr_to_str(ws, dst);
+	if (pf->type != '\0' && pf->type != 's') return YIO_ERROR_INVALID_TYPE;
+	const size_t ws_maxlen = yio_precision_isset(pf->precision) ? (size_t)pf->precision : SIZE_MAX;
+	YYIO_string out;
+	YYIO_string_init(&out);
+	ret = wstr_to_yyiostring(ws, ws_maxlen, &out);
+	if (ret == 0) {
+		ret = yio_printctx_put(t, YYIO_string_data(&out), YYIO_string_len(&out));
+	}
+	YYIO_string_end(&out);
 	return ret;
 }
 
+#endif

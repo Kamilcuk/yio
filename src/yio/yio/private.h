@@ -8,7 +8,6 @@
  */
 #include "public.h"
 #include "../yio_private.h"
-#include "../private/yio_strlib.h"
 #include <string.h>
 #include <limits.h>
 
