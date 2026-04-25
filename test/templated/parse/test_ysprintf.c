@@ -37,5 +37,15 @@ int main() {
 	YIO_TESTEXPR(err < 0);
 	YIO_TESTEXPR(strcmp(buf, "") == 0);
 
+	{
+		char buf2[11];
+		buf2[10] = 'A'; // Canary
+		err = yio_sprintf(buf2, 10, "{}{}", "12345", "67890123");
+		YIO_TESTEXPR(err < 0);
+		YIO_TESTEXPR(buf2[10] == 'A', "Buffer overflow detected! Canary corrupted.");
+		YIO_TESTEXPR(strlen(buf2) == 9);
+		YIO_TESTEXPR(strcmp(buf2, "123456789") == 0);
+	}
+
 	return 0;
 }

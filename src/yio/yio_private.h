@@ -15,6 +15,32 @@
 #error YYIO_PRIVATE
 #endif
 
+/**
+ * @def YYIO_INIT_CAPACITY
+ * @brief Initial capacity for dynamic string allocations and temporary stack buffers.
+ *
+ * 32 bytes is a reasonable trade-off: it is small enough to avoid significant memory
+ * waste for very short strings, yet large enough to handle many common formatted
+ * outputs (such as small integers, pointers, or short labels) and typical padding
+ * requirements without immediate reallocation or excessive tiny writes.
+ */
+#define YYIO_INIT_CAPACITY  32
+
+/**
+ * @def YYIO_GOLDEN_INCREASE
+ * @brief Increase the size of a dynamically allocated array using a rational approximation of the golden ratio (1.625).
+ *
+ * Using a growth factor less than 2 (specifically around 1.5 to 1.618) allows for the reuse of
+ * previously freed memory blocks. With a factor of 2, the next allocation is always larger than
+ * the sum of all previous allocations, making it impossible to reuse the "hole" left behind by
+ * previous blocks even if they were adjacent.
+ *
+ * Rational approximation: 13/8 = 1.625.
+ *
+ * @see https://stackoverflow.com/questions/1100311/what-is-the-ideal-growth-rate-for-a-dynamically-allocated-array
+ */
+#define YYIO_GOLDEN_INCREASE(x) ((x) * 13 / 8)
+
 // https://www.wolframalpha.com/input/?i=ceiling%28log_10%282%5Ex%29%29+for+x+%3D+1+to+256
 #define YYIO_LOG10_POW2(x) ( \
 		(x) < 3   ? 1  : (x) < 6   ? 2  : (x) < 9   ? 3  : (x) < 13  ? 4  : (x) < 16  ? 5  : \
@@ -71,16 +97,19 @@
 #define YYIO_ERROR(ENUM, DESC)  ENUM
 
 /**
- * @def YYIO_ISDIGIT
+ * @def YYIO_isdigit
  * @brief Fastest check if a character is a digit.
  */
-#define YYIO_ISDIGIT(c) ((unsigned char)(c) - '0' <= 9u)
+static inline bool YYIO_isdigit(char c) { return (unsigned int)((unsigned char)c - '0') <= 9u; }
 
 /**
- * @def YYIO_ISXDIGIT
+ * @def YYIO_isxdigit
  * @brief Fastest check if a character is a hex digit.
  */
-#define YYIO_ISXDIGIT(c) (YYIO_ISDIGIT(c) || YYIO_ANYEQ(((unsigned char)(c) | 32), 'a', 'b', 'c', 'd', 'e', 'f'))
+static inline bool YYIO_isxdigit(char c) {
+	const unsigned char uc = (unsigned char)c;
+	return YYIO_isdigit(c) || ( (unsigned int)((uc | 32) - 'a') <= (unsigned int)('f' - 'a') );
+}
 
 /**
  * @def YYIO_ANYEQ
@@ -96,6 +125,6 @@ static inline bool YYIO_anyeq4(unsigned char v, unsigned char a, unsigned char b
 static inline bool YYIO_anyeq5(unsigned char v, unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e) { return v == a || v == b || v == c || v == d || v == e; }
 static inline bool YYIO_anyeq6(unsigned char v, unsigned char a, unsigned char b, unsigned char c, unsigned char d, unsigned char e, unsigned char f) { return v == a || v == b || v == c || v == d || v == e || v == f; }
 
-#define YYIO_ANYEQ(v, ...) YYIO_XCONCAT(YYIO_anyeq, YYIO_COUNT_ARGS(__VA_ARGS__))(v, __VA_ARGS__)
+#define YYIO_ANYEQ(v, ...) YYIO_XCONCAT(YYIO_anyeq, YYIO_COUNT_ARGS(__VA_ARGS__))(v, ##__VA_ARGS__)
 
 #endif /* YYIO_YIO_YIO_PRIVATE_H_ */

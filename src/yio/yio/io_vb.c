@@ -84,7 +84,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		t->fmt++;
 		//
 		t->pf = YYIO_printfmt_default;
-		if (YYIO_ISDIGIT(t->fmt[0])) {
+		if (YYIO_isdigit(t->fmt[0])) {
 			YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&t->fmt));
 		}
 		if (t->fmt[0] == '!') {

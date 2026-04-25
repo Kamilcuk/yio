@@ -40,22 +40,26 @@ int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
 
 int YYIO_string_reserve_more(YYIO_string *t) {
 	const size_t size = YYIO_string_capacity(t);
-	const size_t YYIO_string_init_chunk = 32;
-	assert(size < SIZE_MAX / 52);
-	// golden ratio
-	const size_t newsizecalc = size * 52 / 32;
-	const size_t newsize = newsizecalc > YYIO_string_init_chunk ? newsizecalc : YYIO_string_init_chunk;
+	const size_t init_chunk = YYIO_INIT_CAPACITY;
+	const size_t newsizecalc = YYIO_GOLDEN_INCREASE(size);
+	const size_t newsize = newsizecalc > init_chunk ? newsizecalc : init_chunk;
 	return YYIO_string_reserve(t, newsize);
 }
 
 int YYIO_string_putsn(YYIO_string *t, const char *ptr, size_t size) {
 	const size_t current_len = YYIO_string_len(t);
-	while (YYIO_string_free_size(t) < size) {
-		const int err = YYIO_string_reserve_more(t);
+	const size_t needed = current_len + size;
+	if (YYIO_string_capacity(t) < needed) {
+		const size_t cap = YYIO_string_capacity(t);
+		const size_t init_chunk = YYIO_INIT_CAPACITY;
+		size_t new_cap = YYIO_GOLDEN_INCREASE(cap);
+		if (new_cap < init_chunk) new_cap = init_chunk;
+		if (new_cap < needed) new_cap = needed;
+		const int err = YYIO_string_reserve(t, new_cap);
 		if (err) return err;
 	}
 	memcpy(YYIO_string_data(t) + current_len, ptr, size);
-	YYIO_string_set_used(t, current_len + size);
+	YYIO_string_set_used(t, needed);
 	return 0;
 }
 
@@ -86,7 +90,7 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 	while (p != data && *p == '0') {
 		--p;
 	}
-	assert(YYIO_ISXDIGIT((unsigned char)*p) || *p == '.');
+	assert(YYIO_isxdigit(*p) || *p == '.');
 	if (*p != '.') {
 		++p;
 	} else {

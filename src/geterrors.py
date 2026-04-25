@@ -13,15 +13,16 @@ from preprocess import save_if_changed
 
 log = logging.getLogger(__name__)
 
+
 @dataclass(frozen=True)
 class Err:
     enum: str
     msg: str
 
     def __post_init__(self):
-        assert self.enum.startswith(
-            "YIO_ERROR_"
-        ), f"{self.enum}: Argument to YYIO_ERROR does not start with YIO_ERROR"
+        assert self.enum.startswith("YIO_ERROR_"), (
+            f"{self.enum}: Argument to YYIO_ERROR does not start with YIO_ERROR"
+        )
 
 
 def get_all_errors_from_sources() -> List[Err]:
@@ -39,7 +40,7 @@ def get_all_errors_from_sources() -> List[Err]:
                 errors.add(Err(enum, msg))
         except Exception as e:
             log.warning(f"Could not read {path}: {e}")
-    
+
     # Sort for deterministic output
     return sorted(list(errors), key=lambda x: x.enum)
 

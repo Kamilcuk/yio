@@ -72,13 +72,13 @@ int YYIO_skip_do(yio_printctx_t *t) {
 
 static inline
 int YYIO_digit_to_number(char d) {
-	assert(YYIO_ISDIGIT(d));
+	assert(YYIO_isdigit(d));
 	return d - '0';
 }
 
 int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 	const char *fmt = *fmtpnt;
-	assert(YYIO_ISDIGIT(fmt[0]));
+	assert(YYIO_isdigit(fmt[0]));
 	int num = 0;
 	do {
 		assert(num < INT_MAX / 10);
@@ -87,7 +87,7 @@ int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 		assert(num < INT_MAX - c);
 		num += c;
 		++fmt;
-	} while (YYIO_ISDIGIT(fmt[0]));
+	} while (YYIO_isdigit(fmt[0]));
 	*fmtpnt = fmt;
 	return num;
 }
@@ -96,7 +96,7 @@ static inline
 int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, int *res) {
 	assert(fmt[0] == '{');
 	fmt++;
-	if (YYIO_ISDIGIT(fmt[0])) {
+	if (YYIO_isdigit(fmt[0])) {
 		YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&fmt));
 		const int skiperr = YYIO_skip_do(t);
 		if (skiperr) return skiperr;
@@ -131,7 +131,7 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **e
 	if (fmt[0] == '{') {
 		const int ret = YYIO_printctx_take_positional_param(t, fmt, endptr, res);
 		if (ret) return ret;
-	} else if (YYIO_ISDIGIT(fmt[0])) {
+	} else if (YYIO_isdigit(fmt[0])) {
 		*res = YYIO_printctx_strtoi_noerr(&fmt);
 		*endptr = fmt;
 	} else {
@@ -307,6 +307,20 @@ size_t YYIO_width(const char *str, size_t str_len) {
 #endif
 }
 
+static inline
+int YYIO_printctx_pad_write(yio_printctx_t *t, char fill, size_t count) {
+	if (count == 0) return 0;
+	char buf[YYIO_INIT_CAPACITY];
+	memset(buf, fill, count < sizeof(buf) ? count : sizeof(buf));
+	while (count > 0) {
+		const size_t chunk = count < sizeof(buf) ? count : sizeof(buf);
+		const int err = yio_printctx_raw_write(t, buf, chunk);
+		if (err) return err;
+		count -= chunk;
+	}
+	return 0;
+}
+
 typedef struct YYIO_printformat_t {
 	yio_printctx_t *t;
 	size_t str_len;
@@ -390,11 +404,9 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 			f->align == YYIO_ALIGN_RIGHT ||
 			f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = width - alllen;
-		size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 : tmp;
-		while (diff--) {
-			const int err = yio_printctx_raw_write(t, &f->fill, 1);
-			if (err) return err;
-		}
+		const size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 : tmp;
+		const int err = YYIO_printctx_pad_write(t, f->fill, diff);
+		if (err) return err;
 	}
 
 	if (f->align != YYIO_ALIGN_PADSIGN) {
@@ -414,11 +426,8 @@ int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
 	const size_t width = f->width > 0 ? f->width : 0;
 	if ((f->align == YYIO_ALIGN_LEFT || f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
-		size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + (tmp % 2) : tmp;
-		while (diff--) {
-			const int err = yio_printctx_raw_write(t, &f->fill, 1);
-			if (err) return err;
-		}
+		const size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + (tmp % 2) : tmp;
+		return YYIO_printctx_pad_write(t, f->fill, diff);
 	}
 	return 0;
 }
@@ -638,7 +647,7 @@ void YYIO_printformat_assert_valid(const struct yio_printfmt_s *pf) {
 
 static inline
 bool is_print_ascii(char tcc) {
-	const unsigned char ascii_min_printable = 32U;
+	const unsigned char ascii_min_printable = (unsigned char)' ';
 	const unsigned char ascii_max_printable = 126U;
 	const char cc = tcc;
 	return ascii_min_printable <= cc && cc <= ascii_max_printable;
@@ -670,7 +679,7 @@ static const unsigned char four = 0xfU;
 static inline
 void ascii_encode_x(struct ss_s *ss, char cc, char next) {
 	static_assert(CHAR_BIT == 8, "Really? TODO");
-	const bool nextdigit = YYIO_ISXDIGIT(next);
+	const bool nextdigit = YYIO_isxdigit(next);
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
@@ -687,7 +696,7 @@ void ascii_encode_x(struct ss_s *ss, char cc, char next) {
 static inline
 void ascii_encode_o(struct ss_s *ss, char cc, char next) {
 	static const unsigned char three = 0x7U;
-	const bool nextdigit = YYIO_ISDIGIT(next);
+	const bool nextdigit = YYIO_isdigit(next);
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
 		const unsigned char bbv = *bb;
@@ -704,7 +713,7 @@ void ascii_encode_o(struct ss_s *ss, char cc, char next) {
 
 static inline
 void ascii_encode_u(struct ss_s *ss, char cc, char next) {
-	const bool nextdigit = YYIO_ISXDIGIT(next);
+	const bool nextdigit = YYIO_isxdigit(next);
 	ss_out(ss, '\\');
 	ss_out(ss, 'u');
 	for (unsigned ii = 4U * 3U; ii > 0U; ii -= 4U) {
@@ -717,7 +726,7 @@ void ascii_encode_u(struct ss_s *ss, char cc, char next) {
 
 static inline
 void ascii_encode_U(struct ss_s *ss, char cc, char next) {
-	const bool nextdigit = YYIO_ISXDIGIT(next);
+	const bool nextdigit = YYIO_isxdigit(next);
 	ss_out(ss, '\\');
 	ss_out(ss, 'U');
 	for (unsigned ii = 4U * 7U; ii > 0U; ii -= 4U) {

@@ -91,12 +91,14 @@ int YYIO_yio_vsprintf_cb(void *arg, const char *ptr, size_t size) {
 	size = not_enough_space ? c->size - 1 : size;
 	memcpy(c->dest, ptr, size * sizeof(*c->dest));
 	c->dest += size;
+	c->size -= size;
 	return not_enough_space ? YIO_ERROR_ENOBUFS : 0;
 }
 
 struct YYIO_yio_vreaprintf_ctx_s {
 	char *str;
 	size_t size;
+	size_t capacity;
 };
 
 static
@@ -105,14 +107,22 @@ int YYIO_yio_vreaprintf_cb(void *arg, const char *ptr, size_t size) {
 	const size_t count = p->size + size + 1;
 	assert(count < SIZE_MAX / sizeof(*p->str));
 
-	void * const pnt = realloc(p->str, sizeof(*p->str) * count);
-	if (pnt == NULL) {
-		free(p->str);
-		p->str = NULL;
-		p->size = 0;
-		return YIO_ERROR_ENOMEM;
+	if (count > p->capacity) {
+		size_t new_cap = YYIO_GOLDEN_INCREASE(p->capacity);
+		if (new_cap < YYIO_INIT_CAPACITY) new_cap = YYIO_INIT_CAPACITY;
+		if (new_cap < count) new_cap = count;
+
+		void * const pnt = realloc(p->str, sizeof(*p->str) * new_cap);
+		if (pnt == NULL) {
+			free(p->str);
+			p->str = NULL;
+			p->size = 0;
+			p->capacity = 0;
+			return YIO_ERROR_ENOMEM;
+		}
+		p->str = pnt;
+		p->capacity = new_cap;
 	}
-	p->str = pnt;
 
 	memcpy(p->str + p->size, ptr, size * sizeof(*p->str));
 	assert(p->size < SIZE_MAX - size);
@@ -154,15 +164,20 @@ int yio_vreaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va
 			.str = *strp,
 			.size = (*strp != NULL) ? strlen(*strp) : 0,
 	};
+	ctx.capacity = ctx.size;
 	const int ret =  yio_vbprintf(YYIO_yio_vreaprintf_cb, &ctx, data, fmt, va);
 	if (ret < 0) {
 		free(ctx.str);
 		ctx.str = NULL;
 	}
-	*strp = ctx.str;
 	if (ctx.str != NULL) {
 		ctx.str[ctx.size] = '\0';
+		void * const pnt = realloc(ctx.str, sizeof(*ctx.str) * (ctx.size + 1));
+		if (pnt != NULL) {
+			ctx.str = pnt;
+		}
 	}
+	*strp = ctx.str;
 	return ret;
 }
 
