@@ -52,8 +52,7 @@
       "name": "arm",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/kcmakelib/cmake/Toolchain/arm-none-eabi-gcc.cmake",
-        "ARM_NONE_EABI_GCC_NO_NEWLIB_NANO": "1"
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/arm-none-eabi/arm-none-eabi.cmake"
       }
     },
     {

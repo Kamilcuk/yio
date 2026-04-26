@@ -39,7 +39,10 @@ function(yio_add_test T_SOURCE)
 	add_dependencies(yio_build_tests ${T_NAME})
 	add_test(NAME ${T_NAME} COMMAND ${T_NAME})
 	list(APPEND T_LABELS "normal")
-	set_tests_properties(${T_NAME} PROPERTIES LABELS "${T_LABELS}")
+	set_tests_properties(${T_NAME} PROPERTIES
+		LABELS "${T_LABELS}"
+		TIMEOUT 10
+	)
 	test_extract_properties_from_file(${T_NAME} ${T_NAME} ${T_REALFILE})
 
 	if(DEFINED T_GETNAME)
