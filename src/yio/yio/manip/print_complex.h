@@ -25,10 +25,11 @@
 #line
 int YYIO_print_complex_$1(yio_printctx_t *t);
 {% endcall %}
+#ifndef __cplusplus
 #define YYIO_PRINT_COMPLEX_COMPLEX() \
-		{% call j_FOREACHAPPLY(j_complex_types) %}
-		$2: YYIO_print_complex_$1, \
-		{% endcall %}
+		{% call j_FOREACHAPPLY(j_complex_types) %} \
+		YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_complex_$1) \
+		{% endcall %} \
 		/**/
 
 #if YYIO_HAS_IMAGINARY
@@ -38,9 +39,9 @@ int YYIO_print_complex_$1(yio_printctx_t *t);
 int YYIO_print_imaginary_$1(yio_printctx_t *t);
 {% endcall %}
 #define YYIO_PRINT_COMPLEX_IMAGINARY() \
-		{% call j_FOREACHAPPLY(j_imaginary_types) %}
-		$2: YYIO_print_imaginary_$1, \
-		{% endcall %}
+		{% call j_FOREACHAPPLY(j_imaginary_types) %} \
+		YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_imaginary_$1) \
+		{% endcall %} \
 		/**/
 
 #else
@@ -50,6 +51,9 @@ int YYIO_print_imaginary_$1(yio_printctx_t *t);
 #define YYIO_PRINT_COMPLEX() \
 		YYIO_PRINT_COMPLEX_COMPLEX() \
 		YYIO_PRINT_COMPLEX_IMAGINARY()
+#else
+#define YYIO_PRINT_COMPLEX()
+#endif
 
 #else
 #define YYIO_PRINT_COMPLEX()

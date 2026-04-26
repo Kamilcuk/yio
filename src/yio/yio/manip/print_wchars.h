@@ -33,11 +33,11 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t);
 
 
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS() \
-		wchar_t *: YYIO_print_constwcharpnt, \
-		const wchar_t *: YYIO_print_constwcharpnt,
+		YYIO_OVERLOAD_TYPE_FUNC(wchar_t *, YYIO_print_constwcharpnt) \
+		YYIO_OVERLOAD_TYPE_FUNC(const wchar_t *, YYIO_print_constwcharpnt)
 
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
-		wchar_t: YYIO_print_wchar,
+		YYIO_OVERLOAD_TYPE_FUNC(wchar_t, YYIO_print_wchar)
 #else
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS()
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()

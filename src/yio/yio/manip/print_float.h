@@ -33,7 +33,7 @@
 #endif
 
 
-{% call j_FOREACHAPPLY(j_FLOATS) %}
+{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 #line
 
 #ifndef YIO_HAS_FLOAT$1
@@ -85,8 +85,17 @@ int YYIO_print_float_ryu$1(yio_printctx_t *t);
 #	endif
 #endif
 
+#ifdef __cplusplus
+{% if V.G == "s" %}
 #define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
-		YYIO_FLOAT$1: YYIO_PRINT_FLOAT$1,
+		YYIO_OVERLOAD_TYPE_FUNC(YYIO_FLOAT$1, YYIO_PRINT_FLOAT$1)
+{% else %}
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()
+{% endif %}
+#else
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
+		YYIO_OVERLOAD_TYPE_FUNC(YYIO_FLOAT$1, YYIO_PRINT_FLOAT$1)
+#endif
 
 #else
 

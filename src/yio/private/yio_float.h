@@ -66,6 +66,14 @@
 #endif
 #if YIO_HAS_FLOAT$1
 
+#ifdef __cplusplus
+{% if "$G" != "s" %}
+#define YYIO_SKIP_FLOAT_DECL$1
+{% endif %}
+#endif
+
+#ifndef YYIO_SKIP_FLOAT_DECL$1
+
 YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 x, int *exp);
 
 /**
@@ -139,6 +147,7 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 #define YYIO_FLOAT_EPSILON$1   $3_EPSILON
 #define YYIO_FLOAT_MIN$1       $3_MIN
 
+#endif
 
 #endif
 {% endcall %}{% endmacro %}

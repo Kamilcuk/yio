@@ -17,11 +17,15 @@
 int YYIO_print_$3(yio_printctx_t *t);
 {% endcall %}
 
+#ifndef __cplusplus
 #define YYIO_PRINT_STDFIX() \
-		{% call j_FOREACHAPPLY(j_STDFIX) %}
-		$2: YYIO_print_$3, \
-		{% endcall %}
+		{% call j_FOREACHAPPLY(j_STDFIX) %} \
+		YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_$3) \
+		{% endcall %} \
 		/**/
+#else
+#define YYIO_PRINT_STDFIX()
+#endif
 
 #else // YYIO_HAS_STDFIX_TYPES
 #define YYIO_PRINT_STDFIX()

@@ -5,6 +5,13 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
+#ifndef YYIO_YIO_YIO_EX_H_
+#define YYIO_YIO_YIO_EX_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "yio.h"
 
 /* ------------------------------------------------------------------------- */
@@ -126,3 +133,9 @@ dnl Preprocess - extract the variable in front of = and place them in the string
 _F_IN(patsubst($1, `\([^{]\){\([_a-zA-Z][_a-zA-Z0-9]*\)=', `\1\2={\2') _F_SHIFT($@))`'dnl
 ')
 #endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* YYIO_YIO_YIO_EX_H_ */

@@ -54,7 +54,7 @@ int YYIO_print_gmtime(yio_printctx_t *t);
 #if YYIO_HAS_timespec
 int YYIO_print_timespec(yio_printctx_t *t);
 #define YYIO_PRINT_GENERIC_TIMESPEC() \
-		struct timespec: YYIO_print_timespec,
+		YYIO_OVERLOAD_TYPE_FUNC(struct timespec, YYIO_print_timespec)
 #else
 #define YYIO_PRINT_GENERIC_TIMESPEC()
 #endif
@@ -62,13 +62,13 @@ int YYIO_print_timespec(yio_printctx_t *t);
 #if YYIO_HAS_timeval
 int YYIO_print_timeval(yio_printctx_t *t);
 #define YYIO_PRINT_GENERIC_TIMEVAL() \
-		struct timeval: YYIO_print_timeval,
+		YYIO_OVERLOAD_TYPE_FUNC(struct timeval, YYIO_print_timeval)
 #else // YYIO_HAS_timeval
 #define YYIO_PRINT_GENERIC_TIMEVAL()
 #endif // YYIO_HAS_timeval
 
 #define YYIO_PRINT_GENERIC_TIME() \
-		struct tm: YYIO_print_tm, \
+		YYIO_OVERLOAD_TYPE_FUNC(struct tm, YYIO_print_tm) \
 		YYIO_PRINT_GENERIC_TIMESPEC() \
 		YYIO_PRINT_GENERIC_TIMEVAL()
 

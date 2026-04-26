@@ -69,7 +69,7 @@ int YYIO_string_yprintf_cb(void *ptr, const char *data, size_t count) {
 	return YYIO_string_putsn(o, data, count);
 }
 
-int YYIO_string_yprintf_in(YYIO_string *t, yio_printdata_t *data, const char *fmt, ...) {
+int YYIO_string_yprintf_in(YYIO_string *t, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int err = yio_vbprintf(YYIO_string_yprintf_cb, t, data, fmt, &va);

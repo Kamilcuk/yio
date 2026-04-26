@@ -1,31 +1,8 @@
+# test/cpp/CMakeLists.txt
 
-if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
-	return()
+if(CMAKE_CXX_COMPILER_ID)
+	add_executable(test_cpp_compilation test_cpp_compilation.cpp)
+	target_link_libraries(test_cpp_compilation PRIVATE yio m)
+	add_test(NAME test_cpp_compilation COMMAND test_cpp_compilation)
+	set_tests_properties(test_cpp_compilation PROPERTIES LABELS "cpp")
 endif()
-return()
-
-# TODO
-# Little hacky include paths finding, but works as-is
-
-get_target_property(yioincludes yio INTERFACE_INCLUDE_DIRECTORIES)
-set(_includeargs)
-foreach(ii IN LISTS yioincludes)
-	list(APPEND _includeargs -I ${ii})
-endforeach()
-
-file(GLOB srcs *.pp)
-
-foreach(ff IN LISTS srcs)
-	get_filename_component(name ${ff} NAME)
-	add_test(
-		NAME ${name}
-		COMMAND /bin/sh -c "\"$@\" | grep -A9999 \"MARK 75df98e7-3dfb-4e4e-8b79-561eb4001923\"" _
-			${CMAKE_C_COMPILER} -xc -E ${_includeargs}
-			-I ${CMAKE_CURRENT_SOURCE_DIR}/../yio_testlib
-			${ff}
-	)
-	test_extract_properties_from_file(${name} ${f})
-	set_property(TESTS ${name} APPEND PROPERTY LABELS nomemcheck)
-	set_property(TESTS ${name} APPEND PROPERTY LABELS cpp)
-endforeach()
-

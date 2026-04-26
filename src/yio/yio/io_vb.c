@@ -122,8 +122,8 @@ int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, co
 		.va = va,
 		.startva = &startva,
 		.fmt = fmt,
-		.ifunc = (yio_printdata_t *)data,
-		.startifunc = (yio_printdata_t *)data,
+		.ifunc = data,
+		.startifunc = data,
 		.out = out,
 		.outarg = arg,
 	};

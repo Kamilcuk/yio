@@ -18,7 +18,7 @@
 #undef YYIO_PRINT_FUNC_GENERIC_SLOTS
 #define YYIO_PRINT_FUNC_GENERIC_SLOTS()  \
 	{% for j in range(0, i) %}
-	YYIO_TYPE_{{ j }}: YYIO_TYPE_FUNC_{{ j }},  \
+	YYIO_OVERLOAD_TYPE_FUNC(YYIO_TYPE_{{ j }}, YYIO_TYPE_FUNC_{{ j }}) \
 	{% endfor %}
 	/* */
 {% endfor %}

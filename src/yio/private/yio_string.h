@@ -141,7 +141,7 @@ int YYIO_string_puts(YYIO_string *t, const char *str) {
 
 /// Print into the container
 YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2) YYIO_access_r(3)
-int YYIO_string_yprintf_in(YYIO_string *t, yio_printdata_t *data, const char *fmt, ...);
+int YYIO_string_yprintf_in(YYIO_string *t, const yio_printdata_t *data, const char *fmt, ...);
 
 /// Print into the container
 #define YYIO_string_yprintf(t, ...)  YYIO_string_yprintf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))

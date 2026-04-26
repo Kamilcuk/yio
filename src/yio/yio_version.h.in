@@ -8,6 +8,10 @@
 #ifndef YYIO_YIO_YIO_VERSION_H_IN_
 #define YYIO_YIO_YIO_VERSION_H_IN_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "yio_config.h"
 
 /**
@@ -50,5 +54,9 @@ const char *yio_get_version_string(void);
  */
 YYIO_rnn YYIO_const
 const char *yio_get_version_banner(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* YYIO_YIO_YIO_VERSION_H_IN_ */

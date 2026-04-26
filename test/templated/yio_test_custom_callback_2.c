@@ -8,7 +8,7 @@
 #include <yio.h>
 #include <stdlib.h>
 
-static void _dbgln(const char file[], int line, const char func[], yio_printdata_t *data, const char *fmt, ...) {
+static void _dbgln(const char file[], int line, const char func[], const yio_printdata_t *data, const char *fmt, ...) {
 	yio_printf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);

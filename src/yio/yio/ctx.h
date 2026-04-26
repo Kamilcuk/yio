@@ -8,6 +8,11 @@
  */
 #ifndef YYIO_YIO_YIO_CTX_H_
 #define YYIO_YIO_YIO_CTX_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../yio_config.h"
 #include <stdarg.h>
 #include <stdbool.h>
@@ -67,10 +72,15 @@ static inline bool yio_precision_isset(uint8_t precision) {
  * The default values of printfmt.
  */
 static const struct yio_printfmt_s YYIO_printfmt_default = {
-		.width = -1,
-		.precision = -1,
-		.fill = ' ',
-		.sign = '-',
+		(uint8_t)-1,
+		(uint8_t)-1,
+		' ',
+		0,
+		'-',
+		0,
+		0,
+		0,
+		false,
 };
 
 /**
@@ -102,7 +112,7 @@ typedef int YYIO_printcb_t(void *arg, const char *data, size_t count)
  * @param t Printing context.
  * @return 0 on success, otherwise error.
  */
-typedef int (*const yio_printdata_t)(yio_printctx_t *t);
+typedef int (*yio_printdata_t)(yio_printctx_t *t);
 
 /**
  * The structure that allows for printing context manipulation.
@@ -115,9 +125,9 @@ struct YYIO_printctx_s {
 	/// Copy of va_list when iterating
 	va_list *startva;
 	/// Iterator in callback functions.
-	yio_printdata_t *ifunc;
+	const yio_printdata_t *ifunc;
 	/// The pointer to the data.
-	yio_printdata_t *startifunc;
+	const yio_printdata_t *startifunc;
 	/// The outputting function.
 	YYIO_printcb_t *out;
 	/// User argument for outputting functions.
@@ -260,7 +270,7 @@ struct yio_printfmt_s *yio_printctx_get_fmt(yio_printctx_t *t) {
  * @return
  */
 YYIO_wur YYIO_nn(1, 2)
-int YYIO_printctx_print_in(yio_printctx_t *t, yio_printdata_t *data, const char *fmt, ...);
+int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, ...);
 
 /**
  * Use it to print data from inside a printing context.
@@ -307,5 +317,9 @@ int yio_printctx_put_number(yio_printctx_t *t, const char str[], size_t str_len,
 /**
  * @}
  */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* YYIO_YIO_YIO_CTX_H_ */
