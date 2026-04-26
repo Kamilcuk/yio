@@ -107,7 +107,11 @@ int YYIO_print_count(yio_printctx_t *t);
  * This callback functions sets the pointed to integer by @c v to the
  * count of codepoints written by the function.
  */
+#ifdef __cplusplus
+#define yio_count(v)  yio_callback(YYIO_print_count, (v))
+#else
 #define yio_count(v)  yio_callback(YYIO_print_count, _Generic((v),int *:(v)))
+#endif
 
 
 #define YYIO_PRINT_FUNC_GENERIC_COUNT() \
