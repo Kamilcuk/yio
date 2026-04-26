@@ -50,6 +50,9 @@ For quick one-liner tests:
 - **Clean:** `make clean` or `make distclean`.
 
 ## Development Conventions
+### NEVER USE GIT
+- NEVER stage or commit any changes using git unless the user explicitly told you to.
+
 ### Templating System
 Most of the codebase is generated from templates in `src/yio/yio/`. When editing implementation:
 - Edit the files in `src/yio/yio/`, NOT the generated files in the build directory.

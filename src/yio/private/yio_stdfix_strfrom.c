@@ -97,10 +97,10 @@ int YYIO_stdfix_strfrom_int$1(int precision0, int precision, char spec, bool spe
 				v <<= 1;
 				--exponent;
 			}
-			precision = !yio_precision_isset(precision0) ? ((int)sizeof(v) * CHAR_BIT / 4 - 1) : precision0;
+			precision = yio_precision_isset(precision0) ? precision0 : ((int)sizeof(v) * CHAR_BIT / 4 - 1);
 			exponent += ibit - 4;
 		} else {
-			precision = !yio_precision_isset(precision0) ? 0 : precision0;
+			precision = yio_precision_isset(precision0) ? precision0 : 0;
 		}
 
 		const int digits = precision + 1;
@@ -175,7 +175,7 @@ int YYIO_astrfrom$1(YYIO_string *o, int precision0, char spec0, TYPE val) {
 	int precision = 0;
 	// rounding
 	if (spec == 'f') {
-		precision = precision0 <= 0 ? 6 : precision0;
+		precision = !yio_precision_isset((uint8_t)precision0) ? 6 : precision0;
 		TYPE ro = 0.5;
 		for (int i = 0; i < precision; ++i) {
 			ro /= 10;

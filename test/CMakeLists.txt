@@ -133,11 +133,19 @@ endif()
 ###############################################################################
 
 set_from_env(TESTPROGRAM)
-if(DEFINED TESTPROGRAM AND NOT TESTPOGRAM STREQUAL "")
+if(DEFINED TESTPROGRAM AND NOT TESTPROGRAM STREQUAL "")
+  set(init_rdimon_decl "")
+  set(init_rdimon_call "")
+  if(CMAKE_SYSTEM_NAME STREQUAL "Generic" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM")
+    set(init_rdimon_decl "extern void initialise_monitor_handles(void);")
+    set(init_rdimon_call "initialise_monitor_handles();")
+  endif()
   set(source "\
 #include <yio_test.h>
 #include <locale.h>
+${init_rdimon_decl}
 int main(int argc, char *argv[]) {
+  ${init_rdimon_call}
   ${TESTPROGRAM}
 }
 ")
