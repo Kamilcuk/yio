@@ -72,6 +72,7 @@ int YYIO_print_$1_in(yio_printctx_t *t, $2 arg, bool is_negative) {
 	switch (type) {
 		case '\0':
 		case 'd':
+		case 'u':
 			{
 				char buf[YYIO_LOG10_POW2(sizeof($2) * CHAR_BIT)];
 				return YYIO_print_$1_inradix(t, arg, is_negative, type, 10, buf, sizeof(buf));

@@ -226,6 +226,7 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 		case 'c':
 		case 's':
 		case 'd':
+		case 'u':
 		case 'e': case 'E':
 		case 'f': case 'F':
 		case 'a': case 'A':

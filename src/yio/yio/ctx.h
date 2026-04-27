@@ -42,7 +42,7 @@ struct yio_printfmt_s {
 	char sign;
 	/// May be set to 'L' or '_' ',' or 0 when unset.
 	char grouping;
-	/// The printing type character. The standard valid characters are "bcdeEfFgGnosxXp".
+	/// The printing type character. The standard valid characters are "bcdueEfFgGnosxXp".
 	char type;
 	/// The conversion specifier. Do not mix with type!
 	char c_onversion;

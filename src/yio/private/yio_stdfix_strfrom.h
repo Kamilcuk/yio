@@ -23,13 +23,12 @@
 /**
  * Converts a $2 value to a string.
  * @param o YYIO_string object for result
- * @param precision0 Precision or negative when no precision.
- * @param spec0 The formatting specifier character or '\0' when missing.
+ * @param pf
  * @param val The value to convert.
  * @return 0 on success, negative on error.
  */
 YYIO_wur YYIO_nn()
-int YYIO_astrfrom$1(YYIO_string *o, int precision0, char spec0, $2 val);
+int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val);
 
 {% endcall %}
 #endif

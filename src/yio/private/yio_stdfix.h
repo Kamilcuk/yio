@@ -10,10 +10,10 @@
 #define YYIO_YIO_PRIVATE_YIO_STDFIX_H_
 #include "../yio_config.h"
 #ifndef YYIO_HAS_STDFIX_TYPES
-#error
+#error "YYIO_HAS_STDFIX_TYPES must be defined"
 #endif
 #ifndef YYIO_HAS_STDFIX_H
-#error
+#error "YYIO_HAS_STDFIX_H must be defined"
 #endif
 #if YYIO_HAS_STDFIX_TYPES
 #include "private.h"
@@ -65,20 +65,6 @@
 {{j_take_compilers_or_default("$3_IBIT", "$6")}}
 {{j_take_compilers_or_default("$3_FBIT", "$7")}}
 {{j_take_compilers_or_default("$3_EPSILON", "$8")}}
-
-#define YYIO_BITS_$3  ((YYIO_$3_IBIT + YYIO_$3_FBIT + 1)/8*8)
-
-#if   YYIO_BITS_$3 == 8
-#define YYIO_UINT_$3  uint_least8_t
-#elif YYIO_BITS_$3 == 16
-#define YYIO_UINT_$3  uint_least16_t
-#elif YYIO_BITS_$3 == 32
-#define YYIO_UINT_$3  uint_least32_t
-#elif YYIO_BITS_$3 == 64
-#define YYIO_UINT_$3  uint_least64_t
-#else
-#error "I did not expect that one $2!"
-#endif
 
 #endif
 {% endcall %}

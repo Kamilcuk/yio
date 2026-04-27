@@ -41,29 +41,18 @@
  */
 #define YYIO_GOLDEN_INCREASE(x) ((x) * 13 / 8)
 
-// https://www.wolframalpha.com/input/?i=ceiling%28log_10%282%5Ex%29%29+for+x+%3D+1+to+256
-#define YYIO_LOG10_POW2(x) ( \
-		(x) < 3   ? 1  : (x) < 6   ? 2  : (x) < 9   ? 3  : (x) < 13  ? 4  : (x) < 16  ? 5  : \
-		(x) < 19  ? 6  : (x) < 23  ? 7  : (x) < 26  ? 8  : (x) < 29  ? 9  : (x) < 33  ? 10 : \
-		(x) < 36  ? 11 : (x) < 39  ? 12 : (x) < 43  ? 13 : (x) < 46  ? 14 : (x) < 49  ? 15 : \
-		(x) < 53  ? 16 : (x) < 56  ? 17 : (x) < 59  ? 18 : (x) < 63  ? 19 : (x) < 66  ? 20 : \
-		(x) < 69  ? 21 : (x) < 73  ? 22 : (x) < 76  ? 23 : (x) < 79  ? 24 : (x) < 83  ? 25 : \
-		(x) < 86  ? 26 : (x) < 89  ? 27 : (x) < 93  ? 28 : (x) < 96  ? 29 : (x) < 99  ? 30 : \
-		(x) < 102 ? 31 : (x) < 106 ? 32 : (x) < 109 ? 33 : (x) < 112 ? 34 : (x) < 116 ? 35 : \
-		(x) < 119 ? 36 : (x) < 122 ? 37 : (x) < 126 ? 38 : (x) < 129 ? 39 : (x) < 132 ? 40 : \
-		-100000)
-
-/*
-		(x) < 136 ? 41 : (x) < 139 ? 42 : (x) < 142 ? 43 : (x) < 146 ? 44 : (x) < 149 ? 45 : \
-		(x) < 152 ? 46 : (x) < 156 ? 47 : (x) < 159 ? 48 : (x) < 162 ? 49 : (x) < 166 ? 50 : \
-		(x) < 169 ? 51 : (x) < 172 ? 52 : (x) < 176 ? 53 : (x) < 179 ? 54 : (x) < 182 ? 55 : \
-		(x) < 186 ? 56 : (x) < 189 ? 57 : (x) < 192 ? 58 : (x) < 195 ? 59 : (x) < 199 ? 60 : \
-		(x) < 202 ? 61 : (x) < 205 ? 62 : (x) < 209 ? 63 : (x) < 212 ? 64 : (x) < 215 ? 65 : \
-		(x) < 219 ? 66 : (x) < 222 ? 67 : (x) < 225 ? 68 : (x) < 229 ? 69 : (x) < 232 ? 70 : \
-		(x) < 235 ? 71 : (x) < 239 ? 72 : (x) < 242 ? 73 : (x) < 245 ? 74 : (x) < 249 ? 75 : \
-		(x) < 252 ? 76 : (x) < 255 ? 77 : \
-
-*/
+/**
+ * @brief Calculates the maximum number of decimal digits required to represent
+ * a bit-precise integer of width x.
+ * * Formula: ceil(x * log10(2))
+ * This macro uses a rational approximation (146/485) to provide the correct
+ * ceiling value for all x from 1 to 1024 without requiring floating point
+ * math or massive look-up tables.
+ * @param x The bit-width (e.g., from _BitInt(x)).
+ * @return The maximum number of decimal characters needed (buffer size).
+ * @see https://www.wolframalpha.com/input/?i=ceiling%28log_10%282%5Ex%29%29+for+x+%3D+1+to+256
+ */
+#define YYIO_LOG10_POW2(x) ((x) <= 0 ? 0 : (((x) * 146 + 484) / 485))
 
 /**
  * @def YYIO_INT_STRLEN_BOUND
