@@ -35,7 +35,7 @@ int _yio_inttest2_ ## SUFFIX(int *err, const char *fmt, \
 		fprintf(stdout, "| \t-> %d\"%""s""\"\n", \
 				(int)strlen(shouldbe), shouldbe); \
 	} \
-	const int ret = yio_sprintf(buf, sizeof(buf), fmt, arg); \
+	const int ret = yio_snprintf(buf, sizeof(buf), fmt, arg); \
 	if (ret < 0) { \
 		fprintf(stderr, "%s:%d: yio_print \"%""s""\", ", __FILE__, __LINE__, fmt); \
 		fprintf(stderr, " -> %d\n", ret); \

@@ -27,15 +27,35 @@ static int hex_dot_hex_to_int(char *str) {
 }
 
 int main() {
+	char buf[128];
+	int ret;
+#ifdef YYIO_HAS_STDFIX_TYPES
+	{
+		const _Fract a = 0.5r;
+		ret = yio_snprintf(buf, sizeof(buf), "{}", a);
+		YIO_TESTEXPR(ret == 8, "Got: %d", ret);
+		YIO_TESTEXPR(strcmp(buf, "0.500000") == 0, "Got: %s", buf);
+	}
+	{
+		const _Fract a = 0.25r;
+		ret = yio_snprintf(buf, sizeof(buf), "{}", a);
+		YIO_TESTEXPR(ret == 8, "Got: %d", ret);
+		YIO_TESTEXPR(strcmp(buf, "0.250000") == 0, "Got: %s", buf);
+	}
+	{
+		const _Accum a = 0.5k;
+		ret = yio_snprintf(buf, sizeof(buf), "{}", a);
+		YIO_TESTEXPR(ret == 8, "Got: %d", ret);
+		YIO_TESTEXPR(strcmp(buf, "0.500000") == 0, "Got: %s", buf);
+	}
 	{
 		const short _Fract x = 0.123456789;
-		char *tmp = yio_formatf("{:.1a}\n", x);
+		ret = yio_snprintf(buf, sizeof(buf), "{:.1a}", x);
+		YIO_TESTEXPR(ret > 0, "Got: %d", ret);
 		unsigned a, b; int c;
-		YIO_TESTEXPR(sscanf(tmp, "0x%x.%xp%x", &a, &b, &c) == 3, "%s", tmp);
-		free(tmp);
+		YIO_TESTEXPR(sscanf(buf, "0x%x.%xp%x", &a, &b, &c) == 3, "%s", buf);
 		int v = b << 4 | a;
 		yio_printf("{:x} {:x}\n", v, x);
-
 	}
 	{
 		const _Fract a = 0.123456789;
@@ -45,4 +65,5 @@ int main() {
 		const long _Fract a = 0.123456789;
 		yio_printf("{:x} {} {:a}\n", a, a, a);
 	}
+#endif
 }

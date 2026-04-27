@@ -68,11 +68,11 @@ static void test_time_api(void) {
     /* We expect yio_gmtime to format correctly */
     /* Note: formatting depends on locale, but %Y-%m-%d is generally stable */
     char buf[100];
-    yio_sprintf(buf, sizeof(buf), "{:%Y-%m-%d}", yio_gmtime(now));
+    yio_snprintf(buf, sizeof(buf), "{:%Y-%m-%d}", yio_gmtime(now));
     YIO_TESTEXPR(strcmp(buf, "2024-04-23") == 0, "Got: %s", buf);
 
     /* Primary check */
-    yio_sprintf(buf, sizeof(buf), "{:%H:%M}", yio_gmtime(now));
+    yio_snprintf(buf, sizeof(buf), "{:%H:%M}", yio_gmtime(now));
     YIO_TESTEXPR(strcmp(buf, "16:00") == 0, "Got: %s", buf);
 }
 

@@ -189,7 +189,7 @@ int YYIO_inttest_ ## suffix(void) { \
 					(int)strlen(YYIO_inttests[i].output), YYIO_inttests[i].output); \
 		} \
  \
-		const int ret = yio_sprintf(buf, sizeof(buf), YYIO_inttests[i].fmt, (type)YYIO_inttests[i].arg); \
+		const int ret = yio_snprintf(buf, sizeof(buf), YYIO_inttests[i].fmt, (type)YYIO_inttests[i].arg); \
  \
 		if (ret < 0) { \
 			fprintf(stderr, "%s:%d: %d: printf(\"%""s""\", %d) -> %d\n", \

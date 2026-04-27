@@ -119,7 +119,7 @@ int YYIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 2)
 int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 3) YYIO_access_w(1)
-int YYIO_yio_sprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 2)
 int YYIO_yio_aprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 2)
@@ -144,7 +144,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_bprintf(cb, arg, ...)     YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_printf(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_fprintf(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#define yio_sprintf(dest, size, ...)  YYIO_yio_sprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_snprintf(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_aprintf(strp, ...)        YYIO_yio_aprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_reaprintf(strp, ...)      YYIO_yio_reaprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_formatf(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
@@ -164,7 +164,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_bprint(cb, arg, ...)     YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_print(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_fprint(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_sprint(dest, size, ...)  YYIO_yio_sprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_sprint(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_aprint(strp, ...)        YYIO_yio_aprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_reaprint(strp, ...)      YYIO_yio_reaprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_format(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))

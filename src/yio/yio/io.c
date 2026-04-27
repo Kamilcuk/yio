@@ -34,7 +34,7 @@ int YYIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...) {
 	return ret;
 }
 
-int YYIO_yio_sprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...) {
+int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vsprintf(dest, size, data, fmt, &va);
