@@ -10,7 +10,6 @@
 int main() {
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
-		{% if not j_match(V.1, ".*long.*long.*") %}
 #ifdef YYIO_STDFIX_$3
 	{
 		const $2 max = YYIO_$3_MAX;
@@ -97,6 +96,5 @@ int main() {
 		}
 	}
 #endif
-		{% endif %}
 	{% endcall %}
 }

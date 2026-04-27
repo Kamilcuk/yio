@@ -39,11 +39,14 @@ const char *YYIO_stdfix_strfrom_i_to_c(bool upper) {
 	return upper ? YYIO_stdfix_strfrom_i_to_c_HEX : YYIO_stdfix_strfrom_i_to_c_hex;
 }
 
+// Represents the type we will use to represnt stdfix types as an unsigned integer.
+// WIDTH is defined to a 8, 16, 32, 64 outside of this macro.
+#define TYPE  YYIO_XCONCAT(YYIO_XCONCAT(uint_least, WIDTH), _t)
+
 {% call(V) j_FOREACHAPPLY([8, 16, 32, 64]) %}
 #line
 
-// Represents the type we will use to represent stdfix type as integer.
-#define TYPE     uint_least$1_t
+#define WIDTH  $1
 
 #if $1 == 64
 #if YYIO_HAS_INT128
@@ -241,7 +244,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 	return err;
 }
 
-#undef TYPE
+#undef WIDTH
 #ifdef TYPEX2
 #undef TYPEX2
 #endif
@@ -268,13 +271,13 @@ int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
 	_Static_assert(CHAR_BIT == 8, "");
 	// Dispatching each type to the same size of variable.
 	// After removing negative numbers and in twos-complement representation we do not really care.
-	YYIO_XCONCAT(YYIO_XCONCAT(uint_least, WIDTH), _t) uint_val = 0;
+	TYPE uint_val = 0;
 	_Static_assert(sizeof(val) <= sizeof(uint_val), "");
 	memcpy(&uint_val, &val, sizeof(val));
 	const char spec = pf->type ? tolower((unsigned char)pf->type) : 'f';
 	const bool spec_is_upper = pf->type ? isupper((unsigned char)pf->type) : false;
 	{% if not j_match(V.1, "unsigned") %}
-	if (val < 0) {
+	if (uint_val & ((TYPE)1 << (BITS - 1))) {
 		if (spec != 'x' && spec != 'u') {
 			int err = YYIO_string_putc(o, '-');
 			if (err) return err;

@@ -14,8 +14,6 @@
 
 int main() {
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
-		// There is a problem with long long operations as of now
-		{% if not j_match(V.1, ".*long.*long.*") %}
 #line
 #ifdef YYIO_STDFIX_$3
 	{
@@ -26,6 +24,5 @@ int main() {
 		YIO_TEST((.rgx="0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*"), "{:a}", a);
 	}
 #endif
-		{% endif %}
 	{% endcall %}
 }
