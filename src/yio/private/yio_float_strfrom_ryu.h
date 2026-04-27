@@ -42,7 +42,8 @@ int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_
 {% call j_FOREACHAPPLY([
 		"f16", "f32", "f64", "f128",
 		"f32x", "f64x", "f128x",
-		"d32", "d64", "d128" ]) %}
+		"d32", "d64", "d128",
+		"d32x", "d64x", "d128x" ]) %}
 #ifndef YIO_HAS_FLOAT$1
 #error  YIO_HAS_FLOAT$1
 #endif

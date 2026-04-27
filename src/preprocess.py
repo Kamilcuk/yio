@@ -45,7 +45,7 @@ j_FLOATS = [
 ]
 
 
-def j_range(*args) -> range:
+def j_one_to_n(*args) -> range:
     """Just like range, but start from 1 by default, and end exactly on end, instead of end -1"""
     if len(args) == 3:
         raise RuntimeError("too many arguments")
@@ -56,7 +56,7 @@ def j_range(*args) -> range:
 
 
 def j_match(value, regex) -> bool:
-    return re.match(regex, str(value))
+    return bool(re.match(regex, str(value)))
 
 
 def j_fatal(value="fatal error"):
@@ -70,6 +70,12 @@ def j_frametemplate():
             template = frameInfo.frame.f_globals.get("__jinja_template__")
             break
     return template
+
+
+def j_is_power_of_two(n):
+    # If n is 0 or negative, it's False.
+    # If the bitwise AND is 0, it's True.
+    return n > 0 and (n & (n - 1)) == 0
 
 
 class MyInclude(jinja2.ext.ExprStmtExtension):
@@ -96,15 +102,17 @@ class MyEnvironment(jinja2.Environment):
             {
                 "j_FLOATS": j_FLOATS,
                 "j_MLVLS": int(defines.get("j_MLVLS", 32)),
-                "j_range": j_range,
+                "j_BITINT_MAXWIDTH": int(defines.get("j_BITINT_MAXWIDTH", 128)),
+                "j_one_to_n": j_one_to_n,
                 "j_match": j_match,
                 "j_fatal": j_fatal,
                 "j_frametemplate": j_frametemplate,
+                "j_is_power_of_two": j_is_power_of_two,
             }
         )
         self.filters.update(
             {
-                "j_range": j_range,
+                "j_one_to_n": j_one_to_n,
                 "j_match": j_match,
             }
         )
@@ -121,7 +129,7 @@ class MyEnvironment(jinja2.Environment):
 
 
 def shoulddoline(source):
-    return "# NOLINE" not in source
+    return "NOLINE" not in source
 
 
 def preprocess_source(source, filename):
@@ -160,13 +168,12 @@ def save_if_changed(output, outfilename):
     return True
 
 
-def run_task(srcdir, cachedir, defines, mode, source, output_file):
+def run_task_in(srcdir, cachedir, defines, mode, source, output_file):
     loader_paths = list(srcdir)
     template_name = source
     if os.path.isabs(source):
         loader_paths.insert(0, os.path.dirname(source))
         template_name = os.path.basename(source)
-
     env = MyEnvironment(loader_paths, cachedir, defines)
     template = env.get_template(template_name)
     render_vars = {
@@ -184,6 +191,16 @@ def run_task(srcdir, cachedir, defines, mode, source, output_file):
     final = header + rendered
     save_if_changed(final, output_file)
     return output_file, list(env.dependencies)
+
+
+def run_task(srcdir, cachedir, defines, mode, source, output_file):
+    try:
+        return run_task_in(srcdir, cachedir, defines, mode, source, output_file)
+    except Exception:
+        log.exception(
+            f"Could not process: {srcdir}, {cachedir}, {defines}, {mode}, {source}, {output_file}"
+        )
+        raise
 
 
 def parse_arguments():

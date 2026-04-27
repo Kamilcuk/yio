@@ -90,7 +90,7 @@
  */
 #}
 {% macro j_yio_macros_funcs(I) -%}
-	{% for J in j_range(2, I) %}{% set A = "_"+J|string %}
+	{% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
 		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}), \
 	{% endfor %}
 {%- endmacro %}
@@ -120,7 +120,7 @@
  */
 #}
 {% macro j_yio_macros_args(I) %}
-	{% for J in j_range(2, I) %}{% set A = "_"+J|string %}
+	{% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
 		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_FORWARD_XFROMSECOND, YYIO_PRECOMMAFIRST)({{A}}, YYIO_ESC YYIO_FIRST {{A}}) \
 	{% endfor %}
 {% endmacro %}

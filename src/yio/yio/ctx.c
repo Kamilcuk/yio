@@ -105,7 +105,7 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 	if (ifunc == &YYIO_print_bool)        num = yio_printctx_va_arg_promote(t, bool);
 	else if (ifunc == &YYIO_print_char)   num = yio_printctx_va_arg_promote(t, char);
 	else if (ifunc == &YYIO_print_schar)  num = yio_printctx_va_arg_promote(t, signed char);
-	else if (ifunc == &YYIO_print_uschar) num = yio_printctx_va_arg_promote(t, unsigned char);
+	else if (ifunc == &YYIO_print_uchar) num = yio_printctx_va_arg_promote(t, unsigned char);
 	else if (ifunc == &YYIO_print_short)  num = yio_printctx_va_arg_promote(t, short);
 	else if (ifunc == &YYIO_print_ushort) num = yio_printctx_va_arg_promote(t, unsigned short);
 	else if (ifunc == &YYIO_print_int)    num = yio_printctx_va_arg(t, int);

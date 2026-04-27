@@ -64,3 +64,9 @@ Add #line to generated output files to properly pinpoint the problem in source f
 Used mostly in development.
 ]=])
 set(YIO_LINE 0 CACHE BOOL "${YIO_LINE_COMMENT}")
+
+set(YIO_BITINT_MAXWIDTH_COMMENT [=[
+Maximum width for _BitInt support. Default 128.
+]=])
+set(YIO_BITINT_MAXWIDTH 128 CACHE STRING "${YIO_BITINT_MAXWIDTH_COMMENT}")
+yio_config_gen_add_value(YIO_BITINT_MAXWIDTH "${YIO_BITINT_MAXWIDTH}")

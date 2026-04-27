@@ -26,6 +26,16 @@
 #define YYIO_HAS_INT128 0
 #endif
 
+#ifdef __BITINT_MAXWIDTH__
+#if __BITINT_MAXWIDTH__ < YIO_BITINT_MAXWIDTH
+#define YYIO_BITINT_MAXWIDTH __BITINT_MAXWIDTH__
+#else
+#define YYIO_BITINT_MAXWIDTH YIO_BITINT_MAXWIDTH
+#endif
+#else
+#define YYIO_BITINT_MAXWIDTH 0
+#endif
+
 #ifndef YYIO_HAS_UNISTD_H
 #error YYIO_HAS_UNISTD_H
 #endif
@@ -111,6 +121,9 @@
 
 #define YYIO_CONCAT(a, b)   a##b
 #define YYIO_XCONCAT(a, b)  YYIO_CONCAT(a, b)
+
+#define YYIO_CONCAT3(a, b, c)   a##b##c
+#define YYIO_XCONCAT3(a, b, c)  YYIO_CONCAT3(a, b, c)
 
 /**
  * @}

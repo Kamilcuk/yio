@@ -7,4 +7,5 @@ exec nix shell \
   nixpkgs#python312Packages.jinja2 \
   nixpkgs#gcc \
   nixpkgs#qemu \
+  nixpkgs#sdcc \
   -c "$@"

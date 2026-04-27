@@ -35,7 +35,7 @@ int YYIO_print_char(yio_printctx_t *t) {
 	case 'o':
 	case 'x':
 	case 'X':
-		return YYIO_print_uschar_in(t, arg, false);
+		return YYIO_print_uchar_in(t, arg, false);
 	}
 	return YIO_ERROR_INVALID_TYPE;
 }

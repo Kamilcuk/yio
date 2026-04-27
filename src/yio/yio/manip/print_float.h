@@ -37,21 +37,21 @@
 #line
 
 #ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
+#error  YIO_HAS_FLOAT$1  is not defined
 #endif
 #if YIO_HAS_FLOAT$1
 
 #ifndef YYIO_HAS_strfrom$1
-#error  YYIO_HAS_strfrom$1
+#error  YYIO_HAS_strfrom$1 is not defined
 #endif
 #ifndef YYIO_has_float_custom$1
-#error  YYIO_has_float_custom$1
+#error  YYIO_has_float_custom$1 is not defined
 #endif
 #ifndef YYIO_has_float_printf$1
-#error  YYIO_has_float_printf$1
+#error  YYIO_has_float_printf$1 is not defined
 #endif
 #ifndef YYIO_has_float_ryu$1
-#error  YYIO_has_float_ryu$1
+#error  YYIO_has_float_ryu$1 is not defined
 #endif
 
 int YYIO_print_float_strfrom$1(yio_printctx_t *t);

@@ -36,56 +36,13 @@ extern "C" {
 #include "print_complex.h"
 #include "print_pfmt.h"
 #include "print_mon.h"
+#include "print_int.h"
 
 #ifndef YIO_HAS_UCHAR_H
 #error YIO_HAS_UCHAR_H
 #endif
 #if YIO_HAS_UCHAR_H
 #include <uchar.h>
-#endif
-
-#if YYIO_PRIVATE
-// These functions are exported for printing bool, char and wchar_t as integers.
-int YYIO_print_uschar_in(yio_printctx_t *t, unsigned char arg, bool is_negative);
-int YYIO_print_ushort_in(yio_printctx_t *t, unsigned short arg, bool is_negative);
-int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
-int YYIO_print_ulong_in(yio_printctx_t *t, unsigned long arg, bool is_negative);
-int YYIO_print_ullong_in(yio_printctx_t *t, unsigned long long arg, bool is_negative);
-#if YYIO_HAS_INT128
-int YYIO_print_u__int128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_negative);
-#endif
-#endif
-
-int YYIO_print_bool(yio_printctx_t *t);
-
-int YYIO_print_char(yio_printctx_t *t);
-int YYIO_print_constcharpnt(yio_printctx_t *t);
-
-int YYIO_print_schar(yio_printctx_t *t);
-int YYIO_print_uschar(yio_printctx_t *t);
-int YYIO_print_short(yio_printctx_t *t);
-int YYIO_print_ushort(yio_printctx_t *t);
-int YYIO_print_int(yio_printctx_t *t);
-int YYIO_print_uint(yio_printctx_t *t);
-int YYIO_print_long(yio_printctx_t *t);
-int YYIO_print_ulong(yio_printctx_t *t);
-int YYIO_print_llong(yio_printctx_t *t);
-int YYIO_print_ullong(yio_printctx_t *t);
-
-#ifndef YYIO_HAS_INT128
-#error
-#endif
-#if YYIO_HAS_INT128
-int YYIO_print___int128(yio_printctx_t *t);
-int YYIO_print_u__int128(yio_printctx_t *t);
-#define YYIO_PRINT_FUNC_GENERIC_INTS_INT128() \
-		YYIO_OVERLOAD_TYPE_FUNC(__int128, YYIO_print___int128) \
-		YYIO_OVERLOAD_TYPE_FUNC(unsigned __int128, YYIO_print_u__int128)
-#else
-#define YYIO_PRINT_FUNC_GENERIC_INTS_INT128()
-#endif
-
-#if YIO_HAS_UCHAR_H
 int YYIO_print_constchar16pnt(yio_printctx_t *t);
 int YYIO_print_constchar32pnt(yio_printctx_t *t);
 #define YYIO_PRINT_FUNC_GENERIC_UCHARS() \
@@ -97,8 +54,14 @@ int YYIO_print_constchar32pnt(yio_printctx_t *t);
 #define YYIO_PRINT_FUNC_GENERIC_UCHARS()
 #endif
 
+// print_bool.c
+int YYIO_print_bool(yio_printctx_t *t);
+// print_chars.c
+int YYIO_print_char(yio_printctx_t *t);
+int YYIO_print_constcharpnt(yio_printctx_t *t);
+// print_voidp.c
 int YYIO_print_voidp(yio_printctx_t *t);
-
+// print_count.c
 int YYIO_print_count(yio_printctx_t *t);
 
 /**
@@ -146,6 +109,7 @@ namespace yyio_cpp {
 	YYIO_OVERLOAD_TYPE_FUNC(long long, YYIO_print_llong)
 	YYIO_OVERLOAD_TYPE_FUNC(unsigned long long, YYIO_print_ullong)
 	YYIO_PRINT_FUNC_GENERIC_INTS_INT128()
+	YYIO_PRINT_FUNC_GENERIC_BITINTS()
 	YYIO_PRINT_FUNC_GENERIC_WCHARS()
 	YYIO_PRINT_FUNC_GENERIC_UCHARS()
 	YYIO_PRINT_FUNC_GENERIC_FLOATS()
@@ -155,7 +119,7 @@ namespace yyio_cpp {
 	YYIO_OVERLOAD_TYPE_FUNC(void*, YYIO_print_voidp)
 	YYIO_OVERLOAD_TYPE_FUNC(const void*, YYIO_print_voidp)
 	YYIO_OVERLOAD_TYPE_FUNC(signed char, YYIO_print_schar)
-	YYIO_OVERLOAD_TYPE_FUNC(unsigned char, YYIO_print_uschar)
+	YYIO_OVERLOAD_TYPE_FUNC(unsigned char, YYIO_print_uchar)
 	YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
 
 	YYIO_PRINT_FUNC_GENERIC_SLOTS()
@@ -187,6 +151,7 @@ namespace yyio_cpp {
 			long long: YYIO_print_llong, \
 			unsigned long long: YYIO_print_ullong, \
 			YYIO_PRINT_FUNC_GENERIC_INTS_INT128() \
+			YYIO_PRINT_FUNC_GENERIC_BITINTS() \
 			YYIO_PRINT_FUNC_GENERIC_WCHARS() \
 			YYIO_PRINT_FUNC_GENERIC_UCHARS() \
 			YYIO_PRINT_FUNC_GENERIC_FLOATS() \
@@ -197,7 +162,7 @@ namespace yyio_cpp {
 			const void*: YYIO_print_voidp, \
 		default: _Generic((arg), \
 			signed char: YYIO_print_schar, \
-			unsigned char: YYIO_print_uschar, \
+			unsigned char: YYIO_print_uchar, \
 			YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
 		default: YYIO_print_unhandled_type \
 		)))

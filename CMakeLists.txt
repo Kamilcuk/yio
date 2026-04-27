@@ -278,6 +278,7 @@ function(yio_jinja_finalize)
 			-S "${CMAKE_CURRENT_SOURCE_DIR}/test/templated"
 			-D "j_MLVLS=${YIO_MLVLS}"
 			-D "j_SLOTS=${YIO_SLOTS}"
+			-D "j_BITINT_MAXWIDTH=${YIO_BITINT_MAXWIDTH}"
 			--cachedir "${CMAKE_CURRENT_BINARY_DIR}/jinjacache"
 			--depfile "${depfile}"
 			-j 8
