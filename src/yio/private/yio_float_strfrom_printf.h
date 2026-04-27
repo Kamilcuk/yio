@@ -18,7 +18,7 @@
 #ifndef YIO_HAS_FLOAT$1
 #error  YIO_HAS_FLOAT$1
 #endif
-{% if V.0 in ["f", "d", "l", "d32", "d64", "d128"] %}
+{% if V.1 in ["f", "d", "l", "d32", "d64", "d128"] %}
 #if YIO_HAS_FLOAT$1
 
 #ifdef YYIO_PRIVATE

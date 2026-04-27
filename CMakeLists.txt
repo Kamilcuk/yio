@@ -6,6 +6,9 @@ cmake_policy(SET CMP0075 NEW) #-- uses CMAKE_REQUIRED_LIBRARIES
 if(POLICY CMP0116)
   cmake_policy(SET CMP0116 NEW) #-- DEPFILE is relative
 endif()
+if(POLICY CMP0177)
+  cmake_policy(SET CMP0177 NEW) #-- install() DESTINATION paths are normalized
+endif()
 
 include(./kcmakelib/cmake/kcmakelib.cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -253,7 +256,7 @@ function(jinja_generate)
 	add_dependencies(yio_gen ${A_TARGET})
 
 	# Collect task
-	set_property(GLOBAL APPEND PROPERTY YIO_JINJA_TASKS "--task" "${source_abs}" "${A_OUTPUT}")
+	set_property(GLOBAL APPEND PROPERTY YIO_JINJA_TASKS "${source_abs}" "${A_OUTPUT}")
 	set_property(GLOBAL APPEND PROPERTY YIO_JINJA_OUTPUTS "${A_OUTPUT}")
 	set_property(GLOBAL APPEND PROPERTY YIO_JINJA_DEPENDS "${source_abs}" ${A_DEPENDS})
 endfunction()

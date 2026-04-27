@@ -70,13 +70,13 @@ const char *YYIO_printint_to_fmt(char type) {
 
 {% call(V) j_FOREACHAPPLY(printers_types) %}
 
-{% if V.2 is defined %}
+{% if V.3 is defined %}
 #line
 #if $3
 {% endif %}
 #line
 
-{% if j_match(V.1, "unsigned") %}
+{% if j_match(V.2, "unsigned") %}
 #line
 
 static inline
@@ -142,14 +142,14 @@ int YYIO_print_$1(yio_printctx_t *t) {
 	if (err) return err;
 	const bool is_negative = arg < 0;
 	{# When using 'schar', append 'u' results in 'uschar'. Requires adjusting for signed char. #}
-	typedef unsigned {{ V.1 | replace("signed char", "char") }} unsignedtype;
+	typedef unsigned {{ V.2 | replace("signed char", "char") }} unsignedtype;
 	const unsignedtype uarg = is_negative ? -((unsignedtype)arg) : (unsignedtype)arg;
-	return YYIO_print_u{{ V.0 | replace("schar", "char") }}_in(t, uarg, is_negative);
+	return YYIO_print_u{{ V.1 | replace("schar", "char") }}_in(t, uarg, is_negative);
 }
 
 {% endif %}
 
-{% if V.2 is defined %}
+{% if V.3 is defined %}
 #endif // $3
 {% endif %}
 {% endcall %}
@@ -167,12 +167,12 @@ int YYIO_print_$1(yio_printctx_t *t) {
 
 {% call(V) j_FOREACHAPPLY(bitint_types) %}
 
-int YYIO_print_{{ V.1[0:1] }}bitint$1(yio_printctx_t *t) {
+int YYIO_print_{{ V.2[0:1] }}bitint$1(yio_printctx_t *t) {
 	typedef $2 _BitInt($1) T;
 	const T arg = yio_printctx_va_arg_promote(t, T);
 	const int err = yio_printctx_init(t);
 	if (err) return err;
-	const bool is_negative = {% if V.1 == 'unsigned' %} 0 {% else %} arg < 0 {% endif %} ;
+	const bool is_negative = {% if V.2 == 'unsigned' %} 0 {% else %} arg < 0 {% endif %} ;
 	typedef unsigned _BitInt($1) unsignedtype;
 	const unsignedtype uarg = is_negative ? -((unsignedtype)arg) : (unsignedtype)arg;
 	return

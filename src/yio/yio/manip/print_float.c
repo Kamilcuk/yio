@@ -18,8 +18,8 @@
 // j_generate_print_floats(type, suffix, promoted_type<for float it's double> )
 {% macro j_generate_print_floats() %}{% call(V) j_APPLY(*varargs) %}
 #line
-{% if V.0 != "f" %}
-{% if V.0 == "d" %}
+{% if V.1 != "f" %}
+{% if V.1 == "d" %}
 #line
 // For double, we export the prototype.
 int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var);
@@ -71,7 +71,7 @@ int YYIO_print_float_$2$1(yio_printctx_t *t) {
 {% endif %}
 
 #if 0
-{% if V.1 == "f" %}
+{% if V.2 == "f" %}
 #line
 int YYIO_print_float_$2$1pnt(yio_printctx_t *t) {
 	const YYIO_FLOAT$1 var = * yio_printctx_va_arg(t, YYIO_FLOAT$1 *);
@@ -88,18 +88,18 @@ int YYIO_print_float_$2$1pnt(yio_printctx_t *t) {
 #endif
 #if YIO_HAS_FLOAT$1
 
-{{ j_generate_print_floats(V.0, "strfrom") }}
+{{ j_generate_print_floats(V.1, "strfrom") }}
 
 #if YYIO_has_float_custom$1
-{{ j_generate_print_floats(V.0, "custom") }}
+{{ j_generate_print_floats(V.1, "custom") }}
 #endif
 
 #if YYIO_has_float_printf$1
-{{ j_generate_print_floats(V.0, "printf") }}
+{{ j_generate_print_floats(V.1, "printf") }}
 #endif
 
 #if YYIO_has_float_ryu$1
-{{ j_generate_print_floats(V.0, "ryu") }}
+{{ j_generate_print_floats(V.1, "ryu") }}
 #endif
 
 #endif

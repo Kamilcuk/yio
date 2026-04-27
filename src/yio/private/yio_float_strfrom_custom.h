@@ -18,10 +18,10 @@
 #ifndef YIO_HAS_FLOAT$1
 #error  YIO_HAS_FLOAT$1
 #endif
-{% if V.0 in [
-		"f", "d", "l",
-		"f16", "f32", "f64", "f128",
-		"f32x", "f64x", "f128x"] %}
+{% if V.1 in [
+	"f", "d", "l",
+	"f16", "f32", "f64", "f128", "f32x", "f64x", "f128x",
+] %}
 #line
 #if YIO_HAS_FLOAT$1
 

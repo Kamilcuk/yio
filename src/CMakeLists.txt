@@ -82,25 +82,14 @@ set_property(TARGET yio_gen APPEND PROPERTY SOURCES
 file(GLOB_RECURSE _srcs *.c *.h)
 foreach(source IN LISTS _srcs)
 	file(RELATIVE_PATH _output ${SRCDIR} ${source})
-	if(source MATCHES "yio/yio/.*")
-		foreach(mode IN ITEMS yio)
-			string(REGEX REPLACE "yio/yio/" "yio/${mode}/" "_tmp" "${_output}")
-			jinja_generate(
-				TARGET yio_gen
-				SOURCE ${source}
-				OUTPUT ${GENDIR}/${_tmp}
-				--mode ${mode}
-			)
-			list(APPEND _gensrcs ${_tmp})
-			list(APPEND _${mode}_gensrcs "${_tmp}")
-		endforeach()
-	else()
-		jinja_generate(
-			TARGET yio_gen
-			SOURCE ${source}
-			OUTPUT ${GENDIR}/${_output}
-		)
-		list(APPEND _gensrcs ${_output})
+	jinja_generate(
+		TARGET yio_gen
+		SOURCE ${source}
+		OUTPUT ${GENDIR}/${_output}
+	)
+	list(APPEND _gensrcs ${_output})
+	if(_output MATCHES "^yio/yio/.*")
+		list(APPEND _yio_gensrcs ${_output})
 	endif()
 endforeach()
 list(SORT _gensrcs)

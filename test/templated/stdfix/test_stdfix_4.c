@@ -34,7 +34,7 @@ int main() {
 		YIO_TEST((.rgx="0\\.0*[0-9]+"), "{}", eps);
 
 		// Negative numbers (for signed types)
-		{% if not j_match(V.1, ".*unsigned.*") %}
+		{% if not j_match(V.2, ".*unsigned.*") %}
 		{
 			const $2 half = 0.5$1;
 			const $2 n_half = -half;
@@ -77,7 +77,7 @@ int main() {
 		YIO_TEST((.rgx="[0-9]+\\."), "{:#.0f}", max);
 		
 		// Large values for Accum
-		{% if j_match(V.1, ".*_Accum") %}
+		{% if j_match(V.2, ".*_Accum") %}
 		{
 			const $2 ten = 10.0$1 < max ? (const $2)10.0$1 : zero;
 			if (ten > zero) {

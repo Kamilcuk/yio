@@ -253,7 +253,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 {% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
 // Represents the number of bits in $2.
-#define BITS      ( $3_FBIT + $3_IBIT + {{0 if j_match(V.1, "unsigned") else 1}} )
+#define BITS      ( $3_FBIT + $3_IBIT + {{0 if j_match(V.2, "unsigned") else 1}} )
 #if BITS <= 8
 // Represents the number of bits aligned to CHAR_BIT.
 #define WIDTH    8
@@ -276,7 +276,7 @@ int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
 	memcpy(&uint_val, &val, sizeof(val));
 	const char spec = pf->type ? tolower((unsigned char)pf->type) : 'f';
 	const bool spec_is_upper = pf->type ? isupper((unsigned char)pf->type) : false;
-	{% if not j_match(V.1, "unsigned") %}
+	{% if not j_match(V.2, "unsigned") %}
 	if (uint_val & ((TYPE)1 << (BITS - 1))) {
 		if (spec != 'x' && spec != 'u') {
 			int err = YYIO_string_putc(o, '-');

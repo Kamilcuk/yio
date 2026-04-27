@@ -76,7 +76,7 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 }
 
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
-	{% if not j_match(V.0, "^d[0-9]") %}{# exclude floats #}
+	{% if not j_match(V.1, "^d[0-9]") %}{# exclude floats #}
 #line
 #ifndef YIO_HAS_FLOAT$1
 #error  YIO_HAS_FLOAT$1
@@ -92,7 +92,7 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 #define FREXP10  YYIO_frexp10$1
 #define FC(x)    YYIO_FLOAT_C$1(x)
 
-{% if j_match(V.0, "^d[0-9]") %}{# check if DECIMAL float #}
+{% if j_match(V.1, "^d[0-9]") %}{# check if DECIMAL float #}
 #line
 #if __GNUC__
 // Workaround for GNU bug aroud decimal floating point numbers.

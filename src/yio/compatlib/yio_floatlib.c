@@ -61,7 +61,7 @@ static inline void floaterror(const char *func) {
 
 /* ------------------------------------------------------------------------- */
 
-{% for V in j_FLOATS %}{% call j_APPLY(V.0, V.math, V.strto) %}
+{% for V in j_FLOATS %}{% call j_APPLY(V.1, V.math, V.strto) %}
 #line
 
 #ifndef YIO_HAS_FLOAT$1

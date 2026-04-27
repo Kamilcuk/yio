@@ -47,7 +47,11 @@
 {% endmacro %}
 
 {% macro j_APPLY() %}
-	{{- j_APPLY_IN(caller(varargs) if caller.arguments|length else caller(), varargs) -}}
+	{% set V = {} %}
+	{% for item in varargs %}
+		{% set _ = V.update({loop.index: item}) %}
+	{% endfor %}
+	{{- j_APPLY_IN(caller(V) if caller.arguments|length else caller(), varargs) -}}
 {% endmacro %}
 
 {% macro j_FOREACHAPPLY(array) %}
@@ -55,9 +59,19 @@
 		{{- fatal("array undefined: " + array|string) -}}
 	{% endif %}
 	{% for I in array %}
+		{% set V = {} %}
+		{% if I is mapping %}
+			{% set V = I %}
+		{% elif I is iterable and I is not string %}
+			{% for item in I %}
+				{% set _ = V.update({loop.index: item}) %}
+			{% endfor %}
+		{% else %}
+			{% set V = I %}
+		{% endif %}
 		{% set STR =
-			caller(I, loop) if caller.arguments|length == 2 else
-			caller(I) if caller.arguments|length == 1 else
+			caller(V, loop) if caller.arguments|length == 2 else
+			caller(V) if caller.arguments|length == 1 else
 			caller() %}
 		{{- j_APPLY_IN(STR, I) -}}
 	{% endfor %}

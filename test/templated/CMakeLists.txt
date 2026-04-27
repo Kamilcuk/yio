@@ -31,21 +31,13 @@ add_custom_target(yio_templated_gen
 )
 
 foreach(src IN LISTS srcs)
-
-
-	foreach(mode IN ITEMS ${modes})
-		set(genout ${CMAKE_CURRENT_BINARY_DIR}/gen/${mode}/${src})
-		jinja_generate(
-			TARGET yio_templated_gen
-			SOURCE ${src}
-			OUTPUT ${genout}
-			--mode ${mode}
-		)
-		yio_add_test(${genout} NAME ${mode}/${src} REALFILE ${src} GETNAME testname LABELS ${mode})
-		add_dependencies(${testname} yio_templated_gen)
-		if(mode STREQUAL "ywio" AND src MATCHES "simple/yio_test_other.c")
-			set_tests_properties(${testname} PROPERTIES LABELS nomemcheck)
-		endif()
-	endforeach()
+	set(genout ${CMAKE_CURRENT_BINARY_DIR}/gen/${src})
+	jinja_generate(
+		TARGET yio_templated_gen
+		SOURCE ${src}
+		OUTPUT ${genout}
+	)
+	yio_add_test(${genout} NAME yio/${src} REALFILE ${src} GETNAME testname LABELS yio)
+	add_dependencies(${testname} yio_templated_gen)
 endforeach()
 

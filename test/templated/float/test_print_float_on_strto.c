@@ -48,12 +48,12 @@ static const struct formats_s formats[] = {
 #define $3 ""
 #endif
 
-#define VERBOSEARGS(MODE, PRI) \
-			"pi='%s'  mode=%s\n" \
+#define VERBOSEARGS(PRI) \
+			"pi='%s'\n" \
 			"\typrintf(\"%s\", %s)=%s\n" \
 			"\tstrto(res)=%.40"PRI"f = %"PRI"a\n" \
 			"\tdiff=%.10"PRI"g < %.10g\n", \
-			"", MODE, \
+			"", \
 			format, instr, str, \
 			res, res, \
 			diff, diffatmost
@@ -147,7 +147,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	const TYPE$1 diff = YYIO_diff$1(in, res);
 
 	if (verbose) {
-		printf(VERBOSEARGS("$1", PRI$1));
+		printf(VERBOSEARGS(PRI$1));
 	}
 
 	int failed = 0;
@@ -170,7 +170,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	}
 
 	if (!verbose && failed) {
-		printf(VERBOSEARGS("$1", PRI$1));
+		printf(VERBOSEARGS(PRI$1));
 	}
 
 	// YIO_TESTEXPR_NOFAIL(fabs$1(in - res) < 0.05, " %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
