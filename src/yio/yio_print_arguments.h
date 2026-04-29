@@ -130,7 +130,9 @@
  * On __GNUC__ use @c __extention__({...})
  * Optimized to files for better include times, cause the files are big.
  */
-#if defined __GNUC__ && ! defined YIO_USE_NONGNU_MACROS //&&0
+#if defined(__SDCC)
+#include "yio_print_arguments_sdcc.h"
+#elif defined __GNUC__ && ! defined YIO_USE_NONGNU_MACROS //&&0
 #include "yio_print_arguments_gnu.h"
 #else
 #include "yio_print_arguments_nongnu.h"

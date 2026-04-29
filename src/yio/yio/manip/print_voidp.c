@@ -7,7 +7,17 @@
  * @brief
  */
 #include "private.h"
+#include "print_int.h"
 #include <stdint.h>
+
+#define YYIO_print_in(t, arg)\
+	_Generic(arg \
+					,unsigned char: YYIO_print_uchar_in \
+					,unsigned short: YYIO_print_ushort_in \
+					,unsigned int: YYIO_print_uint_in \
+					,unsigned long: YYIO_print_ulong_in \
+					,unsigned long long: YYIO_print_ullong_in \
+	)(t, arg, 0)
 
 int YYIO_print_voidp(yio_printctx_t *t) {
 	const void *val = yio_printctx_va_arg(t, void *);
@@ -17,12 +27,20 @@ int YYIO_print_voidp(yio_printctx_t *t) {
 	if (pf->type != '\0' && pf->type != 'p') {
 		return YIO_ERROR_INVALID_TYPE;
 	}
-#ifdef UINTPTR_MAX
-	const uintptr_t var = (uintptr_t)val;
-	return yio_printctx_printf(t, "{:#x}", var);
+#ifdef __SDCC
+	typedef uint32_t T;
+#elif defined(UINTPTR_MAX) && UINTPTR_MAX
+	typedef uintptr_t T;
+#elif defined(UINTMAX_MAX) && UINTMAX_MAX
+	typedef uintmax_t T;
 #else
-	return YIO_ERROR_ENOSYS;
+	typedef unsigned long long T;
 #endif
+	err = yio_printctx_put(t, "0x", 2);
+	if (err) return err;
+	const T var = (T)val;
+	t->pf.type = 'x'; // setup integer printing as x.
+	return YYIO_print_in(t, var);
 }
 
 

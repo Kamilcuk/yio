@@ -139,6 +139,18 @@ if(DEFINED TESTPROGRAM AND NOT TESTPROGRAM STREQUAL "")
   if(CMAKE_SYSTEM_NAME STREQUAL "Generic" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM")
     set(init_rdimon_decl "extern void initialise_monitor_handles(void);")
     set(init_rdimon_call "initialise_monitor_handles();")
+  elseif(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
+    set(init_rdimon_decl "
+int putchar(int c) {
+    *((volatile char __xdata *)0xffff) = 0x70;
+    *((volatile char __xdata *)0xffff) = (char)c;
+    return c;
+}
+void exit_test(int code) {
+    *((volatile char __xdata *)0xffff) = 0x73;
+    while(1);
+}")
+    set(init_rdimon_call "")
   endif()
   set(source "\
 #include <yio_test.h>

@@ -24,7 +24,6 @@ int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
 	}
 	const size_t len = YYIO_string_len(t);
 	const bool dynamic = YYIO_string_is_dynamic(t);
-	
 	void *const p = realloc(dynamic ? t->h.ptr : NULL, newsize);
 	if (p == NULL) {
 		return YIO_ERROR_ENOMEM;

@@ -105,7 +105,8 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	assert(strlen(format) >= 1);
 	assert(format[strlen(format) - 1] == ' ');
 
-	YYIO_string res = {0};
+	YYIO_string res;
+	YYIO_string_init(&res);
 	ret = YYIO_astrftime_nonzero(&res, format, tm);
 	if (format != emptyformat) {
 		free((void *)format); // cppcheck-suppress cert-EXP05-C
@@ -145,19 +146,16 @@ int YYIO_print_timeval(yio_printctx_t *t) {
 }
 #endif // YYIO_HAS_timeval
 
-static inline
-int YYIO_print_time_t(yio_printctx_t *t, struct tm *(*func)(const time_t *)) {
-	const time_t arg = yio_printctx_va_arg(t, time_t);
-	struct tm *tm = func(&arg);
-	if (tm == NULL) return YIO_ERROR_EIO;
+int YYIO_print_localtime(yio_printctx_t *t) {
+	time_t arg = yio_printctx_va_arg(t, time_t);
+	struct tm *tm = localtime(&arg);
+	if (tm == NULL) return YYIO_ERROR(YIO_ERROR_LOCALTIME, "localtime returned NULL");
 	return YYIO_print_time_strftime(t, tm);
 }
 
-int YYIO_print_localtime(yio_printctx_t *t) {
-	return YYIO_print_time_t(t, localtime);
-}
-
 int YYIO_print_gmtime(yio_printctx_t *t) {
-	return YYIO_print_time_t(t, gmtime);
+	time_t arg = yio_printctx_va_arg(t, time_t);
+	struct tm *tm = gmtime(&arg);
+	if (tm == NULL) return YYIO_ERROR(YIO_ERROR_GMTIME, "gmtime returned NULL");
+	return YYIO_print_time_strftime(t, tm);
 }
-

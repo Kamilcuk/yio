@@ -263,7 +263,7 @@ int yio_printctx_init(yio_printctx_t *t) {
 	return 0;
 }
 
-int yio_printctx_raw_write(yio_printctx_t *t, const char *restrict ptr, size_t size) {
+int yio_printctx_raw_write(yio_printctx_t *t, const char *ptr, size_t size) {
 	assert(t->out != NULL);
 	assert(ptr != NULL);
 	const int ret = (*t->out)(t->outarg, ptr, size);
@@ -308,6 +308,7 @@ size_t YYIO_width(const char *str, size_t str_len) {
 #if YYIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
 #else
+	(void)str;
 	return str_len;
 #endif
 }
@@ -352,13 +353,10 @@ typedef struct YYIO_printformat_t {
 static inline
 void YYIO_printformat_init(YYIO_printformat_t *pf, yio_printctx_t *t,
 		const char *str, size_t str_len, bool is_number, bool is_positive) {
-	YYIO_printformat_t ret = {
-			.t = t,
-			.str_len = (is_number ? str_len : YYIO_width(str, str_len)),
-			.is_number = is_number,
-			.is_positive = is_positive,
-	};
-	*pf = ret;
+	pf->t = t;
+	pf->str_len = (is_number ? str_len : YYIO_width(str, str_len));
+	pf->is_number = is_number;
+	pf->is_positive = is_positive;
 }
 
 static inline
@@ -387,7 +385,8 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 	size_t * const alllen0 = &pf->alllen;
 	const size_t len = pf->str_len;
 
-	const bool has_hash = is_number && f->hash && strchr("xXoObB", f->type) != NULL;
+	const bool has_hash = is_number && f->hash &&
+					YYIO_ANYEQ(f->type, 'x', 'X', 'o', 'O', 'b', 'B');
 	const bool has_sign = is_number && (f->sign == YYIO_SIGN_ALWAYS ||
 					f->sign == YYIO_SIGN_ALWAYSSPACE || is_positive == false);
 	const size_t alllen = len + (size_t)( 2U * has_hash + has_sign );
@@ -624,200 +623,19 @@ int YYIO_printformat_print(YYIO_printformat_t *pf, const char str[], size_t str_
 }
 
 static inline
-bool is_one_of_or_nul(char c, const char *str) {
-	if (c == '\0') return true;
-	if (str[0] == '<') return YYIO_ANYEQ(c, '<', '>', '=', '^');
-	if (str[0] == '+') return YYIO_ANYEQ(c, '+', '-', ' ');
-	if (str[0] == '_') return YYIO_ANYEQ(c, '_', ',', 'L');
-	if (str[0] == 'a') return c == 'a';
-	return false;
-}
-
-static inline
 void YYIO_printformat_assert_valid(const struct yio_printfmt_s *pf) {
-	assert(is_one_of_or_nul(pf->align, "<>=^"));
-	assert(is_one_of_or_nul(pf->sign, "+- "));
-	assert(pf->fill != '{' && pf->fill != '}');
-	assert(is_one_of_or_nul(pf->grouping, "_,L"));
-	assert(is_one_of_or_nul(pf->c_onversion, "a"));
+	(void)pf;
+	assert(YYIO_ANYEQ(pf->align, 0, '<', '>', '=', '^'));
+	assert(YYIO_ANYEQ(pf->sign, 0, '+', '-', ' '));
+	assert(!YYIO_ANYEQ(pf->fill, '{', '}'));
+	assert(YYIO_ANYEQ(pf->grouping, 0, '_', ',', 'L'));
+	assert(YYIO_ANYEQ(pf->c_onversion, 0, 'a'));
 }
 
 /* ------------------------------------------------------------------------- */
 
-static inline
-bool is_print_ascii(char tcc) {
-	const unsigned char ascii_min_printable = (unsigned char)' ';
-	const unsigned char ascii_max_printable = 126U;
-	const char cc = tcc;
-	return ascii_min_printable <= cc && cc <= ascii_max_printable;
-}
-
-struct ss_s {
-	char *newstr;
-	size_t cnt;
-};
-
-static inline
-struct ss_s ss_init(char *newstr) {
-	struct ss_s rr = { .newstr = newstr, .cnt = 0 };
-	return rr;
-}
-
-static inline
-void ss_out(struct ss_s *t, char cc) {
-	if (t->newstr) {
-		*t->newstr++ = cc;
-	} else {
-		t->cnt++;
-	}
-}
-
-static const char *const xdigits = "0123456789abcdef";
-static const unsigned char four = 0xfU;
-
-static inline
-void ascii_encode_x(struct ss_s *ss, char cc, char next) {
-	static_assert(CHAR_BIT == 8, "Really? TODO");
-	const bool nextdigit = YYIO_isxdigit(next);
-	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
-			bb != bbend; ++bb) {
-		const unsigned char bbv = *bb;
-		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
-		ss_out(ss, '\\');
-		ss_out(ss, 'x');
-		if (nextdigit || bbv > (char)16U) {
-			ss_out(ss, xdigits[(bbv >> 4U) & four]);
-		}
-		ss_out(ss, xdigits[bbv & four]);
-	}
-}
-
-static inline
-void ascii_encode_o(struct ss_s *ss, char cc, char next) {
-	static const unsigned char three = 0x7U;
-	const bool nextdigit = YYIO_isdigit(next);
-	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
-			bb != bbend; ++bb) {
-		const unsigned char bbv = *bb;
-		//dbgln("?  %#x ? %#x adding \\xbyte", cc, bbv);
-		ss_out(ss, '\\');
-		for (unsigned ii = 3U * 2U; ii > 0U; ii -= 3U) {
-			if (nextdigit || bbv > (char)(1U << ii)) {
-				ss_out(ss, xdigits[(bbv >> ii) & three]);
-			}
-		}
-		ss_out(ss, xdigits[bbv & three]);
-	}
-}
-
-static inline
-void ascii_encode_u(struct ss_s *ss, char cc, char next) {
-	const bool nextdigit = YYIO_isxdigit(next);
-	ss_out(ss, '\\');
-	ss_out(ss, 'u');
-	for (unsigned ii = 4U * 3U; ii > 0U; ii -= 4U) {
-		if (nextdigit || cc > (char)(1U << ii)) {
-			ss_out(ss, xdigits[(cc >> ii) & four]);
-		}
-	}
-	ss_out(ss, xdigits[cc & four]);
-}
-
-static inline
-void ascii_encode_U(struct ss_s *ss, char cc, char next) {
-	const bool nextdigit = YYIO_isxdigit(next);
-	ss_out(ss, '\\');
-	ss_out(ss, 'U');
-	for (unsigned ii = 4U * 7U; ii > 0U; ii -= 4U) {
-		if (nextdigit || cc > (char)(1U << ii)) {
-			ss_out(ss, xdigits[(cc >> ii) & four]);
-		}
-	}
-	ss_out(ss, xdigits[cc & four]);
-}
-
-static inline
-char ascii_encode_get_esc(char prev, char cc) {
-	switch (cc) {
-	case '\'': return '\'';
-	case '\"': return '\"';
-	case '\a': return 't';
-	case '\b': return 'b';
-	case '\f': return 'f';
-	case '\n': return 'n';
-	case '\r': return 'r';
-	case '\t': return 't';
-	case '\v': return 'v';
-	case '\?':
-		// If the previous character was ?, then watch out for trigraphs.
-		if (prev == '?') {
-			return '?';
-		}
-		break;
-	}
-	return '\0';
-}
-
-#define CSTRLEN(x)  (sizeof(x) - 1)
-
-#define ASCII_ENCODE  ascii_encode_o  // \1\123\377...
-
-static inline
-struct ss_s ascii_encode_do(const char str[restrict], size_t str_len, char *restrict newstr, size_t newstr_len) {
-	struct ss_s ss_mem = ss_init(newstr);
-	struct ss_s *ss = &ss_mem;
-	for (char prev = '\0', next = *str, cc = next;
-			cc != '\0';
-			prev = cc, cc = next) {
-		next = *(++str);
-		//
-		const char esc = ascii_encode_get_esc(prev, cc);
-		if (esc != '\0') {
-			//dbgln("%c  %#x adding\\%c", cc, cc, esc);
-			ss_out(ss, '\\');
-			ss_out(ss, esc);
-		} else if (is_print_ascii(cc)) {
-			//dbgln("%c  %#x is_ascii", cc, cc);
-			ss_out(ss, cc);
-		} else {
-			ASCII_ENCODE(ss, cc, next);
-		}
-	}
-	if (newstr != NULL) {
-		(void)newstr_len;
-		assert(ss->newstr == newstr + newstr_len);
-	}
-	return ss_mem;
-}
-
-static inline
-size_t ascii_encode_get_length(const char str[restrict], size_t str_len) {
-	return ascii_encode_do(str, str_len, NULL, 0).cnt;
-}
-
-static inline
-int YYIO_printformat_conversion(yio_printctx_t *restrict t,
-		const char *restrict *restrict pstr, size_t *pstr_len) {
-	//dbgln("%c", t->pf.c_onversion);
-	if (t->pf.c_onversion != 'a') return 0;
-	const char *restrict str = *pstr;
-	const size_t str_len = *pstr_len;
-	const size_t newstr_len = ascii_encode_get_length(str, str_len);
-	if (newstr_len == str_len) return 0;
-	assert(newstr_len > str_len);
-	char *const newstr = malloc(newstr_len * sizeof(*newstr));
-	if (newstr == NULL) return YIO_ERROR_ENOMEM;
-	(void)ascii_encode_do(str, str_len, newstr, newstr_len);
-	*pstr_len = newstr_len;
-	*pstr = newstr;
-	return 1;
-}
-
-/* ------------------------------------------------------------------------- */
-
-int YYIO_printformat_generic(yio_printctx_t *restrict t,
-		const char str[restrict], size_t str_len, bool is_number, bool is_positive) {
-	int err = 0;
+int YYIO_printformat_generic(yio_printctx_t *t,
+		const char *str, size_t str_len, bool is_number, bool is_positive) {
 	// Detect inf/nan
 	const bool is_infnan = is_number && str_len >= 3 && (
 			(str[0] == 'i' || str[0] == 'I') ||
@@ -830,23 +648,15 @@ int YYIO_printformat_generic(yio_printctx_t *restrict t,
 			t->pf.align = '>';
 		}
 	}
-	const int converted = YYIO_printformat_conversion(t, &str, &str_len);
-	if (converted < 0) return converted;
-	//
 	YYIO_printformat_assert_valid(&t->pf);
 	YYIO_printformat_t pf;
 	YYIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
-	err = YYIO_printformat_prefix(&pf);
-	if (err) goto EXIT;
+	int err = YYIO_printformat_prefix(&pf);
+	if (err) return err;
 	err = YYIO_printformat_print(&pf, str, str_len);
-	if (err) goto EXIT;
+	if (err) return err;
 	err = YYIO_printformat_suffix(&pf);
-	if (err) goto EXIT;
-	//
-EXIT:
-	if (converted) {
-		free((void *)str);
-	}
-	return err;
+	if (err) return err;
+	return 0;
 }
- 
+

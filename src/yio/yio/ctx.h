@@ -83,10 +83,7 @@ static const struct yio_printfmt_s YYIO_printfmt_default = {
 		false,
 };
 
-/**
- * Print context.
- */
-typedef struct YYIO_printctx_s yio_printctx_t;
+#include "ctx_types.h"
 
 /**
  * The type representing a callback that will write output data to the user specified place.
@@ -95,8 +92,8 @@ typedef struct YYIO_printctx_s yio_printctx_t;
  * @param count Count of characters to print
  * @return 0 on success, otherwise error
  */
-typedef int YYIO_printcb_t(void *arg, const char *data, size_t count)
-		YYIO_wur YYIO_nn(2) YYIO_access_r(2, 3);
+typedef int (YYIO_printcb_t)(void *arg, const char *data, size_t count)
+		YYIO_wur YYIO_nn(2) YYIO_access_r(2, 3) YYIO_REENTRANT;
 
 /**
  * The type of callback functions, but abstractly, this represents
@@ -112,7 +109,7 @@ typedef int YYIO_printcb_t(void *arg, const char *data, size_t count)
  * @param t Printing context.
  * @return 0 on success, otherwise error.
  */
-typedef int (*yio_printdata_t)(yio_printctx_t *t);
+typedef int (*yio_printdata_t)(yio_printctx_t *t) YYIO_REENTRANT;
 
 /**
  * The structure that allows for printing context manipulation.
@@ -203,6 +200,13 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
  */
 #define yio_printctx_va_arg(printctx, type)   va_arg(*(printctx)->va, type)
 
+#ifndef YIO_HAS_FLOATf
+#error YIO_HAS_FLOATf not defined
+#endif
+#ifndef YIO_HAS_FLOATd
+#error YIO_HAS_FLOATd not defined
+#endif
+#if YIO_HAS_FLOATf && YIO_HAS_FLOATd
 /**
  * Automatically promote the type for integer types.
  * Argument has to be an arithmetic type, so that it can be promoted.
@@ -219,6 +223,14 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
 			float: yio_printctx_va_arg(printctx, double), \
 			default: yio_printctx_va_arg(printctx, numtype)  /* NOLINT(clang-diagnostic-varargs) */ \
 		)
+#else
+#define yio_printctx_va_arg_promote(printctx, numtype)  \
+		_Generic(+(numtype)1, \
+			int: yio_printctx_va_arg(printctx, int), \
+			unsigned int: yio_printctx_va_arg(printctx, unsigned int), \
+			default: yio_printctx_va_arg(printctx, numtype)  /* NOLINT(clang-diagnostic-varargs) */ \
+		)
+#endif
 
 /**
  * This function has to be called a callback right after calling va_arg.
@@ -292,14 +304,14 @@ int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const
  */
 YYIO_wur YYIO_nn()
 int YYIO_printformat_generic(yio_printctx_t *t,
-		const char str[], size_t str_len, bool is_number, bool is_positive);
+		const char *str, size_t str_len, bool is_number, bool is_positive);
 
 /**
  * From printing context output a string
  * @see YYIO_printformat_generic
  */
 YYIO_wur YYIO_nn() static inline
-int yio_printctx_put(yio_printctx_t *t, const char str[], size_t str_len) {
+int yio_printctx_put(yio_printctx_t *t, const char *str, size_t str_len) {
 	return YYIO_printformat_generic(t, str, str_len, false, false);
 }
 
@@ -309,7 +321,7 @@ int yio_printctx_put(yio_printctx_t *t, const char str[], size_t str_len) {
  * @see YYIO_printformat_generic
  */
 YYIO_wur YYIO_nn() static inline
-int yio_printctx_put_number(yio_printctx_t *t, const char str[], size_t str_len, bool is_positive) {
+int yio_printctx_put_number(yio_printctx_t *t, const char *str, size_t str_len, bool is_positive) {
 	return YYIO_printformat_generic(t, str, str_len, true, is_positive);
 }
 

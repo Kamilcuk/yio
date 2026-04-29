@@ -72,6 +72,12 @@ yio_config_gen_check_type_exists("struct timeval" YYIO_HAS_timeval LANGUAGE C)
 
 yio_config_gen_check_symbol_exists(strnlen "string.h" YYIO_HAS_strnlen LANGUAGE C)
 
+if(YIO_SDCC)
+	yio_config_gen_check_type_exists(FILE YYIO_HAS_FILE LANGUAGE C)
+else()
+	yio_config_gen_add_value(YYIO_HAS_FILE 1)
+endif()
+
 yio_config_gen_check_include_file("wchar.h"  YIO_HAS_WCHAR_H)
 if(YIO_HAS_WCHAR_H)
 	yio_config_gen_check_symbol_exists(wcswidth "wchar.h" YYIO_HAS_wcswidth LANGUAGE C)

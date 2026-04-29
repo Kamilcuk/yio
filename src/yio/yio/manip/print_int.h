@@ -9,8 +9,10 @@
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_INT_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_INT_H_
 
+#include "../ctx_types.h"
+#include <stdbool.h>
+
 // No include ctx.h here, as it causes circular dependency.
-typedef struct YYIO_printctx_s yio_printctx_t;
 
 #if YYIO_PRIVATE
 // These functions are exported for printing bool, char and wchar_t as integers.

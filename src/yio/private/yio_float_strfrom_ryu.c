@@ -40,9 +40,15 @@
 #include <string.h>
 
 #ifndef YIO_USE_STRFROM_RYU
-#error YIO_USE_STRFROM_RYU
+#error YIO_USE_STRFROM_RYU not defined
 #endif
-#if YIO_USE_STRFROM_RYU
+#ifndef YIO_HAS_FLOATf
+#error YIO_HAS_FLOATf not defined
+#endif
+#ifndef YIO_HAS_FLOATd
+#error YIO_HAS_FLOATd not defined
+#endif
+#if YIO_USE_STRFROM_RYU && YIO_HAS_FLOATf && YIO_HAS_FLOATd
 
 /* ------------------------------------------------------------------------- */
 
@@ -79,7 +85,7 @@ struct floating_decimal_128 {
 struct floating_decimal_128 long_double_to_fd128(long double d);
 int generic_to_chars(struct floating_decimal_128 v, char *result);
 
-int YYIO_float_astrfrom_ryul(YYIO_string *res, const int precision0, const char spec, YYIO_FLOATl val) {
+int YYIO_float_astrfrom_ryul(YYIO_string *res, int precision0, char spec, YYIO_FLOATl val) {
 	if (spec == 'a' || spec == 'A') {
 		return YYIO_float_astrfrom_customl(res, precision0, spec, val);
 	}
@@ -113,7 +119,7 @@ int YYIO_float_astrfrom_ryul(YYIO_string *res, const int precision0, const char 
 #if YIO_HAS_FLOAT$1
 
 static inline
-int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, const int precision0, const char spec, YYIO_FLOAT$1 val) {
+int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YYIO_FLOAT$1 val) {
 	// https://github.com/ulfjack/ryu/issues/197
 	const size_t minsize = 2000;
 	const int precision = precision0 < 0 ? 6 : precision0;
@@ -144,7 +150,7 @@ ERROR_ENOSYS:
 	return YIO_ERROR_ENOSYS;
 }
 
-int YYIO_float_astrfrom_ryu$1(YYIO_string *res, const int precision, const char spec, YYIO_FLOAT$1 val) {
+int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec, YYIO_FLOAT$1 val) {
 	if (spec == 'a' || spec == 'A') {
 		return YYIO_float_astrfrom_custom$1(res, precision, spec, val);
 	}

@@ -134,6 +134,18 @@ int YYIO_yio_vreaprintf_cb(void *arg, const char *ptr, size_t size) {
 
 /* yio_v*printf except yio_vbprintf ------------------------------------------------------ */
 
+#ifdef __SDCC
+static int sdcc_putchar_cb(void *arg, const char *data, size_t count) __reentrant {
+    (void)arg;
+    for (size_t i = 0; i < count; ++i) {
+        putchar(data[i]);
+    }
+    return 0;
+}
+int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
+    return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
+}
+#else
 int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
 #ifdef YIO_USE_OUTPUT_FD
 	return yio_vdprintf(1, data, fmt, va);
@@ -141,12 +153,12 @@ int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
 	return yio_vfprintf(stdout, data, fmt, va);
 #endif
 }
+#endif
 
 int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, va_list *va) { // NOLINT(readability-non-const-parameter)
-	struct YYIO_yio_vsprintf_ctx_s ctx = {
-			.dest = dest,
-			.size = size,
-	};
+	struct YYIO_yio_vsprintf_ctx_s ctx;
+	ctx.dest = dest;
+	ctx.size = size;
 	const int ret = yio_vbprintf(YYIO_yio_vsprintf_cb, &ctx, data, fmt, va);
 	if (size > 0) {
 		ctx.dest[0] = '\0';
@@ -160,10 +172,9 @@ int yio_vaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_l
 }
 
 int yio_vreaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
-	struct YYIO_yio_vreaprintf_ctx_s ctx = {
-			.str = *strp,
-			.size = (*strp != NULL) ? strlen(*strp) : 0,
-	};
+	struct YYIO_yio_vreaprintf_ctx_s ctx;
+	ctx.str = *strp;
+	ctx.size = (*strp != NULL) ? strlen(*strp) : 0;
 	ctx.capacity = ctx.size;
 	const int ret =  yio_vbprintf(YYIO_yio_vreaprintf_cb, &ctx, data, fmt, va);
 	if (ret < 0) {

@@ -25,6 +25,10 @@
 static const size_t MAXSIZE = 4096U;
 
 int YYIO_astrftime_nonzero(YYIO_string *res, const char *fmt, const struct tm *tm) {
+#ifdef __SDCC
+	(void)res; (void)fmt; (void)tm;
+	return YIO_ERROR_ENOSYS;
+#else
 	while (1) {
 		const size_t bufsize = YYIO_string_size(res);
 		errno = 0;
@@ -45,6 +49,7 @@ int YYIO_astrftime_nonzero(YYIO_string *res, const char *fmt, const struct tm *t
 		if (err) return err;
 	}
 	return 0;
+#endif
 }
 
 #if YYIO_HAS_MONETARY_H

@@ -10,6 +10,7 @@
 #include "ctx.h"
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* yio_vbprintf helpers ------------------------------------------------------ */
 
@@ -118,15 +119,15 @@ int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, co
 	assert(va != NULL);
 	va_list startva;
 	va_copy(startva, *va);
-	yio_printctx_t _ctx = {
-		.va = va,
-		.startva = &startva,
-		.fmt = fmt,
-		.ifunc = data,
-		.startifunc = data,
-		.out = out,
-		.outarg = arg,
-	};
+	yio_printctx_t _ctx;
+	memset(&_ctx, 0, sizeof(_ctx));
+	_ctx.va = va;
+	_ctx.startva = &startva;
+	_ctx.fmt = fmt;
+	_ctx.ifunc = data;
+	_ctx.startifunc = data;
+	_ctx.out = out;
+	_ctx.outarg = arg;
 	yio_printctx_t * const t = &_ctx;
 	const int err = YYIO_yio_vbprintf_in(t);
 	va_end(startva);
