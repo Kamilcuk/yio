@@ -50,15 +50,17 @@
 #define ASSERTMSG(...)  ((void)0)
 #endif
 
-static const char YYIO_NAN[3] = {'N','A','N'};
-static const char YYIO_nan[3] = {'n','a','n'};
-static const char (*const YYIO_nans[3])[] = { &YYIO_NAN, &YYIO_nan, };
-static const char YYIO_INF[3] = {'I','N','F'};
-static const char YYIO_inf[3] = {'i','n','f'};
-static const char (*const YYIO_infs[3])[] = { &YYIO_INF, &YYIO_inf, };
-static const char YYIO_digit_to_HEX[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-static const char YYIO_digit_to_hex[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
-static const char (*const YYIO_digit_to_hexs[16])[] = { &YYIO_digit_to_HEX, &YYIO_digit_to_hex, };
+static const char *YYIO_NAN = "NAN";
+static const char *YYIO_nan = "nan";
+static const char *YYIO_nans(bool lower) { return lower ? YYIO_nan : YYIO_NAN; }
+static const char *YYIO_INF = "INF";
+static const char *YYIO_inf = "inf";
+static const char *YYIO_infs(bool lower) { return lower ? YYIO_inf : YYIO_INF; }
+static const char *YYIO_digit_to_HEX = "0123456789ABCDEF";
+static const char *YYIO_digit_to_hex = "0123456789abcdef";
+static const char *YYIO_digit_to_hexs(bool lower) {
+	return lower ? YYIO_digit_to_hex : YYIO_digit_to_HEX;
+}
 
 static inline
 int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
@@ -135,7 +137,7 @@ int get_next_digit$1(YYIO_string *v, TYPE *val,
 	return 0;
 }
 
-int YYIO_float_astrfrom_custom$1(YYIO_string *v, const int precision0, const char spec0, TYPE val) {
+int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYPE val) {
 	static const int a_max_precision =
 #if FLT_RADIX == 2
 // if the precision is missing and FLT_RADIX is a power of 2,
@@ -164,12 +166,12 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, const int precision0, const cha
 
 	// take INF and NAN out of the way
 	const int val_class = FPCLASSIFY(val);
-	const char (*nan_or_inf_str)[3] =
-			val_class == FP_NAN ? YYIO_nans[is_lower_spec] :
-					val_class == FP_INFINITE ? YYIO_infs[is_lower_spec] :
-							NULL;
+	const char *const nan_or_inf_str =
+		val_class == FP_NAN ? YYIO_nans(is_lower_spec) :
+		val_class == FP_INFINITE ? YYIO_infs(is_lower_spec) :
+		NULL;
 	if (nan_or_inf_str != NULL) {
-		return YYIO_string_putsn(v, *nan_or_inf_str, 3);
+		return YYIO_string_putsn(v, nan_or_inf_str, 3);
 	}
 
 	// All the happy rest.
@@ -272,7 +274,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, const int precision0, const cha
 	assert(val < 1);
 
 	const bool dec = speclower != 'a';
-	const char *const to_digit_str = *YYIO_digit_to_hexs[is_lower_spec];
+	const char *const to_digit_str = YYIO_digit_to_hexs(is_lower_spec);
 
 	// Convert number before the dot
 	if (speclower == 'f') {
