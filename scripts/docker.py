@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+import argparse
+import subprocess
+import sys
+import shlex
+import re
+import os
+from pathlib import Path
+
+# Change directory to project root
+os.chdir(Path(__file__).resolve().parent.parent)
+
+parser = argparse.ArgumentParser(description="Run or build a docker target from the Dockerfile.")
+parser.add_argument("target", nargs="?", help="The docker target to build or run.")
+parser.add_argument("command", nargs=argparse.REMAINDER, help="The command to run inside the container.")
+args = parser.parse_args()
+
+if not args.target:
+    print("Error: target is required.\n", file=sys.stderr)
+    parser.print_help()
+    print("\nAvailable targets:", file=sys.stderr)
+    if Path("Dockerfile").exists():
+        with open("Dockerfile", "r") as f:
+            targets = re.findall(r"^FROM\s+.*\s+AS\s+([\w-]+)", f.read(), re.MULTILINE)
+            for t in sorted(set(targets)):
+                print(f"  - {t}", file=sys.stderr)
+    sys.exit(1)
+
+command = args.command
+target = args.target
+
+if command and command[0] == "--":
+    command = command[1:]
+if command == ["sh"]:
+    if not target.endswith("-sh"):
+        target += "-sh"
+    command = ["sh", "-c", "hash bash 2>/dev/null && exec bash -l || exec sh -l"]
+if command:
+    cmd = f"""
+        docker run -ti --rm -w $PWD -v $PWD:$PWD -u $(id -u):$(id -g) "$(TERM=dumb docker build --target {target} -q .)" {" ".join(shlex.quote(x) for x in command)}
+        """
+else:
+    cmd = f"""
+        TERM=dumb docker build --target {target} .
+        """
+print(f"+ {cmd.strip()}", file=sys.stderr)
+ss = subprocess.run(
+    cmd,
+    shell=True,
+)
+exit(ss.returncode)

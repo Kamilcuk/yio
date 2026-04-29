@@ -16,9 +16,10 @@ $(patsubst #%,,$(strip $(subst %{\n},${space},${${1}})))
 endef
 
 # check if we have nice
-NICE += $(shell hash nice >/dev/null 2>&1 && echo nice)
+NICE += $(shell hash nice >/dev/null 2>&1 && echo nice -n 39)
 # check if we have ionice from util-linux
 NICE += $(shell hash ionice >/dev/null 2>&1 && echo ionice -c 3)
+NICE += $(shell hash chrt >/dev/null 2>&1 && echo chrt -i 0)
 
 HELP_VAR +=~ NPROC - Number of cores to use
 NPROC = $(shell echo $$(( $$(grep -c processor /proc/cpuinfo) * 100 / 75)) )
@@ -116,7 +117,7 @@ conf config configure $(B) $(B)/compile_commands.json:
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: conf
-	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep $(R) || echo all),$(if $(value T),$T,$*)) <&-
+	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep $(R) || echo all),$(if $(value T),$T,$*)) -j $(NPROC) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen

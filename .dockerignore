@@ -1,0 +1,44 @@
+# Exclude everything by default
+**
+
+# Allow essential project structure
+!src/**
+!test/**
+!cmake/**
+!examples/**
+!benchmark/**
+!third_party/**
+!kcmakelib/**
+!m4/**
+!scripts/**
+
+# Allow root configuration files
+!CMakeLists.txt
+!CMakePresets.json
+!Makefile
+!GEMINI.md
+!LICENSE
+!README.md
+
+# Allow specific configuration files
+!.clang-tidy
+!.cmake-format.py
+!.exrc
+!cppcheck.cfg
+!CPPLINT.cfg
+!doc/Doxyfile
+
+# Exclude build artifacts and caches even if they are in allowed directories
+**/_build/**
+**/.cache/**
+**/.git/**
+**/.ruff_cache/**
+**/Testing/**
+**/__pycache__/**
+**/*.pyc
+**/*.o
+**/*.a
+**/*.so
+**/*.dep
+**/compile_commands.json
+**/local_makefile.mk

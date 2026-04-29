@@ -118,50 +118,9 @@ struct testparam {
 	} while(0)
 
 
-#if YIO_HAS_WCHAR_H
-#define YWIO_TEST(shouldbe, fmt, ...)  do { \
-		wchar_t buf[1024] = {0}; \
-		const int err = ywsprintf(buf, sizeof(buf), L##fmt, ## __VA_ARGS__); \
-		char bufc[1024]; \
-		wcstombs(bufc, buf, sizeof(bufc)); \
-		in_YIO_TEST(shouldbe, fmt, bufc, err); \
-	} while(0)
-#endif
-
-#if YYIO_HAS_UNISTRING
-#define YC16IO_TEST(shouldbe, fmt, ...)  do { \
-		char16_t buf[1024]; \
-		const int err = yc16sprintf(buf, sizeof(buf), u##fmt, ## __VA_ARGS__); \
-		char bufc[1024]; \
-		size_t lengthp = sizeof(bufc); \
-		u16_to_u8(buf, u16_strlen(buf) + 1, (uint8_t*)bufc, &lengthp); \
-		in_YIO_TEST(shouldbe, fmt, bufc, err); \
-	} while(0)
-
-#define YUIO_TEST(shouldbe, fmt, ...)  do { \
-		char32_t buf[1024]; \
-		const int err = yusprintf(buf, sizeof(buf), U##fmt, ## __VA_ARGS__); \
-		char bufc[1024]; \
-		size_t lengthp = sizeof(bufc); \
-		u32_to_u8(buf, u32_strlen(buf) + 1, (uint8_t*)bufc, &lengthp); \
-		in_YIO_TEST(shouldbe, fmt, bufc, err); \
-	} while(0)
-#endif
-
 #define YIO_TEST_FAIL(fmt, ...)     YIO_TEST(( .fail=1 ), fmt, ##__VA_ARGS__)
-#define YWIO_TEST_FAIL(fmt, ...)    YWIO_TEST(( .fail=1 ), fmt, ##__VA_ARGS__)
-#define YC16IO_TEST_FAIL(fmt, ...)  YC16IO_TEST(( .fail=1 ), fmt, ##__VA_ARGS__)
-#define YUIO_TEST_FAIL(fmt, ...)    YUIO_TEST(( .fail=1 ), fmt, ##__VA_ARGS__)
-
 #define YIO_TEST_EQ(EQ, ...)     YIO_TEST((.eq = EQ), __VA_ARGS__)
-#define YWIO_TEST_EQ(EQ, ...)    YWIO_TEST((.eq = EQ), __VA_ARGS__)
-#define YC16IO_TEST_EQ(EQ, ...)  YC16IO_TEST((.eq = EQ), __VA_ARGS__)
-#define YUIO_TEST_EQ(EQ, ...)    YUIO_TEST((.eq = EQ), __VA_ARGS__)
-
 #define YIO_TEST_RGX(RGX, ...)     YIO_TEST((.rgx = RGX), __VA_ARGS__)
-#define YWIO_TEST_RGX(RGX, ...)    YWIO_TEST((.rgx = RGX), __VA_ARGS__)
-#define YC16IO_TEST_RGX(RGX, ...)  YC16IO_TEST((.rgx = RGX), __VA_ARGS__)
-#define YUIO_TEST_RGX(RGX, ...)    YUIO_TEST((.rgx = RGX), __VA_ARGS__)
 
 /* ------------------------------------------------------------------------- */
 
