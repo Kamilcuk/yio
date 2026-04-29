@@ -28,6 +28,7 @@
 static inline
 void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 		int precision, char spec, const char *restrict pri, size_t prisize) {
+	(void)fmtsize;
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
 	if (yio_precision_isset(precision)) {

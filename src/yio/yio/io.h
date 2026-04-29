@@ -195,7 +195,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
  */
 #define YIO_PRINT_ARGUMENTS(...)  \
 		YYIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})( \
-				YYIO_PRINT_FUNC_GENERIC, yio_printdata_t, __VA_ARGS__)
+				YYIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
 
 #ifdef __cplusplus
 }

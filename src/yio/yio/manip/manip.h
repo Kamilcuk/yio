@@ -37,6 +37,7 @@ extern "C" {
 #include "print_pfmt.h"
 #include "print_mon.h"
 #include "print_int.h"
+#include "print_repr.h"
 
 #ifndef YIO_HAS_UCHAR_H
 #error YIO_HAS_UCHAR_H

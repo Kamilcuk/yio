@@ -78,6 +78,16 @@
  */
 #define YYIO_PRECOMMAFIRST(a, ...)  ,a
 
+
+{#
+/**
+ * List of argumenst _1,_2,_3,.... for a macro.
+ * @param I Arguments count.
+ */
+#}
+{% macro j_yio_print_arguments_args(I) -%}
+{%- if I>1 %}{{j_seq(2, I, FMT=",_{}")}}{% endif -%}
+{%- endmacro %}
 {#
 /**
  * Extract the printing function name from arguments.
@@ -86,12 +96,12 @@
  * else
  *    apply the function passed as second argument.
  * @param I Argument to apply the transformation on
- * @param function_arg function that get's what printing function to choose for argument
  */
 #}
-{% macro j_yio_macros_funcs(I) -%}
+{% macro j_yio_macros_funcs(I, include_last_comma=1) -%}
 	{% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
-		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}), \
+		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}){% if include_last_comma or not loop.last %}, \
+{% endif %}
 	{% endfor %}
 {%- endmacro %}
 {#
