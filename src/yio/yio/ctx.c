@@ -5,10 +5,10 @@
  * @copyright GPL-3.0-only
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#include "yio/yio_error.h"
 #define _XOPEN_SOURCE  1 // wcswidth
 #define _POSIX_C_SOURCE  200112L  // nl_langinfo
 #define _GNU_SOURCE  1 // GROUPING (?)
+#include "yio/yio_error.h"
 #include "ctx.h"
 #include "private.h"
 #ifndef YYIO_HAS_UNISTRING
@@ -27,6 +27,12 @@
 #endif
 #if YIO_USE_LOCALE
 #include <langinfo.h>
+#endif
+#ifndef YIO_HAS_WCHAR_H
+#error
+#endif
+#if YIO_HAS_WCHAR_H
+#include <wchar.h>
 #endif
 
 /* ------------------------------------------------------------------------- */
@@ -299,9 +305,45 @@ int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const
 
 /* printformat --------------------------------------------------- */
 
-#ifndef YYIO_HAS_wcswidth
+#ifndef YYIO_HAS_wcwidth
 #error
 #endif
+#if YIO_HAS_WCHAR_H
+static size_t YYIO_mbwidth(const char *str, size_t str_len) {
+	mbstate_t st;
+  memset(&st, 0, sizeof(st));
+  const char *p = str;
+  size_t rem = str_len;
+  size_t total = 0;
+  while (rem > 0) {
+    wchar_t wc;
+    size_t r = mbrtowc(&wc, p, rem, &st);
+    if (r == (size_t)-1) {
+      // invalid byte
+      ++p; --rem;
+      ++total;
+      memset(&st, 0, sizeof(st));
+    } else if (r == (size_t)-2) {
+      // incomplete sequence
+      break;
+    } else if (r == 0) {
+      // null
+      ++p; --rem;
+    } else {
+#if YYIO_HAS_wcwidth || defined(wcwidth)
+      int w = wcwidth(wc);
+      total += (w > 0) ? w : (w < 0 ? 1 : 0);
+#else
+      total += 1;
+#endif
+      p += r;
+      rem -= r;
+    }
+  }
+  return total;
+}
+#endif
+
 #ifndef YYIO_HAS_UNISTRING
 #error
 #endif
@@ -309,6 +351,8 @@ static inline
 size_t YYIO_width(const char *str, size_t str_len) {
 #if YYIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
+#elif YIO_HAS_WCHAR_H
+	return YYIO_mbwidth(str, str_len);
 #else
 	(void)str;
 	return str_len;

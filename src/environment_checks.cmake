@@ -80,10 +80,10 @@ endif()
 
 yio_config_gen_check_include_file("wchar.h"  YIO_HAS_WCHAR_H)
 if(YIO_HAS_WCHAR_H)
-	yio_config_gen_check_symbol_exists(wcswidth "wchar.h" YYIO_HAS_wcswidth LANGUAGE C)
+	yio_config_gen_check_symbol_exists(wcwidth "wchar.h" YYIO_HAS_wcwidth LANGUAGE C)
 	yio_config_gen_check_symbol_exists(wcsnrtombs "wchar.h" YYIO_HAS_wcsnrtombs LANGUAGE C)
 else()
-	yio_config_gen_add_value(YYIO_HAS_wcswidth 0)
+	yio_config_gen_add_value(YYIO_HAS_wcwidth 0)
 	yio_config_gen_add_value(YYIO_HAS_wcsnrtombs 0)
 endif()
 
