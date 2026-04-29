@@ -37,6 +37,36 @@ int YYIO_print_ulong(yio_printctx_t *t);
 int YYIO_print_llong(yio_printctx_t *t);
 int YYIO_print_ullong(yio_printctx_t *t);
 
+#define YYIO_PRINT_INTS() \
+	YYIO_OVERLOAD_TYPE_FUNC(short, YYIO_print_short) \
+	YYIO_OVERLOAD_TYPE_FUNC(unsigned short, YYIO_print_ushort) \
+	YYIO_OVERLOAD_TYPE_FUNC(int, YYIO_print_int) \
+	YYIO_OVERLOAD_TYPE_FUNC(unsigned int, YYIO_print_uint) \
+	YYIO_OVERLOAD_TYPE_FUNC(long, YYIO_print_long) \
+	YYIO_OVERLOAD_TYPE_FUNC(unsigned long, YYIO_print_ulong) \
+	YYIO_OVERLOAD_TYPE_FUNC(long long, YYIO_print_llong) \
+	YYIO_OVERLOAD_TYPE_FUNC(unsigned long long, YYIO_print_ullong)
+
+#ifndef YYIO_SCHAR_IS_UNIQUE
+#error YYIO_SCHAR_IS_UNIQUE is not defiend
+#endif
+#if YYIO_SCHAR_IS_UNIQUE
+#define YYIO_PRINT_SCHAR() \
+        YYIO_OVERLOAD_TYPE_FUNC(signed char, YYIO_print_schar)
+#else
+#define YYIO_PRINT_SCHAR()
+#endif
+
+#ifndef YYIO_UCHAR_IS_UNIQUE
+#error YYIO_UCHAR_IS_UNIQUE is not defiend
+#endif
+#if YYIO_UCHAR_IS_UNIQUE
+#define YYIO_PRINT_UCHAR() \
+        YYIO_OVERLOAD_TYPE_FUNC(unsigned char, YYIO_print_uchar)
+#else
+#define YYIO_PRINT_UCHAR()
+#endif
+
 #ifndef YYIO_HAS_INT128
 #error YYIO_HAS_INT128 not defined
 #endif
@@ -49,6 +79,8 @@ int YYIO_print_u__int128(yio_printctx_t *t);
 #else
 #define YYIO_PRINT_FUNC_GENERIC_INTS_INT128()
 #endif
+
+/* ------------------------------------------------------------------------- */
 
 #ifndef YYIO_BITINT_MAXWIDTH
 #error YYIO_BITINT_MAXWIDTH not defined

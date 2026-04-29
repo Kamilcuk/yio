@@ -33,8 +33,6 @@
  */
 #define yio_callback(callback, ...)  ((callback, ##__VA_ARGS__),YYIO_61COMMAS)
 
-
-
 /**
  * @def YYIO_IFBA62A(expr, then, else)
  * If braces and 62 or more arguments in @c expr then @c then else @c else

@@ -89,6 +89,46 @@ endif()
 
 yio_config_gen_check_include_file("uchar.h"  YIO_HAS_UCHAR_H)
 
+# Check if signed char is unique (vs char).
+yio_config_gen_check_c_source_compiles([=[
+	int main() { _Generic((signed char)0, char: 0, signed char: 1); }
+]=] YYIO_SCHAR_IS_UNIQUE)
+
+# Check if unsigned char is unique (vs char).
+yio_config_gen_check_c_source_compiles([=[
+	int main() { _Generic((unsigned char)0, char: 0, unsigned char: 1); }
+]=] YYIO_UCHAR_IS_UNIQUE)
+
+# Check if wchar_t is a unique type or an alias.
+if(YIO_HAS_WCHAR_H)
+	set(add "")
+  if(YYIO_UCHAR_IS_UNIQUE)
+  	set(add "unsigned char: 0, ")
+  endif()
+  if(YYIO_SCHAR_IS_UNIQUE)
+    set(add "signed char: 0, ")
+  endif()
+  yio_config_gen_check_c_source_compiles("
+  #include <wchar.h>
+  int main() {
+      _Generic((wchar_t)0,
+          char: 0,
+          ${add}
+          short: 0,
+          unsigned short: 0,
+          int: 0,
+          unsigned int: 0,
+          long: 0,
+          unsigned long: 0,
+          long long: 0,
+          unsigned long long: 0,
+          wchar_t: 1
+      );
+  }" YYIO_WCHAR_T_IS_UNIQUE)
+else()
+	yio_config_gen_add_value(YYIO_WCHAR_T_IS_UNIQUE 0)
+endif()
+
 if(UNISTRING_LIB)
 	set(YYIO_HAS_UNISTRING 1)
 endif()
@@ -127,7 +167,7 @@ set(_floats
 # If two types are the same, set YIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
 function(exclude_same type1 type2 suffix)
 	check_c_source_compiles(
-		"int main() { return _Generic((${type1})0, ${type1}: 0, ${type2}: 0); }"
+		"int main() { _Generic((${type1})0, ${type1}: 0, ${type2}: 0); }"
 		YYIO_samecompiles_FLOAT${suffix}
 	)
 	if(NOT YYIO_samecompiles_FLOAT${suffix})

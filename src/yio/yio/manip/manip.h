@@ -28,7 +28,6 @@ extern "C" {
 
 #include "../ctx.h"
 #include "../../yio_config.h"
-#include "unhandled.h"
 #include "print_float.h"
 #include "print_wchars.h"
 #include "print_time.h"
@@ -95,20 +94,10 @@ int YYIO_print_count(yio_printctx_t *t);
 
 #ifdef __cplusplus
 namespace yyio_cpp {
-	template <typename T> inline yio_printdata_t yyio_print_func_generic_cpp(const T&) { return (yio_printdata_t)YYIO_print_unhandled_type; }
-
-	YYIO_OVERLOAD_TYPE_FUNC(bool, YYIO_print_bool)
-	YYIO_OVERLOAD_TYPE_FUNC(char, YYIO_print_char)
-	YYIO_OVERLOAD_TYPE_FUNC(char*, YYIO_print_constcharpnt)
-	YYIO_OVERLOAD_TYPE_FUNC(const char*, YYIO_print_constcharpnt)
-	YYIO_OVERLOAD_TYPE_FUNC(short, YYIO_print_short)
-	YYIO_OVERLOAD_TYPE_FUNC(unsigned short, YYIO_print_ushort)
-	YYIO_OVERLOAD_TYPE_FUNC(int, YYIO_print_int)
-	YYIO_OVERLOAD_TYPE_FUNC(unsigned int, YYIO_print_uint)
-	YYIO_OVERLOAD_TYPE_FUNC(long, YYIO_print_long)
-	YYIO_OVERLOAD_TYPE_FUNC(unsigned long, YYIO_print_ulong)
-	YYIO_OVERLOAD_TYPE_FUNC(long long, YYIO_print_llong)
-	YYIO_OVERLOAD_TYPE_FUNC(unsigned long long, YYIO_print_ullong)
+	YYIO_PRINT_FUNC_GENERIC_SLOTS()
+	YYIO_PRINT_SCHAR()
+	YYIO_PRINT_UCHAR()
+	YYIO_PRINT_INTS()
 	YYIO_PRINT_FUNC_GENERIC_INTS_INT128()
 	YYIO_PRINT_FUNC_GENERIC_BITINTS()
 	YYIO_PRINT_FUNC_GENERIC_WCHARS()
@@ -117,13 +106,13 @@ namespace yyio_cpp {
 	YYIO_PRINT_GENERIC_TIME()
 	YYIO_PRINT_STDFIX()
 	YYIO_PRINT_COMPLEX()
+	YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
+	YYIO_OVERLOAD_TYPE_FUNC(bool, YYIO_print_bool)
+	YYIO_OVERLOAD_TYPE_FUNC(char, YYIO_print_char)
+	YYIO_OVERLOAD_TYPE_FUNC(char*, YYIO_print_constcharpnt)
+	YYIO_OVERLOAD_TYPE_FUNC(const char*, YYIO_print_constcharpnt)
 	YYIO_OVERLOAD_TYPE_FUNC(void*, YYIO_print_voidp)
 	YYIO_OVERLOAD_TYPE_FUNC(const void*, YYIO_print_voidp)
-	YYIO_OVERLOAD_TYPE_FUNC(signed char, YYIO_print_schar)
-	YYIO_OVERLOAD_TYPE_FUNC(unsigned char, YYIO_print_uchar)
-	YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
-
-	YYIO_PRINT_FUNC_GENERIC_SLOTS()
 }
 #endif
 
@@ -138,19 +127,9 @@ namespace yyio_cpp {
 #define YYIO_PRINT_FUNC_GENERIC(arg, ...) \
 		_Generic((arg), \
 			YYIO_PRINT_FUNC_GENERIC_SLOTS() \
-		default: _Generic((arg), \
-			bool: YYIO_print_bool, \
-			char: YYIO_print_char, \
-			char*: YYIO_print_constcharpnt, \
-			const char*: YYIO_print_constcharpnt, \
-			short: YYIO_print_short, \
-			unsigned short: YYIO_print_ushort, \
-			int: YYIO_print_int, \
-			unsigned int: YYIO_print_uint, \
-			long: YYIO_print_long, \
-			unsigned long: YYIO_print_ulong, \
-			long long: YYIO_print_llong, \
-			unsigned long long: YYIO_print_ullong, \
+			YYIO_PRINT_SCHAR() \
+			YYIO_PRINT_UCHAR() \
+			YYIO_PRINT_INTS() \
 			YYIO_PRINT_FUNC_GENERIC_INTS_INT128() \
 			YYIO_PRINT_FUNC_GENERIC_BITINTS() \
 			YYIO_PRINT_FUNC_GENERIC_WCHARS() \
@@ -159,14 +138,14 @@ namespace yyio_cpp {
 			YYIO_PRINT_GENERIC_TIME() \
 			YYIO_PRINT_STDFIX() \
 			YYIO_PRINT_COMPLEX() \
-			void*: YYIO_print_voidp, \
-			const void*: YYIO_print_voidp, \
-		default: _Generic((arg), \
-			signed char: YYIO_print_schar, \
-			unsigned char: YYIO_print_uchar, \
 			YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
-		default: YYIO_print_unhandled_type \
-		)))
+			bool: YYIO_print_bool, \
+			char: YYIO_print_char, \
+			char*: YYIO_print_constcharpnt, \
+			const char*: YYIO_print_constcharpnt, \
+			void*: YYIO_print_voidp, \
+			const void*: YYIO_print_voidp \
+		)
 #endif
 
 /**
