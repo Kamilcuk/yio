@@ -35,6 +35,7 @@
 int YYIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, const char **enptr);
 
 int YYIO_print_tm(yio_printctx_t *t);
+int YYIO_print_tm_pointer(yio_printctx_t *t);
 int YYIO_print_localtime(yio_printctx_t *t);
 int YYIO_print_gmtime(yio_printctx_t *t);
 
@@ -69,6 +70,7 @@ int YYIO_print_timeval(yio_printctx_t *t);
 
 #define YYIO_PRINT_GENERIC_TIME() \
 		YYIO_OVERLOAD_TYPE_FUNC(struct tm, YYIO_print_tm) \
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
 		YYIO_PRINT_GENERIC_TIMESPEC() \
 		YYIO_PRINT_GENERIC_TIMEVAL()
 

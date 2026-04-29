@@ -39,5 +39,6 @@ foreach(src IN LISTS srcs)
 	)
 	yio_add_test(${genout} NAME yio/${src} REALFILE ${src} GETNAME testname LABELS yio)
 	add_dependencies(${testname} yio_templated_gen)
+	target_link_libraries(${testname} PRIVATE tiny-regex-c)
 endforeach()
 

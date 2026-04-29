@@ -34,8 +34,15 @@ int YYIO_print_int(yio_printctx_t *t);
 int YYIO_print_uint(yio_printctx_t *t);
 int YYIO_print_long(yio_printctx_t *t);
 int YYIO_print_ulong(yio_printctx_t *t);
+#if YYIO_HAS_LLONG
 int YYIO_print_llong(yio_printctx_t *t);
 int YYIO_print_ullong(yio_printctx_t *t);
+#define YYIO_PRINT_LLONG() \
+	YYIO_OVERLOAD_TYPE_FUNC(long long, YYIO_print_llong) \
+	YYIO_OVERLOAD_TYPE_FUNC(unsigned long long, YYIO_print_ullong)
+#else
+#define YYIO_PRINT_LLONG()
+#endif
 
 #define YYIO_PRINT_INTS() \
 	YYIO_OVERLOAD_TYPE_FUNC(short, YYIO_print_short) \
@@ -44,23 +51,23 @@ int YYIO_print_ullong(yio_printctx_t *t);
 	YYIO_OVERLOAD_TYPE_FUNC(unsigned int, YYIO_print_uint) \
 	YYIO_OVERLOAD_TYPE_FUNC(long, YYIO_print_long) \
 	YYIO_OVERLOAD_TYPE_FUNC(unsigned long, YYIO_print_ulong) \
-	YYIO_OVERLOAD_TYPE_FUNC(long long, YYIO_print_llong) \
-	YYIO_OVERLOAD_TYPE_FUNC(unsigned long long, YYIO_print_ullong)
+	YYIO_PRINT_LLONG()
 
-#ifndef YYIO_SCHAR_IS_UNIQUE
-#error YYIO_SCHAR_IS_UNIQUE is not defiend
+
+#ifndef YYIO_HAS_UNIQUE_SCHAR
+#error YYIO_HAS_UNIQUE_SCHAR is not defiend
 #endif
-#if YYIO_SCHAR_IS_UNIQUE
+#if YYIO_HAS_UNIQUE_SCHAR
 #define YYIO_PRINT_SCHAR() \
         YYIO_OVERLOAD_TYPE_FUNC(signed char, YYIO_print_schar)
 #else
 #define YYIO_PRINT_SCHAR()
 #endif
 
-#ifndef YYIO_UCHAR_IS_UNIQUE
-#error YYIO_UCHAR_IS_UNIQUE is not defiend
+#ifndef YYIO_HAS_UNIQUE_UCHAR
+#error YYIO_HAS_UNIQUE_UCHAR is not defiend
 #endif
-#if YYIO_UCHAR_IS_UNIQUE
+#if YYIO_HAS_UNIQUE_UCHAR
 #define YYIO_PRINT_UCHAR() \
         YYIO_OVERLOAD_TYPE_FUNC(unsigned char, YYIO_print_uchar)
 #else

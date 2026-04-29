@@ -35,7 +35,10 @@ function(yio_add_test T_SOURCE)
 	string(REGEX REPLACE "\\..*$" "" T_NAME "${T_NAME}")
 
 	add_executable(${T_NAME} ${T_SOURCE})
-	target_link_libraries(${T_NAME} PRIVATE yio_testlib m)
+	target_link_libraries(${T_NAME} PRIVATE yio_testlib)
+	if(NOT CMAKE_C_COMPILER_ID STREQUAL "SDCC")
+		target_link_libraries(${T_NAME} PRIVATE m)
+	endif()
 	add_dependencies(yio_build_tests ${T_NAME})
 	add_test(NAME ${T_NAME} COMMAND ${T_NAME})
 	list(APPEND T_LABELS "normal")
@@ -134,33 +137,14 @@ endif()
 
 set_from_env(TESTPROGRAM)
 if(DEFINED TESTPROGRAM AND NOT TESTPROGRAM STREQUAL "")
-  set(init_rdimon_decl "")
-  set(init_rdimon_call "")
-  if(CMAKE_SYSTEM_NAME STREQUAL "Generic" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM")
-    set(init_rdimon_decl "extern void initialise_monitor_handles(void);")
-    set(init_rdimon_call "initialise_monitor_handles();")
-  elseif(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
-    set(init_rdimon_decl "
-int putchar(int c) {
-    *((volatile char __xdata *)0xffff) = 0x70;
-    *((volatile char __xdata *)0xffff) = (char)c;
-    return c;
-}
-void exit_test(int code) {
-    *((volatile char __xdata *)0xffff) = 0x73;
-    while(1);
-}")
-    set(init_rdimon_call "")
-  endif()
   set(source "\
+#include <stdio.h>
+#include <stdlib.h>
 #include <yio_test.h>
-#include <locale.h>
-${init_rdimon_decl}
-int main(int argc, char *argv[]) {
-  ${init_rdimon_call}
+int main() {
   ${TESTPROGRAM}
-}
-")
+  return 0;
+}")
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c "${source}")
   message(STATUS "COMPILING:
 ${source}")

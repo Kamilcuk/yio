@@ -1,6 +1,20 @@
 
 #ifndef YYIO_YIO_TEST_H_
 #define YYIO_YIO_TEST_H_
+
+#if defined(__SDCC)
+#define atexit(...)
+#define fflush(...)
+#define fprintf(stream, ...) printf(__VA_ARGS__)
+#define vfprintf(stream, fmt, va) vprintf(fmt, va)
+#define _Exit(code) exit_test(code)
+#define EXIT_FAILURE 1
+#define EXIT_SUCCESS 0
+#define YIO_TEST_FLAG_NOFAIL 0x01
+#define YIO_TEST_FLAG_ASSERT 0x02
+#define main libtest_main
+#endif
+
 #include <yio.h>
 #ifndef YIO_HAS_WCHAR_H
 #error YIO_HAS_WCHAR_H
@@ -24,13 +38,34 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <re.h> // tiny-regex-c
-#include <sstest.h>
 
+#if defined(__SDCC)
+void abort();
+#define YIO_TESTEXPR(e, str, ...)     do { \
+	if (!(e)) { \
+		printf("ERROR: %s:%s:%d: ", __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+		abort(); \
+	} \
+} while(0)
+#define YIO_TESTEXPR_NOFAIL      YIO_TESTEXPR
+#define YIO_TESTEXPR_ASSERT      YIO_TESTEXPR
+#define YYIO_test_is_in_valgrind 0
+#else
+#include <sstest.h>
 #define YIO_TESTEXPR             SSTEST
 #define YIO_TESTEXPR_NOFAIL      SSTEST_WARN
 #define YIO_TESTEXPR_ASSERT      SSTEST_ASSERT
 #define YYIO_test_is_in_valgrind sstest_is_in_valgrind
+#endif
+
+#if defined(YIO_HAS_TINY_REGEX_C) && YIO_HAS_TINY_REGEX_C
+#include <re.h> // tiny-regex-c
+#else
+static int re_match(const char *pat, const char *str, int *len) {
+	(void)pat; (void)str; (void)len;
+	return -1;
+}
+#endif
 
 #define YYIO_test_compare_printformat_in(pf1, pf2, X) \
 		YIO_TESTEXPR(pf1.X == pf2.X, "'%s' %d(%c) %d(%c)", \
@@ -120,9 +155,10 @@ struct testparam {
 
 #define YIO_TEST_FAIL(fmt, ...)     YIO_TEST(( .fail=1 ), fmt, ##__VA_ARGS__)
 #define YIO_TEST_EQ(EQ, ...)     YIO_TEST((.eq = EQ), __VA_ARGS__)
+#ifdef YIO_HAS_TINY_REGEX_C
 #define YIO_TEST_RGX(RGX, ...)     YIO_TEST((.rgx = RGX), __VA_ARGS__)
+#endif
 
 /* ------------------------------------------------------------------------- */
 
 #endif // YYIO_YIO_TEST_H_
-

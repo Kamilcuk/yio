@@ -95,6 +95,37 @@ int YYIO_yio_vsprintf_cb(void *arg, const char *ptr, size_t size) {
 	return not_enough_space ? YIO_ERROR_ENOBUFS : 0;
 }
 
+/* yio_v*printf except yio_vbprintf ------------------------------------------------------ */
+
+static int sdcc_putchar_cb(void *arg, const char *data, size_t count) YYIO_REENTRANT {
+  (void)arg;
+  for (size_t i = 0; i < count; ++i) {
+    putchar(data[i]);
+  }
+  return 0;
+}
+
+int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
+#if defined(__SDCC)
+  return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
+#elif defined(YIO_USE_OUTPUT_FD)
+	return yio_vdprintf(1, data, fmt, va);
+#else
+	return yio_vfprintf(stdout, data, fmt, va);
+#endif
+}
+
+int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, va_list *va) { // NOLINT(readability-non-const-parameter)
+	struct YYIO_yio_vsprintf_ctx_s ctx;
+	ctx.dest = dest;
+	ctx.size = size;
+	const int ret = yio_vbprintf(YYIO_yio_vsprintf_cb, &ctx, data, fmt, va);
+	if (size > 0) {
+		ctx.dest[0] = '\0';
+	}
+	return ret;
+}
+
 struct YYIO_yio_vreaprintf_ctx_s {
 	char *str;
 	size_t size;
@@ -203,4 +234,3 @@ char *yio_vreformatf(char *str, const yio_printdata_t *data, const char *fmt, va
 	}
 	return str;
 }
-

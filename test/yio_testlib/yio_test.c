@@ -7,138 +7,47 @@
  * @brief
  */
 #include "yio_test.h"
-#include <stdarg.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <string.h>
 
-static const char *const GREEN = "\33[32m";
-static const char *const RED = "\33[91m";
-static const char *const RESET = "\33[0m";
-
-static unsigned failures = 0;
-
-static inline
-const char * YYIO__test_get_relative_filepath(const char *file) {
-	const char *this_file = __FILE__;
-	while (*this_file == *file && *this_file != '\0' && *file != '\0') {
-		this_file++;
-		file++;
-	}
-	if (memcmp(file, "test/", 5) == 0) {
-		file += 5;
-	}
-	return file;
-}
-
-static
-void YYIO__test_failed_atexit(void) {
-	printf("YIO_TESTEXPR: failures: %u\n", failures);
-	_Exit(EXIT_FAILURE);
-}
-
-void YYIO_testing(bool verbose, const char *expr, const char *file, int line) {
-	fflush(stdout);
-	fflush(stderr);
-	if (!verbose) return;
-	const char *relative_file = YYIO__test_get_relative_filepath(file);
-	printf("%s:%d: Testing %s\n", relative_file, line, expr);
-	fflush(stdout);
-}
-
-bool YYIO_test_failed(bool result, int flags, const char *expr, const char *file, int line, const char *fmt, ...) {
-	fflush(0);
-	const char *relative_file = YYIO__test_get_relative_filepath(file);
-	if (result) {
-		fprintf(stderr, "%s:%d: %s%s OK%s\n", relative_file, line, GREEN, expr, RESET);
-		fflush(0);
-		return false;
-	}
-
-	const bool fail = !(flags & YIO_TEST_FLAG_NOFAIL);
-	fprintf(stderr, "%s:%d: %s%s: %s", relative_file, line, RED, fail ? "ERROR" : "WARNING", expr);
-	if (strlen(fmt) != 0 && !(strlen(fmt) == 1 && fmt[0] == ' ')) {
-		fprintf(stderr, ": ");
-		va_list va;
-		va_start(va, fmt);
-		vfprintf(stderr, fmt, va);
-		va_end(va);
-		if (fmt[strlen(fmt)] != '\n') {
-			fprintf(stderr, "%s\n", RESET);
-		}
-	} else {
-		fprintf(stderr, "%s\n", RESET);
-	}
-	fflush(0);
-
-	if (flags & YIO_TEST_FLAG_ASSERT) {
-		abort();
-	}
-
-	if (fail) {
-		failures++;
-		static bool failurer_registered = false;
-		if (failurer_registered == false) {
-			failurer_registered = true;
-			atexit(YYIO__test_failed_atexit);
-		}
-	}
-
-	return true;
-}
-
-bool YYIO_test_is_in_valgrind(void) {
-	// long double not supported in valgrind
-#if __linux__
-	const char *p = getenv("LD_PRELOAD");
-	if (p == NULL) return 0;
-	return strstr(p, "/valgrind/") != NULL || strstr(p, "/vgpreload") != NULL;
-#else
-	return false;
-#endif
-}
-
-#if __linux__ && __GLIBC__ && __GNUC__
-#include <execinfo.h>
-#include <unistd.h>
-#include <signal.h>
-#include <unistd.h>
-
-// https://stackoverflow.com/questions/77005/how-to-automatically-generate-a-stacktrace-when-my-program-crashes
-static void sighandler(int sig) {
-	signal(SIGSEGV, SIG_DFL);
-	signal(SIGABRT, SIG_DFL);
-	//
-	void *array[50];
-	const size_t size = backtrace(array, sizeof(array)/sizeof(*array));
-	fprintf(stderr, "Error: signal %d:%s\n", sig, strsignal(sig));
-	char **ss = backtrace_symbols(array, size);
-	for (size_t i = 0; i < size; ++i) {
-		char exe[2048], addr[20];
-		if (sscanf(ss[i], "%2047[^(](+%19[^)]", exe, addr) == 2) {
-			char cmd[4096];
-			snprintf(cmd, sizeof(cmd), "addr2line -Cfip -e %s %s", exe, addr);
-			const int r = system(cmd);
-			(void)r;
-		} else {
-			printf("%s\n", ss[i]);
-		}
-	}
-}
-
+#if __arm__ && __GNUC__
+extern void initialise_monitor_handles(void);
 __attribute__((__constructor__))
-static void disable_buffering(void) {
-	setvbuf(stdout, 0, _IOLBF, 0);
-	setvbuf(stderr, 0, _IOLBF, 0);
-	signal(SIGSEGV, sighandler);
-	signal(SIGABRT, sighandler);
+static void init() {
+    initialise_monitor_handles();
 }
+#endif
 
-bool YYIO_tty(void) {
-	return isatty(STDOUT_FILENO);
+#ifdef __SDCC
+int putchar(int c) {
+	*((volatile char __xdata *)0xffff) = 0x70;
+	*((volatile char __xdata *)0xffff) = (char)c;
+	return c;
 }
-#else
-bool YYIO_tty(void) {
+int puts(const char *s) {
+    while (*s) {
+        putchar(*s++);
+    }
+    putchar('\n');
+}
+void exit_test(int code) {
+	if (code) {
+		puts("\n\n! ERROR - exited with nonzero exit code !\n\n");
+	} else {
+		*((volatile char __xdata *)0xffff) = 0x73;
+	}
+	abort();
+	while (1);
+}
+void abort(void) {
+	*((volatile char __xdata *)0xffff) = 0x61;
+	__asm
+	.db 0x45 ; Illegal opcode/Breakpoint in some simulators
+	__endasm;
+	while (1);
+}
+int libtest_main();
+#undef main
+int main() {
+	exit_test(libtest_main());
 	return 0;
 }
 #endif

@@ -1,10 +1,16 @@
+# configuration.cmake
 
+if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
+	set(MLVLS_DEFAULT 5)
+else()
+	set(MLVLS_DEFAULT 32)
+endif()
 set(YIO_MLVLS_COMMENT [=[
 The count of levels variadic macros expand to.  This specifies the maximum
 number of arguments that can be passed to yio_printf functions.
 A bigger number will generate longer and bigger include files.
 ]=])
-set(YIO_MLVLS 32 CACHE STRING "${YIO_MLVLS_COMMENT}")
+set(YIO_MLVLS "${MLVLS_DEFAULT}" CACHE STRING "${YIO_MLVLS_COMMENT}")
 
 set(YIO_SLOTS_COMMENT [=[
 The upper count of slots available for custom overloads.
@@ -47,11 +53,16 @@ of malloc calls for small allocations
 set(YIO_CACHE_STACK_SIZE 31 CACHE STRING "${YIO_CACHE_STACK_SIZE_COMMENT}")
 yio_config_gen_add_value(YIO_CACHE_STACK_SIZE "${YIO_CACHE_STACK_SIZE}")
 
-set(YIO_NO_MALLOC_COMMENT [=[
+if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
+	set(YIO_STATIC_ONLY 1)
+else()
+	set(YIO_STATIC_ONLY 0)
+endif()
+set(YIO_STATIC_ONLY_COMMENT [=[
 Do not use malloc at all. Will just fail with ENOMEM. TODO
 ]=])
-set(YIO_NO_MALLOC 0 CACHE BOOL "${YIO_NO_MALLOC_COMMENT}")
-yio_config_gen_add(YIO_NO_MALLOC)
+set(YIO_STATIC_ONLY 0 CACHE BOOL "${YIO_STATIC_ONLY_COMMENT}")
+yio_config_gen_add(YIO_STATIC_ONLY)
 
 set(YIO_USE_LOCALE_COMMENT [=[
 Enable usage of 'L' specifier and use nl_langinfo for decimal separtors.

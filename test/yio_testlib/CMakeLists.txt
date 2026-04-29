@@ -8,22 +8,23 @@ jinja_generate(
 	SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/yio_test_float.h
 	OUTPUT "${yio_test_gen}"
 )
-add_library(${PROJECT_NAME} INTERFACE
+add_library(${PROJECT_NAME} STATIC
+	yio_test.c
 	yio_test.h
 	yio_test_private.h
 	"${yio_test_gen}"
 )
 add_dependencies(${PROJECT_NAME} yio_testlib_gen)
-target_include_directories(${PROJECT_NAME} INTERFACE
+target_include_directories(${PROJECT_NAME} PUBLIC
 	${CMAKE_CURRENT_BINARY_DIR}/gen
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(${PROJECT_NAME} INTERFACE
+target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio
-	m
-	tiny-regex-c
-  sstest
 )
+if(NOT CMAKE_C_COMPILER_ID STREQUAL "SDCC")
+	target_link_libraries(${PROJECT_NAME} PUBLIC m sstest)
+endif()
 find_library(DFP
 	NAMES dfp
 	DOC "Path to decimal floating point library"

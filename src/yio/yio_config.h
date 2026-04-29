@@ -36,6 +36,18 @@
 #define YYIO_BITINT_MAXWIDTH 0
 #endif
 
+#ifndef YYIO_HAS_UNISTRING
+#error YYIO_HAS_UNISTRING not defined
+#endif
+
+#ifndef YYIO_HAS_INT128
+#error YYIO_HAS_INT128 not defined
+#endif
+
+#ifndef YYIO_HAS_LLONG
+#error YYIO_HAS_LLONG not defined
+#endif
+
 #ifndef YYIO_HAS_UNISTD_H
 #error YYIO_HAS_UNISTD_H
 #endif

@@ -256,7 +256,10 @@ function(yio_add_library name)
 		c_static_assert
 		c_variadic_macros
 	)
-	target_link_libraries(${name} PUBLIC m)
+	if(NOT CMAKE_C_COMPILER_ID STREQUAL "SDCC")
+		target_link_libraries(${name} PUBLIC m)
+	endif()
+
 	if(YIO_DEV AND NOT BUILD_SHARED_LIBS)
 		if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
 			target_compile_options(${name} PRIVATE -Werror=vla)

@@ -12,26 +12,25 @@
 #include "yio/ctx_types.h"
 
 #define YIO_SDCC_MAX_ARGS {{ j_MLVLS + 1 }}
-extern const void *YYIO_sdcc_args[YIO_SDCC_MAX_ARGS];
-
-{% macro j_dec_YYIO_init_args(I) %}
-const void *YYIO_init_args_{{ I }}(
-{%- for J in j_one_to_n(2, I) -%}
-const void *_{{ J }}{% if not loop.last %}, {% endif %}
+extern yio_printdata_t YYIO_sdcc_args[YIO_SDCC_MAX_ARGS];
+{% macro j_dec_YYIO_sdcc_args_init() %}
+const yio_printdata_t *YYIO_sdcc_args_init(
+{%- for J in j_one_to_n(2, j_MLVLS) -%}
+const yio_printdata_t _{{ J }}{% if not loop.last %}, {% endif %}
 {%- endfor -%}
 )
 {%- endmacro %}
-
-{% for I in j_one_to_n(2, j_MLVLS) %}
-{{ j_dec_YYIO_init_args(I) }};
-{% endfor %}
+{{ j_dec_YYIO_sdcc_args_init() }};
 
 {% from "yio/yio_print_arguments.h" import j_yio_print_arguments_args, j_yio_macros_args, j_yio_macros_funcs %}
-{% for I in j_one_to_n(2, j_MLVLS) %}{% call j_APPLY(I) %}
+{% for I in j_one_to_n(1, j_MLVLS) %}{% call j_APPLY(I) %}
 #line
 #define YYIO_print_arguments_$1(funcgen, fmt{{j_yio_print_arguments_args(I)}}) \
-	(const yio_printdata_t*)YYIO_init_args_$1( \
-{{ j_yio_macros_funcs(I, 0) }}  \
+	(const yio_printdata_t*)YYIO_sdcc_args_init( \
+{{ j_yio_macros_funcs(I, 0) }},  \
+{% for J in j_one_to_n(I + 1, j_MLVLS) %}
+	0{% if not loop .last %}, {% endif %} \
+{% endfor %}
 	), fmt \
 {{ j_yio_macros_args(I) }}	/* */
 {% endcall %}{% endfor %}

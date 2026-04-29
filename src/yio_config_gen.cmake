@@ -33,7 +33,7 @@ endmacro()
 
 # Use this function to output
 macro(yio_config_gen_add_value symbol value)
-	set(yio_config_gen_padding_size 25)
+	set(yio_config_gen_padding_size 35)
 	cmake_parse_arguments(A "ADDIFNDEF" "" "" ${ARGN})
 
 	if(DEFINED ${symbol}_COMMENT)

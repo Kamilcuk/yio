@@ -112,8 +112,10 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 	else if (ifunc == &YYIO_print_uint)   num = yio_printctx_va_arg(t, unsigned int); // NOLINT
 	else if (ifunc == &YYIO_print_long)   num = yio_printctx_va_arg(t, long);
 	else if (ifunc == &YYIO_print_ulong)  num = yio_printctx_va_arg(t, unsigned long);
+#if YYIO_HAS_LLONG
 	else if (ifunc == &YYIO_print_llong)  num = yio_printctx_va_arg(t, long long);
 	else if (ifunc == &YYIO_print_ullong) num = yio_printctx_va_arg(t, unsigned long long);
+#endif
 #if YYIO_HAS_INT128
 	else if (ifunc == &YYIO_print___int128)  num = yio_printctx_va_arg(t, __int128);
 	else if (ifunc == &YYIO_print_u__int128) num = yio_printctx_va_arg(t, unsigned __int128);

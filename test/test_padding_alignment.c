@@ -2,7 +2,7 @@
 #include <yio_test.h>
 #include <string.h>
 
-void test_align(const char *expected, const char *fmt, int val, int width) {
+static void test_align(const char *expected, const char *fmt, int val, int width) {
     char buf[256];
     int err = yio_snprintf(buf, sizeof(buf), fmt, val, width);
     YIO_TESTEXPR(err > 0, "fmt='%s' width=%d err=%d", fmt, width, err);

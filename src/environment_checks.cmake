@@ -90,22 +90,24 @@ endif()
 yio_config_gen_check_include_file("uchar.h"  YIO_HAS_UCHAR_H)
 
 # Check if signed char is unique (vs char).
-yio_config_gen_check_c_source_compiles([=[
-	int main() { _Generic((signed char)0, char: 0, signed char: 1); }
-]=] YYIO_SCHAR_IS_UNIQUE)
+yio_config_gen_check_c_source_compiles(
+	"int main() { _Generic((signed char)0, char: 0, signed char: 1); }"
+	YYIO_HAS_UNIQUE_SCHAR
+)
 
 # Check if unsigned char is unique (vs char).
-yio_config_gen_check_c_source_compiles([=[
-	int main() { _Generic((unsigned char)0, char: 0, unsigned char: 1); }
-]=] YYIO_UCHAR_IS_UNIQUE)
+yio_config_gen_check_c_source_compiles(
+	"int main() { _Generic((unsigned char)0, char: 0, unsigned char: 1); }"
+	YYIO_HAS_UNIQUE_UCHAR
+)
 
 # Check if wchar_t is a unique type or an alias.
 if(YIO_HAS_WCHAR_H)
 	set(add "")
-  if(YYIO_UCHAR_IS_UNIQUE)
+  if(YYIO_HAS_UNIQUE_UCHAR)
   	set(add "unsigned char: 0, ")
   endif()
-  if(YYIO_SCHAR_IS_UNIQUE)
+  if(YYIO_HAS_UNIQUE_SCHAR)
     set(add "signed char: 0, ")
   endif()
   yio_config_gen_check_c_source_compiles("
@@ -124,9 +126,9 @@ if(YIO_HAS_WCHAR_H)
           unsigned long long: 0,
           wchar_t: 1
       );
-  }" YYIO_WCHAR_T_IS_UNIQUE)
+  }" YYIO_HAS_UNIQUE_WCHAR_T)
 else()
-	yio_config_gen_add_value(YYIO_WCHAR_T_IS_UNIQUE 0)
+	yio_config_gen_add_value(YYIO_HAS_UNIQUE_WCHAR_T 0)
 endif()
 
 if(UNISTRING_LIB)
@@ -137,6 +139,18 @@ yio_config_gen_add(YYIO_HAS_UNISTRING)
 set(YIO_USE_STRFROM_PRINTF 1)
 yio_config_gen_add_value(YIO_USE_STRFROM_PRINTF 1)
 yio_config_gen_add_value(YIO_USE_STRFROM_RYU 1)
+
+if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
+	yio_config_gen_add_value(YYIO_HAS_LLONG 0)
+else()
+	yio_config_gen_add_value(YYIO_HAS_LLONG 1)
+endif()
+
+# Does _Generic differentiate between pointers to const and non-const elements?
+yio_config_gen_check_C_source_compiles(
+	"int main() { _Generic((const char *)0, char *: 0, const char *: 0); }"
+	YYIO_HAS_UNIQUE_CONSTPOINTER
+)
 
 #########################################################################
 # handle and detect _floats

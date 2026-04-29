@@ -54,7 +54,8 @@ static inline int YYIO_yio_arr(yio_printctx_t *t) {
         }
         free(fmt);
         return err;
-}#define YYIO_yio_arr_1(ARR)       YYIO_yio_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), 0)
+}
+#define YYIO_yio_arr_1(ARR)       YYIO_yio_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), 0)
 #define YYIO_yio_arr_2(ARR, SEP)  YYIO_yio_arr_3(ARR, sizeof(ARR)/sizeof((ARR)[0]), SEP)
 #define YYIO_yio_arr_3(ARR, COUNT, SEP) \
 		yio_callback(YYIO_yio_arr, &(const struct YYIO_yio_arr_s){ \
