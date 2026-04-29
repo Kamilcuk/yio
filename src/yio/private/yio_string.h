@@ -62,24 +62,12 @@ static inline size_t YYIO_string_capacity(const YYIO_string *t) {
 	return YYIO_string_is_dynamic(t) ? (t->h.info >> 1) : sizeof(t->s.buf);
 }
 
-/// End the string object, freeing any dynamic memory.
+/// Free the string object, freeing any dynamic memory.
 static inline YYIO_access_rw(1)
-void YYIO_string_end(YYIO_string *t) {
+void YYIO_string_free(YYIO_string *t) {
 	if (YYIO_string_is_dynamic(t)) {
 		free(t->h.ptr);
 	}
-}
-
-/// Return the size of the container (capacity)
-static inline YYIO_wur YYIO_nn()
-size_t YYIO_string_size(const YYIO_string *t) {
-	return YYIO_string_capacity(t);
-}
-
-/// Return the used memory
-static inline YYIO_wur YYIO_nn()
-size_t YYIO_string_used(const YYIO_string *t) {
-	return YYIO_string_len(t);
 }
 
 /// Return the left free memory size
@@ -133,24 +121,11 @@ int YYIO_string_putc(YYIO_string *t, char c) {
 YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2, 3)
 int YYIO_string_putsn(YYIO_string *t, const char *ptr, size_t size);
 
-/// Add a string
-static inline YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2)
-int YYIO_string_puts(YYIO_string *t, const char *str) {
-	return YYIO_string_putsn(t, str, strlen(str));
-}
-
 /// Print into the container
 YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2) YYIO_access_r(3)
 int YYIO_string_yprintf_in(YYIO_string *t, const yio_printdata_t *data, const char *fmt, ...);
 
 /// Print into the container
 #define YYIO_string_yprintf(t, ...)  YYIO_string_yprintf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-
-/**
- * Removes trailing zeros. There _has to_ be a dot in the string.
- * @param b
- * @return Did we remove the dot too?
- */
-bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t);
 
 #endif /* YYIO_YIO_PRIVATE_YIO_STRING_H_ */

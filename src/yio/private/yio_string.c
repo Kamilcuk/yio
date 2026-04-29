@@ -73,28 +73,6 @@ int YYIO_string_yprintf_in(YYIO_string *t, const yio_printdata_t *data, const ch
 	va_start(va, fmt);
 	const int err = yio_vbprintf(YYIO_string_yprintf_cb, t, data, fmt, &va);
 	va_end(va);
-	if (err < 0) {
-		return err;
-	}
+	if (err < 0) return err;
 	return 0;
-}
-
-bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
-	bool fractional_part_removed = false;
-	const size_t len = YYIO_string_len(t);
-	if (len == 0) return false;
-	char * const data = YYIO_string_data(t);
-	char *p = data + len - 1;
-	// there is dot, so the following loop will always stop
-	while (p != data && *p == '0') {
-		--p;
-	}
-	assert(YYIO_isxdigit(*p) || *p == '.');
-	if (*p != '.') {
-		++p;
-	} else {
-		fractional_part_removed = true;
-	}
-	YYIO_string_set_used(t, (size_t)(p - data));
-	return fractional_part_removed;
 }

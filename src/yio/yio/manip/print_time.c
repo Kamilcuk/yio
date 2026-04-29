@@ -112,14 +112,14 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 		free((void *)format); // cppcheck-suppress cert-EXP05-C
 	}
 	if (ret == 0) {
-		assert(YYIO_string_used(&res) > 1);
-		const size_t reslen = YYIO_string_used(&res) - 1;
+		assert(YYIO_string_len(&res) > 1);
+		const size_t reslen = YYIO_string_len(&res) - 1;
 		const struct yio_printfmt_s *const pf = &t->pf;
 		const size_t toprint = !yio_precision_isset(pf->precision) ? reslen :
 			reslen < pf->precision ? reslen : pf->precision;
 		ret = yio_printctx_put(t, YYIO_string_data(&res), toprint);
 	}
-	YYIO_string_end(&res);
+	YYIO_string_free(&res);
 	return ret;
 }
 

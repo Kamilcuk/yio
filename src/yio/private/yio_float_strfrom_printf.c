@@ -73,13 +73,13 @@ void YYIO_create_format_string$1(char *restrict fmt, int precision, char spec) {
 int YYIO_float_astrfrom_printf$1(YYIO_string *v, int precision, char spec, YYIO_FLOAT$1 val) {
 	char fmt[FMT_SIZE$1];
 	YYIO_create_format_string$1(fmt, precision, spec);
-	assert(YYIO_string_size(v) < INT_MAX);
-	const int len = snprintf(YYIO_string_data(v), YYIO_string_size(v), fmt, val);
+	assert(YYIO_string_capacity(v) < INT_MAX);
+	const int len = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 	assert(len >= 0);
-	if ((size_t)len >= YYIO_string_size(v)) {
+	if ((size_t)len >= YYIO_string_capacity(v)) {
 		int err = YYIO_string_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = snprintf(YYIO_string_data(v), YYIO_string_size(v), fmt, val);
+		const int len2 = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 		(void)len2;
 		assert(len2 >= 0);
 		assert(len2 == len);

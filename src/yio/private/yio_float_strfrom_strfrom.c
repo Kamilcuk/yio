@@ -71,16 +71,16 @@ int YYIO_float_astrfrom_strfrom$1(YYIO_string *v, int precision, char spec, YYIO
 	char fmt[FMT_SIZE];
 	YYIO_float_astrfrom_strfrom_create_format_string(fmt, precision, spec);
 	// get length
-	assert(YYIO_string_size(v) < INT_MAX);
-	const int len = strfrom$1(YYIO_string_data(v), YYIO_string_size(v), fmt, val);
+	assert(YYIO_string_capacity(v) < INT_MAX);
+	const int len = strfrom$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 	if (len <= 0) {
 		// this is not possible
 		return YYIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned -1");
 	}
-	if ((size_t)len >= YYIO_string_size(v)) {
+	if ((size_t)len >= YYIO_string_capacity(v)) {
 		const int err = YYIO_string_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = strfrom$1(YYIO_string_data(v), YYIO_string_size(v), fmt, val);
+		const int len2 = strfrom$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 		(void)len2;
 		assert(len2 > 0);
 		assert(len2 == len);

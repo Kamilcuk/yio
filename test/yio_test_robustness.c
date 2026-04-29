@@ -87,9 +87,9 @@ static void test_type_edges(void) {
 /* 6. SSO and Dynamic Transition */
 static void test_sso_transition(void) {
     YYIO_string s = {0};
-    
+
     /* SSO mode */
-    YIO_TESTEXPR(YYIO_string_puts(&s, "Small") == 0);
+    YIO_TESTEXPR(YYIO_string_putsn(&s, "Small", strlen("Small")) == 0);
     YIO_TESTEXPR(!YYIO_string_is_dynamic(&s));
     YIO_TESTEXPR(YYIO_string_len(&s) == 5);
     /* Need null terminator for strcmp */
@@ -108,7 +108,7 @@ static void test_sso_transition(void) {
     YIO_TESTEXPR(YYIO_string_is_dynamic(&s));
     YIO_TESTEXPR(YYIO_string_data(&s)[YYIO_string_len(&s)-1] == 'B');
 
-    YYIO_string_end(&s);
+    YYIO_string_free(&s);
 }
 
 int main() {

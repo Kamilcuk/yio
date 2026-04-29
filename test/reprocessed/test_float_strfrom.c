@@ -111,7 +111,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 		}
 	}
 	free(valstr);
-	YYIO_string_end(&res);
+	YYIO_string_free(&res);
 
 	return err;
 }

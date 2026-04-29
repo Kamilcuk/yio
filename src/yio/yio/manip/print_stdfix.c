@@ -27,10 +27,10 @@ int YYIO_print_$3(yio_printctx_t *t) {
 	err = YYIO_astrfrom$1(&res, pf, v);
 	if (err) return err;
 	const char *const result = YYIO_string_data(&res);
-	const size_t length = YYIO_string_used(&res);
+	const size_t length = YYIO_string_len(&res);
 	const bool negative = result[0] == '-';
 	err = yio_printctx_put_number(t, result + negative, length - negative, !negative);
-	YYIO_string_end(&res);
+	YYIO_string_free(&res);
 	return err;
 }
 {% endcall %}

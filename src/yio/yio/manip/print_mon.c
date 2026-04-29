@@ -44,9 +44,9 @@ int YYIO_print_mon(yio_printctx_t *t) {
 	err = YYIO_astrfmon(&res, format, arg);
 	free(format);
 	if (err == 0) {
-		err = yio_printctx_put(t, YYIO_string_data(&res), YYIO_string_used(&res));
+		err = yio_printctx_put(t, YYIO_string_data(&res), YYIO_string_len(&res));
 	}
-	YYIO_string_end(&res);
+	YYIO_string_free(&res);
 	return err;
 }
 

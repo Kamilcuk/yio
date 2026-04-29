@@ -77,6 +77,28 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 	return err;
 }
 
+
+static inline
+bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
+  bool fractional_part_removed = false;
+  const size_t len = YYIO_string_len(t);
+  if (len == 0) return false;
+  char * const data = YYIO_string_data(t);
+  char *p = data + len - 1;
+  // there is dot, so the following loop will always stop
+  while (p != data && *p == '0') {
+    --p;
+  }
+  assert(YYIO_isxdigit(*p) || *p == '.');
+  if (*p != '.') {
+    ++p;
+  } else {
+    fractional_part_removed = true;
+  }
+  YYIO_string_set_used(t, (size_t)(p - data));
+  return fractional_part_removed;
+}
+
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 	{% if not j_match(V.1, "^d[0-9]") %}{# exclude floats #}
 #line

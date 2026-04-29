@@ -40,7 +40,7 @@ int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var) {
 	err = YYIO_float_astrfrom_$2$1(&res, precision, type, var);
 	if (err) return err;
 	const char *const result = YYIO_string_data(&res);
-	const size_t length = YYIO_string_used(&res);
+	const size_t length = YYIO_string_len(&res);
 	const bool is_negative = result[0] == '-';
 	//if (
 			//isdigit((unsigned char)result[0]) ||
@@ -50,7 +50,7 @@ int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var) {
 	//} else {
 		//err = yio_printctx_put(t, result, length);
 	//}
-	YYIO_string_end(&res);
+	YYIO_string_free(&res);
 	return err;
 }
 
