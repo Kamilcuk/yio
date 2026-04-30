@@ -11,8 +11,11 @@ fi
 
 CODE="$*"
 
+rm -f _build/SdccDebug/bin/yio_testprogram.ihx
+
 # Build the testprogram target with PRESET=sdcc
 env PRESET=sdcc TESTPROGRAM="$CODE" make .build_yio_testprogram
 
 # Run it in the simulator
-s51 -Sout=- -I "if=xram[0xffff]" -G _build/SdccDebug/bin/yio_testprogram.ihx
+set -x
+timeout 30s s51 -Sout=- -I "if=xram[0xffff]" -G _build/SdccDebug/bin/yio_testprogram.ihx

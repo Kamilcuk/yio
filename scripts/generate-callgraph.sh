@@ -9,8 +9,10 @@ DIR=$(dirname "$(readlink -f "$0")")
 cd "$DIR"
 INPUT_FILE=${1:-../_build/DefaultDebug/lib/libyiod.a}
 OUTPUT_BASE=$(basename "$INPUT_FILE")
-DOT_FILE="../_build/${OUTPUT_BASE}.dot"
-PNG_FILE="../_build/${OUTPUT_BASE}.png"
+outdir=../_build/generate-callgraph
+mkdir -vp "$outdir"
+DOT_FILE="$outdir/${OUTPUT_BASE}.dot"
+PNG_FILE="$outdir/${OUTPUT_BASE}.png"
 
 echo "Analyzing $INPUT_FILE..."
 
