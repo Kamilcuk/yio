@@ -110,6 +110,7 @@ YYIO_FLOAT$1 YYIO_diff$1(YYIO_FLOAT$1 in, YYIO_FLOAT$1 out) {
 static inline
 void test_onefloat_$1(const char *instr, TYPE$1 in,
 		const char *format, double diffatmost) {
+#if YIO_HAS_MALLOC
 	errno = 0;
 	char *const format_native = yio_formatf("{}", format);
 	YIO_TESTEXPR_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
@@ -177,6 +178,9 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	YIO_TESTEXPR_ASSERT(endp == str + strlen(str));
 
 	free(str);
+#else
+	(void)instr; (void)in; (void)format; (void)diffatmost;
+#endif
 }
 
 static void test_floats_$1(void) {
@@ -209,7 +213,9 @@ int main() {
 	setvbuf(stdout, NULL, _IOLBF, 0);
 	// The first call suprisingly returns errno=2. Curiosly where.
 	// Anyway, call it here, so it doesn't return errno=2 later.
+#if YIO_HAS_MALLOC
 	free(yio_formatf("{}", "{}"));
+#endif
 
 	test_floats_f();
 	if (!YYIO_test_is_in_valgrind()) test_floats_l();

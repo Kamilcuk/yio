@@ -17,57 +17,89 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define YYIO_MAX(a, b)  ((a) > (b) ? (a) : (b))
-#define YYIO_SSO_SIZE   YYIO_MAX((size_t)YIO_CACHE_STACK_SIZE, sizeof(size_t) * 2)
+#ifndef YIO_HAS_MALLOC
+#error YIO_HAS_MALLOC is not defined
+#endif
 
+#define YYIO_MAX(a, b)  ((a) > (b) ? (a) : (b))
+/// Rounds up 's' to the nearest multiple of 'a'. Works for any 'a' > 0.
+#define YYIO_ALIGN_UP(s, a) (((s) + (a) - 1) / (a) * (a))
+
+/// Round up SSO buffer to size_t to convert potential compiler padding
+/// into usable capacity for the string.
+#define YYIO_SSO_MIN_SIZE    YYIO_MAX(YIO_CACHE_STACK_SIZE, sizeof(size_t) * 2)
+#define YYIO_SSO_SIZE        YYIO_ALIGN_UP(YYIO_SSO_MIN_SIZE, sizeof(size_t))
+
+/// Represents a string with SSO and dynamic allocation.
 typedef struct YYIO_string {
+	/// if YIO_HAS_MALLOC:
+	///  Bit 0: dynamic_flag (1=Heap, 0=SSO)
+	///  Heap: Bits 1-63: Capacity (Heap)
+	///  SSO: Bits 1-63: SSO_len
+	///else:
+	///  All bits is SSO_len.
+	size_t info;
 	union {
+		#if YIO_HAS_MALLOC
 		struct {
-			/* Bit 0: dynamic_flag (1=Heap, 0=SSO)
-			 * Bits 1-63: Capacity (Heap) */
-			size_t info;
 			size_t len;  /* Used only in Heap mode */
 			char *ptr;   /* Used only in Heap mode */
 		} h;
+		#endif
 		struct {
-			/* Bit 0: dynamic_flag (0=SSO)
-			 * Bits 1-63: SSO_len */
-			size_t info;
 			char buf[YYIO_SSO_SIZE];
 		} s;
 	};
 } YYIO_string;
 
-/**
- * Initializes the string object.
- */
-static inline YYIO_access_w(1)
-void YYIO_string_init(YYIO_string *t) {
-	t->h.info = 0;
+/// Initializes the string object.
+YYIO_access_w(1) static inline void YYIO_string_init(YYIO_string *t) {
+	t->info = 0;
 }
 
-static inline bool YYIO_string_is_dynamic(const YYIO_string *t) {
-	return t->h.info & 1;
+YYIO_wur static inline bool YYIO_string_is_dynamic(const YYIO_string *t) {
+	#if YIO_HAS_MALLOC
+	return t->info & 1;
+	#else
+	(void)t;
+	return false;
+	#endif
 }
 
-static inline size_t YYIO_string_len(const YYIO_string *t) {
-	return YYIO_string_is_dynamic(t) ? t->h.len : (t->h.info >> 1);
+YYIO_wur static inline size_t YYIO_string_len(const YYIO_string *t) {
+	#if YIO_HAS_MALLOC
+	return YYIO_string_is_dynamic(t) ? t->h.len : (t->info >> 1);
+	#else
+	return t->info;
+	#endif
 }
 
-static inline char *YYIO_string_data(const YYIO_string *t) {
-	return YYIO_string_is_dynamic(t) ? t->h.ptr : (char *)t->s.buf;
+YYIO_wur static inline char *YYIO_string_data(YYIO_string *t) {
+	#if YIO_HAS_MALLOC
+	return YYIO_string_is_dynamic(t) ? t->h.ptr : t->s.buf;
+	#else
+	return t->s.buf;
+	#endif
 }
 
-static inline size_t YYIO_string_capacity(const YYIO_string *t) {
-	return YYIO_string_is_dynamic(t) ? (t->h.info >> 1) : sizeof(t->s.buf);
+YYIO_wur static inline size_t YYIO_string_capacity(const YYIO_string *t) {
+	#if YIO_HAS_MALLOC
+	return YYIO_string_is_dynamic(t) ? (t->info >> 1) : sizeof(t->s.buf);
+	#else
+	return sizeof(t->s.buf);
+	#endif
 }
 
 /// Free the string object, freeing any dynamic memory.
 static inline YYIO_access_rw(1)
 void YYIO_string_free(YYIO_string *t) {
+#if YIO_HAS_MALLOC
 	if (YYIO_string_is_dynamic(t)) {
 		free(t->h.ptr);
 	}
+#else
+	(void)t;
+#endif
 }
 
 /// Return the left free memory size
@@ -76,37 +108,30 @@ size_t YYIO_string_free_size(const YYIO_string *t) {
 	return YYIO_string_capacity(t) - YYIO_string_len(t);
 }
 
-/**
- * Set the count of used bytes in container.
- */
+/// Set the count of used bytes in container.
 static inline YYIO_nn()
 void YYIO_string_set_used(YYIO_string *t, size_t newused) {
 	assert(newused <= YYIO_string_capacity(t));
+	#if YIO_HAS_MALLOC
 	if (YYIO_string_is_dynamic(t)) {
 		t->h.len = newused;
 	} else {
-		t->s.info = (newused << 1);
+		t->info = (newused << 1);
 	}
+	#else
+	t->info = newused;
+	#endif
 }
 
-/**
- * Allocate that much memory.
- * Note: @c newsize has to be greater than current capacity.
- */
-YYIO_wur YYIO_nn()
-int YYIO_string_reserve(YYIO_string *t, size_t newsize);
+/// Allocate that much memory.
+/// Note: @c newsize has to be greater than current capacity.
+YYIO_wur YYIO_nn() int YYIO_string_reserve(YYIO_string *t, size_t newsize);
 
-/**
- * Allocate more memory.
- */
-YYIO_wur YYIO_nn()
-int YYIO_string_reserve_more(YYIO_string *t);
+/// Allocate more memory.
+YYIO_wur YYIO_nn() int YYIO_string_reserve_more(YYIO_string *t);
 
-/**
- * Add a character
- */
-static inline
-int YYIO_string_putc(YYIO_string *t, char c) {
+/// Add a character
+static inline int YYIO_string_putc(YYIO_string *t, char c) {
 	if (YYIO_string_free_size(t) == 0) {
 		const int err = YYIO_string_reserve_more(t);
 		if (err) return err;

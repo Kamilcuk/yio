@@ -15,8 +15,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /yio
 
 # --- GCC Target ---
-FROM base AS gcc
+FROM base AS gcc-sh
 RUN apt-get update && apt-get install -y --no-install-recommends gcc g++ && rm -rf /var/lib/apt/lists/*
+
+FROM gcc-sh AS gcc
 COPY . .
 RUN --mount=type=cache,target=_build \
     make test CC=gcc
@@ -29,18 +31,20 @@ RUN --mount=type=cache,target=_build \
     make test CC=clang
 
 # --- ARM none-eabi Target ---
-FROM base AS arm-none-eabi
+FROM base AS arm-sh
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc-arm-none-eabi \
+    libstdc++-arm-none-eabi-newlib \
     libnewlib-arm-none-eabi \
     qemu-user \
     && rm -rf /var/lib/apt/lists/*
+FROM arm-sh AS arm
 COPY . .
 RUN --mount=type=cache,target=_build \
     make test PRESET=arm
 
 # --- Alpine Target ---
-FROM alpine:3.23 AS alpine
+FROM alpine:3.23 AS alpine-sh
 RUN apk add --no-cache \
     build-base \
     cmake \
@@ -50,6 +54,7 @@ RUN apk add --no-cache \
     libunistring-dev \
     bash
 WORKDIR /yio
+FROM alpine-sh AS alpine
 COPY . .
 RUN --mount=type=cache,target=_build \
     make test
@@ -107,5 +112,25 @@ RUN --mount=type=cache,target=_build \
     make test PRESET=keil
 
 # --- Pages Target ---
-FROM gcc AS pages
+FROM gcc-sh AS pages
+COPY . .
 RUN make gitlab_pages
+
+# --- LTO Target ---
+FROM gcc-sh AS lto
+COPY . .
+RUN --mount=type=cache,target=_build \
+    make test CFLAGS="-flto" LDFLAGS="-flto"
+
+# --- Valgrind Target ---
+FROM gcc-sh AS valgrind
+RUN apt-get update && apt-get install -y --no-install-recommends valgrind && rm -rf /var/lib/apt/lists/*
+COPY . .
+RUN --mount=type=cache,target=_build \
+    make valgrind && make test_project
+
+# --- No-Malloc + No-GNU Target ---
+FROM gcc-sh AS nomalloc_nognu
+COPY . .
+RUN --mount=type=cache,target=_build \
+    make test PRESET=nomalloc_nognu

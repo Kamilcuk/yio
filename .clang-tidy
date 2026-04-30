@@ -3,6 +3,7 @@
 # clang-tidy bug, can't return pointer to va_list from a function.
 Checks: >
   *,
+  -readability-implicit-bool-conversion,
   -altera-*,
   -hicpp-*,
   -bugprone-easily-swappable-parameters,

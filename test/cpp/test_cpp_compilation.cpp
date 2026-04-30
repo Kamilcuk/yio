@@ -45,9 +45,11 @@ int main() {
     // Wide chars
     err = yio_printf("Wide char: {}\n", L'X');
     assert(err >= 0);
+    // Wide string: {}
     err = yio_printf("Wide string: {}\n", L"Wide string literal");
     assert(err >= 0);
 
+    #if YIO_HAS_MALLOC
     // Positional arguments
     char *pos_str = yio_formatf("{1} {0} {1}\n", "first", "second");
     assert(pos_str != NULL);
@@ -60,8 +62,10 @@ int main() {
     assert(p_str != NULL);
     assert(std::string(p_str) == "Point: (10, 20)\n");
     free(p_str);
+    #endif
 
     // yio_count
+
     int count = 0;
     err = yio_printf("Count this: {}{}\n", "abc", yio_count(&count));
     assert(err >= 0);

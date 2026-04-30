@@ -52,9 +52,7 @@ R ?=
 
 # Build dir name, matches .gitlab-ci
 ifdef CC
-ifneq ($(filter clang icc,$(CC)),)
-_BCCNAME = $(CC)
-endif
+_BCCNAME = $(notdir $(CC))
 endif
 _BCCNAME ?=
 # OS IDentification, matches .gitlab-ci

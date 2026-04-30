@@ -1,16 +1,16 @@
 # configuration.cmake
 
 if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
-	set(MLVLS_DEFAULT 5)
+	set(YIO_MLVLS_DEFAULT 5)
 else()
-	set(MLVLS_DEFAULT 32)
+	set(YIO_MLVLS_DEFAULT 32)
 endif()
 set(YIO_MLVLS_COMMENT [=[
 The count of levels variadic macros expand to.  This specifies the maximum
 number of arguments that can be passed to yio_printf functions.
 A bigger number will generate longer and bigger include files.
 ]=])
-set(YIO_MLVLS "${MLVLS_DEFAULT}" CACHE STRING "${YIO_MLVLS_COMMENT}")
+set(YIO_MLVLS "${YIO_MLVLS_DEFAULT}" CACHE STRING "${YIO_MLVLS_COMMENT}")
 
 set(YIO_SLOTS_COMMENT [=[
 The upper count of slots available for custom overloads.
@@ -28,7 +28,7 @@ endif()
 set(YIO_PRINT_FLOATS_WITH_COMMENT [=[
 Choose the floating point printing function. By default strfrom{f,d,l} are
 used if they are available. If they are not available not available, then
-printf with appriopriate format specifier is preferred.
+printf with appropriate format specifier is preferred.
 Note that using printf may break because of locale issues.
 Possible values of this variable are:
 YIO_PRINT_FLOATS_WITH_UNSET YIO_PRINT_FLOATS_WITH_STRFROM
@@ -45,7 +45,7 @@ set(YIO_USE_OUTPUT_FD 1 CACHE BOOL "${YIO_USE_OUTPUT_FD_COMMENT}")
 yio_config_gen_add(YIO_USE_OUTPUT_FD)
 
 set(YIO_CACHE_STACK_SIZE_COMMENT [=[
-When using functions that can potentially use dynamic allocatin, this is the count
+When using functions that can potentially use dynamic allocation, this is the count
 of memory that is allocated statically. If the number of bytes needed is greater than
 this number, only than the memory is allocated dynamically. This is to reduce the number
 of malloc calls for small allocations
@@ -54,18 +54,19 @@ set(YIO_CACHE_STACK_SIZE 31 CACHE STRING "${YIO_CACHE_STACK_SIZE_COMMENT}")
 yio_config_gen_add_value(YIO_CACHE_STACK_SIZE "${YIO_CACHE_STACK_SIZE}")
 
 if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
-	set(YIO_STATIC_ONLY 1)
+	set(YIO_HAS_MALLOC_DEFAULT 0)
 else()
-	set(YIO_STATIC_ONLY 0)
+	set(YIO_HAS_MALLOC_DEFAULT 1)
 endif()
-set(YIO_STATIC_ONLY_COMMENT [=[
-Do not use malloc at all. Will just fail with ENOMEM. TODO
+set(YIO_HAS_MALLOC_COMMENT [=[
+Set to 0 to not use malloc at all. Will just fail with ENOMEM.
+Increase YIO_CACHE_STACK_SIZE to the size you want to handle.
 ]=])
-set(YIO_STATIC_ONLY 0 CACHE BOOL "${YIO_STATIC_ONLY_COMMENT}")
-yio_config_gen_add(YIO_STATIC_ONLY)
+set(YIO_HAS_MALLOC "${YIO_HAS_MALLOC_DEFAULT}" CACHE BOOL "${YIO_HAS_MALLOC_COMMENT}")
+yio_config_gen_add(YIO_HAS_MALLOC)
 
 set(YIO_USE_LOCALE_COMMENT [=[
-Enable usage of 'L' specifier and use nl_langinfo for decimal separtors.
+Enable usage of 'L' specifier and use nl_langinfo for decimal separators.
 ]=])
 set(YIO_USE_LOCALE 1 CACHE BOOL "${YIO_USE_LOCALE_COMMENT}")
 yio_config_gen_add(YIO_USE_LOCALE)

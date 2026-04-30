@@ -14,26 +14,18 @@ variables:
 
 ###############################################################################
 
-icc_test:
-  tags:
-    - perun
-  image:
-    name: intel/oneapi-hpckit
+.buildah_test:
+  image: quay.io/buildah/stable
   variables:
-    CC: icc
-    PRESET: icc
+    STORAGE_DRIVER: vfs
   script:
-    - apt update
-    - apt install -y git libunistring-dev ninja-build
-    - pip3 install jinja2
-    - make test
+    - buildah build --target "${TARGET}" .
 
-valgrind_project_test:
-  variables:
-    CC: gcc
-  script:
-    - make valgrind
-    - make test_project
+docker_target_tests:
+  extends: .buildah_test
+  parallel:
+    matrix:
+      - TARGET: ["gcc", "clang", "arm", "alpine", "icc", "lto", "valgrind", "nomalloc_nognu"]
 
 lint_test:
   script:
@@ -46,25 +38,9 @@ gcc_sanitize_test:
   script:
     - make sanitize
 
-clang_test:
-  variables:
-    CC: clang
-  script:
-    - make test
-
-arm_test:
-  script:
-    - make arm
-
 project_add_subdirectory_test:
   script:
     - make test_project_add_subdirectory
-
-alpine_test:
-  image: alpine
-  script:
-    - apk add build-base make cmake ninja bash gcc py3-jinja2 libunistring-dev git
-    - make test
 
 centos8_test:
   image: centos:8

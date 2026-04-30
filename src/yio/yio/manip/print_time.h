@@ -8,7 +8,7 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
-#include "../ctx.h"
+#include "../ctx_types.h"
 #include <time.h>
 #ifndef YYIO_HAS_timespec
 #error
@@ -34,7 +34,9 @@
  */
 int YYIO_print_time_in_extract_format_add_space(char *dest, const char *fmt, const char **enptr);
 
+#ifndef __SDCC
 int YYIO_print_tm(yio_printctx_t *t);
+#endif
 int YYIO_print_tm_pointer(yio_printctx_t *t);
 int YYIO_print_localtime(yio_printctx_t *t);
 int YYIO_print_gmtime(yio_printctx_t *t);
@@ -68,10 +70,17 @@ int YYIO_print_timeval(yio_printctx_t *t);
 #define YYIO_PRINT_GENERIC_TIMEVAL()
 #endif // YYIO_HAS_timeval
 
+#ifdef __SDCC
+#define YYIO_PRINT_GENERIC_TIME() \
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
+		YYIO_PRINT_GENERIC_TIMESPEC() \
+		YYIO_PRINT_GENERIC_TIMEVAL()
+#else
 #define YYIO_PRINT_GENERIC_TIME() \
 		YYIO_OVERLOAD_TYPE_FUNC(struct tm, YYIO_print_tm) \
 		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
 		YYIO_PRINT_GENERIC_TIMESPEC() \
 		YYIO_PRINT_GENERIC_TIMEVAL()
+#endif
 
 #endif /* YYIO_YIO_YIO_MANIP_PRINT_TIME_H_ */

@@ -42,38 +42,6 @@ int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, cons
 	return ret;
 }
 
-int YYIO_yio_aprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
-	va_list va;
-	va_start(va, fmt);
-	const int ret = yio_vaprintf(strp, data, fmt, &va);
-	va_end(va);
-	return ret;
-}
-
-int YYIO_yio_reaprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
-	va_list va;
-	va_start(va, fmt);
-	const int ret = yio_vreaprintf(strp, data, fmt, &va);
-	va_end(va);
-	return ret;
-}
-
-char *YYIO_yio_formatf(const yio_printdata_t *data, const char *fmt, ...) {
-	va_list va;
-	va_start(va, fmt);
-	char * const ret = yio_vformatf(data, fmt, &va);
-	va_end(va);
-	return ret;
-}
-
-char *YYIO_yio_reformatf(char *str, const yio_printdata_t *data, const char *fmt, ...) {
-	va_list va;
-	va_start(va, fmt);
-	char * const ret = yio_vreformatf(str, data, fmt, &va);
-	va_end(va);
-	return ret;
-}
-
 /* Callbacks and contexts ----------------------------------------------------- */
 
 struct YYIO_yio_vsprintf_ctx_s {
@@ -126,6 +94,47 @@ int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const cha
 	return ret;
 }
 
+/* ------------------------------------------------------------------------- */
+
+#if YIO_HAS_MALLOC
+
+int YYIO_yio_aprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	const int ret = yio_vaprintf(strp, data, fmt, &va);
+	va_end(va);
+	return ret;
+}
+
+int YYIO_yio_reaprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	const int ret = yio_vreaprintf(strp, data, fmt, &va);
+	va_end(va);
+	return ret;
+}
+
+char *YYIO_yio_formatf(const yio_printdata_t *data, const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	char * const ret = yio_vformatf(data, fmt, &va);
+	va_end(va);
+	return ret;
+}
+
+char *YYIO_yio_reformatf(char *str, const yio_printdata_t *data, const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	char * const ret = yio_vreformatf(str, data, fmt, &va);
+	va_end(va);
+	return ret;
+}
+
+int yio_vaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
+	*strp = NULL;
+	return yio_vreaprintf(strp, data, fmt, va);
+}
+
 struct YYIO_yio_vreaprintf_ctx_s {
 	char *str;
 	size_t size;
@@ -137,12 +146,10 @@ int YYIO_yio_vreaprintf_cb(void *arg, const char *ptr, size_t size) {
 	struct YYIO_yio_vreaprintf_ctx_s *p = arg;
 	const size_t count = p->size + size + 1;
 	assert(count < SIZE_MAX / sizeof(*p->str));
-
 	if (count > p->capacity) {
 		size_t new_cap = YYIO_GOLDEN_INCREASE(p->capacity);
 		if (new_cap < YYIO_INIT_CAPACITY) new_cap = YYIO_INIT_CAPACITY;
 		if (new_cap < count) new_cap = count;
-
 		void * const pnt = realloc(p->str, sizeof(*p->str) * new_cap);
 		if (pnt == NULL) {
 			free(p->str);
@@ -154,52 +161,10 @@ int YYIO_yio_vreaprintf_cb(void *arg, const char *ptr, size_t size) {
 		p->str = pnt;
 		p->capacity = new_cap;
 	}
-
 	memcpy(p->str + p->size, ptr, size * sizeof(*p->str));
 	assert(p->size < SIZE_MAX - size);
 	p->size += size;
-
 	return 0;
-}
-
-
-/* yio_v*printf except yio_vbprintf ------------------------------------------------------ */
-
-#ifdef __SDCC
-static int sdcc_putchar_cb(void *arg, const char *data, size_t count) __reentrant {
-    (void)arg;
-    for (size_t i = 0; i < count; ++i) {
-        putchar(data[i]);
-    }
-    return 0;
-}
-int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
-    return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
-}
-#else
-int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
-#ifdef YIO_USE_OUTPUT_FD
-	return yio_vdprintf(1, data, fmt, va);
-#else
-	return yio_vfprintf(stdout, data, fmt, va);
-#endif
-}
-#endif
-
-int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, va_list *va) { // NOLINT(readability-non-const-parameter)
-	struct YYIO_yio_vsprintf_ctx_s ctx;
-	ctx.dest = dest;
-	ctx.size = size;
-	const int ret = yio_vbprintf(YYIO_yio_vsprintf_cb, &ctx, data, fmt, va);
-	if (size > 0) {
-		ctx.dest[0] = '\0';
-	}
-	return ret;
-}
-
-int yio_vaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
-	*strp = NULL;
-	return yio_vreaprintf(strp, data, fmt, va);
 }
 
 int yio_vreaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
@@ -234,3 +199,6 @@ char *yio_vreformatf(char *str, const yio_printdata_t *data, const char *fmt, va
 	}
 	return str;
 }
+
+#endif // YIO_STATIC_ONLY
+

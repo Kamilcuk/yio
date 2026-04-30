@@ -12,10 +12,10 @@
 #endif
 #if YYIO_HAS_MONETARY_H
 #include "../../private/yio_allochelp.h"
+#include "../../private/yio_string.h"
 #include "print_mon.h"
 #include <monetary.h>
 #include <assert.h>
-#include <errno.h>
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,19 +30,24 @@ int YYIO_print_mon(yio_printctx_t *t) {
 	const char *const fmtend = t->fmt;
 	int err = yio_printctx_init(t);
 	if (err) return err;
-	//
+	// Prepare format string for strfmon.
 	const size_t realfmtlen = fmtend - fmtbegin;
-	char *format = malloc(sizeof(*format) * (realfmtlen + 1));
-	if (format == NULL) return YIO_ERROR_ENOMEM;
+	YYIO_string fmtbuf;
+	YYIO_string_init(&fmtbuf);
+	err = YYIO_string_reserve(&fmtbuf, realfmtlen + 1);
+	if (err) return err;
+	char *format = YYIO_string_data(&fmtbuf);
 	memcpy(format, fmtbegin, realfmtlen);
 	format[realfmtlen] = '\0';
+	// Call astrfmon.
 	const struct YYIO_astrfmon_arg arg = {
 		.v.d = vv,
 		.isldbl = false,
 	};
-	YYIO_string res = {0};
+	YYIO_string res;
+	YYIO_string_init(&res);
 	err = YYIO_astrfmon(&res, format, arg);
-	free(format);
+	YYIO_string_free(&fmtbuf);
 	if (err == 0) {
 		err = yio_printctx_put(t, YYIO_string_data(&res), YYIO_string_len(&res));
 	}

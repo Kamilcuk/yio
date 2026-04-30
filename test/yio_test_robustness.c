@@ -36,6 +36,7 @@ static void test_recursive_callbacks(void) {
 }
 
 /* 3. Memory management / yio_reaprintf */
+#if YIO_HAS_MALLOC
 static void test_memory(void) {
     char *str = NULL;
     int ret;
@@ -60,6 +61,7 @@ static void test_memory(void) {
 
     free(str);
 }
+#endif
 
 /* 4. Standardized Time Functions */
 static void test_time_api(void) {
@@ -85,6 +87,7 @@ static void test_type_edges(void) {
 #include <yio/private/yio_string.h>
 
 /* 6. SSO and Dynamic Transition */
+#if YIO_HAS_MALLOC
 static void test_sso_transition(void) {
     YYIO_string s = {0};
 
@@ -110,13 +113,18 @@ static void test_sso_transition(void) {
 
     YYIO_string_free(&s);
 }
+#endif
 
 int main() {
     test_escapes();
     test_recursive_callbacks();
+#if YIO_HAS_MALLOC
     test_memory();
+#endif
     test_time_api();
     test_type_edges();
+#if YIO_HAS_MALLOC
     test_sso_transition();
+#endif
     return 0;
 }

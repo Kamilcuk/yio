@@ -84,12 +84,26 @@ int YYIO_print_count(yio_printctx_t *t);
 }
 #endif
 
+#ifndef YYIO_HAS_UNIQUE_CONSTPOINTER
+#error YYIO_HAS_UNIQUE_CONSTPOINTER is not defined
+#endif
 #ifdef __cplusplus
 #define YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC) \
 	inline yio_printdata_t yyio_print_func_generic_cpp(TYPE) { return (yio_printdata_t)(FUNC); }
+#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(TYPE, FUNC) \
+	YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC) \
+	YYIO_OVERLOAD_TYPE_FUNC(const TYPE, FUNC)
 #else
 #define YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC) \
 	TYPE: FUNC,
+#if YYIO_HAS_UNIQUE_CONSTPOINTER
+#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(TYPE, FUNC) \
+	TYPE: FUNC, \
+	const TYPE: FUNC,
+#else
+#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(TYPE, FUNC) \
+	TYPE: FUNC,
+#endif
 #endif
 
 #ifdef __cplusplus
@@ -109,10 +123,8 @@ namespace yyio_cpp {
 	YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
 	YYIO_OVERLOAD_TYPE_FUNC(bool, YYIO_print_bool)
 	YYIO_OVERLOAD_TYPE_FUNC(char, YYIO_print_char)
-	YYIO_OVERLOAD_TYPE_FUNC(char*, YYIO_print_constcharpnt)
-	YYIO_OVERLOAD_TYPE_FUNC(const char*, YYIO_print_constcharpnt)
-	YYIO_OVERLOAD_TYPE_FUNC(void*, YYIO_print_voidp)
-	YYIO_OVERLOAD_TYPE_FUNC(const void*, YYIO_print_voidp)
+	YYIO_OVERLOAD_POINTER_TYPE_FUNC(char*, YYIO_print_constcharpnt)
+	YYIO_OVERLOAD_POINTER_TYPE_FUNC(void*, YYIO_print_voidp)
 }
 #endif
 
@@ -139,12 +151,10 @@ namespace yyio_cpp {
 			YYIO_PRINT_STDFIX() \
 			YYIO_PRINT_COMPLEX() \
 			YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
+			YYIO_OVERLOAD_POINTER_TYPE_FUNC(char*, YYIO_print_constcharpnt) \
+			YYIO_OVERLOAD_POINTER_TYPE_FUNC(void*, YYIO_print_voidp) \
 			bool: YYIO_print_bool, \
-			char: YYIO_print_char, \
-			char*: YYIO_print_constcharpnt, \
-			const char*: YYIO_print_constcharpnt, \
-			void*: YYIO_print_voidp, \
-			const void*: YYIO_print_voidp \
+			char: YYIO_print_char \
 		)
 #endif
 

@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "private.h"
+#include <string.h>
 
 static size_t YYIO_strnlen(const char *str, size_t maxlen) {
 #if YYIO_HAS_strnlen
@@ -42,9 +43,9 @@ int YYIO_print_char(yio_printctx_t *t) {
 
 int YYIO_print_constcharpnt(yio_printctx_t *t) {
 	const char *const str1 = yio_printctx_va_arg(t, const char *);
-	const char *const str = str1 == NULL ? "(null)" : str1;
 	const int err = yio_printctx_init(t);
 	if (err) return err;
+	const char *const str = str1 == NULL ? "(null)" : str1;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
 	if (pf->type != '\0' && pf->type != 's') {
 		return YIO_ERROR_INVALID_TYPE;

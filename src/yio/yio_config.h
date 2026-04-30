@@ -20,10 +20,12 @@
 // +#} //
 // +#} //
 
+#ifndef YYIO_HAS_INT128
 #ifdef __SIZEOF_INT128__
 #define YYIO_HAS_INT128 1
 #else
 #define YYIO_HAS_INT128 0
+#endif
 #endif
 
 #ifdef __BITINT_MAXWIDTH__
@@ -164,9 +166,6 @@ typedef struct YYIO_SDCC_FILE_s { int YYIO_SDCC_FILE_unused; } FILE;
 
 #define YYIO_CONCAT(a, b)   a##b
 #define YYIO_XCONCAT(a, b)  YYIO_CONCAT(a, b)
-
-#define YYIO_CONCAT3(a, b, c)   a##b##c
-#define YYIO_XCONCAT3(a, b, c)  YYIO_CONCAT3(a, b, c)
 
 /**
  * @}

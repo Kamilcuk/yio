@@ -69,63 +69,70 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	//
 	const char *fmtbegin = NULL;
 	const char *fmtend = NULL;
-	int ret = YYIO_print_time_parse_format(t, &fmtbegin, &fmtend);
-	if (ret) return ret;
+	int err = YYIO_print_time_parse_format(t, &fmtbegin, &fmtend);
+	if (err) return err;
 	// Advance global fmt.
 	if (t->fmt) {
 		assert(fmtend[0] == '}');
 		t->fmt = fmtend;
 	}
 	// Initialize printctx - after erading format string.
-	ret = yio_printctx_init(t);
-	if (ret) return ret;
+	err = yio_printctx_init(t);
+	if (err) return err;
 	//
 	const ptrdiff_t realfmtlen = fmtend - fmtbegin;
 
 	// Extract the format string.
 	// Add additional space.
+	YYIO_string fmtbut;
+	YYIO_string_init(&fmtbut);
 	const char *const emptyformat = "%c ";
-	const char *format;
+	const char *format = NULL;
 	if (realfmtlen == 0) {
 		// Zero fmt length results in '%c'.
 		format = emptyformat;
 	} else {
 		// Add additional space.
 		const ptrdiff_t fmtlen = realfmtlen + 2;
-		char *formatbuf = malloc(sizeof(*formatbuf) * fmtlen);
-		if (formatbuf == NULL) {
-			return YIO_ERROR_ENOMEM;
-		}
-		memcpy(formatbuf, fmtbegin, sizeof(*formatbuf) * realfmtlen);
-		formatbuf[fmtlen - 2] = ' ';
-		formatbuf[fmtlen - 1] = '\0';
-		format = formatbuf;
+		err = YYIO_string_reserve(&fmtbut, fmtlen);
+		if (err) return err;
+		char *data = YYIO_string_data(&fmtbut);
+		memcpy(data, fmtbegin, realfmtlen);
+		data[fmtlen - 2] = ' ';
+		data[fmtlen - 1] = '\0';
+		format = data;
 	}
 	assert(format != NULL);
 	assert(strlen(format) >= 1);
 	assert(format[strlen(format) - 1] == ' ');
-
+	//
 	YYIO_string res;
 	YYIO_string_init(&res);
-	ret = YYIO_astrftime_nonzero(&res, format, tm);
-	if (format != emptyformat) {
-		free((void *)format); // cppcheck-suppress cert-EXP05-C
-	}
-	if (ret == 0) {
+	err = YYIO_astrftime_nonzero(&res, format, tm);
+	YYIO_string_free(&fmtbut);
+	if (err == 0) {
 		assert(YYIO_string_len(&res) > 1);
 		const size_t reslen = YYIO_string_len(&res) - 1;
 		const struct yio_printfmt_s *const pf = &t->pf;
 		const size_t toprint = !yio_precision_isset(pf->precision) ? reslen :
 			reslen < pf->precision ? reslen : pf->precision;
-		ret = yio_printctx_put(t, YYIO_string_data(&res), toprint);
+		err = yio_printctx_put(t, YYIO_string_data(&res), toprint);
 	}
 	YYIO_string_free(&res);
-	return ret;
+	return err;
 }
 
+#ifndef __SDCC
 int YYIO_print_tm(yio_printctx_t *t) {
 	const struct tm tm = yio_printctx_va_arg(t, struct tm);
 	return YYIO_print_time_strftime(t, &tm);
+}
+#endif
+
+int YYIO_print_tm_pointer(yio_printctx_t *t) {
+	const struct tm *tm = yio_printctx_va_arg(t, struct tm*);
+	if (tm == NULL) return YIO_ERROR_INVALID_TYPE;
+	return YYIO_print_time_strftime(t, tm);
 }
 
 #if YYIO_HAS_timespec

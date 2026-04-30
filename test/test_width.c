@@ -17,7 +17,7 @@ int main() {
                 }
         }
 
-#if YYIO_HAS_UNISTRING
+#if YYIO_HAS_UNISTRING && YIO_HAS_MALLOC
         // This needs unistring support from u8_width
         char *str = yio_formatf("{:5s}", "Ω");
         YIO_TESTEXPR(strcmp(str, "Ω    ") == 0, "'%s'", str);

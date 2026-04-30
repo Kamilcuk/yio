@@ -8,6 +8,7 @@
 #include <yio.h>
 #include <stdlib.h>
 
+#if YIO_HAS_MALLOC
 static void _dbgln(const char file[], int line, const char func[], const yio_printdata_t *data, const char *fmt, ...) {
 	yio_printf("{}:{}:{}: ", file, line, func);
 	va_list va;
@@ -23,10 +24,14 @@ static void _dbgln(const char file[], int line, const char func[], const yio_pri
 }
 
 #define dbgln(...)  _dbgln(__FILE__, __LINE__, __func__, YIO_PRINT_ARGUMENTS(NULL, ##__VA_ARGS__))
+#endif
 
 int main() {
+#if YIO_HAS_MALLOC
 	dbgln("debugging test1");
 	dbgln("debugging ", "test2");
+#endif
+	return 0;
 }
 // PASS_REGULAR_EXPRESSION .*yio_test_custom_callback_2.c:[0-9]*:main: debugging test1
 // PASS_REGULAR_EXPRESSION .*yio_test_custom_callback_2.c:[0-9]*:main: debugging test2

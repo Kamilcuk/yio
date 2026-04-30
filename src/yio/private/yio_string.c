@@ -12,29 +12,28 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
 
 int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
 	const size_t size = YYIO_string_capacity(t);
-	if (newsize <= size) {
-		return 0;
-	}
+	if (newsize <= size) return 0;
+#if YIO_HAS_MALLOC
 	const size_t len = YYIO_string_len(t);
 	const bool dynamic = YYIO_string_is_dynamic(t);
 	void *const p = realloc(dynamic ? t->h.ptr : NULL, newsize);
-	if (p == NULL) {
-		return YIO_ERROR_ENOMEM;
-	}
+	if (p == NULL) return YIO_ERROR_ENOMEM;
 	if (!dynamic) {
 		memcpy(p, t->s.buf, len);
 	}
 	t->h.ptr = p;
 	t->h.len = len;
-	t->h.info = (newsize << 1) | 1;
+	t->info = (newsize << 1) | 1;
 	return 0;
+#else
+	return YIO_ERROR_ENOMEM;
+#endif
 }
 
 int YYIO_string_reserve_more(YYIO_string *t) {
