@@ -1,6 +1,6 @@
 #include <yio_test.h>
 int main() {
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 	const char out[] = "this is a very long time format string that is longer than 80 characters because I need to test long";
 	char *fmt = NULL;
 	int err = yio_aprintf(&fmt, "{{:{}}}", out);

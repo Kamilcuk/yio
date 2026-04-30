@@ -96,7 +96,7 @@ int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const cha
 
 /* ------------------------------------------------------------------------- */
 
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 
 int YYIO_yio_aprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
@@ -201,4 +201,3 @@ char *yio_vreformatf(char *str, const yio_printdata_t *data, const char *fmt, va
 }
 
 #endif // YIO_STATIC_ONLY
-

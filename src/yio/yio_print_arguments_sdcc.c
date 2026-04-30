@@ -18,6 +18,7 @@ yio_printdata_t YYIO_sdcc_args[YIO_SDCC_MAX_ARGS];
 {%- for J in j_one_to_n(2, j_MLVLS) -%}
 	YYIO_sdcc_args[{{ loop.index0 }}] = _{{ J }};
 {%- endfor %}
+	YYIO_sdcc_args[{{ j_MLVLS - 1 }}] = 0;
 	return YYIO_sdcc_args;
 }
 

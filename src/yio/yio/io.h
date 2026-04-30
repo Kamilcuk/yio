@@ -54,7 +54,7 @@ int yio_vfprintf(FILE *file, const yio_printdata_t *data, const char *fmt, va_li
  */
 YYIO_nn(1, 3, 5) YYIO_access_w(1) YYIO_access_r(3) YYIO_access_r(4) YYIO_access_r(5)
 int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, va_list *va);
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 /**
  * Works as-if the call to GNU extension asprintf().
  * Equal to doing: *strp = NULL; yvreasrintf(strp, ...);
@@ -96,7 +96,7 @@ char *yio_vformatf(const yio_printdata_t *data, const char *fmt, va_list *va);
  */
 YYIO_nn(2, 4) YYIO_wur
 char *yio_vreformatf(char *str, const yio_printdata_t *data, const char *fmt, va_list *va);
-#endif // YIO_HAS_MALLOC
+#endif // YIO_USE_MALLOC
 /**
  * Output to the file descriptor. Similar to POSIX dprintf() call.
  * @see yio_vbprintf
@@ -122,7 +122,7 @@ YYIO_nn(1, 2)
 int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 3) YYIO_access_w(1)
 int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...);
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 YYIO_nn(1, 2)
 int YYIO_yio_aprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 2)
@@ -149,7 +149,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_printf(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_fprintf(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_snprintf(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 #define yio_aprintf(strp, ...)        YYIO_yio_aprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_reaprintf(strp, ...)      YYIO_yio_reaprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_formatf(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
@@ -171,7 +171,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_print(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_fprint(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_sprint(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 #define yio_aprint(strp, ...)        YYIO_yio_aprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_reaprint(strp, ...)      YYIO_yio_reaprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_format(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))

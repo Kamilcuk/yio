@@ -19,7 +19,7 @@
 int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
 	const size_t size = YYIO_string_capacity(t);
 	if (newsize <= size) return 0;
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 	const size_t len = YYIO_string_len(t);
 	const bool dynamic = YYIO_string_is_dynamic(t);
 	void *const p = realloc(dynamic ? t->h.ptr : NULL, newsize);

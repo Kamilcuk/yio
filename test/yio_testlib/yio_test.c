@@ -22,12 +22,6 @@ int putchar(int c) {
 	*((volatile char __xdata *)0xffff) = (char)c;
 	return c;
 }
-int puts(const char *s) {
-    while (*s) {
-        putchar(*s++);
-    }
-    putchar('\n');
-}
 void exit_test(int code) {
 	if (code) {
 		puts("\n\n! ERROR - exited with nonzero exit code !\n\n");

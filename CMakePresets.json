@@ -95,7 +95,7 @@
         "YIO_USE_LOCALE": "0",
         "BUILD_TESTING": "0",
         "YIO_BUILD_TESTING": "0",
-        "YIO_HAS_MALLOC": "0",
+        "YIO_USE_MALLOC": "0",
         "YIO_MLVLS": "5"
       }
     },
@@ -147,7 +147,7 @@
       "name": "nomalloc_nognu",
       "inherits": "default",
       "cacheVariables": {
-        "YIO_HAS_MALLOC": "0",
+        "YIO_USE_MALLOC": "0",
         "YIO_CACHE_STACK_SIZE": "1024",
         "CMAKE_C_FLAGS": "-DYIO_USE_NONGNU_MACROS=1"
       }

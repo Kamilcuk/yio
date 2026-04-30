@@ -702,7 +702,6 @@ int YYIO_printformat_generic(yio_printctx_t *t,
 	err = YYIO_printformat_print(&pf, str, str_len);
 	if (err) return err;
 	err = YYIO_printformat_suffix(&pf);
-	if (err) return err;
-	return 0;
+	return err;
 }
 

@@ -17,8 +17,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#ifndef YIO_HAS_MALLOC
-#error YIO_HAS_MALLOC is not defined
+#ifndef YIO_USE_MALLOC
+#error YIO_USE_MALLOC is not defined
 #endif
 
 #define YYIO_MAX(a, b)  ((a) > (b) ? (a) : (b))
@@ -32,7 +32,7 @@
 
 /// Represents a string with SSO and dynamic allocation.
 typedef struct YYIO_string {
-	/// if YIO_HAS_MALLOC:
+	/// if YIO_USE_MALLOC:
 	///  Bit 0: dynamic_flag (1=Heap, 0=SSO)
 	///  Heap: Bits 1-63: Capacity (Heap)
 	///  SSO: Bits 1-63: SSO_len
@@ -40,7 +40,7 @@ typedef struct YYIO_string {
 	///  All bits is SSO_len.
 	size_t info;
 	union {
-		#if YIO_HAS_MALLOC
+		#if YIO_USE_MALLOC
 		struct {
 			size_t len;  /* Used only in Heap mode */
 			char *ptr;   /* Used only in Heap mode */
@@ -58,7 +58,7 @@ YYIO_access_w(1) static inline void YYIO_string_init(YYIO_string *t) {
 }
 
 YYIO_wur static inline bool YYIO_string_is_dynamic(const YYIO_string *t) {
-	#if YIO_HAS_MALLOC
+	#if YIO_USE_MALLOC
 	return t->info & 1;
 	#else
 	(void)t;
@@ -67,7 +67,7 @@ YYIO_wur static inline bool YYIO_string_is_dynamic(const YYIO_string *t) {
 }
 
 YYIO_wur static inline size_t YYIO_string_len(const YYIO_string *t) {
-	#if YIO_HAS_MALLOC
+	#if YIO_USE_MALLOC
 	return YYIO_string_is_dynamic(t) ? t->h.len : (t->info >> 1);
 	#else
 	return t->info;
@@ -75,7 +75,7 @@ YYIO_wur static inline size_t YYIO_string_len(const YYIO_string *t) {
 }
 
 YYIO_wur static inline char *YYIO_string_data(YYIO_string *t) {
-	#if YIO_HAS_MALLOC
+	#if YIO_USE_MALLOC
 	return YYIO_string_is_dynamic(t) ? t->h.ptr : t->s.buf;
 	#else
 	return t->s.buf;
@@ -83,7 +83,7 @@ YYIO_wur static inline char *YYIO_string_data(YYIO_string *t) {
 }
 
 YYIO_wur static inline size_t YYIO_string_capacity(const YYIO_string *t) {
-	#if YIO_HAS_MALLOC
+	#if YIO_USE_MALLOC
 	return YYIO_string_is_dynamic(t) ? (t->info >> 1) : sizeof(t->s.buf);
 	#else
 	return sizeof(t->s.buf);
@@ -93,7 +93,7 @@ YYIO_wur static inline size_t YYIO_string_capacity(const YYIO_string *t) {
 /// Free the string object, freeing any dynamic memory.
 static inline YYIO_access_rw(1)
 void YYIO_string_free(YYIO_string *t) {
-#if YIO_HAS_MALLOC
+#if YIO_USE_MALLOC
 	if (YYIO_string_is_dynamic(t)) {
 		free(t->h.ptr);
 	}
@@ -112,7 +112,7 @@ size_t YYIO_string_free_size(const YYIO_string *t) {
 static inline YYIO_nn()
 void YYIO_string_set_used(YYIO_string *t, size_t newused) {
 	assert(newused <= YYIO_string_capacity(t));
-	#if YIO_HAS_MALLOC
+	#if YIO_USE_MALLOC
 	if (YYIO_string_is_dynamic(t)) {
 		t->h.len = newused;
 	} else {
