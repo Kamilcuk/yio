@@ -1,3 +1,6 @@
 [submodule "third_party/tiny-regex-c"]
 	path = third_party/tiny-regex-c
 	url = https://github.com/kokke/tiny-regex-c.git
+[submodule "third_party/ryu"]
+	path = third_party/ryu
+	url = https://github.com/ulfjack/ryu

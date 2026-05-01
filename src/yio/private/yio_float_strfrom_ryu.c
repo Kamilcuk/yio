@@ -39,6 +39,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "yio_float_strfrom_custom.h"
+
+#ifndef YYIO_RYU_FALLBACKf
+#define YYIO_RYU_FALLBACKf  YYIO_float_astrfrom_customf
+#endif
+
+#ifndef YYIO_RYU_FALLBACKd
+#define YYIO_RYU_FALLBACKd  YYIO_float_astrfrom_customd
+#endif
+
+#ifndef YYIO_RYU_FALLBACKl
+#define YYIO_RYU_FALLBACKl  YYIO_float_astrfrom_customl
+#endif
+
 #ifndef YIO_USE_STRFROM_RYU
 #error YIO_USE_STRFROM_RYU not defined
 #endif
@@ -86,20 +100,26 @@ struct floating_decimal_128 long_double_to_fd128(long double d);
 int generic_to_chars(struct floating_decimal_128 v, char *result);
 
 int YYIO_float_astrfrom_ryul(YYIO_string *res, int precision0, char spec, YYIO_FLOATl val) {
+	if (!isfinite(val)) {
+		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
+	}
 	if (spec == 'a' || spec == 'A') {
-		return YYIO_float_astrfrom_customl(res, precision0, spec, val);
+		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
 	}
 	if (!(
 			(spec == 'e' || spec == 'E') &&
 			precision0 < 0
 	)) {
-		return YIO_ERROR_ENOSYS;
+		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
 	}
 	// https://github.com/ulfjack/ryu/blob/master/ryu/ryu_generic_128.h#L65
 	const size_t maximal_char_buffer_requirement_for_ryu = 53;
 	int err = YYIO_string_reserve(res, maximal_char_buffer_requirement_for_ryu);
 	if (err) return err;
 	int lengthp = generic_to_chars(long_double_to_fd128(val), YYIO_string_data(res));
+	if (lengthp <= 0) {
+		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
+	}
 	if (spec == 'e') {
 		char *const e = strchr(YYIO_string_data(res), 'E');
 		if (e) *e = 'e';
@@ -120,6 +140,9 @@ int YYIO_float_astrfrom_ryul(YYIO_string *res, int precision0, char spec, YYIO_F
 
 static inline
 int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YYIO_FLOAT$1 val) {
+	if (!isfinite(val)) {
+		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
+	}
 	// https://github.com/ulfjack/ryu/issues/197
 	const size_t minsize = 2000;
 	const int precision = precision0 < 0 ? 6 : precision0;
@@ -131,7 +154,7 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YY
 	//
 	if (spec == 'g' || spec == 'G') {
 		if (precision0 >= 0) {
-			goto ERROR_ENOSYS;
+			return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
 		}
 		len = d2s_buffered_n(val, buf);
 		exp_to_upper(buf, spec == 'G');
@@ -141,18 +164,19 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YY
 		len = d2exp_buffered_n(val, precision, buf);
 		exp_to_upper(buf, spec == 'E');
 	} else {
-		goto ERROR_ENOSYS;
+		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
+	}
+	if (len <= 0) {
+		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
 	}
 	YYIO_string_set_used(res, len);
 	//
 	return 0;
-ERROR_ENOSYS:
-	return YIO_ERROR_ENOSYS;
 }
 
 int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec, YYIO_FLOAT$1 val) {
 	if (spec == 'a' || spec == 'A') {
-		return YYIO_float_astrfrom_custom$1(res, precision, spec, val);
+		return YYIO_RYU_FALLBACK$1(res, precision, spec, val);
 	}
 	return YYIO_float_astrfrom_ryu$1_in(res, precision, spec, val);
 }

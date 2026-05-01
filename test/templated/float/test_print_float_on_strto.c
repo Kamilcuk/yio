@@ -110,35 +110,27 @@ YYIO_FLOAT$1 YYIO_diff$1(YYIO_FLOAT$1 in, YYIO_FLOAT$1 out) {
 static inline
 void test_onefloat_$1(const char *instr, TYPE$1 in,
 		const char *format, double diffatmost) {
-#if YIO_USE_MALLOC
-	errno = 0;
-	char *const format_native = yio_formatf("{}", format);
-	YIO_TESTEXPR_NOFAIL(errno == 0, "%s %d %s", format, errno, strerror(errno));
-	YIO_TESTEXPR_ASSERT(format_native != NULL);
-
 	if (!instr) instr = "(null)";
 
-	char *str_native = NULL;
+	static char str[10000];
 	errno = 0;
-	int err = yio_aprintf(&str_native, format_native, in);
-	YIO_TESTEXPR_NOFAIL(errno == 0, "%s,%s %d %s", format, instr, errno, strerror(errno));
-	free(format_native);
+	int err = yio_snprintf(str, sizeof(str), format, in);
+
 	if (strstr(instr, "_MAX") != NULL && (
 			err == YIO_ERROR_ENOMEM ||
 			err == YIO_ERROR_ENOSYS
 			)) {
 		// allow for failing here, printing LDLB_MAX is close to impossible....
-		free(str_native);
 		// if (verbose)
 		printf("%4s %1s%7s,%-15s OK_FAILURE %d %s\n",
 					"", "$1", format, instr, err, yio_strerror(err));
 		return;
 	}
-	YIO_TESTEXPR_ASSERT(str_native != NULL);
-
-	char *const str = yio_formatf("{}", str_native);
-	free(str_native);
-	YIO_TESTEXPR_ASSERT(str != NULL);
+	if (err < 0) {
+		printf("yio_snprintf failed: err=%d %s, errno=%d %s, in=%g, format=%s, instr=%s\n",
+				err, yio_strerror(err), errno, strerror(errno), (double)in, format, instr);
+	}
+	YIO_TESTEXPR_ASSERT(err >= 0);
 
 	char *endp;
 	errno = 0;
@@ -176,11 +168,6 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 
 	// YIO_TESTEXPR_NOFAIL(fabs$1(in - res) < 0.05, " %s,%s %20.30"PRI$1"g %20.30"PRI$1"g", format, instr, in, res);
 	YIO_TESTEXPR_ASSERT(endp == str + strlen(str));
-
-	free(str);
-#else
-	(void)instr; (void)in; (void)format; (void)diffatmost;
-#endif
 }
 
 static void test_floats_$1(void) {

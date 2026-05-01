@@ -146,6 +146,11 @@ else()
 	yio_config_gen_add_value(YYIO_HAS_LLONG 1)
 endif()
 
+yio_config_gen_check_c_source_compiles(
+	"int main() { __int128 x; return 0; }"
+	YYIO_HAS_INT128
+)
+
 # Does _Generic differentiate between pointers to const and non-const elements?
 yio_config_gen_check_C_source_compiles(
 	"int main() { _Generic((const char *)0, char *: 0, const char *: 0); }"

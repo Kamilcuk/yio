@@ -85,7 +85,7 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 			};
 			const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
 			const bool is_neg = adjusted_exponent < 0;
-			const unsigned abs_val = is_neg ? -(unsigned)adjusted_exponent : adjusted_exponent;
+			const unsigned abs_val = is_neg ? -(unsigned)adjusted_exponent : (unsigned)adjusted_exponent;
 			err = YYIO_print_uint_in(&ctx, abs_val, is_neg);
 		}
 		if (err) return err;

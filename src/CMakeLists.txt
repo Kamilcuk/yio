@@ -311,6 +311,10 @@ set(_yio_sources
 	${_yio_gensrcs}
 )
 yio_add_library(yio ${_yio_sources})
+if(TARGET yio_ryu)
+	target_sources(yio PRIVATE $<TARGET_OBJECTS:yio_ryu>)
+	target_include_directories(yio PRIVATE $<TARGET_PROPERTY:yio_ryu,INTERFACE_INCLUDE_DIRECTORIES>)
+endif()
 if(UNISTRING_LIB)
 	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
 endif()

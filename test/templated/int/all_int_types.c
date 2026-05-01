@@ -139,7 +139,7 @@ static void test_std_types(void) {
 	TESTINT(ptrdiff_t);
 }
 
-#if YYIO_HAS___int128
+#if YYIO_HAS_INT128
 #define INT128_MAX (__int128)(((unsigned __int128) 1 << ((sizeof(__int128) * __CHAR_BIT__) - 1)) - 1)
 #define INT128_MIN (-INT128_MAX - 1)
 #define UINT128_MAX ((2 * (unsigned __int128) INT128_MAX) + 1)
