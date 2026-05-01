@@ -1,9 +1,5 @@
 
 if(NOT YIO_SDCC)
-  add_subdirectory(./sstest EXCLUDE_FROM_ALL)
-endif()
-
-if(NOT YIO_SDCC)
   # skip tiny-regex-c for sdcc
   add_library(tiny-regex-c EXCLUDE_FROM_ALL
     ./tiny-regex-c/re.c

@@ -80,6 +80,11 @@ list(FILTER dirs EXCLUDE REGEX "cmake_example")
 # testlib has our small testing library
 add_subdirectory(yio_testlib)
 list(FILTER dirs EXCLUDE REGEX "yio_testlib")
+list(FILTER dirs EXCLUDE REGEX "sstest")
+
+if(NOT YIO_SDCC)
+	add_subdirectory(sstest EXCLUDE_FROM_ALL)
+endif()
 
 foreach(dir IN ITEMS "." ${dirs})
 	# If the directory is not current directory and it contains CMakeLists.txt file
