@@ -67,8 +67,11 @@
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/yio_sdcc_toolchain.cmake",
-        "CMAKE_C_FLAGS": " --model-large --less-pedantic --stack-auto -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return ",
+        "CMAKE_C_FLAGS": " --model-large --stack-auto --less-pedantic -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return --nogcse",
         "CMAKE_C_STANDARD": "23",
+        "YIO_ENABLE_GROUPING": "0",
+        "YIO_MLVLS": "5",
+        "YIO_USE_MALLOC": "0",
         "YYIO_HAS_LLONG": "0",
         "YYIO_HAS_INT128": "0",
         "YIO_USE_STRFROM_PRINTF": "0",
@@ -95,8 +98,7 @@
         "YIO_USE_LOCALE": "0",
         "BUILD_TESTING": "0",
         "YIO_BUILD_TESTING": "0",
-        "YIO_USE_MALLOC": "0",
-        "YIO_MLVLS": "5"
+        "YIO_USE_VAR_FORMAT": "0"
       }
     },
     {

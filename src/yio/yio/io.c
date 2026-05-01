@@ -1,6 +1,6 @@
 /**
  * @file
- * @date 05/04/2020
+ * @date 5 kwi 2020
  * @author Kamil Cukrowski
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
@@ -65,7 +65,7 @@ int YYIO_yio_vsprintf_cb(void *arg, const char *ptr, size_t size) {
 
 /* yio_v*printf except yio_vbprintf ------------------------------------------------------ */
 
-static int sdcc_putchar_cb(void *arg, const char *data, size_t count) YYIO_REENTRANT {
+static int sdcc_putchar_cb(void *arg, const char *data, size_t count) {
   (void)arg;
   for (size_t i = 0; i < count; ++i) {
     putchar(data[i]);
@@ -200,4 +200,4 @@ char *yio_vreformatf(char *str, const yio_printdata_t *data, const char *fmt, va
 	return str;
 }
 
-#endif // YIO_STATIC_ONLY
+#endif // YIO_USE_MALLOC

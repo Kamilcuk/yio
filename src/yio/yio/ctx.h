@@ -40,15 +40,25 @@ struct yio_printfmt_s {
 	char align;
 	/// May be on of '+' '-' ' ' character or 0 when unset.
 	char sign;
+#if YIO_ENABLE_GROUPING
 	/// May be set to 'L' or '_' ',' or 0 when unset.
 	char grouping;
+#endif
 	/// The printing type character. The standard valid characters are "bcdueEfFgGnosxXp".
 	char type;
-	/// The conversion specifier. Do not mix with type!
-	char c_onversion;
 	/// Use of alternate form.
 	bool hash;
 };
+
+/// Get the width, falling back to a default if unset (0).
+static inline uint8_t yio_width_get_default(uint8_t width, uint8_t default_val) {
+    return width != 0 ? (width - 1) : default_val;
+}
+
+/// Get the precision, falling back to a default if unset (0).
+static inline uint8_t yio_precision_get_default(uint8_t precision, uint8_t default_val) {
+    return precision != 0 ? (precision - 1) : default_val;
+}
 
 /**
  * Check if width is set in the formatting options.
@@ -77,7 +87,6 @@ static const struct yio_printfmt_s YYIO_printfmt_default = {
 		' ',
 		0,
 		'-',
-		0,
 		0,
 		0,
 		false,

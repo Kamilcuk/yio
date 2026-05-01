@@ -16,20 +16,16 @@
 
 #if YYIO_PRIVATE
 // These functions are exported for printing bool, char and wchar_t as integers.
-int YYIO_print_uchar_in(yio_printctx_t *t, unsigned char arg, bool is_negative);
-int YYIO_print_ushort_in(yio_printctx_t *t, unsigned short arg, bool is_negative);
 int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
 int YYIO_print_ulong_in(yio_printctx_t *t, unsigned long arg, bool is_negative);
+#if YYIO_HAS_LLONG
 int YYIO_print_ullong_in(yio_printctx_t *t, unsigned long long arg, bool is_negative);
+#endif
 #if YYIO_HAS_INT128
 int YYIO_print_u__int128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_negative);
 #endif
 #endif
 
-int YYIO_print_schar(yio_printctx_t *t);
-int YYIO_print_uchar(yio_printctx_t *t);
-int YYIO_print_short(yio_printctx_t *t);
-int YYIO_print_ushort(yio_printctx_t *t);
 int YYIO_print_int(yio_printctx_t *t);
 int YYIO_print_uint(yio_printctx_t *t);
 int YYIO_print_long(yio_printctx_t *t);
@@ -42,6 +38,24 @@ int YYIO_print_ullong(yio_printctx_t *t);
 	YYIO_OVERLOAD_TYPE_FUNC(unsigned long long, YYIO_print_ullong)
 #else
 #define YYIO_PRINT_LLONG()
+#endif
+
+/* Signed types always promote to int */
+#define YYIO_print_schar YYIO_print_int
+#define YYIO_print_short YYIO_print_int
+
+/* Unsigned char promotion alias */
+#if UCHAR_MAX <= INT_MAX
+#define YYIO_print_uchar YYIO_print_int
+#else
+#define YYIO_print_uchar YYIO_print_uint
+#endif
+
+/* Unsigned short promotion alias */
+#if USHRT_MAX <= INT_MAX
+#define YYIO_print_ushort YYIO_print_int
+#else
+#define YYIO_print_ushort YYIO_print_uint
 #endif
 
 #define YYIO_PRINT_INTS() \

@@ -137,9 +137,10 @@ endif()
 
 set_from_env(TESTPROGRAM)
 if(DEFINED TESTPROGRAM AND NOT TESTPROGRAM STREQUAL "")
-  set(source "\
+  set(source "
 #include <stdio.h>
 #include <stdlib.h>
+#include <float.h>
 #include <yio_test.h>
 int main() {
   ${TESTPROGRAM}

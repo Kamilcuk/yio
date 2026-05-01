@@ -93,6 +93,7 @@ int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 	return num;
 }
 
+#if YIO_USE_VAR_FORMAT
 static inline
 int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
 	assert(fmt[0] == '{');
@@ -137,12 +138,16 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 	*res = num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num;
 	return 0;
 }
+#endif // YIO_USE_VAR_FORMAT
 
 int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
+	(void)t;
+#if YIO_USE_VAR_FORMAT
 	if (fmt[0] == '{') {
-		const int ret = YYIO_printctx_take_positional_param(t, fmt, endptr, res);
-		if (ret) return ret;
-	} else if (YYIO_isdigit(fmt[0])) {
+		return YYIO_printctx_take_positional_param(t, fmt, endptr, res);
+	}
+#endif // YIO_USE_VAR_FORMAT
+	if (YYIO_isdigit(fmt[0])) {
 		const int num = YYIO_printctx_strtoi_noerr(&fmt);
 		*res = num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num;
 		*endptr = fmt;
@@ -208,15 +213,19 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 		case '7':
 		case '8':
 		case '9':
+		#if YIO_USE_VAR_FORMAT
 		case '{':
 			--fmt;
 			ret = YYIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
 			if (ret) goto EXIT;
 			break;
+		#endif
 		case '_':
 		case ',':
 		case 'L':
+			#if YIO_ENABLE_GROUPING
 			pf->grouping = ch;
+			#endif
 			break;
 		case '.':
 			{
@@ -482,6 +491,7 @@ int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
 	return 0;
 }
 
+#if YIO_ENABLE_GROUPING
 static inline
 const char *str_dot_or_end(const char str[], size_t len) {
 	for (; len != 0 && str[0] != '.' && str[0] != ','; ++str, --len) {
@@ -652,20 +662,19 @@ NUMSEP_END:
 	print_numsep_end(t, &ns);
 	return err;
 }
+#endif
 
 static inline
 int YYIO_printformat_print(YYIO_printformat_t *pf, const char str[], size_t str_len) {
 	yio_printctx_t * const t = pf->t;
+#if YIO_ENABLE_GROUPING
 	struct yio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	if (is_number == true && f->grouping != '\0') {
-		const int err = YYIO_print_format_generic_number_grouping(t, str, str_len);
-		if (err) return err;
-	} else {
-		const int err = yio_printctx_raw_write(t, str, str_len);
-		if (err) return err;
+		return YYIO_print_format_generic_number_grouping(t, str, str_len);
 	}
-	return 0;
+#endif
+	return yio_printctx_raw_write(t, str, str_len);
 }
 
 static inline
@@ -675,7 +684,6 @@ void YYIO_printformat_assert_valid(const struct yio_printfmt_s *pf) {
 	assert(YYIO_ANYEQ(pf->sign, 0, '+', '-', ' '));
 	assert(!YYIO_ANYEQ(pf->fill, '{', '}'));
 	assert(YYIO_ANYEQ(pf->grouping, 0, '_', ',', 'L'));
-	assert(YYIO_ANYEQ(pf->c_onversion, 0, 'a'));
 }
 
 /* ------------------------------------------------------------------------- */
@@ -694,6 +702,7 @@ int YYIO_printformat_generic(yio_printctx_t *t,
 			t->pf.align = '>';
 		}
 	}
+	//
 	YYIO_printformat_assert_valid(&t->pf);
 	YYIO_printformat_t pf;
 	YYIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
@@ -701,7 +710,6 @@ int YYIO_printformat_generic(yio_printctx_t *t,
 	if (err) return err;
 	err = YYIO_printformat_print(&pf, str, str_len);
 	if (err) return err;
-	err = YYIO_printformat_suffix(&pf);
-	return err;
+	return YYIO_printformat_suffix(&pf);
 }
 

@@ -88,8 +88,9 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		if (YYIO_isdigit(t->fmt[0])) {
 			YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&t->fmt));
 		}
+		#if 0
+		// Handle conversion specifier - currently disabled.
 		if (t->fmt[0] == '!') {
-			// Handle conversion specifier.
 			t->fmt++;
 			if (t->fmt[0] != 'a') {
 				return YIO_ERROR_UNKNOWN_CONVERSION;
@@ -97,6 +98,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 			t->pf.c_onversion = t->fmt[0];
 			t->fmt++;
 		}
+		#endif
 		if (t->fmt[0] == ':') {
 			t->fmt++;
 		} else if (t->fmt[0] != '}') {

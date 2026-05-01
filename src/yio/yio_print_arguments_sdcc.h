@@ -11,7 +11,7 @@
 // NOLINE
 #include "yio/ctx_types.h"
 
-#define YIO_SDCC_MAX_ARGS {{ j_MLVLS - 1 }}
+#define YIO_SDCC_MAX_ARGS {{ j_MLVLS }}
 extern yio_printdata_t YYIO_sdcc_args[YIO_SDCC_MAX_ARGS];
 {% macro j_dec_YYIO_sdcc_args_init() %}
 const yio_printdata_t *YYIO_sdcc_args_init(
@@ -27,10 +27,9 @@ const yio_printdata_t _{{ J }}{% if not loop.last %}, {% endif %}
 #line
 #define YYIO_print_arguments_$1(funcgen, fmt{{j_yio_print_arguments_args(I)}}) \
 	(const yio_printdata_t*)YYIO_sdcc_args_init( \
-{{ j_yio_macros_funcs(I) }}  \
-{% for J in j_one_to_n(I + 1, j_MLVLS) %}
-	0{% if not loop .last %}, {% endif %} \
-{% endfor %}
+{% if I > 1 %}{{ j_yio_macros_funcs(I, include_last_comma=0) }}, {% endif -%}
+{%- for J in j_one_to_n(I + 1, j_MLVLS) -%}
+0{% if not loop.last %}, {% endif %}{% endfor -%}
 	), fmt \
 {{ j_yio_macros_args(I) }}	/* */
 {% endcall %}{% endfor %}

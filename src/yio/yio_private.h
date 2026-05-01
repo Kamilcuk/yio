@@ -24,7 +24,7 @@
  * outputs (such as small integers, pointers, or short labels) and typical padding
  * requirements without immediate reallocation or excessive tiny writes.
  */
-#define YYIO_INIT_CAPACITY  32
+#define YYIO_INIT_CAPACITY  8
 
 /**
  * @def YYIO_GOLDEN_INCREASE

@@ -9,7 +9,7 @@
 #include <string.h>
 
 static size_t YYIO_strnlen(const char *str, size_t maxlen) {
-#if YYIO_HAS_strnlen
+#if YYIO_HAS_strnlen && !defined(__SDCC)
 	return strnlen(str, maxlen);
 #else
 	const char *str0 = str;
@@ -36,7 +36,7 @@ int YYIO_print_char(yio_printctx_t *t) {
 	case 'o':
 	case 'x':
 	case 'X':
-		return YYIO_print_uchar_in(t, arg, false);
+		return YYIO_print_uint_in(t, arg, false);
 	}
 	return YIO_ERROR_INVALID_TYPE;
 }

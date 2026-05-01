@@ -41,9 +41,11 @@
 
 #if defined(__SDCC)
 void abort();
-#define YIO_TESTEXPR(e, str, ...)     do { \
+#define YIO_TESTEXPR(e, ...)     do { \
 	if (!(e)) { \
-		printf("ERROR: %s:%s:%d: ", __FILE__, __func__, __LINE__, ##__VA_ARGS__); \
+		printf("ERROR: %s:%s:%d: ", __FILE__, __func__, __LINE__); \
+		__VA_OPT__(printf(__VA_ARGS__);) \
+		printf("\n"); \
 		abort(); \
 	} \
 } while(0)

@@ -1,16 +1,11 @@
 # configuration.cmake
 
-if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
-	set(YIO_MLVLS_DEFAULT 5)
-else()
-	set(YIO_MLVLS_DEFAULT 32)
-endif()
 set(YIO_MLVLS_COMMENT [=[
 The count of levels variadic macros expand to.  This specifies the maximum
 number of arguments that can be passed to yio_printf functions.
 A bigger number will generate longer and bigger include files.
 ]=])
-set(YIO_MLVLS "${YIO_MLVLS_DEFAULT}" CACHE STRING "${YIO_MLVLS_COMMENT}")
+set(YIO_MLVLS 32 CACHE STRING "${YIO_MLVLS_COMMENT}")
 
 set(YIO_SLOTS_COMMENT [=[
 The upper count of slots available for custom overloads.
@@ -53,16 +48,11 @@ of malloc calls for small allocations
 set(YIO_CACHE_STACK_SIZE 31 CACHE STRING "${YIO_CACHE_STACK_SIZE_COMMENT}")
 yio_config_gen_add_value(YIO_CACHE_STACK_SIZE "${YIO_CACHE_STACK_SIZE}")
 
-if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
-	set(YIO_USE_MALLOC_DEFAULT 0)
-else()
-	set(YIO_USE_MALLOC_DEFAULT 1)
-endif()
 set(YIO_USE_MALLOC_COMMENT [=[
 Set to 0 to not use malloc at all. Will just fail with ENOMEM.
 Increase YIO_CACHE_STACK_SIZE to the size you want to handle.
 ]=])
-set(YIO_USE_MALLOC "${YIO_USE_MALLOC_DEFAULT}" CACHE BOOL "${YIO_USE_MALLOC_COMMENT}")
+set(YIO_USE_MALLOC 1 CACHE BOOL "${YIO_USE_MALLOC_COMMENT}")
 yio_config_gen_add(YIO_USE_MALLOC)
 
 set(YIO_USE_LOCALE_COMMENT [=[
@@ -83,15 +73,19 @@ Maximum width for _BitInt support. Default 128.
 set(YIO_BITINT_MAXWIDTH 128 CACHE STRING "${YIO_BITINT_MAXWIDTH_COMMENT}")
 yio_config_gen_add_value(YIO_BITINT_MAXWIDTH "${YIO_BITINT_MAXWIDTH}")
 
-if(CMAKE_C_COMPILER_ID STREQUAL "SDCC")
-    set(YIO_USE_VAR_FORMAT_DEFAULT 0)
-else()
-    set(YIO_USE_VAR_FORMAT_DEFAULT 1)
-endif()
 set(YIO_USE_VAR_FORMAT_COMMENT [=[
 Enable support for variable width and precision in format strings (the '*' specifier).
 Example: yio_printf("{:{}.{}}", string, width, precision);
 Disabling this reduces code size and stack usage, especially on 8-bit targets.
 ]=])
-set(YIO_USE_VAR_FORMAT "${YIO_USE_VAR_FORMAT_DEFAULT}" CACHE BOOL "${YIO_USE_VAR_FORMAT_COMMENT}")
+set(YIO_USE_VAR_FORMAT 1 CACHE BOOL "${YIO_USE_VAR_FORMAT_COMMENT}")
 yio_config_gen_add(YIO_USE_VAR_FORMAT)
+
+set(YIO_ENABLE_GROUPING_COMMENT [=[
+Enable support for digit grouping separators (e.g., thousands separators like ',').
+Example: yio_printf("{:n}", 1234567);
+Disabling this reduces binary size on memory-constrained systems.
+]=])
+set(YIO_ENABLE_GROUPING 1 CACHE BOOL "${YIO_ENABLE_GROUPING_COMMENT}")
+yio_config_gen_add(YIO_ENABLE_GROUPING)
+

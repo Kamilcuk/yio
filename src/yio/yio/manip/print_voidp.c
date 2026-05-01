@@ -10,14 +10,20 @@
 #include "print_int.h"
 #include <stdint.h>
 
+#if YIO_HAS_LLONG
 #define YYIO_print_in(t, arg)\
 	_Generic(arg \
-					,unsigned char: YYIO_print_uchar_in \
-					,unsigned short: YYIO_print_ushort_in \
 					,unsigned int: YYIO_print_uint_in \
 					,unsigned long: YYIO_print_ulong_in \
 					,unsigned long long: YYIO_print_ullong_in \
 	)(t, arg, 0)
+#else
+#define YYIO_print_in(t, arg)\
+	_Generic(arg \
+					,unsigned int: YYIO_print_uint_in \
+					,unsigned long: YYIO_print_ulong_in \
+	)(t, arg, 0)
+#endif
 
 int YYIO_print_voidp(yio_printctx_t *t) {
 	const void *val = yio_printctx_va_arg(t, void *);
@@ -33,8 +39,10 @@ int YYIO_print_voidp(yio_printctx_t *t) {
 	typedef uintptr_t T;
 #elif defined(UINTMAX_MAX) && UINTMAX_MAX
 	typedef uintmax_t T;
-#else
+#elif YIO_HAS_LLONG
 	typedef unsigned long long T;
+#else
+	typedef unsigned long T;
 #endif
 	err = yio_printctx_put(t, "0x", 2);
 	if (err) return err;

@@ -32,10 +32,6 @@ const char *YYIO_printint_to_fmt(char type) {
 
 {# List of types that we want to define printers for #}
 {% set printers_types = [
-	["uchar", "unsigned char"],
-	["schar", "signed char"],
-	["ushort", "unsigned short"],
-	["short", "short"],
 	["uint", "unsigned int"],
 	["int", "int"],
 	["ulong", "unsigned long"],
@@ -141,10 +137,9 @@ int YYIO_print_$1(yio_printctx_t *t) {
 	const int err = yio_printctx_init(t);
 	if (err) return err;
 	const bool is_negative = arg < 0;
-	{# When using 'schar', append 'u' results in 'uschar'. Requires adjusting for signed char. #}
-	typedef unsigned {{ V.2 | replace("signed char", "char") }} unsignedtype;
+	typedef unsigned $2 unsignedtype;
 	const unsignedtype uarg = is_negative ? -((unsignedtype)arg) : (unsignedtype)arg;
-	return YYIO_print_u{{ V.1 | replace("schar", "char") }}_in(t, uarg, is_negative);
+	return YYIO_print_u$1_in(t, uarg, is_negative);
 }
 
 {% endif %}
@@ -176,11 +171,7 @@ int YYIO_print_{{ V.2[0:1] }}bitint$1(yio_printctx_t *t) {
 	typedef unsigned _BitInt($1) unsignedtype;
 	const unsignedtype uarg = is_negative ? -((unsignedtype)arg) : (unsignedtype)arg;
 	return
-#if WIDTH_OF(UCHAR_MAX) >= $1
-		YYIO_print_uchar_in
-#elif WIDTH_OF(USHORT_MAX) >= $1
-		YYIO_print_uint_in
-#elif WIDTH_OF(UINT_MAX) >= $1
+#if WIDTH_OF(UINT_MAX) >= $1
 		YYIO_print_uint_in
 #elif WIDTH_OF(ULONG_MAX) >= $1
 		YYIO_print_ulong_in

@@ -123,12 +123,16 @@ void YYIO_string_set_used(YYIO_string *t, size_t newused) {
 	#endif
 }
 
+#if YIO_USE_MALLOC
 /// Allocate that much memory.
 /// Note: @c newsize has to be greater than current capacity.
 YYIO_wur YYIO_nn() int YYIO_string_reserve(YYIO_string *t, size_t newsize);
-
 /// Allocate more memory.
-YYIO_wur YYIO_nn() int YYIO_string_reserve_more(YYIO_string *t);
+int YYIO_string_reserve_more(YYIO_string *t);
+#else
+static int YYIO_string_reserve(YYIO_string *t, size_t newsize) { (void)t; (void)newsize; return YIO_ERROR_ENOMEM; }
+static int YYIO_string_reserve_more(YYIO_string *t) { (void)t; return YIO_ERROR_ENOMEM; }
+#endif
 
 /// Add a character
 static inline int YYIO_string_putc(YYIO_string *t, char c) {
@@ -146,11 +150,31 @@ static inline int YYIO_string_putc(YYIO_string *t, char c) {
 YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2, 3)
 int YYIO_string_putsn(YYIO_string *t, const char *ptr, size_t size);
 
+static int YYIO_string_yprintf_cb(void *ptr, const char *data, size_t count) {
+	YYIO_string *o = ptr;
+	return YYIO_string_putsn(o, data, count);
+}
+
 /// Print into the container
 YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2) YYIO_access_r(3)
 int YYIO_string_yprintf_in(YYIO_string *t, const yio_printdata_t *data, const char *fmt, ...);
 
 /// Print into the container
 #define YYIO_string_yprintf(t, ...)  YYIO_string_yprintf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+
+/**
+ * Compare two YYIO_string objects for equality.
+ * @param a First string.
+ * @param b Second string.
+ * @return true if strings have the same length and identical content, false otherwise.
+ */
+static inline bool YYIO_string_equal(const YYIO_string *a, const YYIO_string *b) {
+    const size_t len_a = YYIO_string_len(a);
+    const size_t len_b = YYIO_string_len(b);
+    if (len_a != len_b) return false;
+    if (len_a == 0) return true;
+    /* We need to cast away const because YYIO_string_data currently takes a non-const pointer */
+    return memcmp(YYIO_string_data((YYIO_string *)a), YYIO_string_data((YYIO_string *)b), len_a) == 0;
+}
 
 #endif /* YYIO_YIO_PRIVATE_YIO_STRING_H_ */

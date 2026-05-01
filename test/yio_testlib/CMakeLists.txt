@@ -8,7 +8,7 @@ jinja_generate(
 	SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/yio_test_float.h
 	OUTPUT "${yio_test_gen}"
 )
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} OBJECT
 	yio_test.c
 	yio_test.h
 	yio_test_private.h

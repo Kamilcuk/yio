@@ -16,6 +16,15 @@ rm -f _build/SdccDebug/bin/yio_testprogram.ihx
 # Build the testprogram target with PRESET=sdcc
 env PRESET=sdcc TESTPROGRAM="$CODE" make .build_yio_testprogram
 
+[[ -e _build/SdccDebug/bin/yio_testprogram.ihx ]]
+
+ABORT_ADDR=0x$(grep -w "_abort" _build/SdccDebug/bin/yio_testprogram.map | awk '{print $2}')
+
 # Run it in the simulator
-set -x
-timeout 30s s51 -Sout=- -I "if=xram[0xffff]" -G _build/SdccDebug/bin/yio_testprogram.ihx
+{
+    set -x
+    timeout -v 5s s51 -q -Sout=- \
+        -I 'if=rom[0x0000-0xffff]' \
+        -I "if=xram[0xffff]" \
+        -G _build/SdccDebug/bin/yio_testprogram.ihx <&-
+} | cat

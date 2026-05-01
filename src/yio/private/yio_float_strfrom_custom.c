@@ -71,7 +71,23 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 		const char letter = (char)(dec ? spec : is_lower_spec ? 'p' : 'P');
 		err = YYIO_string_putc(v, letter);
 		if (err) return err;
-		err = YYIO_string_yprintf(v, "{:+0{}}", val_is_zero ? 0 : (exponent - 1), dec ? 3 : 0);
+		{
+			yio_printctx_t ctx = {
+				.pf = {
+    			.width = dec ? 3 : 0,
+    			.precision = -1,
+    			.fill = '0',
+    			.align = '=',
+    			.sign = '+',
+				},
+				.out = YYIO_string_yprintf_cb,
+				.outarg = v,
+			};
+			const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
+			const bool is_neg = adjusted_exponent < 0;
+			const unsigned abs_val = is_neg ? -(unsigned)adjusted_exponent : adjusted_exponent;
+			err = YYIO_print_uint_in(&ctx, abs_val, is_neg);
+		}
 		if (err) return err;
 	}
 	return err;
