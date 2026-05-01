@@ -10,8 +10,8 @@ if(POLICY CMP0177)
   cmake_policy(SET CMP0177 NEW) #-- install() DESTINATION paths are normalized
 endif()
 
-include(./kcmakelib/cmake/kcmakelib.cmake)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(kcmakelib)
 include(yio_debug_variables)
 
 include(src/version.cmake)

@@ -1,0 +1,26 @@
+cmake_minimum_required(VERSION 3.21)
+
+function(loadenv dotenv)
+  if(NOT EXISTS "${dotenv}")
+    message(FATAL_ERROR "Dot-env file not found: ${dotenv}")
+  endif()
+
+  set(command "")
+  math(EXPR argc "${CMAKE_ARGC} - 1")
+  foreach(ii RANGE 4 ${argc} 1)
+    list(APPEND command "${CMAKE_ARGV${ii}}")
+  endforeach()
+
+  file(STRINGS "${dotenv}" entries)
+  foreach(entry IN LISTS entries)
+    string(FIND "${entry}" "=" split_pos)
+    if(split_pos EQUAL -1)
+      message(FATAL_ERROR "Malformed dotenv entry:\n${entry}")
+    endif()
+    math(EXPR val_start "${split_pos} + 1")
+    string(SUBSTRING "${entry}" 0 "${split_pos}" var)
+    string(SUBSTRING "${entry}" "${val_start}" -1 val)
+    # cmake-lint: disable=C0103
+    set(ENV{${var}} "${val}")
+  endforeach()
+endfunction()
