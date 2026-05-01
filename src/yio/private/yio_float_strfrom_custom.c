@@ -74,11 +74,11 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 		{
 			yio_printctx_t ctx = {
 				.pf = {
-    			.width = dec ? 3 : 0,
-    			.precision = -1,
-    			.fill = '0',
-    			.align = '=',
-    			.sign = '+',
+					.width = dec ? 3 : 0,
+					.precision = -1,
+					.fill = '0',
+					.align = '=',
+					.sign = '+',
 				},
 				.out = YYIO_string_yprintf_cb,
 				.outarg = v,
@@ -96,27 +96,26 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 
 static inline
 bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
-  bool fractional_part_removed = false;
-  const size_t len = YYIO_string_len(t);
-  if (len == 0) return false;
-  char * const data = YYIO_string_data(t);
-  char *p = data + len - 1;
-  // there is dot, so the following loop will always stop
-  while (p != data && *p == '0') {
-    --p;
-  }
-  assert(YYIO_isxdigit(*p) || *p == '.');
-  if (*p != '.') {
-    ++p;
-  } else {
-    fractional_part_removed = true;
-  }
-  YYIO_string_set_used(t, (size_t)(p - data));
-  return fractional_part_removed;
+	bool fractional_part_removed = false;
+	const size_t len = YYIO_string_len(t);
+	if (len == 0) return false;
+	char * const data = YYIO_string_data(t);
+	char *p = data + len - 1;
+	// there is dot, so the following loop will always stop
+	while (p != data && *p == '0') {
+		--p;
+	}
+	assert(YYIO_isxdigit(*p) || *p == '.');
+	if (*p != '.') {
+		++p;
+	} else {
+		fractional_part_removed = true;
+	}
+	YYIO_string_set_used(t, (size_t)(p - data));
+	return fractional_part_removed;
 }
 
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
-	{% if not j_match(V.1, "^d[0-9]") %}{# exclude floats #}
 #line
 #ifndef YIO_HAS_FLOAT$1
 #error  YIO_HAS_FLOAT$1
@@ -125,6 +124,7 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 
 #define TYPE     YYIO_FLOAT$1
 #define FLOOR    YYIO_floor$1
+#define MODF     YYIO_modf$1
 #define EXP2     YYIO_exp2$1
 #define EXP10    YYIO_exp10$1
 #define FABS     YYIO_fabs$1
@@ -132,11 +132,11 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 #define FREXP10  YYIO_frexp10$1
 #define FC(x)    YYIO_FLOAT_C$1(x)
 
-{% if j_match(V.1, "^d[0-9]") %}{# check if DECIMAL float #}
 #line
-#if __GNUC__
-// Workaround for GNU bug aroud decimal floating point numbers.
-// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674
+{% if j_match(V.1, "^d[0-9]") %}
+#if defined(__GNUC__) && __GNUC__ < 15 && !defined(__clang__)
+// Workaround for GNU bug around decimal floating point numbers.
+// Fixed in GCC 15: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674
 #ifndef DEC_INFINITY
 #define DEC_INFINITY  __builtin_inf$1()
 #endif
@@ -145,9 +145,11 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 #endif
 #define ISINF(x)  (x == DEC_INFINITY || x == -DEC_INFINITY)
 #define FPCLASSIFY(x)  (ISINF(x) ? FP_INFINITE : x != x ? DEC_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
+#else
+#define ISINF  isinf
+#define FPCLASSIFY fpclassify
 #endif
 {% else %}
-#line
 #define FPCLASSIFY fpclassify
 #define ISINF  isinf
 {% endif %}
@@ -156,8 +158,9 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 static inline
 int get_next_digit$1(YYIO_string *v, TYPE *val,
 		bool dec, const char *to_digit_str, bool is_last) {
-	*val = dec ? (*val * FC(10.0)) : (*val * FC(16.0));
-	const int digit = (int)*val;
+	TYPE digit_fp;
+	*val = MODF(*val * (dec ? FC(10.0) : FC(16.0)), &digit_fp);
+	const int digit = (int)digit_fp;
 	const int baseint = dec ? 10 : 16;
 	if (!(0 <= digit && digit < baseint)) {
 		ASSERTMSG(0 <= digit && digit < baseint,
@@ -169,9 +172,6 @@ int get_next_digit$1(YYIO_string *v, TYPE *val,
 	const char c = to_digit_str[digit];
 	const int err = YYIO_string_putc(v, c);
 	if (err != 0) return err;
-	if (!is_last) {
-		*val -= (TYPE)digit;
-	}
 	return 0;
 }
 
@@ -376,6 +376,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 
 #undef TYPE
 #undef FLOOR
+#undef MODF
 #undef EXP2
 #undef EXP10
 #undef FABS
@@ -387,4 +388,4 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 
 #endif
 
-{% endif %}{% endcall %}
+{% endcall %}

@@ -114,6 +114,8 @@ YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y);
 #define YYIO_pow$1     pow$2
 YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y);
 #define YYIO_nextafter$1  nextafter$2
+YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr);
+#define YYIO_modf$1       modf$2
 
 #ifndef YYIO_FLOAT_C$1
 #define YYIO_FLOAT_C$1(x)  ((YYIO_FLOAT$1)x)

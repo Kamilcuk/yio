@@ -18,10 +18,6 @@
 #ifndef YIO_HAS_FLOAT$1
 #error  YIO_HAS_FLOAT$1
 #endif
-{% if V.1 in [
-	"f", "d", "l",
-	"f16", "f32", "f64", "f128", "f32x", "f64x", "f128x",
-] %}
 #line
 #if YIO_HAS_FLOAT$1
 
@@ -42,10 +38,6 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, YYI
 #else
 #define YYIO_has_float_custom$1  0
 #endif // YYIO_FLOAT$1
-{% else %}
-#line
-#define YYIO_has_float_custom$1  0
-{% endif %}
 {% endcall %}
 
 #endif /* YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_CUSTOM_H_ */
