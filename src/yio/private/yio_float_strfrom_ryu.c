@@ -145,7 +145,7 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YY
 	}
 	// https://github.com/ulfjack/ryu/issues/197
 	const size_t minsize = 2000;
-	const int precision = yio_precision_get_default(precision0, 6);
+	const size_t precision = yio_precision_get_default(precision0, 6);
 	const size_t toalloc = minsize + precision + 1;
 	int err = YYIO_string_reserve(res, toalloc);
 	if (err) return err;

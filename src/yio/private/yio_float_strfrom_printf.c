@@ -27,13 +27,14 @@
 
 static inline
 void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
-		int precision, char spec, const char *restrict pri, size_t prisize) {
+		int precision0, char spec, const char *restrict pri, size_t prisize) {
 	(void)fmtsize;
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
-	if (precision != 0) {
+	if (precision0 != 0) {
 		*fmtpnt++ = '.';
-		const int len = yio_snstream(fmtpnt, INT_MAX, precision - 1);
+		const size_t precision = yio_precision_get_default((uint8_t)precision0, 0);
+		const int len = yio_snstream(fmtpnt, INT_MAX, precision);
 		(void)len;
 		assert(len > 0);
 		assert((size_t)len < fmtsize - 2);
@@ -65,14 +66,14 @@ void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 )
 
 static inline
-void YYIO_create_format_string$1(char *restrict fmt, int precision, char spec) {
+void YYIO_create_format_string$1(char *restrict fmt, int precision0, char spec) {
 	YYIO_create_format_string_generic(fmt, FMT_SIZE$1,
-			precision, spec, YYIO_FLOAT_PRI$1, sizeof(YYIO_FLOAT_PRI$1) - 1);
+			precision0, spec, YYIO_FLOAT_PRI$1, sizeof(YYIO_FLOAT_PRI$1) - 1);
 }
 
-int YYIO_float_astrfrom_printf$1(YYIO_string *v, int precision, char spec, YYIO_FLOAT$1 val) {
+int YYIO_float_astrfrom_printf$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT$1 val) {
 	char fmt[FMT_SIZE$1];
-	YYIO_create_format_string$1(fmt, precision, spec);
+	YYIO_create_format_string$1(fmt, precision0, spec);
 	assert(YYIO_string_capacity(v) < INT_MAX);
 	const int len = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 	assert(len >= 0);

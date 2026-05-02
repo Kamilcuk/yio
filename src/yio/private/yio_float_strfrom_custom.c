@@ -222,7 +222,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 	// These change after they are determined.
 	char spec = spec0;
 	char speclower = spec0lower;
-	int precision = precision0;
+	size_t precision;
 	// This is exponent for number between (1/radix)<=x<1.0.
 	// The printed exponent is one less, cause of the initial digit!
 	int exponent = 0;
@@ -264,26 +264,24 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 		}
 	}
 
-	assert(precision >= 0);
-
 	// Extract exponent and round the number
 	if (val_is_zero) {
 		exponent = 0;
 	} else if (speclower == 'f') {
-		const YYIO_FLOAT$1 tmp = val + FC(0.5) * EXP10((TYPE)-precision);
+		const YYIO_FLOAT$1 tmp = val + FC(0.5) * EXP10(-(TYPE)precision);
 		if (!ISINF(tmp)) {
 			val = tmp;
 		}
 		val = FREXP10(val, &exponent);
 	} else if (speclower == 'a') {
 		// rounding makes no sense, when precision is maximum available
-		if (precision0 >= 0) {
+		if (precision0 != 0) {
 			int exponent_tmp = 0;
 			(void)FREXP2(val, &exponent_tmp);
-			if (precision > INT_MAX / 4) {
+			if (precision > (size_t)INT_MAX / 4) {
 				return YIO_ERROR_ENOSYS;
 			}
-			const int bitpos = -5 + -4 * precision + exponent_tmp;
+			const int bitpos = -5 + -4 * (int)precision + exponent_tmp;
 			const YYIO_FLOAT$1 tmp = val + EXP2((TYPE)bitpos);
 			if (!ISINF(tmp)) {
 				val = tmp;
