@@ -13,9 +13,10 @@ static void _dbgln(const char file[], int line, const char func[], const yio_pri
 	yio_printf("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
-	char * const ret = yio_vformatf(data, fmt, &va);
+	char *ret = NULL;
+	int err = yio_vasprintf(&ret, data, fmt, &va);
 	va_end(va);
-	if (ret == NULL) {
+	if (err < 0 || ret == NULL) {
 		exit(EXIT_FAILURE);
 	}
 	yio_printf("{}", ret);

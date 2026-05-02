@@ -57,13 +57,13 @@ int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const cha
 #if YIO_USE_MALLOC
 /**
  * Works as-if the call to GNU extension asprintf().
- * Equal to doing: *strp = NULL; yvreasrintf(strp, ...);
- * @see yio_vreasprintf
+ * If *strp is non-NULL, it will reuse the storage, assuming the allocated
+ * size is exactly strlen(*strp).
  */
 YYIO_nn(1, 2, 4)
-int yio_vaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va);
 /**
- * Reallocates a string to append the printed characters.
+ * Appends the formatted string to the existing string storage.
  * @param strp If is NULL, a new string is allocated, otherwise it is reallocated.
  * @param data
  * @param va
@@ -71,31 +71,7 @@ int yio_vaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_l
  *         In case of memory error the pointer strp is freed and is set to NULL.
  */
 YYIO_nn(1, 2, 4)
-int yio_vreaprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va);
-/**
- * Calls yio_vformatf(NULL, ...). See yio_vformatf.
- * @see yio_vformatf
- */
-YYIO_retmalloc YYIO_nn(1, 3) YYIO_wur
-char *yio_vformatf(const yio_printdata_t *data, const char *fmt, va_list *va);
-/**
- * Dynamically allocates memory for formatted string.
- *
- * The call of this function is similar to the python-ish and
- * C++ fmt::format calls. Basically this is a small wrapper around
- * yio_vreaprintf() call.
- *
- * @param str A pointer to dynamically allocated string of characters
- * @param data A pointer to Yio printing data.
- * @param va A pointer to va_list of arguments.
- * @return Returns a pointer to valid string of characters or NULL.
- *         In case of allocation error NULL is returned and
- *         <b> memory pointer to by str is also freed.</b>
- *         If you want to save the string, duplicate it before
- *         calling this function. *
- */
-YYIO_nn(2, 4) YYIO_wur
-char *yio_vreformatf(char *str, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va);
 #endif // YIO_USE_MALLOC
 /**
  * Output to the file descriptor. Similar to POSIX dprintf() call.
@@ -124,13 +100,9 @@ YYIO_nn(1, 3) YYIO_access_w(1)
 int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...);
 #if YIO_USE_MALLOC
 YYIO_nn(1, 2)
-int YYIO_yio_aprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 2)
-int YYIO_yio_reaprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
-YYIO_nn(1) YYIO_retmalloc YYIO_wur
-char *YYIO_yio_formatf(const yio_printdata_t *data, const char *fmt, ...);
-YYIO_nn(2) YYIO_wur
-char *YYIO_yio_reformatf(char *str, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_append(char **strp, const yio_printdata_t *data, const char *fmt, ...);
 #endif
 YYIO_nn(2)
 int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
@@ -150,10 +122,8 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_fprintf(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_snprintf(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #if YIO_USE_MALLOC
-#define yio_aprintf(strp, ...)        YYIO_yio_aprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#define yio_reaprintf(strp, ...)      YYIO_yio_reaprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#define yio_formatf(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#define yio_reformatf(str, ...)       YYIO_yio_reformatf(str, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_asprintf(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_append_f(strp, ...)       YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #endif
 #define yio_dprintf(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 /**
@@ -172,10 +142,8 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_fprint(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_sprint(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #if YIO_USE_MALLOC
-#define yio_aprint(strp, ...)        YYIO_yio_aprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_reaprint(strp, ...)      YYIO_yio_reaprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_format(...)              YYIO_yio_formatf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_reformat(str, ...)       YYIO_yio_reformatf(str, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_asprint(strp, ...)        YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_append(strp, ...)         YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #endif
 #define yio_dprint(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 /**

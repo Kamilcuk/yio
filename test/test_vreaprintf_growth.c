@@ -4,12 +4,14 @@
 #include <stdlib.h>
 
 int main() {
-    // Test dynamic growth in yio_formatf
-    // Initial capacity is 32. We will append many chunks to trigger multiple reallocs.
-    char *str = yio_formatf("{}{}{}{}{}{}{}{}{}{}", 
+    // Test dynamic growth in yio_asprintf
+    // Initial capacity is small. We will append many chunks to trigger multiple reallocs.
+    char *str = NULL;
+    int err = yio_asprintf(&str, "{}{}{}{}{}{}{}{}{}{}", 
                            "0123456789", "0123456789", "0123456789", "0123456789", "0123456789",
                            "0123456789", "0123456789", "0123456789", "0123456789", "0123456789");
     
+    YIO_TESTEXPR(err == 100);
     YIO_TESTEXPR(str != NULL);
     YIO_TESTEXPR(strlen(str) == 100);
     for (int i = 0; i < 100; ++i) {
@@ -22,7 +24,9 @@ int main() {
     memset(large_src, 'A', 1024);
     large_src[1024] = '\0';
     
-    char *large_res = yio_formatf("{}", large_src);
+    char *large_res = NULL;
+    err = yio_asprintf(&large_res, "{}", large_src);
+    YIO_TESTEXPR(err == 1024);
     YIO_TESTEXPR(large_res != NULL);
     YIO_TESTEXPR(strlen(large_res) == 1024);
     YIO_TESTEXPR(large_res[0] == 'A');

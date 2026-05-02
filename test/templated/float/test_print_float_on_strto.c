@@ -201,7 +201,9 @@ int main() {
 	// The first call suprisingly returns errno=2. Curiosly where.
 	// Anyway, call it here, so it doesn't return errno=2 later.
 #if YIO_USE_MALLOC
-	free(yio_formatf("{}", "{}"));
+	char *tmp_fmt = NULL;
+	yio_asprintf(&tmp_fmt, "{}", "{}");
+	free(tmp_fmt);
 #endif
 
 	test_floats_f();

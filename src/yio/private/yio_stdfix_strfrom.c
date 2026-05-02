@@ -105,7 +105,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 
 	} else if (spec == 'f' || spec == 'g') {
 		// Default precision for f is 6.
-		const uint8_t precision = yio_precision_isset(pf->precision) ? pf->precision : 6;
+		const size_t precision = yio_precision_get_default(pf->precision, 6);
 		// Integer part extraction
 		// If it's a pure fraction, integer part is 0.
 		// Otherwise, we shift to get the whole number.
@@ -191,7 +191,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 		if (err) return err;
 		err = YYIO_string_putc(o, spec_is_upper ? 'X' : 'x');
 		int exponent = 0;
-		uint8_t precision;
+		size_t precision;
 		if (v != 0) {
 			// Normalizacja do lewej krawędzi
 			while (!(v >> (total_bits - 1))) {
@@ -199,9 +199,9 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 				--exponent;
 			}
 			exponent += ibit - 4;
-			precision = (uint8_t)yio_precision_get_default(pf->precision, (size_t)(total_bits / 4 - 1));
+			precision = yio_precision_get_default(pf->precision, (size_t)(total_bits / 4 - 1));
 		} else {
-			precision = (uint8_t)yio_precision_get_default(pf->precision, 0);
+			precision = yio_precision_get_default(pf->precision, 0);
 		}
 		const int digits_to_print = precision + 1;
 		// Correct Rounding: find the bit just below the last nibble we will print
@@ -219,7 +219,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
     }
 		for (int i = 0; i < digits_to_print; ++i) {
 			// Stop if precision wasn't set and we hit trailing zeros
-			if (!yio_precision_isset(pf->precision) && v == 0 && i > 0) {
+			if (pf->precision == 0 && v == 0 && i > 0) {
 				break;
 			}
 			const int c = v >> (total_bits - 4);

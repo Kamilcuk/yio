@@ -51,14 +51,18 @@ int main() {
 
     #if YIO_USE_MALLOC
     // Positional arguments
-    char *pos_str = yio_formatf("{1} {0} {1}\n", "first", "second");
+    char *pos_str = NULL;
+    err = yio_asprintf(&pos_str, "{1} {0} {1}\n", "first", "second");
+    assert(err >= 0);
     assert(pos_str != NULL);
     assert(std::string(pos_str) == "second first second\n");
     free(pos_str);
 
     // Custom type
     MyPoint p = {10, 20};
-    char *p_str = yio_formatf("Point: {}\n", p);
+    char *p_str = NULL;
+    err = yio_asprintf(&p_str, "Point: {}\n", p);
+    assert(err >= 0);
     assert(p_str != NULL);
     assert(std::string(p_str) == "Point: (10, 20)\n");
     free(p_str);
