@@ -10,8 +10,6 @@
 // The magic (void*)1 casts are there so that
 // __attribute__((__nonnull__)) doesn't throw an error.
 
-static struct yio_printfmt_s zero = {0};
-
 static inline
 void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
 	struct yio_printfmt_s pf = {0};
@@ -24,7 +22,7 @@ void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
 
 
 int main() {
-	test_pfmt(zero, "}");
+	test_pfmt(YYIO_printfmt_zero, "}");
 	test_pfmt((struct yio_printfmt_s){.align = '<'}, "<}");
 	test_pfmt((struct yio_printfmt_s){.grouping = '_'}, "_}");
 	test_pfmt((struct yio_printfmt_s){.grouping = ','}, ",}");

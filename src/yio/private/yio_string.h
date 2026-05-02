@@ -43,7 +43,7 @@ typedef struct YYIO_string {
 		#if YIO_ENABLE_MALLOC
 		struct {
 			size_t len;  /* Used only in Heap mode */
-			char *ptr;   /* Used only in Heap mode */
+			char * __sized_by(info >> 1) ptr;   /* Used only in Heap mode */
 		} h;
 		#endif
 		struct {
@@ -74,7 +74,7 @@ YYIO_wur static inline size_t YYIO_string_len(const YYIO_string *t) {
 	#endif
 }
 
-YYIO_wur static inline char *YYIO_string_data(YYIO_string *t) {
+YYIO_wur static inline char * __indexable YYIO_string_data(YYIO_string *t) {
 	#if YIO_ENABLE_MALLOC
 	return YYIO_string_is_dynamic(t) ? t->h.ptr : t->s.buf;
 	#else
@@ -148,9 +148,9 @@ static inline int YYIO_string_putc(YYIO_string *t, char c) {
 
 /// Add memory
 YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2, 3)
-int YYIO_string_putsn(YYIO_string *t, const char *ptr, size_t size);
+int YYIO_string_putsn(YYIO_string *t, const char * __sized_by(size) ptr, size_t size);
 
-static int YYIO_string_yprintf_cb(void *ptr, const char *data, size_t count) {
+static int YYIO_string_yprintf_cb(void *ptr, const char * __sized_by(count) data, size_t count) {
 	YYIO_string *o = ptr;
 	return YYIO_string_putsn(o, data, count);
 }

@@ -1,0 +1,7 @@
+
+set(CMAKE_ASM_COMPILER   winegcc)
+set(CMAKE_C_COMPILER     winegcc)
+set(CMAKE_CXX_COMPILER   wineg++)
+set(CMAKE_EXECUTABLE_SUFFIX ".exe")
+set(CMAKE_CROSSCOMPILING_EMULATOR wine)
+

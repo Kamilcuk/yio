@@ -24,7 +24,7 @@ typedef struct YYIO_printctx_s yio_printctx_t;
  * @param count Count of characters to print
  * @return 0 on success, otherwise error
  */
-typedef int (YYIO_printcb_t)(void *arg, const char *data, size_t count)
+typedef int (YYIO_printcb_t)(void *arg, const char * __sized_by(count) data, size_t count)
 		YYIO_wur YYIO_nn(2) YYIO_access_r(2, 3) YYIO_REENTRANT;
 
 /**
@@ -41,6 +41,6 @@ typedef int (YYIO_printcb_t)(void *arg, const char *data, size_t count)
  * @param t Printing context.
  * @return 0 on success, otherwise error.
  */
-typedef int (*yio_printdata_t)(yio_printctx_t *t) YYIO_REENTRANT;
+typedef int (*yio_printdata_t)(yio_printctx_t * __single t) YYIO_REENTRANT;
 
 #endif /* YYIO_YIO_YIO_CTX_TYPES_H_ */

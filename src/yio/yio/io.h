@@ -35,25 +35,25 @@ extern "C" {
  * @return Number of characters written or negative on error.
  */
 YYIO_nn(1, 3, 5)
-int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Similar to printf() call.
  * @see yio_vbprintf
  */
 YYIO_nn(1, 3)
-int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vprintf(const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Similar to fprintf() call.
  * @see yio_vbprintf
  */
 YYIO_nn(1, 2, 4) YYIO_access_r(1) YYIO_access_r(2) YYIO_access_r(3) YYIO_access_r(4)
-int yio_vfprintf(FILE *file, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vfprintf(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Similar to snprintf() call.
  * @see yio_vbprintf
  */
 YYIO_nn(1, 3, 5) YYIO_access_w(1) YYIO_access_r(3) YYIO_access_r(4) YYIO_access_r(5)
-int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vsprintf(char *__sized_by(size) dest, size_t size, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 #if YIO_ENABLE_MALLOC
 /**
  * Works as-if the call to GNU extension asprintf().
@@ -61,7 +61,7 @@ int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const cha
  * size is exactly strlen(*strp).
  */
 YYIO_nn(1, 2, 4)
-int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vasprintf(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Appends the formatted string to the existing string storage.
  * @param strp If is NULL, a new string is allocated, otherwise it is reallocated.
@@ -71,14 +71,14 @@ int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_
  *         In case of memory error the pointer strp is freed and is set to NULL.
  */
 YYIO_nn(1, 2, 4)
-int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vappend(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 #endif // YIO_ENABLE_MALLOC
 /**
  * Output to the file descriptor. Similar to POSIX dprintf() call.
  * @see yio_vbprintf
  */
 YYIO_nn(2, 4)
-int yio_vdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *va);
+int yio_vdprintf(int fd, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * @}
  */
@@ -91,22 +91,22 @@ int yio_vdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *
  * @{
  */
 YYIO_nn(1, 2)
-int YYIO_yio_bprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_bprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 YYIO_nn(1)
-int YYIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_printf(const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 YYIO_nn(1, 2)
-int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 YYIO_nn(1, 3) YYIO_access_w(1)
-int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_snprintf(char *__sized_by(size) dest, size_t size, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #if YIO_ENABLE_MALLOC
 YYIO_nn(1, 2)
-int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_asprintf(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 YYIO_nn(1, 2)
-int YYIO_yio_append(char **strp, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_append(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #endif
 
 YYIO_nn(2)
-int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 /**
  * @}
  */

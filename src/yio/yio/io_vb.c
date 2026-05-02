@@ -69,7 +69,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 			return 0;
 		}
 		for (; *t->ifunc != NULL; ++t->ifunc) {
-			t->pf = (struct yio_printfmt_s){0};
+			t->pf = YYIO_printfmt_zero;
 			const int ifuncret = (*t->ifunc)(t);
 			if (ifuncret) {
 				return ifuncret;
@@ -84,7 +84,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		assert(t->fmt[0] == '{');
 		t->fmt++;
 		//
-		t->pf = (struct yio_printfmt_s){0};
+		t->pf = YYIO_printfmt_zero;
 		if (YYIO_isdigit(t->fmt[0])) {
 			YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&t->fmt));
 		}
@@ -119,20 +119,23 @@ int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, co
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
-	va_list startva;
-	va_copy(startva, *va);
-	yio_printctx_t _ctx;
-	memset(&_ctx, 0, sizeof(_ctx));
+	yio_printctx_t _ctx = {0};
 	_ctx.va = va;
-	_ctx.startva = &startva;
 	_ctx.fmt = fmt;
 	_ctx.ifunc = data;
 	_ctx.startifunc = data;
 	_ctx.out = out;
 	_ctx.outarg = arg;
+#if YIO_ENABLE_DYNAMIC_PFMT
+	va_list startva;
+	va_copy(startva, *va);
+	_ctx.startva = &startva;
+#endif
 	yio_printctx_t * const t = &_ctx;
 	const int err = YYIO_yio_vbprintf_in(t);
+#if YIO_ENABLE_DYNAMIC_PFMT
 	va_end(startva);
+#endif
 	if (err) {
 		return -abs(err);
 	}

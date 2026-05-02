@@ -54,6 +54,8 @@
 #error YYIO_HAS_UNISTD_H
 #endif
 
+#include "ptrcheck.h"
+
 /* Backend selection logic -------------------------------------------------- */
 
 #define YYIO_BACKEND_ID_INTERNAL_3(prefix, name)  prefix##name

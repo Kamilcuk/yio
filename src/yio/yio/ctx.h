@@ -50,6 +50,8 @@ struct yio_printfmt_s {
 	bool hash;
 };
 
+static const struct yio_printfmt_s YYIO_printfmt_zero = {0};
+
 /// Get the width, falling back to a default if unset (0).
 static inline size_t yio_width_get_default(uint8_t width, size_t default_val) {
 	return width != 0 ? (size_t)width - 1 : default_val;
@@ -65,21 +67,21 @@ static inline size_t yio_precision_get_default(uint8_t precision, size_t default
  */
 struct YYIO_printctx_s {
 	/// Current iterator in the format string.
-	const char *fmt;
+	const char * __null_terminated fmt;
 	/// va_list of current argument.
-	va_list *va;
+	va_list * __single va;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	/// Copy of va_list when iterating
-	va_list *startva;
+	va_list * __single startva;
 #endif
 	/// Iterator in callback functions.
-	const yio_printdata_t *ifunc;
+	const yio_printdata_t * __null_terminated ifunc;
 	/// The pointer to the data.
-	const yio_printdata_t *startifunc;
+	const yio_printdata_t * __null_terminated startifunc;
 	/// The outputting function.
-	YYIO_printcb_t *out;
+	YYIO_printcb_t * __single out;
 	/// User argument for outputting functions.
-	void *outarg;
+	void * __single outarg;
 	/// The count of characters written.
 	unsigned int writtencnt;
 	/// Description of print formatting.

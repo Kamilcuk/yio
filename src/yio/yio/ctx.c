@@ -51,8 +51,10 @@ static const uint8_t YYIO_LIMIT_MAX = 254;
 /* ------------------------------------------------------------------------- */
 
 void YYIO_skip_arm(yio_printctx_t *t, unsigned count) {
+#if YIO_ENABLE_DYNAMIC_PFMT
 	va_end(*t->va);
 	va_copy(*t->va, *t->startva);
+#endif
 	t->ifunc = t->startifunc;
 	t->skip = count;
 }
@@ -569,7 +571,9 @@ int print_dot(yio_printctx_t *t) {
 	const char DEFAULT_DOT[1] = { '.' };
 	return yio_printctx_raw_write(t, DEFAULT_DOT, 1);
 }
+#endif
 
+#if YIO_ENABLE_DIGIT_GROUPING
 static inline
 int YYIO_print_format_generic_number_grouping(yio_printctx_t *t, const char str[], size_t str_len) {
 	const char *num = str;
@@ -683,7 +687,9 @@ void YYIO_printformat_assert_valid(const struct yio_printfmt_s *pf) {
 	assert(YYIO_ANYEQ(pf->align, 0, '<', '>', '=', '^'));
 	assert(YYIO_ANYEQ(pf->sign, 0, '+', '-', ' '));
 	assert(!YYIO_ANYEQ(pf->fill, '{', '}'));
+#if YIO_ENABLE_DIGIT_GROUPING
 	assert(YYIO_ANYEQ(pf->grouping, 0, '_', ',', 'L'));
+#endif
 }
 
 /* ------------------------------------------------------------------------- */
@@ -696,7 +702,9 @@ int YYIO_printformat_generic(yio_printctx_t *t,
 			(str[0] == 'n' || str[0] == 'N')
 	);
 	if (is_infnan) {
+#if YIO_ENABLE_DIGIT_GROUPING
 		t->pf.grouping = '\0';
+#endif
 		if (t->pf.fill == '0' && t->pf.align == '=') {
 			t->pf.fill = ' ';
 			t->pf.align = '>';
