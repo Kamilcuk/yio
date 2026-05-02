@@ -143,7 +143,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_snstream(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #if YIO_USE_MALLOC
 #define yio_asprint(strp, ...)        YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_append_s(strp, ...)       YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_append_stream(strp, ...)  YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #endif
 
 #define yio_dprint(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))

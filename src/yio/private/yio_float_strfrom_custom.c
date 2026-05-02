@@ -278,7 +278,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 		if (precision0 != 0) {
 			int exponent_tmp = 0;
 			(void)FREXP2(val, &exponent_tmp);
-			if (precision > (size_t)INT_MAX / 4) {
+			if (precision > INT_MAX / 4) {
 				return YIO_ERROR_ENOSYS;
 			}
 			const int bitpos = -5 + -4 * (int)precision + exponent_tmp;

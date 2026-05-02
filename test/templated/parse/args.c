@@ -11,16 +11,21 @@
 
 int main() {
 	char *buf = NULL;
-	yio_asprintf(&buf, "{:+0{}}", 3, 10);
+	int err;
+	err = yio_asprintf(&buf, "{:+0{}}", 3, 10);
+	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "+000000003") == 0);
-	yio_asprintf(&buf, "{:+0.{}}", 3, 10);
+	err = yio_asprintf(&buf, "{:+0.{}}", 3, 10);
+	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "+3") == 0);
-	yio_asprintf(&buf, "{:+0{}.{}}", 3, 10, 10);
+	err = yio_asprintf(&buf, "{:+0{}.{}}", 3, 10, 10);
+	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "+000000003") == 0);
-	yio_asprintf(&buf, "{:+0.{}}", "12345678901234567890", 10);
+	err = yio_asprintf(&buf, "{:+0.{}}", "12345678901234567890", 10);
+	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(buf != NULL);
 	YIO_TESTEXPR(strcmp(buf, "1234567890") == 0);
 	free(buf);
