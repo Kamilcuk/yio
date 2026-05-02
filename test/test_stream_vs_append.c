@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 int main() {
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
     char *str = NULL;
     int ret;
 

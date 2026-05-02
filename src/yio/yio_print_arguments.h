@@ -59,10 +59,10 @@
  */
 #define YYIO_PRECOMMAIGNORE1_0(...)
 #define YYIO_PRECOMMAIGNORE1_2(_1, ...)  ,__VA_ARGS__
-#define YYIO_PRECOMMAIGNORE1_N({{j_seqdashcomma(j_MLVLS)}}, N, ...) \
+#define YYIO_PRECOMMAIGNORE1_N({{j_seqdashcomma(j_MAX_ARGS)}}, N, ...) \
 		YYIO_PRECOMMAIGNORE1_##N
 #define YYIO_PRECOMMAIGNORE1(...)  \
-		YYIO_PRECOMMAIGNORE1_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 1, "2")}},0,0)(__VA_ARGS__)
+		YYIO_PRECOMMAIGNORE1_N(__VA_ARGS__, {{j_seqcomma(j_MAX_ARGS, 1, "2")}},0,0)(__VA_ARGS__)
 
 /**
  * @def YYIO_FORWARD_XFROMSECOND
@@ -151,7 +151,7 @@
  * @def YYIO_print_arguments_N()
  * Initial overload of argument over number of arguments.
  */
-#define YYIO_print_arguments_N({{j_seqdashcomma(j_MLVLS)}}, N, ...)  \
+#define YYIO_print_arguments_N({{j_seqdashcomma(j_MAX_ARGS)}}, N, ...)  \
 		YYIO_print_arguments_##N
 
 #endif /* YYIO_YIO_YIO_YIO_PRINT_ARGUMENTS_H_ */

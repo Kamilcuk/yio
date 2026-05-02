@@ -5,10 +5,10 @@
  *      Author: kamil
  */
 #include <yio_test.h>
-#ifndef YIO_USE_LOCALE
+#ifndef YIO_ENABLE_LOCALE
 #error
 #endif
-#if !YIO_USE_LOCALE
+#if !YIO_ENABLE_LOCALE
 int main() { return 100; }
 #else
 

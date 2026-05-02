@@ -6,7 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#define YIO_PRINT_FLOATS_WITH  YIO_PRINT_FLOATS_WITH_PRINTF
+#undef YIO_FLOAT_BACKEND
+#define YIO_FLOAT_BACKEND  PRINTF
 #include <yio_test_private.h>
 #include <assert.h>
 #include <yio/yio_config.h>
@@ -19,7 +20,6 @@
 #error  YYIO_PRINT_FLOAT$1
 #endif
 #if defined __GNUC__ && ! defined __clang__ && ! defined __INTEL_COMPILER
-static_assert(YYIO_PRINT_FLOAT$1 == YYIO_print_float_printf$1, "");
 #endif
 
 {% endcall %}

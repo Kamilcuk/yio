@@ -200,7 +200,7 @@ int main() {
 	setvbuf(stdout, NULL, _IOLBF, 0);
 	// The first call suprisingly returns errno=2. Curiosly where.
 	// Anyway, call it here, so it doesn't return errno=2 later.
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 	char *tmp_fmt = NULL;
 	yio_asprintf(&tmp_fmt, "{}", "{}");
 	free(tmp_fmt);

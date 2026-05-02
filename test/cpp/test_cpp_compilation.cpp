@@ -49,7 +49,7 @@ int main() {
     err = yio_printf("Wide string: {}\n", L"Wide string literal");
     assert(err >= 0);
 
-    #if YIO_USE_MALLOC
+    #if YIO_ENABLE_MALLOC
     // Positional arguments
     char *pos_str = NULL;
     err = yio_asprintf(&pos_str, "{1} {0} {1}\n", "first", "second");

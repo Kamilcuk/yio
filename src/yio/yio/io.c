@@ -74,9 +74,9 @@ static int sdcc_putchar_cb(void *arg, const char *data, size_t count) {
 }
 
 int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
-#if defined(__SDCC)
-  return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
-#elif defined(YIO_USE_OUTPUT_FD)
+#if YIO_OUTPUT_BACKEND_PUTCHAR
+	return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
+#elif YIO_OUTPUT_BACKEND_FD
 	return yio_vdprintf(1, data, fmt, va);
 #else
 	return yio_vfprintf(stdout, data, fmt, va);
@@ -96,7 +96,7 @@ int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const cha
 
 /* ------------------------------------------------------------------------- */
 
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 
 int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
@@ -188,4 +188,4 @@ int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_li
 	return ret;
 }
 
-#endif // YIO_USE_MALLOC
+#endif // YIO_ENABLE_MALLOC

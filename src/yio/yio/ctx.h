@@ -40,7 +40,7 @@ struct yio_printfmt_s {
 	char align;
 	/// May be on of '+' '-' ' ' character or 0 when unset.
 	char sign;
-#if YIO_ENABLE_GROUPING
+#if YIO_ENABLE_DIGIT_GROUPING
 	/// May be set to 'L' or '_' ',' or 0 when unset.
 	char grouping;
 #endif
@@ -68,8 +68,10 @@ struct YYIO_printctx_s {
 	const char *fmt;
 	/// va_list of current argument.
 	va_list *va;
+#if YIO_ENABLE_DYNAMIC_PFMT
 	/// Copy of va_list when iterating
 	va_list *startva;
+#endif
 	/// Iterator in callback functions.
 	const yio_printdata_t *ifunc;
 	/// The pointer to the data.

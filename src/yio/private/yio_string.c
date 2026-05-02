@@ -16,7 +16,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
 	const size_t size = YYIO_string_capacity(t);
 	if (newsize <= size) return 0;
@@ -47,7 +47,7 @@ int YYIO_string_putsn(YYIO_string *t, const char *ptr, size_t size) {
 	const size_t current_len = YYIO_string_len(t);
 	const size_t needed = current_len + size;
 	if (YYIO_string_capacity(t) < needed) {
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 		const size_t cap = YYIO_string_capacity(t);
 		const size_t init_chunk = YYIO_INIT_CAPACITY;
 		size_t new_cap = YYIO_GOLDEN_INCREASE(cap);

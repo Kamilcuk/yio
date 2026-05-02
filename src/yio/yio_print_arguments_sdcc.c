@@ -15,10 +15,10 @@ yio_printdata_t __xdata YYIO_sdcc_args[YIO_SDCC_MAX_ARGS];
 
 {% from "yio/yio_print_arguments_sdcc.h" import j_dec_YYIO_sdcc_args_init %}
 {{ j_dec_YYIO_sdcc_args_init() }} {
-{%- for J in j_one_to_n(2, j_MLVLS) -%}
+{%- for J in j_one_to_n(2, j_MAX_ARGS) -%}
 	YYIO_sdcc_args[{{ loop.index0 }}] = _{{ J }};
 {%- endfor %}
-	YYIO_sdcc_args[{{ j_MLVLS - 1 }}] = 0;
+	YYIO_sdcc_args[{{ j_MAX_ARGS - 1 }}] = 0;
 	return YYIO_sdcc_args;
 }
 

@@ -8,10 +8,10 @@
 #define _XOPEN_SOURCE
 #include <stdbool.h>
 #include "private.h"
-#ifndef YIO_USE_LOCALE
+#ifndef YIO_ENABLE_LOCALE
 #error
 #endif
-#if YIO_USE_LOCALE
+#if YIO_ENABLE_LOCALE
 #include <langinfo.h>
 #endif
 
@@ -21,7 +21,7 @@ int YYIO_print_bool(yio_printctx_t *t) {
 	if (err) return err;
 	const struct yio_printfmt_s *fmt = yio_printctx_get_fmt(t);
 	if (fmt->type == '\0' || fmt->type == 's') {
-#if YIO_USE_LOCALE && defined(YESSTR) && defined(NOSTR)
+#if YIO_ENABLE_LOCALE && defined(YESSTR) && defined(NOSTR)
 		if (fmt->grouping == 'L') {
 			const char *const loc = nl_langinfo(value ? YESSTR : NOSTR);
 			if (loc != NULL && strlen(loc) != 0) {

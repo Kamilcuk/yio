@@ -19,7 +19,7 @@
       },
       "cacheVariables": {
         "YIO_DEV": "1",
-        "YIO_LINE": "1",
+        "YIO_GENERATE_LINE_DIRECTIVES": "1",
         "YIO_BUILD_TESTING": "1",
         "BUILD_TESTING": "1",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
@@ -69,9 +69,9 @@
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/yio_sdcc_toolchain.cmake",
         "CMAKE_C_FLAGS": " --model-large --stack-auto --less-pedantic -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return --nogcse",
         "CMAKE_C_STANDARD": "23",
-        "YIO_ENABLE_GROUPING": "0",
-        "YIO_MLVLS": "5",
-        "YIO_USE_MALLOC": "0",
+        "YIO_ENABLE_DIGIT_GROUPING": "0",
+        "YIO_MAX_ARGS": "5",
+        "YIO_ENABLE_MALLOC": "0",
         "YYIO_HAS_LLONG": "0",
         "YYIO_HAS_INT128": "0",
         "YIO_USE_STRFROM_PRINTF": "0",
@@ -94,19 +94,19 @@
         "YIO_HAS_FLOATd128x": "0",
         "YIO_HAS_WCHAR_H": "0",
         "YIO_HAS_UCHAR_H": "0",
-        "YIO_USE_OUTPUT_FD": "0",
-        "YIO_USE_LOCALE": "0",
+        "YIO_OUTPUT_BACKEND": "PUTCHAR",
+        "YIO_ENABLE_LOCALE": "0",
         "BUILD_TESTING": "0",
         "YIO_BUILD_TESTING": "0",
-        "YIO_USE_VAR_FORMAT": "0"
+        "YIO_ENABLE_DYNAMIC_PFMT": "0"
       }
     },
     {
       "name": "lint",
       "inherits": "default",
       "cacheVariables": {
-        "YIO_MLVLS": "20",
-        "YIO_LINE": "0",
+        "YIO_MAX_ARGS": "20",
+        "YIO_GENERATE_LINE_DIRECTIVES": "0",
         "YIO_HAS_FLOATf16": "0",
         "YIO_HAS_FLOATf32": "0",
         "YIO_HAS_FLOATf64": "0",
@@ -149,8 +149,8 @@
       "name": "nomalloc_nognu",
       "inherits": "default",
       "cacheVariables": {
-        "YIO_USE_MALLOC": "0",
-        "YIO_CACHE_STACK_SIZE": "1024",
+        "YIO_ENABLE_MALLOC": "0",
+        "YIO_SSO_BUFFER_SIZE": "1024",
         "CMAKE_C_FLAGS": "-DYIO_USE_NONGNU_MACROS=1"
       }
     }

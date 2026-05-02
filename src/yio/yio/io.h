@@ -54,7 +54,7 @@ int yio_vfprintf(FILE *file, const yio_printdata_t *data, const char *fmt, va_li
  */
 YYIO_nn(1, 3, 5) YYIO_access_w(1) YYIO_access_r(3) YYIO_access_r(4) YYIO_access_r(5)
 int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, va_list *va);
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 /**
  * Works as-if the call to GNU extension asprintf().
  * If *strp is non-NULL, it will reuse the storage, assuming the allocated
@@ -72,7 +72,7 @@ int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_
  */
 YYIO_nn(1, 2, 4)
 int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va);
-#endif // YIO_USE_MALLOC
+#endif // YIO_ENABLE_MALLOC
 /**
  * Output to the file descriptor. Similar to POSIX dprintf() call.
  * @see yio_vbprintf
@@ -98,7 +98,7 @@ YYIO_nn(1, 2)
 int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 3) YYIO_access_w(1)
 int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...);
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 YYIO_nn(1, 2)
 int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 2)
@@ -122,7 +122,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_printf(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_fprintf(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_snprintf(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 #define yio_asprintf(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_append(strp, ...)         YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #endif
@@ -142,7 +142,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_stream(...)              YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_fstream(file, ...)       YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_snstream(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#if YIO_USE_MALLOC
+#if YIO_ENABLE_MALLOC
 #define yio_asstream(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_appendstream(strp, ...)   YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #endif
@@ -172,7 +172,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
  * The rest of the arguments are unchanged and appended to ellipsis argument.
  */
 #define YIO_PRINT_ARGUMENTS(...)  \
-		YYIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MLVLS, 0)}})( \
+		YYIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MAX_ARGS, 0)}})( \
 				YYIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
 
 #ifdef __cplusplus

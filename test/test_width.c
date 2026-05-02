@@ -17,7 +17,7 @@ int main() {
                 }
         }
 
-#if YYIO_HAS_UNISTRING && YIO_USE_MALLOC
+#if YYIO_HAS_UNISTRING && YIO_ENABLE_MALLOC
         // This needs unistring support from u8_width
         char *str = NULL;
         int err = yio_asprintf(&str, "{:5s}", "Ω");

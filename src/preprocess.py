@@ -85,7 +85,8 @@ class MyEnvironment(jinja2.Environment):
         self.globals.update(
             {
                 "j_FLOATS": j_FLOATS,
-                "j_MLVLS": int(defines.get("j_MLVLS", "32")),
+                "j_MAX_ARGS": int(defines.get("j_MAX_ARGS", "32")),
+                "j_MAX_CUSTOM_SLOTS": int(defines.get("j_MAX_CUSTOM_SLOTS", "100")),
                 "j_BITINT_MAXWIDTH": int(defines.get("j_BITINT_MAXWIDTH", "128")),
                 "j_one_to_n": j_one_to_n,
                 "j_match": j_match,

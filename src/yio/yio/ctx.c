@@ -22,10 +22,10 @@
 #include <stdint.h>
 #include <limits.h>
 #include <stdlib.h>
-#ifndef YIO_USE_LOCALE
-#error YIO_USE_LOCALE
+#ifndef YIO_ENABLE_LOCALE
+#error YIO_ENABLE_LOCALE
 #endif
-#if YIO_USE_LOCALE
+#if YIO_ENABLE_LOCALE
 #include <langinfo.h>
 #endif
 #ifndef YIO_HAS_WCHAR_H
@@ -93,7 +93,7 @@ int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 	return num;
 }
 
-#if YIO_USE_VAR_FORMAT
+#if YIO_ENABLE_DYNAMIC_PFMT
 static inline
 int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
 	assert(fmt[0] == '{');
@@ -138,15 +138,15 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 	*res = (num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num) + 1;
 	return 0;
 }
-#endif // YIO_USE_VAR_FORMAT
+#endif // YIO_ENABLE_DYNAMIC_PFMT
 
 int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
 	(void)t;
-#if YIO_USE_VAR_FORMAT
+#if YIO_ENABLE_DYNAMIC_PFMT
 	if (fmt[0] == '{') {
 		return YYIO_printctx_take_positional_param(t, fmt, endptr, res);
 	}
-#endif // YIO_USE_VAR_FORMAT
+#endif // YIO_ENABLE_DYNAMIC_PFMT
 	if (YYIO_isdigit(fmt[0])) {
 		const int num = YYIO_printctx_strtoi_noerr(&fmt);
 		*res = (num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num) + 1;
@@ -213,7 +213,7 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 		case '7':
 		case '8':
 		case '9':
-		#if YIO_USE_VAR_FORMAT
+		#if YIO_ENABLE_DYNAMIC_PFMT
 		case '{':
 			--fmt;
 			ret = YYIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
@@ -223,7 +223,7 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 		case '_':
 		case ',':
 		case 'L':
-			#if YIO_ENABLE_GROUPING
+			#if YIO_ENABLE_DIGIT_GROUPING
 			pf->grouping = ch;
 			#endif
 			break;
@@ -491,7 +491,7 @@ int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
 	return 0;
 }
 
-#if YIO_ENABLE_GROUPING
+#if YIO_ENABLE_DIGIT_GROUPING
 static inline
 const char *str_dot_or_end(const char str[], size_t len) {
 	for (; len != 0 && str[0] != '.' && str[0] != ','; ++str, --len) {
@@ -499,7 +499,7 @@ const char *str_dot_or_end(const char str[], size_t len) {
 	return str;
 }
 
-#if YIO_USE_LOCALE
+#if YIO_ENABLE_LOCALE
 static const char NOGROUP[1] = { CHAR_MAX };
 #endif
 static const char GROUP3[2] = "\x03";
@@ -507,7 +507,7 @@ static const char GROUP4[2] = "\x04";
 
 static inline
 const char *get_group(yio_printctx_t *t) {
-#if YIO_USE_LOCALE && defined(GROUPING)
+#if YIO_ENABLE_LOCALE && defined(GROUPING)
 	if (t->pf.grouping == 'L') {
 		const char *r = nl_langinfo(GROUPING);
 		return r != NULL && *r != '\0' ? r : NOGROUP;
@@ -528,7 +528,7 @@ static inline
 int print_numsep(yio_printctx_t *t, struct numsep *ns) {
 	if (ns->sep == NULL) {
 		if (t->pf.grouping == 'L') {
-#if YIO_USE_LOCALE
+#if YIO_ENABLE_LOCALE
 			const char *sep = nl_langinfo(THOUSEP); // THOUSEND_SEP
 			if (sep == NULL) {
 				// No separator, set sep to non-null to pass check above.
@@ -559,7 +559,7 @@ void print_numsep_end(yio_printctx_t *t, struct numsep *ns) {
 
 static inline
 int print_dot(yio_printctx_t *t) {
-#if YIO_USE_LOCALE
+#if YIO_ENABLE_LOCALE
 	if (t->pf.grouping == 'L') {
 		const char *dot = nl_langinfo(RADIXCHAR); // DECIMAL_POINT
 		if (dot == NULL) return 0;
@@ -667,7 +667,7 @@ NUMSEP_END:
 static inline
 int YYIO_printformat_print(YYIO_printformat_t *pf, const char str[], size_t str_len) {
 	yio_printctx_t * const t = pf->t;
-#if YIO_ENABLE_GROUPING
+#if YIO_ENABLE_DIGIT_GROUPING
 	struct yio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	if (is_number == true && f->grouping != '\0') {

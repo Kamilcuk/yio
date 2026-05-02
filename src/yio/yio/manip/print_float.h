@@ -15,24 +15,6 @@
 #include "../../private/yio_float_strfrom_ryu.h"
 #include "../ctx.h"
 
-#ifndef YIO_PRINT_FLOATS_WITH_STRFROM
-#define YIO_PRINT_FLOATS_WITH_STRFROM  1
-#endif
-#ifndef YIO_PRINT_FLOATS_WITH_CUSTOM
-#define YIO_PRINT_FLOATS_WITH_CUSTOM   2
-#endif
-#ifndef YIO_PRINT_FLOATS_WITH_PRINTF
-#define YIO_PRINT_FLOATS_WITH_PRINTF   3
-#endif
-#ifndef YIO_PRINT_FLOATS_WITH_RYU
-#define YIO_PRINT_FLOATS_WITH_RYU      4
-#endif
-
-#ifndef YIO_PRINT_FLOATS_WITH
-#error YIO_PRINT_FLOATS_WITH has to be configured
-#endif
-
-
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 #line
 
@@ -66,13 +48,13 @@ int YYIO_print_float_ryu$1(yio_printctx_t *t);
 #endif
 
 #ifndef YYIO_PRINT_FLOAT$1
-#	if YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_STRFROM
+#	if YIO_FLOAT_BACKEND_STRFROM
 #		define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
-#	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_CUSTOM && YYIO_has_float_custom$1
+#	elif YIO_FLOAT_BACKEND_CUSTOM && YYIO_has_float_custom$1
 #		define YYIO_PRINT_FLOAT$1  YYIO_print_float_custom$1
-#	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_PRINTF && YYIO_has_float_printf$1
+#	elif YIO_FLOAT_BACKEND_PRINTF && YYIO_has_float_printf$1
 #		define YYIO_PRINT_FLOAT$1  YYIO_print_float_printf$1
-#	elif YIO_PRINT_FLOATS_WITH == YIO_PRINT_FLOATS_WITH_RYU && YYIO_has_float_ryu$1
+#	elif YIO_FLOAT_BACKEND_RYU && YYIO_has_float_ryu$1
 #		define YYIO_PRINT_FLOAT$1  YYIO_print_float_ryu$1
 #	else
 #		if YYIO_HAS_strfrom$1
@@ -84,6 +66,7 @@ int YYIO_print_float_ryu$1(yio_printctx_t *t);
 #		endif
 #	endif
 #endif
+
 
 #ifdef __cplusplus
 {% if V.G == "s" %}

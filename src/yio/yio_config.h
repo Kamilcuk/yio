@@ -54,11 +54,49 @@
 #error YYIO_HAS_UNISTD_H
 #endif
 
-// check
-#if !YYIO_HAS_UNISTD_H
-#if YIO_USE_OUTPUT_FD
-#error "You can't output to fd without unistd.h"
+/* Backend selection logic -------------------------------------------------- */
+
+#define YYIO_BACKEND_ID_INTERNAL_3(prefix, name)  prefix##name
+#define YYIO_BACKEND_ID_INTERNAL_2(prefix, name)  YYIO_BACKEND_ID_INTERNAL_3(prefix, name)
+#define YYIO_BACKEND_ID(prefix, name)             YYIO_BACKEND_ID_INTERNAL_2(prefix, name)
+
+/* Output Backend Selection */
+#define YYIO_ID_OUT_STDOUT   1
+#define YYIO_ID_OUT_FD       2
+#define YYIO_ID_OUT_PUTCHAR  3
+
+#define YYIO_OUTPUT_BACKEND_ID  YYIO_BACKEND_ID(YYIO_ID_OUT_, YIO_OUTPUT_BACKEND)
+
+#if YYIO_OUTPUT_BACKEND_ID < 1 || YYIO_OUTPUT_BACKEND_ID > 3
+#error "Invalid YIO_OUTPUT_BACKEND configuration"
 #endif
+
+#define YIO_OUTPUT_BACKEND_STDOUT   (YYIO_OUTPUT_BACKEND_ID == YYIO_ID_OUT_STDOUT)
+#define YIO_OUTPUT_BACKEND_FD       (YYIO_OUTPUT_BACKEND_ID == YYIO_ID_OUT_FD)
+#define YIO_OUTPUT_BACKEND_PUTCHAR  (YYIO_OUTPUT_BACKEND_ID == YYIO_ID_OUT_PUTCHAR)
+
+/* Float Backend Selection */
+#define YYIO_ID_FLT_STRFROM  1
+#define YYIO_ID_FLT_CUSTOM   2
+#define YYIO_ID_FLT_PRINTF   3
+#define YYIO_ID_FLT_RYU      4
+
+#define YYIO_FLOAT_BACKEND_ID   YYIO_BACKEND_ID(YYIO_ID_FLT_, YIO_FLOAT_BACKEND)
+
+#if YYIO_FLOAT_BACKEND_ID < 1 || YYIO_FLOAT_BACKEND_ID > 4
+#error "Invalid YIO_FLOAT_BACKEND configuration"
+#endif
+
+#define YIO_FLOAT_BACKEND_STRFROM   (YYIO_FLOAT_BACKEND_ID == YYIO_ID_FLT_STRFROM)
+#define YIO_FLOAT_BACKEND_CUSTOM    (YYIO_FLOAT_BACKEND_ID == YYIO_ID_FLT_CUSTOM)
+#define YIO_FLOAT_BACKEND_PRINTF    (YYIO_FLOAT_BACKEND_ID == YYIO_ID_FLT_PRINTF)
+#define YIO_FLOAT_BACKEND_RYU       (YYIO_FLOAT_BACKEND_ID == YYIO_ID_FLT_RYU)
+
+
+/* Feature checks ----------------------------------------------------------- */
+
+#if YIO_OUTPUT_BACKEND_FD && !YYIO_HAS_UNISTD_H
+#error "You can't use FD output backend without unistd.h"
 #endif
 
 #ifdef __SDCC

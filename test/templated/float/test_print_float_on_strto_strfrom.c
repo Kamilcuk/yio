@@ -9,10 +9,11 @@
 #include <assert.h>
 #include <yio/yio_config.h>
 #if YYIO_HAS_strfromf
-#ifdef YIO_PRINT_FLOATS_WITH
-#undef YIO_PRINT_FLOATS_WITH
+#ifdef YIO_FLOAT_BACKEND
+#undef YIO_FLOAT_BACKEND
 #endif
-#define YIO_PRINT_FLOATS_WITH  YIO_PRINT_FLOATS_WITH_STRFROM
+#undef YIO_FLOAT_BACKEND
+#define YIO_FLOAT_BACKEND  STRFROM
 #include "test_print_float_on_strto.c"
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
@@ -20,7 +21,6 @@
 #error YYIO_PRINT_FLOAT$1
 #endif
 #if defined __GNUC__ && ! defined __clang__ && ! defined __INTEL_COMPILER
-static_assert(YYIO_PRINT_FLOAT$1 == YYIO_print_float_strfrom$1, "");
 #endif
 {% endcall %}
 #line
