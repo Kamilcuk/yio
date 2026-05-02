@@ -39,3 +39,30 @@ if(NOT YIO_SDCC)
 else()
   add_library(tiny-regex-c INTERFACE)
 endif()
+
+# Check if any decimal float types are supported
+set(YIO_HAS_ANY_DECIMAL_FLOAT FALSE)
+foreach(suffix IN ITEMS d32 d64 d128 d32x d64x d128x)
+    if(YIO_HAS_FLOAT${suffix})
+        set(YIO_HAS_ANY_DECIMAL_FLOAT TRUE)
+        break()
+    endif()
+endforeach()
+
+if(YIO_HAS_ANY_DECIMAL_FLOAT)
+    include(FetchContent)
+
+    # 1. Try to find the system library first
+    find_package(dfp QUIET)
+
+    if(NOT dfp_FOUND)
+        message(STATUS "libdfp not found on system. Fetching from GitHub...")
+
+        FetchContent_Declare(
+          libdfp
+          GIT_REPOSITORY https://github.com/libdfp/libdfp.git
+          GIT_TAG        master # Or a specific stable commit hash
+        )
+        FetchContent_MakeAvailable(libdfp)
+    endif()
+endif()

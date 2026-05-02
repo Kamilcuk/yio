@@ -33,7 +33,7 @@ void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 	*fmtpnt++ = '%';
 	if (precision != 0) {
 		*fmtpnt++ = '.';
-		const int len = yio_sprint(fmtpnt, INT_MAX, precision - 1);
+		const int len = yio_snstream(fmtpnt, INT_MAX, precision - 1);
 		(void)len;
 		assert(len > 0);
 		assert((size_t)len < fmtsize - 2);

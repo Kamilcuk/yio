@@ -10,6 +10,8 @@
 // The magic (void*)1 casts are there so that
 // __attribute__((__nonnull__)) doesn't throw an error.
 
+static struct yio_printfmt_s zero = {0};
+
 static inline
 void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
 	struct yio_printfmt_s pf = {0};
@@ -23,13 +25,13 @@ void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
 
 int main() {
 	struct yio_printfmt_s pf;
-	pf = (struct yio_printfmt_s){0}; test_pfmt(pf, "}");
-	pf = (struct yio_printfmt_s){0}; pf.align = '<'; test_pfmt(pf, "<}");
-	pf = (struct yio_printfmt_s){0}; pf.grouping = '_'; test_pfmt(pf, "_}");
-	pf = (struct yio_printfmt_s){0}; pf.grouping = ','; test_pfmt(pf, ",}");
-	pf = (struct yio_printfmt_s){0}; pf.align = '<'; pf.fill = '%'; test_pfmt(pf, "%<}");
-	pf = (struct yio_printfmt_s){0}; pf.align = '>'; pf.fill = '%'; test_pfmt(pf, "%>}");
-	pf = (struct yio_printfmt_s){0}; pf.align = '='; pf.fill = '%'; test_pfmt(pf, "%=}");
-	pf = (struct yio_printfmt_s){0}; pf.align = '^'; pf.fill = '%'; test_pfmt(pf, "%^}");
+	pf = zero; test_pfmt(pf, "}");
+	pf = zero; pf.align = '<'; test_pfmt(pf, "<}");
+	pf = zero; pf.grouping = '_'; test_pfmt(pf, "_}");
+	pf = zero; pf.grouping = ','; test_pfmt(pf, ",}");
+	pf = zero; pf.align = '<'; pf.fill = '%'; test_pfmt(pf, "%<}");
+	pf = zero; pf.align = '>'; pf.fill = '%'; test_pfmt(pf, "%>}");
+	pf = zero; pf.align = '='; pf.fill = '%'; test_pfmt(pf, "%=}");
+	pf = zero; pf.align = '^'; pf.fill = '%'; test_pfmt(pf, "%^}");
 	return 0;
 }

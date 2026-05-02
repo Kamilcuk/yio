@@ -123,7 +123,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_snprintf(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #if YIO_USE_MALLOC
 #define yio_asprintf(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#define yio_append_f(strp, ...)       YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_append(strp, ...)         YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #endif
 #define yio_dprintf(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 /**
@@ -140,11 +140,12 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
 #define yio_bprint(cb, arg, ...)     YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_print(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_fprint(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_sprint(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_snstream(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #if YIO_USE_MALLOC
 #define yio_asprint(strp, ...)        YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_append(strp, ...)         YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_append_s(strp, ...)       YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #endif
+
 #define yio_dprint(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * @}

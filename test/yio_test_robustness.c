@@ -55,7 +55,7 @@ static void test_memory(void) {
     char large[1024];
     memset(large, 'A', sizeof(large) - 1);
     large[sizeof(large) - 1] = '\0';
-    ret = yio_append_f(&str, " plus {}", large);
+    ret = yio_append(&str, " plus {}", large);
     YIO_TESTEXPR(ret > 1024);
     YIO_TESTEXPR(strstr(str, "AAAAA") != NULL);
 

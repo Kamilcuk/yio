@@ -319,6 +319,10 @@ if(UNISTRING_LIB)
 	target_link_libraries(yio PUBLIC ${UNISTRING_LIB})
 endif()
 
+if(TARGET dfp)
+	target_link_libraries(yio PRIVATE dfp)
+endif()
+
 if(NOT CMAKE_C_COMPILER_ID STREQUAL "SDCC")
 file_glob_srcs_relative_to_srcdir(GLOB _auto_compat_srcs yio/compatlib)
 yio_add_library(yio_compat

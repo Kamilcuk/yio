@@ -227,7 +227,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 	// The printed exponent is one less, cause of the initial digit!
 	int exponent = 0;
 
-	precision = (int)yio_precision_get_default(precision0, spec0lower == 'a' ? a_max_precision : 6);
+	precision = yio_precision_get_default(precision0, spec0lower == 'a' ? a_max_precision : 6);
 
 	// Rounding with 'e' specifier is shared with 'g' in case it get's chosen
 	int exponent10 = 0;
