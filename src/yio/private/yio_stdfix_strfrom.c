@@ -199,9 +199,9 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 				--exponent;
 			}
 			exponent += ibit - 4;
-			precision = yio_precision_isset(pf->precision) ? pf->precision : (total_bits / 4 - 1);
+			precision = (uint8_t)yio_precision_get_default(pf->precision, (size_t)(total_bits / 4 - 1));
 		} else {
-			precision = yio_precision_isset(pf->precision) ? pf->precision : 0;
+			precision = (uint8_t)yio_precision_get_default(pf->precision, 0);
 		}
 		const int digits_to_print = precision + 1;
 		// Correct Rounding: find the bit just below the last nibble we will print

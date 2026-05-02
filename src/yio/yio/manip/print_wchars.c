@@ -96,7 +96,7 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t) {
 	if (ret) return ret;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
 	if (pf->type != '\0' && pf->type != 's') return YIO_ERROR_INVALID_TYPE;
-	const size_t ws_maxlen = yio_precision_isset(pf->precision) ? (size_t)pf->precision : SIZE_MAX;
+	const size_t ws_maxlen = yio_precision_get_default(pf->precision, SIZE_MAX);
 	YYIO_string out;
 	YYIO_string_init(&out);
 	ret = wstr_to_yyiostring(ws, ws_maxlen, &out);

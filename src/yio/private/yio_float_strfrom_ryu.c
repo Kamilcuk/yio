@@ -145,23 +145,23 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YY
 	}
 	// https://github.com/ulfjack/ryu/issues/197
 	const size_t minsize = 2000;
-	const int precision = precision0 < 0 ? 6 : precision0;
-	const size_t toalloc = minsize + precision + 1;
+	const int precision = (int)yio_precision_get_default(precision0, 6);
+	const size_t toalloc = minsize + (size_t)precision + 1;
 	int err = YYIO_string_reserve(res, toalloc);
 	if (err) return err;
 	int len = 0;
 	char *const buf = YYIO_string_data(res);
 	//
 	if (spec == 'g' || spec == 'G') {
-		if (precision0 >= 0) {
+		if (precision0 != 0) {
 			return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
 		}
 		len = d2s_buffered_n(val, buf);
 		exp_to_upper(buf, spec == 'G');
 	} else if (spec == 'f' || spec == 'F') {
-		len = d2fixed_buffered_n(val, precision, buf);
+		len = d2fixed_buffered_n(val, (uint32_t)precision, buf);
 	} else if (spec == 'e' || spec == 'E') {
-		len = d2exp_buffered_n(val, precision, buf);
+		len = d2exp_buffered_n(val, (uint32_t)precision, buf);
 		exp_to_upper(buf, spec == 'E');
 	} else {
 		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);

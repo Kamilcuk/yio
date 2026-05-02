@@ -51,46 +51,14 @@ struct yio_printfmt_s {
 };
 
 /// Get the width, falling back to a default if unset (0).
-static inline uint8_t yio_width_get_default(uint8_t width, uint8_t default_val) {
-    return width != 0 ? (width - 1) : default_val;
+static inline size_t yio_width_get_default(uint8_t width, size_t default_val) {
+	return width != 0 ? (size_t)width - 1 : default_val;
 }
 
 /// Get the precision, falling back to a default if unset (0).
-static inline uint8_t yio_precision_get_default(uint8_t precision, uint8_t default_val) {
-    return precision != 0 ? (precision - 1) : default_val;
+static inline size_t yio_precision_get_default(uint8_t precision, size_t default_val) {
+	return precision != 0 ? (size_t)precision - 1 : default_val;
 }
-
-/**
- * Check if width is set in the formatting options.
- * @param width The width value.
- * @return true if width is set, false if it is unset.
- */
-static inline bool yio_width_isset(uint8_t width) {
-	return width != (uint8_t)-1;
-}
-
-/**
- * Check if precision is set in the formatting options.
- * @param precision The precision value.
- * @return true if precision is set, false if it is unset.
- */
-static inline bool yio_precision_isset(uint8_t precision) {
-	return precision != (uint8_t)-1;
-}
-
-/**
- * The default values of printfmt.
- */
-static const struct yio_printfmt_s YYIO_printfmt_default = {
-		(uint8_t)-1,
-		(uint8_t)-1,
-		' ',
-		0,
-		'-',
-		0,
-		0,
-		false,
-};
 
 /**
  * The structure that allows for printing context manipulation.

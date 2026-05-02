@@ -54,7 +54,7 @@ int YYIO_print_constchar16pnt(yio_printctx_t *t) {
 	if (err) return err;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
 	if (pf->type != '\0' && pf->type != 's') return YIO_ERROR_INVALID_TYPE;
-	const size_t maxlen = yio_precision_isset(pf->precision) ? (size_t)pf->precision : SIZE_MAX;
+	const size_t maxlen = yio_precision_get_default(pf->precision, SIZE_MAX);
 	YYIO_string out;
 	YYIO_string_init(&out);
 	err = c16str_to_yyiostring(str, maxlen, &out);
@@ -72,7 +72,7 @@ int YYIO_print_constchar32pnt(yio_printctx_t *t) {
 	if (err) return err;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
 	if (pf->type != '\0' && pf->type != 's') return YIO_ERROR_INVALID_TYPE;
-	const size_t maxlen = yio_precision_isset(pf->precision) ? (size_t)pf->precision : SIZE_MAX;
+	const size_t maxlen = yio_precision_get_default(pf->precision, SIZE_MAX);
 	YYIO_string out;
 	YYIO_string_init(&out);
 	err = ustr_to_yyiostring(str, maxlen, &out);

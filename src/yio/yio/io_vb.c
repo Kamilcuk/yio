@@ -69,7 +69,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 			return 0;
 		}
 		for (; *t->ifunc != NULL; ++t->ifunc) {
-			t->pf = YYIO_printfmt_default;
+			t->pf = (struct yio_printfmt_s){0};
 			const int ifuncret = (*t->ifunc)(t);
 			if (ifuncret) {
 				return ifuncret;
@@ -84,7 +84,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		assert(t->fmt[0] == '{');
 		t->fmt++;
 		//
-		t->pf = YYIO_printfmt_default;
+		t->pf = (struct yio_printfmt_s){0};
 		if (YYIO_isdigit(t->fmt[0])) {
 			YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&t->fmt));
 		}

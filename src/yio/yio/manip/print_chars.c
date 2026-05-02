@@ -50,7 +50,8 @@ int YYIO_print_constcharpnt(yio_printctx_t *t) {
 	if (pf->type != '\0' && pf->type != 's') {
 		return YIO_ERROR_INVALID_TYPE;
 	}
-	const size_t len = yio_precision_isset(pf->precision) ? YYIO_strnlen(str, pf->precision) : strlen(str);
+	const size_t precision = yio_precision_get_default(pf->precision, SIZE_MAX);
+	const size_t len = precision != SIZE_MAX ? YYIO_strnlen(str, precision) : strlen(str);
 	return yio_printctx_put(t, str, len);
 }
 

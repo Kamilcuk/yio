@@ -31,9 +31,9 @@ void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 	(void)fmtsize;
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
-	if (yio_precision_isset(precision)) {
+	if (precision != 0) {
 		*fmtpnt++ = '.';
-		const int len = yio_sprint(fmtpnt, INT_MAX, precision);
+		const int len = yio_sprint(fmtpnt, INT_MAX, precision - 1);
 		(void)len;
 		assert(len > 0);
 		assert((size_t)len < fmtsize - 2);

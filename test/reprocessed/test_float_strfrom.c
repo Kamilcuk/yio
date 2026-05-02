@@ -57,7 +57,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 	if (err) return err;
 
 	char *valstr = NULL;
-	if (!yio_precision_isset(precision)) {
+	if (precision == 0) {
 		char *fmt = NULL;
 		err = asprintf(&fmt, "%%" YYIO_FLOAT_PRI$1 "%c", type);
 		YIO_TESTEXPR(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
@@ -68,7 +68,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 		char *fmt = NULL;
 		err = asprintf(&fmt, "%%.*" YYIO_FLOAT_PRI$1 "%c", type);
 		YIO_TESTEXPR(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
-		err = asprintf(&valstr, fmt, precision, val);
+		err = asprintf(&valstr, fmt, (int)yio_precision_get_default(precision, 0), val);
 		YIO_TESTEXPR(err > 0, "asprintf(&valstr, ...) failed err=%d", err);
 		free(fmt);
 	}
@@ -126,8 +126,8 @@ static void YYIO_run_tests_print_float_custom$1(void) {
 			'g',
 	};
 	static const int precisions[] = {
-			-1, 0,
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+			0, // unset
+			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, // 0..10
 	};
 
 	for (size_t istrfrom = 0; istrfrom < ARRAY_SIZE(YYIO_astrfroms$1); ++istrfrom) {

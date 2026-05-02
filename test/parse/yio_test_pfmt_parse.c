@@ -12,7 +12,7 @@
 
 static inline
 void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
-	struct yio_printfmt_s pf = YYIO_printfmt_default;
+	struct yio_printfmt_s pf = {0};
 	const char *endptr = (const char *)-1;
 	const int err = YYIO_pfmt_parse((void*)1, &pf, str, &endptr);
 	YIO_TESTEXPR(err == 0, "%s", str ? str : "(NULL)");
@@ -23,13 +23,13 @@ void test_pfmt(struct yio_printfmt_s shouldbe, const char *str) {
 
 int main() {
 	struct yio_printfmt_s pf;
-	pf = YYIO_printfmt_default; test_pfmt(pf, "}");
-	pf = YYIO_printfmt_default; pf.align = '<'; test_pfmt(pf, "<}");
-	pf = YYIO_printfmt_default; pf.grouping = '_'; test_pfmt(pf, "_}");
-	pf = YYIO_printfmt_default; pf.grouping = ','; test_pfmt(pf, ",}");
-	pf = YYIO_printfmt_default; pf.align = '<'; pf.fill = '%'; test_pfmt(pf, "%<}");
-	pf = YYIO_printfmt_default; pf.align = '>'; pf.fill = '%'; test_pfmt(pf, "%>}");
-	pf = YYIO_printfmt_default; pf.align = '='; pf.fill = '%'; test_pfmt(pf, "%=}");
-	pf = YYIO_printfmt_default; pf.align = '^'; pf.fill = '%'; test_pfmt(pf, "%^}");
+	pf = (struct yio_printfmt_s){0}; test_pfmt(pf, "}");
+	pf = (struct yio_printfmt_s){0}; pf.align = '<'; test_pfmt(pf, "<}");
+	pf = (struct yio_printfmt_s){0}; pf.grouping = '_'; test_pfmt(pf, "_}");
+	pf = (struct yio_printfmt_s){0}; pf.grouping = ','; test_pfmt(pf, ",}");
+	pf = (struct yio_printfmt_s){0}; pf.align = '<'; pf.fill = '%'; test_pfmt(pf, "%<}");
+	pf = (struct yio_printfmt_s){0}; pf.align = '>'; pf.fill = '%'; test_pfmt(pf, "%>}");
+	pf = (struct yio_printfmt_s){0}; pf.align = '='; pf.fill = '%'; test_pfmt(pf, "%=}");
+	pf = (struct yio_printfmt_s){0}; pf.align = '^'; pf.fill = '%'; test_pfmt(pf, "%^}");
 	return 0;
 }

@@ -135,7 +135,7 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NEGATIVE, "positional width or precision specifier cannot be negative");
 	}
 	*endptr = fmt;
-	*res = num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num;
+	*res = (num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num) + 1;
 	return 0;
 }
 #endif // YIO_USE_VAR_FORMAT
@@ -149,7 +149,7 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **e
 #endif // YIO_USE_VAR_FORMAT
 	if (YYIO_isdigit(fmt[0])) {
 		const int num = YYIO_printctx_strtoi_noerr(&fmt);
-		*res = num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num;
+		*res = (num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num) + 1;
 		*endptr = fmt;
 	} else {
 		// do nothing
@@ -446,7 +446,7 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 					f->sign == YYIO_SIGN_ALWAYSSPACE || is_positive == false);
 	const size_t alllen = len + (size_t)( 2U * has_hash + has_sign );
 	*alllen0 = alllen;
-	const size_t width = yio_width_isset(f->width) ? f->width : 0;
+	const size_t width = yio_width_get_default(f->width, 0);
 
 	if (f->align == '\0') {
 		// The default for numbers is right, otherwise it's left.
@@ -464,7 +464,7 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 			f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = width - alllen;
 		const size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 : tmp;
-		const int err = YYIO_printctx_pad_write(t, f->fill, diff);
+		const int err = YYIO_printctx_pad_write(t, f->fill ? f->fill : ' ', diff);
 		if (err) return err;
 	}
 
@@ -482,11 +482,11 @@ int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
 	yio_printctx_t * const t = pf->t;
 	struct yio_printfmt_s * const f = &pf->t->pf;
 	const size_t alllen = pf->alllen;
-	const size_t width = yio_width_isset(f->width) ? f->width : 0;
+	const size_t width = yio_width_get_default(f->width, 0);
 	if ((f->align == YYIO_ALIGN_LEFT || f->align == YYIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
 		const size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + (tmp % 2) : tmp;
-		return YYIO_printctx_pad_write(t, f->fill, diff);
+		return YYIO_printctx_pad_write(t, f->fill ? f->fill : ' ', diff);
 	}
 	return 0;
 }
