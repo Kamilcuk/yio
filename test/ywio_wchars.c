@@ -10,22 +10,22 @@
 
 int main() {
 	wchar_t wc[] = L"first test";
-	yio_print(wc, "\n");
+	yio_stream(wc, "\n");
 	// PASS_REGULAR_EXPRESSION first test
 
 	wchar_t wc2[] = L"second test";
-	yio_print(yio_pwstring(wc2), "\n");
+	yio_stream(yio_pwstring(wc2), "\n");
 	// PASS_REGULAR_EXPRESSION second test
 
 	const wchar_t cw3[] = L"third test";
-	yio_print(cw3, "\n");
+	yio_stream(cw3, "\n");
 	// PASS_REGULAR_EXPRESSION third test
 
 	const wchar_t cw4[] = L"fourth test";
-	yio_print(yio_pwstring(cw4), "\n");
+	yio_stream(yio_pwstring(cw4), "\n");
 	// PASS_REGULAR_EXPRESSION fourth test
 
 	wchar_t c = L'H';
-	yio_print(yio_pwchar(c), "\n");
+	yio_stream(yio_pwchar(c), "\n");
 	// PASS_REGULAR_EXPRESSION H
 }

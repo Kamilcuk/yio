@@ -29,12 +29,12 @@ int main() {
 	const char32_t nl[] = {U'\n'};
 	char32_t s[] = U"hello";
 	const char32_t s2[] = U"hello";
-	const int ret1 = yio_print(s, " world", a++, "\n");
+	const int ret1 = yio_stream(s, " world", a++, "\n");
 	const int ret2 = yio_printf("{} {}{}{:.1}", s2, "world", a++, nl);
 	YIO_TESTEXPR(ret1 > 0 && ret2 > 0, "ret1=%d ret2=%d\n", ret1, ret2);
 #else
-	yio_print("hello world", a++, "\n");
-	yio_print("hello world", a++, "\n");
+	yio_stream("hello world", a++, "\n");
+	yio_stream("hello world", a++, "\n");
 #endif
 }
 // PASS_REGULAR_EXPRESSION hello world1

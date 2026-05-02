@@ -102,7 +102,7 @@ int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, cons
 YYIO_nn(1, 2)
 int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...);
 YYIO_nn(1, 2)
-int YYIO_yio_append(char **strp, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_yio_appendstream(char **strp, const yio_printdata_t *data, const char *fmt, ...);
 #endif
 YYIO_nn(2)
 int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
@@ -137,13 +137,13 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
  * @see yio_vbprintf
  * @{
  */
-#define yio_bprint(cb, arg, ...)     YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_print(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_fprint(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_bstream(cb, arg, ...)    YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_stream(...)              YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_fstream(file, ...)       YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_snstream(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #if YIO_USE_MALLOC
-#define yio_asprint(strp, ...)        YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_append_stream(strp, ...)  YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_asstream(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_appendstream(strp, ...)   YYIO_yio_appendstream(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #endif
 
 #define yio_dprint(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
@@ -155,7 +155,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
  * @def YIO_PRINT_ARGUMENTS
  * @ingroup yio
  *
- * Create argument list for yio_print functions
+ * Create argument list for yio_stream functions
  * If an argument doesn't has 62 commas, then the function for it is chosen
  *    using _Generic expression with @c YYIO_PRINT_FUNC_GENERIC.
  * If an argument does has 62 commas, then the first argument that should be inside braces is extracted
@@ -163,9 +163,9 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...);
  * The arguments are appended to the end of the function.
  *
  * For example a call like:
- *    yio_print(1, yio_callback(function, 2, 3));
+ *    yio_stream(1, yio_callback(function, 2, 3));
  * Is expanded to:
- *    yio_print((const YYIO_func_t[]){ _Generic((1), int: YYIO_print_int), function, NULL }, 1, 2, 3);
+ *    yio_stream((const YYIO_func_t[]){ _Generic((1), int: YYIO_print_int), function, NULL }, 1, 2, 3);
  *
  * The first argument is an array of functions to handle arguments, delimitered with NULL.
  * The rest of the arguments are unchanged and appended to ellipsis argument.

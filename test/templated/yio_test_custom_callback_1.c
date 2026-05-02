@@ -5,7 +5,7 @@
  *      Author: Kamil
  */
 #include <yio.h>
-#define dbgln(...)  yio_print(__FILE__, ":", __LINE__, ":", __func__, ": ", ##__VA_ARGS__, "\n")
+#define dbgln(...)  yio_stream(__FILE__, ":", __LINE__, ":", __func__, ": ", ##__VA_ARGS__, "\n")
 int main() {
 	dbgln("debugging test1");
 	dbgln("debugging ", "test2");

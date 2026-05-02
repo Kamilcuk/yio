@@ -19,11 +19,11 @@ set(YIO_SLOTS 100 CACHE STRING "${YIO_SLOTS_COMMENT}")
 if(YIO_SLOTS LESS 0)
 	message(FATAL_ERROR "YIO_SLOTS less then 0, needs to be positive")
 endif()
-
 set(YIO_PRINT_FLOATS_WITH_COMMENT [=[
 Choose the floating point printing function. By default strfrom{f,d,l} are
-used if they are available. If they are not available not available, then
+used if they are available. If they are not available, then
 printf with appropriate format specifier is preferred.
+]=])
 Note that using printf may break because of locale issues.
 Possible values of this variable are:
 YIO_PRINT_FLOATS_WITH_UNSET YIO_PRINT_FLOATS_WITH_STRFROM
@@ -34,7 +34,7 @@ set(YIO_PRINT_FLOATS_WITH 0 CACHE STRING "${YIO_PRINT_FLOATS_WITH_COMMENT}")
 yio_config_gen_add(YIO_PRINT_FLOATS_WITH ADDIFNDEF)
 
 set(YIO_USE_OUTPUT_FD_COMMENT [=[
-When set to true, yio_print will write from file descriptor 1 instead of using FILE * stdout.
+When set to true, yio_stream will write from file descriptor 1 instead of using FILE * stdout.
 ]=])
 set(YIO_USE_OUTPUT_FD 1 CACHE BOOL "${YIO_USE_OUTPUT_FD_COMMENT}")
 yio_config_gen_add(YIO_USE_OUTPUT_FD)

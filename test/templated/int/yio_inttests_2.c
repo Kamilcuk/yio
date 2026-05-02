@@ -30,19 +30,19 @@ int _yio_inttest2_ ## SUFFIX(int *err, const char *fmt, \
 	char buf[256]; \
 	shouldbe_snprintf(shouldbe, sizeof(shouldbe)/sizeof(*shouldbe), printfmt, arg); \
 	if (1) { \
-		fprintf(stdout, "Testing %s yio_print|\"%""s""\", ", #TYPE, fmt); \
+		fprintf(stdout, "Testing %s yio_stream|\"%""s""\", ", #TYPE, fmt); \
 		fprintf(stdout, "| \tvs snprintf|\"%""s""\", ", printfmt ? printfmt : "?"); \
 		fprintf(stdout, "| \t-> %d\"%""s""\"\n", \
 				(int)strlen(shouldbe), shouldbe); \
 	} \
 	const int ret = yio_snprintf(buf, sizeof(buf), fmt, arg); \
 	if (ret < 0) { \
-		fprintf(stderr, "%s:%d: yio_print \"%""s""\", ", __FILE__, __LINE__, fmt); \
+		fprintf(stderr, "%s:%d: yio_stream \"%""s""\", ", __FILE__, __LINE__, fmt); \
 		fprintf(stderr, " -> %d\n", ret); \
 		*err = __LINE__; \
 	} \
 	if (strcmp(shouldbe, buf) != 0) { \
-		fprintf(stderr, "%s:%d: yio_print|\"%""s""\", ", __FILE__, __LINE__, fmt); \
+		fprintf(stderr, "%s:%d: yio_stream|\"%""s""\", ", __FILE__, __LINE__, fmt); \
 		fprintf(stderr, "| -> %d\"%""s""\" != %d\"%""s""\"\n", \
 				(int)strlen(buf), buf, \
 				(int)strlen(shouldbe), shouldbe); \

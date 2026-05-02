@@ -112,8 +112,8 @@ yio_print("Results of the ", event, " ", event, "\n");
 
 These are two main functions. Additionally, various other variations are provided:
 
-- `yio_bprint`/`yio_bprintf` - functions that take custom output callback
-- `yio_fprint[f]?` - functions for printing into `FILE*`
+- `yio_bstream`/`yio_bprintf` - functions that take custom output callback
+- `yio_fstream[f]?` - functions for printing into `FILE*`
 - `yio_aprint[f]?` - functions just like `aprintf`, for allocating memory
 
 Additionally:

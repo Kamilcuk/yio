@@ -42,12 +42,12 @@ static void test_memory(void) {
     int ret;
 
     /* Initial allocation */
-    ret = yio_append(&str, "Initial");
+    ret = yio_appendstream(&str, "Initial");
     YIO_TESTEXPR(ret == 7);
     YIO_TESTEXPR(strcmp(str, "Initial") == 0);
 
     /* Append */
-    ret = yio_append(&str, " and secondary");
+    ret = yio_appendstream(&str, " and secondary");
     YIO_TESTEXPR(ret == 14);
     YIO_TESTEXPR(strcmp(str, "Initial and secondary") == 0);
 
@@ -55,7 +55,7 @@ static void test_memory(void) {
     char large[1024];
     memset(large, 'A', sizeof(large) - 1);
     large[sizeof(large) - 1] = '\0';
-    ret = yio_append(&str, " plus {}", large);
+    ret = yio_appendstream(&str, " plus {}", large);
     YIO_TESTEXPR(ret > 1024);
     YIO_TESTEXPR(strstr(str, "AAAAA") != NULL);
 

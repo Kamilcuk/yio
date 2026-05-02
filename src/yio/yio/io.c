@@ -106,7 +106,7 @@ int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt,
 	return ret;
 }
 
-int YYIO_yio_append(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
+int YYIO_yio_appendstream(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vappend(strp, data, fmt, &va);

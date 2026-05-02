@@ -8,7 +8,7 @@ static void normal() {
 
 static void streamed() {
     int number = 2;
-    yio_print("number: ", number, "\n");
+    yio_stream("number: ", number, "\n");
 }
 
 static void formatted() {
