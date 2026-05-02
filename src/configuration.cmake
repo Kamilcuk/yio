@@ -30,13 +30,13 @@ Valid options are:
 - PRINTF: Falls back to the system's snprintf. May be affected by the current LC_NUMERIC locale.
 - CUSTOM: Uses Yio's baseline internal formatter. Portable and dependency-free, but slower and less precise.
 ]=])
-set(YIO_FLOAT_BACKEND "STRFROM" CACHE STRING "${YIO_FLOAT_BACKEND_COMMENT}")
+set(YIO_FLOAT_BACKEND "RYU" CACHE STRING "${YIO_FLOAT_BACKEND_COMMENT}")
+
 set_property(CACHE YIO_FLOAT_BACKEND PROPERTY STRINGS "STRFROM" "CUSTOM" "PRINTF" "RYU")
 set(YIO_FLOAT_BACKEND_valid_values "STRFROM;CUSTOM;PRINTF;RYU")
 if(NOT YIO_FLOAT_BACKEND IN_LIST YIO_FLOAT_BACKEND_valid_values)
 	message(FATAL_ERROR "Invalid YIO_FLOAT_BACKEND: '${YIO_FLOAT_BACKEND}'. Valid values are: ${YIO_FLOAT_BACKEND_valid_values}")
 endif()
-yio_config_gen_add_value(YIO_FLOAT_BACKEND "${YIO_FLOAT_BACKEND}")
 
 set(YIO_OUTPUT_BACKEND_COMMENT [=[
 Configure the default output destination for yio_printf and yio_stream.

@@ -27,14 +27,11 @@ The project uses CMake, but a `Makefile` wrapper is provided for convenience.
 
 ### Basic Workflow
 ```bash
-# Configure the project
-make conf
-
-# Build everything
-make build
-
-# Run tests
+# Configure, build and run tests (recommended)
 make test
+
+# To only build:
+make build
 ```
 
 ### Quick Test

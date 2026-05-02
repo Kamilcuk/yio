@@ -43,10 +43,6 @@ find_library(UNISTRING_LIB
 
 ###############################################################################
 
-# YIO_DEV is internal variable set if the developer of this library is building it
-if(NOT DEFINED YIO_DEV)
-	set(YIO_DEV 0)
-endif()
 if(YIO_DEV)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
@@ -73,58 +69,6 @@ if(YIO_DEV)
 			${CMAKE_BINARY_DIR}/compile_commands.json
 			${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
 	)
-
-	# Add compiler options.
-	if(CMAKE_C_COMPILER_ID MATCHES "^(GNU|Clang|Intel)$")
-		add_compile_options(
-			-g
-			-Wall
-			-Wextra
-			-Wwrite-strings
-			-Wno-unused-function
-			-Wno-unused-parameter
-		)
-		add_link_options(
-			-g
-		)
-	endif()
-	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		if(NOT YIO_CLANG_TIDY AND NOT YIO_BUILD_BENCHMARKS)
-			check_c_compiler_flag(-fanalyzer HAS_ANALYZER)
-			if(HAS_ANALYZER)
-				add_compile_options(-fanalyzer)
-			endif()
-		endif()
-		check_c_compiler_flag(-Wattribute-warning YYIO_ATTRIBUTE_WARNING)
-		if(YYIO_ATTRIBUTE_WARNING)
-			add_compile_options(-Wattribute-warning)
-		endif()
-		add_compile_definitions(_FORTIFY_SOURCE=2)
-		add_compile_options(
-			$<$<COMPILE_LANGUAGE:C>:-Wmissing-prototypes>
-			-O  # _FORTIFY_SOURCE needs it
-		)
-	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-		check_c_compiler_flag(--analyze HAS_ANALYZER)
-		if(HAS_ANALYZER)
-			#add_compile_options(--analyze)
-		endif()
-		check_c_compiler_flag(-ffixed-point HAS_FIXED_POINT)
-		if(HAS_FIXED_POINT)
-			add_compile_options(-ffixed-point)
-		endif()
-		add_compile_options(
-			-Wno-varargs
-			-Wno-array-bounds
-			-Wno-sizeof-array-decay
-		)
-	endif()
-
-	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		add_compile_options(-fdiagnostics-color=always)
-	elseif(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-		add_compile_options(-fcolor-diagnostics)
-	endif()
 
 	yio_debug_variables(
 		BUILD_TESTING

@@ -9,17 +9,18 @@
 #ifndef YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_
 #define YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_
 #include "../yio_config.h"
+#include "yio_float.h"
 #ifdef YYIO_PRIVATE
 #include "yio_string.h"
 #endif
 
-{% call j_FOREACHAPPLY(["f", "d", "l"]) %}
+{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 #line
 #ifndef YIO_HAS_FLOAT$1
 #error  YIO_HAS_FLOAT$1
 #endif
 #if YIO_HAS_FLOAT$1
-
+{% if V.1 == "f" or V.1 == "d" %}
 #ifdef YYIO_PRIVATE
 /**
  * Convert the floating number val according to specified precision
@@ -32,25 +33,56 @@
  */
 int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT$1 val);
 #endif
-
 #define YYIO_has_float_ryu$1  1
+{% elif V.1 == "l" %}
+#if YYIO_HAS_INT128
+#ifdef YYIO_PRIVATE
+/** long double native support requires __int128. */
+int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT$1 val);
+#endif
+#define YYIO_has_float_ryu$1  1
+#elif YYIO_FLOAT_MANT_DIG$1 == FLT_MANT_DIG
+#define YYIO_has_float_ryu$1  1
+#ifdef YYIO_PRIVATE
+#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryuf(res, prec, spec, (float)(val))
+#endif
+#elif YYIO_FLOAT_MANT_DIG$1 == DBL_MANT_DIG
+#define YYIO_has_float_ryu$1  1
+#ifdef YYIO_PRIVATE
+#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryud(res, prec, spec, (double)(val))
+#endif
+#else
+#define YYIO_has_float_ryu$1  0
+#ifdef YYIO_PRIVATE
+#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_custom$1
+#endif
+#endif
+{% elif j_match("^f[0-9]+", V.1) %}
+#if YYIO_FLOAT_MANT_DIG$1 == FLT_MANT_DIG
+#define YYIO_has_float_ryu$1  1
+#ifdef YYIO_PRIVATE
+#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryuf(res, prec, spec, (float)(val))
+#endif
+#elif YYIO_FLOAT_MANT_DIG$1 == DBL_MANT_DIG
+#define YYIO_has_float_ryu$1  1
+#ifdef YYIO_PRIVATE
+#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryud(res, prec, spec, (double)(val))
+#endif
+#else
+#define YYIO_has_float_ryu$1  0
+#ifdef YYIO_PRIVATE
+#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_custom$1
+#endif
+#endif
+{% else %}
+#define YYIO_has_float_ryu$1  0
+#ifdef YYIO_PRIVATE
+#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_custom$1
+#endif
+{% endif %}
 #else
 #define YYIO_has_float_ryu$1  0
 #endif // YYIO_FLOAT$1
 {% endcall %}
 
-{% call j_FOREACHAPPLY([
-		"f16", "f32", "f64", "f128",
-		"f32x", "f64x", "f128x",
-		"d32", "d64", "d128",
-		"d32x", "d64x", "d128x" ]) %}
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-#if YIO_HAS_FLOAT$1
-#ifndef YYIO_has_float_ryu$1
-#define YYIO_has_float_ryu$1  0
-#endif
-#endif
-{% endcall %}
 #endif /* YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_ */

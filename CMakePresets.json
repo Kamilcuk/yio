@@ -26,6 +26,22 @@
       }
     },
     {
+      "name": "gcc",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_C_FLAGS": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -fanalyzer -Wattribute-warning -Wmissing-prototypes -O1 -D_FORTIFY_SOURCE=2 -fdiagnostics-color=always"
+      }
+    },
+    {
+      "name": "clang",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_C_FLAGS": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -ffixed-point -Wno-varargs -Wno-array-bounds -Wno-sizeof-array-decay -fcolor-diagnostics"
+      }
+    },
+    {
       "name": "coverage",
       "inherits": "default",
       "cacheVariables": {

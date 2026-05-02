@@ -277,6 +277,15 @@ yio_config_gen_check_type_exists(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY
 
 #########################################################################
 
+# Handle Float Backend cascading defaults and fallbacks
+if(YIO_FLOAT_BACKEND STREQUAL "STRFROM")
+	if(NOT YYIO_HAS_strfromf OR NOT YYIO_HAS_strfromd)
+		message(STATUS "strfrom() family not found in libc. Falling back to RYU float backend.")
+		set(YIO_FLOAT_BACKEND "RYU" CACHE STRING "${YIO_FLOAT_BACKEND_COMMENT}" FORCE)
+	endif()
+endif()
+yio_config_gen_add_value(YIO_FLOAT_BACKEND "${YIO_FLOAT_BACKEND}")
+
 yio_config_gen_fini()
 
 #########################################################################
