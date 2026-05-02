@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
 #define YYIO_YIO_PRIVATE_YIO_ALLOCHELP_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../yio_config.h"
 #include "yio_string.h"
 #include <stddef.h>
@@ -53,4 +57,7 @@ struct YYIO_astrfmon_arg {
 int YYIO_astrfmon(YYIO_string *res, const char *fmt, struct YYIO_astrfmon_arg arg);
 #endif
 
-#endif /* YYIO_YIO_PRIVATE_YIO_ALLOCHELP_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_PRIVATE_YIO_ALLOCHELP_H_

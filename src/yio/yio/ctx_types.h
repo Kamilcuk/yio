@@ -8,6 +8,9 @@
  */
 #ifndef YYIO_YIO_YIO_CTX_TYPES_H_
 #define YYIO_YIO_YIO_CTX_TYPES_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "../yio_config.h"
 #include <stddef.h>
@@ -43,4 +46,7 @@ typedef int (YYIO_printcb_t)(void *arg, const char * __sized_by(count) data, siz
  */
 typedef int (*yio_printdata_t)(yio_printctx_t * __single t) YYIO_REENTRANT;
 
-#endif /* YYIO_YIO_YIO_CTX_TYPES_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_CTX_TYPES_H_

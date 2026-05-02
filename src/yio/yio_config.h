@@ -7,6 +7,9 @@
  */
 #ifndef YYIO_YIO_YIO_CONFIG_H_
 #define YYIO_YIO_YIO_CONFIG_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // {#+
 // {#+
@@ -211,4 +214,7 @@ typedef struct YYIO_SDCC_FILE_s { int YYIO_SDCC_FILE_unused; } FILE;
  * @}
  */
 
-#endif /* YYIO_YIO_YIO_CONFIG_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_CONFIG_H_

@@ -8,7 +8,6 @@
  */
 #ifndef YYIO_YIO_YIO_CTX_H_
 #define YYIO_YIO_YIO_CTX_H_
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -286,5 +285,4 @@ int yio_printctx_put_number(yio_printctx_t *t, const char *str, size_t str_len, 
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* YYIO_YIO_YIO_CTX_H_ */
+#endif // YYIO_YIO_YIO_CTX_H_

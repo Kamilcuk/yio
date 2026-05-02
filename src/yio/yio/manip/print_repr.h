@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_REPR_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_REPR_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../ctx_types.h"
 
 #define yio_repr           yio_repr_hex
@@ -25,4 +29,8 @@ int YYIO_print_repr_U(yio_printctx_t *t);
 /**
  * @}
  */
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_REPR_H_ */
+
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_REPR_H_

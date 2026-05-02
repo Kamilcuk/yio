@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_PRIVATE_YIO_FLOAT_H_
 #define YYIO_YIO_PRIVATE_YIO_FLOAT_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../yio_config.h"
 
 // {#
@@ -186,4 +190,7 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 
 /* ------------------------------------------------------------------------- */
 
-#endif /* YYIO_YIO_PRIVATE_YIO_FLOAT_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_PRIVATE_YIO_FLOAT_H_

@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_PFMT_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_PFMT_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../ctx_types.h"
 
 /**
@@ -35,4 +39,8 @@ int YYIO_print_pfmt(yio_printctx_t *t);
 /**
  * @}
  */
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_PFMT_H_ */
+
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_PFMT_H_

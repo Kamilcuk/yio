@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_WCHARS_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_WCHARS_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../ctx.h"
 
 #ifndef YIO_HAS_WCHAR_H
@@ -50,4 +54,8 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t);
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS()
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
 #endif
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_WCHARS_H_ */
+
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_WCHARS_H_

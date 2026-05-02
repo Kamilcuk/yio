@@ -136,6 +136,17 @@ if(UNIX)
 		LABELS nomemcheck
 	)
 
+	k_add_test(
+		NAME check_include_guards
+		COMMAND python3 "${CMAKE_CURRENT_SOURCE_DIR}/../scripts/check-include-guards.py"
+			--exclude "${SRCDIR}/yio/ptrcheck.h"
+			--exclude "${SRCDIR}/yio/yio/manip/slots.h"
+			--conly "${SRCDIR}/yio/yio_print_arguments.h"
+			--conly "${SRCDIR}/yio/yio_print_arguments_gnu.h"
+			--conly "${SRCDIR}/yio/yio_print_arguments_nongnu.h"
+			"${SRCDIR}"
+		LABELS nomemcheck
+	)
 endif()
 
 ###############################################################################

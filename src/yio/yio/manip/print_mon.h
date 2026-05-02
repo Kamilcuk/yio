@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_MON_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_MON_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../ctx.h"
 
 #ifndef YYIO_HAS_MONETARY_H
@@ -21,5 +25,7 @@ int YYIO_print_mon(yio_printctx_t *t);
 
 #endif
 
-
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_MON_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_MON_H_

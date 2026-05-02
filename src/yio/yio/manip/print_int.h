@@ -8,6 +8,9 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_INT_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_INT_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include "../ctx_types.h"
 #include <stdbool.h>
@@ -125,5 +128,7 @@ int YYIO_print_ubitint{{i}}(yio_printctx_t *t);
 #define YYIO_PRINT_FUNC_GENERIC_BITINTS()
 #endif // YYIO_BITINT_MAXWIDTH
 
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_INT_H_ */
-
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_INT_H_

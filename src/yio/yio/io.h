@@ -8,7 +8,6 @@
  */
 #ifndef YYIO_YIO_YIO_IO_H_
 #define YYIO_YIO_YIO_IO_H_
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -178,5 +177,4 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, cons
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* YYIO_YIO_YIO_IO_H_ */
+#endif // YYIO_YIO_YIO_IO_H_

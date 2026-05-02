@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_YIO_PRINT_ARGUMENTS_H_
-#define YYIO_YIO_YIO_YIO_PRINT_ARGUMENTS_H_
+#ifndef YYIO_YIO_YIO_PRINT_ARGUMENTS_H_
+#define YYIO_YIO_YIO_PRINT_ARGUMENTS_H_
 
 /**
  * Re-evaulate the arguments
@@ -153,5 +153,4 @@
  */
 #define YYIO_print_arguments_N({{j_seqdashcomma(j_MAX_ARGS)}}, N, ...)  \
 		YYIO_print_arguments_##N
-
-#endif /* YYIO_YIO_YIO_YIO_PRINT_ARGUMENTS_H_ */
+#endif // YYIO_YIO_YIO_PRINT_ARGUMENTS_H_

@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_STDFIX_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_STDFIX_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if YYIO_HAS_STDFIX_TYPES
 
 {% from "yio/private/yio_stdfix.h" import j_STDFIX %}
@@ -31,4 +35,7 @@ int YYIO_print_$3(yio_printctx_t *t);
 #define YYIO_PRINT_STDFIX()
 #endif // YYIO_HAS_STDFIX_TYPES
 
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_STDFIX_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_STDFIX_H_

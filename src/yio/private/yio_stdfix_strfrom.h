@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_PRIVATE_YIO_STDFIX_STRFROM_H_
 #define YYIO_YIO_PRIVATE_YIO_STDFIX_STRFROM_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../yio_config.h"
 #ifndef YYIO_HAS_STDFIX_TYPES
 #error YYIO_HAS_STDFIX_TYPES
@@ -34,4 +38,8 @@ int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val);
 #endif
 
 #endif // YYIO_HAS_STDFIX_TYPES
-#endif /* YYIO_YIO_PRIVATE_YIO_STDFIX_STRFROM_H_ */
+
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_PRIVATE_YIO_STDFIX_STRFROM_H_

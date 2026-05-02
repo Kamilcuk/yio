@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_
 #define YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../yio_config.h"
 #include "yio_float.h"
 #ifdef YYIO_PRIVATE
@@ -85,4 +89,7 @@ int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_
 #endif // YYIO_FLOAT$1
 {% endcall %}
 
-#endif /* YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_RYU_H_

@@ -6,7 +6,6 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include <assert.h>
 #include <yio/yio_config.h>
 #if YYIO_HAS_strfromf
 #ifdef YIO_FLOAT_BACKEND
@@ -14,6 +13,7 @@
 #endif
 #undef YIO_FLOAT_BACKEND
 #define YIO_FLOAT_BACKEND  STRFROM
+#include <assert.h>
 #include "test_print_float_on_strto.c"
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line

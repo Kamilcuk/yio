@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_FLOAT_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_FLOAT_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../../private/yio_float.h"
 #include "../../private/yio_float_strfrom_custom.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
@@ -94,4 +98,7 @@ int YYIO_print_float_ryu$1(yio_printctx_t *t);
 		{% endcall %}
 		/**/
 
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_FLOAT_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_FLOAT_H_

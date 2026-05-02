@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_COMPLEX_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_COMPLEX_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if YYIO_HAS_COMPLEX
 
 {% set j_complex_types = [
@@ -59,4 +63,7 @@ int YYIO_print_imaginary_$1(yio_printctx_t *t);
 #define YYIO_PRINT_COMPLEX()
 #endif
 
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_COMPLEX_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_COMPLEX_H_

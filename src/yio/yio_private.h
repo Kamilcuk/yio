@@ -7,6 +7,10 @@
  */
 #ifndef YYIO_YIO_YIO_PRIVATE_H_
 #define YYIO_YIO_YIO_PRIVATE_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "yio_public.h"
 #include <string.h>
 #include <stdbool.h>
@@ -116,4 +120,7 @@ static inline bool YYIO_anyeq6(unsigned char v, unsigned char a, unsigned char b
 
 #define YYIO_ANYEQ(v, ...) YYIO_XCONCAT(YYIO_anyeq, YYIO_COUNT_ARGS(__VA_ARGS__))(v, ##__VA_ARGS__)
 
-#endif /* YYIO_YIO_YIO_PRIVATE_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_PRIVATE_H_

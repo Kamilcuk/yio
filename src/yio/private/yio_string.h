@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_PRIVATE_YIO_STRING_H_
 #define YYIO_YIO_PRIVATE_YIO_STRING_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../yio_config.h"
 #include "../yio/io.h"
 #include "../yio_error.h"
@@ -177,4 +181,7 @@ static inline bool YYIO_string_equal(const YYIO_string *a, const YYIO_string *b)
     return memcmp(YYIO_string_data((YYIO_string *)a), YYIO_string_data((YYIO_string *)b), len_a) == 0;
 }
 
-#endif /* YYIO_YIO_PRIVATE_YIO_STRING_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_PRIVATE_YIO_STRING_H_

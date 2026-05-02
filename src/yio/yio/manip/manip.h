@@ -8,6 +8,9 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_MANIP_H_
 #define YYIO_YIO_YIO_MANIP_MANIP_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /**
  * @def YYIO_COUNTER
@@ -22,9 +25,6 @@
  */
 #define YYIO_PRINT_FUNC_GENERIC_SLOTS() /**/
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "../ctx.h"
 #include "../../yio_config.h"
@@ -76,13 +76,8 @@ int YYIO_print_count(yio_printctx_t *t);
 #define yio_count(v)  yio_callback(YYIO_print_count, _Generic((v),int *:(v)))
 #endif
 
-
 #define YYIO_PRINT_FUNC_GENERIC_COUNT() \
 		YYIO_OVERLOAD_TYPE_FUNC(int *, YYIO_print_count)
-
-#ifdef __cplusplus
-}
-#endif
 
 #ifndef YYIO_HAS_UNIQUE_CONSTPOINTER
 #error YYIO_HAS_UNIQUE_CONSTPOINTER is not defined
@@ -107,6 +102,7 @@ int YYIO_print_count(yio_printctx_t *t);
 #endif
 
 #ifdef __cplusplus
+extern "C++" {
 namespace yyio_cpp {
 	YYIO_PRINT_FUNC_GENERIC_SLOTS()
 	YYIO_PRINT_SCHAR()
@@ -125,6 +121,7 @@ namespace yyio_cpp {
 	YYIO_OVERLOAD_TYPE_FUNC(char, YYIO_print_char)
 	YYIO_OVERLOAD_POINTER_TYPE_FUNC(char*, YYIO_print_constcharpnt)
 	YYIO_OVERLOAD_POINTER_TYPE_FUNC(void*, YYIO_print_voidp)
+}
 }
 #endif
 
@@ -196,4 +193,7 @@ namespace yyio_cpp {
 	static inline int YYIO_XCONCAT(YYIO_TYPE_FUNC_, YYIO_COUNTER)(yio_printctx_t *ctx) { return (FUNCTION)(ctx); }
 #endif
 
-#endif /* YYIO_YIO_YIO_MANIP_MANIP_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_MANIP_H_

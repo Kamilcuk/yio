@@ -7,7 +7,6 @@
  */
 #ifndef YYIO_YIO_YIO_EX_H_
 #define YYIO_YIO_YIO_EX_H_
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -138,5 +137,4 @@ _F_IN(patsubst($1, `\([^{]\){\([_a-zA-Z][_a-zA-Z0-9]*\)=', `\1\2={\2') _F_SHIFT(
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* YYIO_YIO_YIO_EX_H_ */
+#endif // YYIO_YIO_YIO_EX_H_

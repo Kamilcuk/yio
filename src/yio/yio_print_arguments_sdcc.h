@@ -6,8 +6,12 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
-#define YYIO_YIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
+#ifndef YYIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
+#define YYIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // NOLINE
 #include "yio/ctx_types.h"
 
@@ -34,4 +38,7 @@ const yio_printdata_t _{{ J }}{% if not loop.last %}, {% endif %}
 {{ j_yio_macros_args(I) }}	/* */
 {% endcall %}{% endfor %}
 
-#endif /* YYIO_YIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_

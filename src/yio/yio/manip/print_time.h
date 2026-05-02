@@ -8,6 +8,10 @@
  */
 #ifndef YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
 #define YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "../ctx_types.h"
 #include <time.h>
 #ifndef YYIO_HAS_timespec
@@ -83,4 +87,7 @@ int YYIO_print_timeval(yio_printctx_t *t);
 		YYIO_PRINT_GENERIC_TIMEVAL()
 #endif
 
-#endif /* YYIO_YIO_YIO_MANIP_PRINT_TIME_H_ */
+#ifdef __cplusplus
+}
+#endif
+#endif // YYIO_YIO_YIO_MANIP_PRINT_TIME_H_

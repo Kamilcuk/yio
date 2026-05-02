@@ -79,4 +79,4 @@ const char *yio_strerror(int error);
 #ifdef __cplusplus
 }
 #endif
-#endif /* YYIO_YIO_YIO_ERROR_H_ */
+#endif // YYIO_YIO_YIO_ERROR_H_

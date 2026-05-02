@@ -1,8 +1,10 @@
-/*
- * print_bool.c
- *
- *  Created on: 19 cze 2020
- *      Author: kamil
+/**
+ * @file
+ * @date 2020-06-15
+ * @author Kamil Cukrowski
+ * @copyright
+ * SPDX-License-Identifier: GPL-3.0-only
+ * @brief
  */
 #define _GNU_SOURCE
 #define _XOPEN_SOURCE
