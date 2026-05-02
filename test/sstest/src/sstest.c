@@ -137,7 +137,7 @@ __attribute__((__constructor__)) static void disable_buffering(void) {
 
 #else // SSTEST_USE_BACKTRACE
 
-static inline void *print_stacktrace(void) {}
+static inline void *print_stacktrace(void) { return NULL; }
 
 #endif // SSTEST_USE_BACKTRACE
 
