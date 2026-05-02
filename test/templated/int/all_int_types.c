@@ -46,19 +46,10 @@
 /* ------------------------------------------------------------------------- */
 
 #define TEST_in(type, value) \
-    do { \
-        type _var = value; \
-        char *_ptr = yio_format("("#type")"#value" -> ", _var, "\n"); \
-        yio_stream(_ptr); \
-        YIO_TESTEXPR(strcmp(_ptr, #value) == 0, "%""s"" failed", _ptr); \
-        free(_ptr); \
-    } while(0)
-#undef TEST_in
-#define TEST_in(type, value) \
-    do { \
-        type _var = value; \
-        yio_stream("(", #type ")(", #value, ") = ", _var, "\n"); \
-    } while(0)
+	do { \
+		type _var = value; \
+		yio_stream("(", #type ")(", #value, ") = ", _var, "\n"); \
+	} while(0)
 
 
 #define TEST(type, value)  TEST_in(type, value)

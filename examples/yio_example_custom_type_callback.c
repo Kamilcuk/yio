@@ -52,7 +52,7 @@ int main() {
 	yio_printf("{}\n", str);
 
 	// This uses the PRINT_SLOT_100 above.
-	yio_asprintf(&str, "{}\n", var_a);
+	yio_append(&str, "{}\n", var_a);
 	yio_printf("{}\n", str);
 
 	if (str == NULL) abort();

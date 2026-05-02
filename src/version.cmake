@@ -1,6 +1,6 @@
 include_guard()
 
-if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/.git)
+if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/../.git)
 
 	find_package(Git REQUIRED)
 
@@ -59,7 +59,7 @@ if(EXISTS ${CMAKE_CURRENT_LIST_DIR}/.git)
 	pad_version_with_zeros_to_8_characters(YIO_VERSION "${YIO_VERSION}")
 
 else()
-	message(WARNING "yio .git directory is missing!")
+	message(WARNING "yio: ${CMAKE_CURRENT_LIST_DIR}/.git not found, version unavailable")
 	set(YIO_PROJECT_VERSION 0.0.0.0)
 	set(YIO_PROJECT_SOVERSION 0.0)
 	set(YIO_VERSION 0x00000000)
