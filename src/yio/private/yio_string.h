@@ -132,16 +132,20 @@ void YYIO_string_set_used(YYIO_string *t, size_t newused) {
 /// Note: @c newsize has to be greater than current capacity.
 YYIO_wur YYIO_nn() int YYIO_string_reserve(YYIO_string *t, size_t newsize);
 /// Allocate more memory.
-int YYIO_string_reserve_more(YYIO_string *t);
+int YYIO_string_reserve_more(YYIO_string *t, size_t min_add);
 #else
-static int YYIO_string_reserve(YYIO_string *t, size_t newsize) { (void)t; (void)newsize; return YIO_ERROR_ENOMEM; }
-static int YYIO_string_reserve_more(YYIO_string *t) { (void)t; return YIO_ERROR_ENOMEM; }
+static int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
+	(void)t; (void)newsize; return YIO_ERROR_ENOMEM;
+}
+static int YYIO_string_reserve_more(YYIO_string *t, size_t min_add) {
+	(void)t; (void)min_add; return YIO_ERROR_ENOMEM;
+}
 #endif
 
 /// Add a character
 static inline int YYIO_string_putc(YYIO_string *t, char c) {
 	if (YYIO_string_free_size(t) == 0) {
-		const int err = YYIO_string_reserve_more(t);
+		const int err = YYIO_string_reserve_more(t, 1);
 		if (err) return err;
 	}
 	const size_t len = YYIO_string_len(t);
@@ -159,12 +163,18 @@ static int YYIO_string_yprintf_cb(void *ptr, const char * __sized_by(count) data
 	return YYIO_string_putsn(o, data, count);
 }
 
-/// Print into the container
-YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2) YYIO_access_r(3)
-int YYIO_string_yprintf_in(YYIO_string *t, const yio_printdata_t *data, const char *fmt, ...);
+int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
 
-/// Print into the container
-#define YYIO_string_yprintf(t, ...)  YYIO_string_yprintf_in(t, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+static int YYIO_string_print_int(YYIO_string *t, struct yio_printfmt_s fmt, int val) {
+	yio_printctx_t ctx = {
+		.pf = fmt,
+		.out = YYIO_string_yprintf_cb,
+		.outarg = t,
+	};
+	const bool is_neg = val < 0;
+	const unsigned abs_val = is_neg ? -(unsigned)val : (unsigned)val;
+	return YYIO_print_uint_in(&ctx, abs_val, is_neg);
+}
 
 /**
  * Compare two YYIO_string objects for equality.

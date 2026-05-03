@@ -22,7 +22,7 @@ static int wstr_to_yyiostring(const wchar_t *ws, size_t ws_maxlen, YYIO_string *
 	const wchar_t *psrc = ws;
 	while (psrc != NULL && ws_maxlen > 0) {
 		if (YYIO_string_free_size(out) < mb_cur_max) {
-			const int err = YYIO_string_reserve_more(out);
+			const int err = YYIO_string_reserve_more(out, mb_cur_max);
 			if (err) return err;
 		}
 		const size_t cap = YYIO_string_free_size(out);
@@ -36,14 +36,14 @@ static int wstr_to_yyiostring(const wchar_t *ws, size_t ws_maxlen, YYIO_string *
 		ws_maxlen -= consumed;
 		if (r == 0 && consumed == 0) {
 			// Buffer too small to even convert one character? Should not happen due to caching.
-			const int err = YYIO_string_reserve_more(out);
+			const int err = YYIO_string_reserve_more(out, mb_cur_max);
 			if (err) return err;
 		}
 	}
 #else
 	for (size_t i = 0; i < ws_maxlen && ws[i] != L'\0'; ++i) {
 		if (YYIO_string_free_size(out) < mb_cur_max) {
-			const int err = YYIO_string_reserve_more(out);
+			const int err = YYIO_string_reserve_more(out, mb_cur_max);
 			if (err) return err;
 		}
 		const size_t r = wcrtomb(YYIO_string_data(out) + YYIO_string_len(out), ws[i], &state);

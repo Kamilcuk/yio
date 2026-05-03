@@ -33,42 +33,27 @@ int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
 	return 0;
 }
 
-int YYIO_string_reserve_more(YYIO_string *t) {
-	const size_t size = YYIO_string_capacity(t);
-	const size_t init_chunk = YYIO_INIT_CAPACITY;
-	const size_t newsizecalc = YYIO_GOLDEN_INCREASE(size);
-	const size_t newsize = newsizecalc > init_chunk ? newsizecalc : init_chunk;
-	return YYIO_string_reserve(t, newsize);
+int YYIO_string_reserve_more(YYIO_string *t, size_t min_add) {
+    const size_t current_cap = YYIO_string_capacity(t);
+    const size_t needed = current_cap + min_add;
+    // Calculate expansion using golden ratio or initial chunk
+    size_t new_cap = YYIO_GOLDEN_INCREASE(needed);
+    if (new_cap < YYIO_INIT_CAPACITY) new_cap = YYIO_INIT_CAPACITY;
+  	if (new_cap < YYIO_SSO_SIZE) new_cap = YYIO_SSO_SIZE;
+    if (new_cap < needed) new_cap = needed;
+    return YYIO_string_reserve(t, new_cap);
 }
 #endif
-
 
 int YYIO_string_putsn(YYIO_string *t, const char *ptr, size_t size) {
 	const size_t current_len = YYIO_string_len(t);
 	const size_t needed = current_len + size;
-	if (YYIO_string_capacity(t) < needed) {
-#if YIO_ENABLE_MALLOC
-		const size_t cap = YYIO_string_capacity(t);
-		const size_t init_chunk = YYIO_INIT_CAPACITY;
-		size_t new_cap = YYIO_GOLDEN_INCREASE(cap);
-		if (new_cap < init_chunk) new_cap = init_chunk;
-		if (new_cap < needed) new_cap = needed;
-		const int err = YYIO_string_reserve(t, new_cap);
-		if (err) return err;
-#else
-		return YIO_ERROR_ENOMEM;
-#endif
+	const size_t cap = YYIO_string_capacity(t);
+	if (cap < needed) {
+    const int err = YYIO_string_reserve_more(t, size);
+    if (err) return err;
 	}
 	memcpy(YYIO_string_data(t) + current_len, ptr, size);
 	YYIO_string_set_used(t, needed);
-	return 0;
-}
-
-int YYIO_string_yprintf_in(YYIO_string *t, const yio_printdata_t *data, const char *fmt, ...) {
-	va_list va;
-	va_start(va, fmt);
-	const int err = yio_vbprintf(YYIO_string_yprintf_cb, t, data, fmt, &va);
-	va_end(va);
-	if (err < 0) return err;
 	return 0;
 }

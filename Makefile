@@ -36,7 +36,7 @@ HELP_VAR +=~ CTESTFLAGS
 CTESTFLAGS ?=
 
 HELP_VAR +=~ PRESET
-PRESET ?= default
+PRESET ?= gcc
 
 HELP_VAR +=~ LINT - set to 1 if want to run CPPLINT
 LINT ?=

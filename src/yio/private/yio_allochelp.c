@@ -45,7 +45,7 @@ int YYIO_astrftime_nonzero(YYIO_string *res, const char *fmt, const struct tm *t
 		if (bufsize > MAXSIZE) {
 			return YYIO_ERROR(YIO_ERROR_STRFTIME_TOOBIG, "strftime needed more than 4096 bytes to write");
 		}
-		int err = YYIO_string_reserve_more(res);
+		int err = YYIO_string_reserve_more(res, 0);
 		if (err) return err;
 	}
 	return 0;
@@ -84,7 +84,7 @@ int YYIO_astrfmon(YYIO_string *res, const char *fmt, struct YYIO_astrfmon_arg ar
 		if (bufsize > MAXSIZE) {
 			return YYIO_ERROR(YIO_ERROR_STRFMON_TOOBIG, "strfmon needed more than 4096 bytes to write");
 		}
-		int err = YYIO_string_reserve_more(res);
+		int err = YYIO_string_reserve_more(res, 0);
 		if (err) return err;
 	}
 	return 0;

@@ -17,7 +17,7 @@ static int c16str_to_yyiostring(const char16_t *str, size_t maxlen, YYIO_string 
 	const size_t mb_cur_max = MB_CUR_MAX;
 	for (size_t i = 0; i < maxlen && str[i] != u'\0'; ++i) {
 		if (YYIO_string_free_size(out) < mb_cur_max) {
-			const int err = YYIO_string_reserve_more(out);
+			const int err = YYIO_string_reserve_more(out, mb_cur_max);
 			if (err) return err;
 		}
 		const size_t r = c16rtomb(YYIO_string_data(out) + YYIO_string_len(out), str[i], &state);
@@ -35,7 +35,7 @@ static int ustr_to_yyiostring(const char32_t *str, size_t maxlen, YYIO_string *o
 	const size_t mb_cur_max = MB_CUR_MAX;
 	for (size_t i = 0; i < maxlen && str[i] != U'\0'; ++i) {
 		if (YYIO_string_free_size(out) < mb_cur_max) {
-			const int err = YYIO_string_reserve_more(out);
+			const int err = YYIO_string_reserve_more(out, mb_cur_max);
 			if (err) return err;
 		}
 		const size_t r = c32rtomb(YYIO_string_data(out) + YYIO_string_len(out), str[i], &state);

@@ -93,16 +93,9 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 	const bool alternate_form = pf->hash;
 	int err = 0;
 	//
-	if (spec == 'x') {
-		err = YYIO_string_yprintf(o, "{:x}", v + 0);
+	if (spec == 'x' || spec == 'u' || spec == 'd') {
+		err = YYIO_string_print_int(o, (struct yio_printfmt_s){.type=spec}, v);
 		if (err) return err;
-	} else if (spec == 'u') {
-		err = YYIO_string_yprintf(o, "{:u}", v + 0);
-		if (err) return err;
-	} else if (spec == 'd') {
-		err = YYIO_string_yprintf(o, "{:d}", v + 0);
-		if (err) return err;
-
 	} else if (spec == 'f' || spec == 'g') {
 		// Default precision for f is 6.
 		const size_t precision = yio_precision_get_default(pf->precision, 6);
@@ -152,8 +145,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
     	if (peek.digit >= 5) integer_part++;
 		}
 		// Print the integer part using the full width of the type.
-		// The + 0 promotes integer_part to an integer type, so it isn't detected as `char`.
-    err = YYIO_string_yprintf(o, "{}", integer_part + 0);
+		err = YYIO_string_print_int(o, (struct yio_printfmt_s){0}, integer_part);
     if (err) return err;
     // Calculate actual precision for 'g' (strip trailing zeros)
     int effective_precision = calc_limit;
@@ -235,7 +227,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 		}
 		err = YYIO_string_putc(o, spec_is_upper ? 'P' : 'p');
 		if (err) return err;
-		err = YYIO_string_yprintf(o, "{:+d}", exponent + 0);
+		err = YYIO_string_print_int(o, (struct yio_printfmt_s){.sign='+',.type='d'}, exponent);
 		if (err) return err;
 
 	} else {
