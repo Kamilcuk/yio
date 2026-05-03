@@ -165,7 +165,7 @@ static int YYIO_string_yprintf_cb(void *ptr, const char * __sized_by(count) data
 
 int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
 
-static int YYIO_string_print_int(YYIO_string *t, struct yio_printfmt_s fmt, int val) {
+static inline int YYIO_string_print_int(YYIO_string *t, struct yio_printfmt_s fmt, int val) {
 	yio_printctx_t ctx = {
 		.pf = fmt,
 		.out = YYIO_string_yprintf_cb,

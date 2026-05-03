@@ -23,6 +23,7 @@
 #include "yio_string.h"
 #include "yio_float.h"
 #include "private.h"
+#include "../yio/manip/print_int.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -56,11 +57,6 @@ static const char *YYIO_nans(bool lower) { return lower ? YYIO_nan : YYIO_NAN; }
 static const char *YYIO_INF = "INF";
 static const char *YYIO_inf = "inf";
 static const char *YYIO_infs(bool lower) { return lower ? YYIO_inf : YYIO_INF; }
-static const char *YYIO_digit_to_HEX = "0123456789ABCDEF";
-static const char *YYIO_digit_to_hex = "0123456789abcdef";
-static const char *YYIO_digit_to_hexs(bool lower) {
-	return lower ? YYIO_digit_to_hex : YYIO_digit_to_HEX;
-}
 
 static inline
 int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
@@ -75,7 +71,6 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 			yio_printctx_t ctx = {
 				.pf = {
 					.width = dec ? 3 : 0,
-					.precision = -1,
 					.fill = '0',
 					.align = '=',
 					.sign = '+',

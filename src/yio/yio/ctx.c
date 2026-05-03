@@ -126,8 +126,8 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 	else if (ifunc == &YYIO_print_ullong) num = yio_printctx_va_arg(t, unsigned long long);
 #endif
 #if YYIO_HAS_INT128
-	else if (ifunc == &YYIO_print___int128)  num = yio_printctx_va_arg(t, __int128);
-	else if (ifunc == &YYIO_print_u__int128) num = yio_printctx_va_arg(t, unsigned __int128);
+	else if (ifunc == &YYIO_print_int128)  num = yio_printctx_va_arg(t, __int128);
+	else if (ifunc == &YYIO_print_uint128) num = yio_printctx_va_arg(t, unsigned __int128);
 #endif
 	else return YYIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number");
 	if (fmt++[0] != '}') {

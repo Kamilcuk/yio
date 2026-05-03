@@ -13,29 +13,19 @@ extern "C" {
 #endif
 
 #include "../ctx_types.h"
-#include <stdbool.h>
-
-// No include ctx.h here, as it causes circular dependency.
-
-#if YYIO_PRIVATE
-// These functions are exported for printing bool, char and wchar_t as integers.
-int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
-int YYIO_print_ulong_in(yio_printctx_t *t, unsigned long arg, bool is_negative);
-#if YYIO_HAS_LLONG
-int YYIO_print_ullong_in(yio_printctx_t *t, unsigned long long arg, bool is_negative);
-#endif
-#if YYIO_HAS_INT128
-int YYIO_print_u__int128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_negative);
-#endif
-#endif
 
 int YYIO_print_int(yio_printctx_t *t);
 int YYIO_print_uint(yio_printctx_t *t);
 int YYIO_print_long(yio_printctx_t *t);
 int YYIO_print_ulong(yio_printctx_t *t);
+
+int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
+int YYIO_print_ulong_in(yio_printctx_t *t, unsigned long arg, bool is_negative);
+
 #if YYIO_HAS_LLONG
 int YYIO_print_llong(yio_printctx_t *t);
 int YYIO_print_ullong(yio_printctx_t *t);
+int YYIO_print_ullong_in(yio_printctx_t *t, unsigned long long arg, bool is_negative);
 #define YYIO_PRINT_LLONG() \
 	YYIO_OVERLOAD_TYPE_FUNC(long long, YYIO_print_llong) \
 	YYIO_OVERLOAD_TYPE_FUNC(unsigned long long, YYIO_print_ullong)
@@ -70,7 +60,6 @@ int YYIO_print_ullong(yio_printctx_t *t);
 	YYIO_OVERLOAD_TYPE_FUNC(unsigned long, YYIO_print_ulong) \
 	YYIO_PRINT_LLONG()
 
-
 #ifndef YYIO_HAS_UNIQUE_SCHAR
 #error YYIO_HAS_UNIQUE_SCHAR is not defiend
 #endif
@@ -95,11 +84,12 @@ int YYIO_print_ullong(yio_printctx_t *t);
 #error YYIO_HAS_INT128 not defined
 #endif
 #if YYIO_HAS_INT128
-int YYIO_print___int128(yio_printctx_t *t);
-int YYIO_print_u__int128(yio_printctx_t *t);
+int YYIO_print_int128(yio_printctx_t *t);
+int YYIO_print_uint128(yio_printctx_t *t);
+int YYIO_print_uint128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_negative);
 #define YYIO_PRINT_FUNC_GENERIC_INTS_INT128() \
-		YYIO_OVERLOAD_TYPE_FUNC(__int128, YYIO_print___int128) \
-		YYIO_OVERLOAD_TYPE_FUNC(unsigned __int128, YYIO_print_u__int128)
+		YYIO_OVERLOAD_TYPE_FUNC(__int128, YYIO_print_int128) \
+		YYIO_OVERLOAD_TYPE_FUNC(unsigned __int128, YYIO_print_uint128)
 #else
 #define YYIO_PRINT_FUNC_GENERIC_INTS_INT128()
 #endif

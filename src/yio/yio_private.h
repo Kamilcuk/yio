@@ -12,7 +12,6 @@ extern "C" {
 #endif
 
 #include "yio_public.h"
-#include <string.h>
 #include <stdbool.h>
 
 #ifndef YYIO_PRIVATE
@@ -64,23 +63,6 @@ extern "C" {
  */
 #define YYIO_INT_STRLEN_BOUND()   YYIO_LOG10_POW2(sizeof(int) * CHAR_BIT)
 
-
-/**
- * @def dbgln
- * small debugging utility
- */
-#if YYIO_HAS_UNISTRING
-#include <unistdio.h>
-#define DBGPRINTF  ulc_fprintf
-#else
-#define DBGPRINTF  fprintf
-#endif
-
-#define dbgln(str, ...)  do{ \
-		fflush(0); \
-		DBGPRINTF(stderr, "\033[91m""%s:%d: " str "\033[0m""\n", __FILE__, __LINE__, ##__VA_ARGS__); \
-} while(0)
-
 /**
  * @def YYIO_ERROR(ENUM, DESC)
  * @param ENUM The suffix to YIO_ERROR_* enum name.
@@ -102,6 +84,12 @@ static inline bool YYIO_isdigit(char c) { return (unsigned int)((unsigned char)c
 static inline bool YYIO_isxdigit(char c) {
 	const unsigned char uc = (unsigned char)c;
 	return YYIO_isdigit(c) || ( (unsigned int)((uc | 32) - 'a') <= (unsigned int)('f' - 'a') );
+}
+
+static const char *const YYIO_digit_to_HEX = "0123456789ABCDEF";
+static const char *const YYIO_digit_to_hex = "0123456789abcdef";
+static const char *YYIO_digit_to_hexs(bool lower) {
+	return lower ? YYIO_digit_to_hex : YYIO_digit_to_HEX;
 }
 
 /**

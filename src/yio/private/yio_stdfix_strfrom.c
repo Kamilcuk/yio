@@ -6,38 +6,60 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-
-/**
- * @brief Formats a fixed-point number stored in an unsigned integer into a string buffer.
- * @param precision0     The original precision requested by the user, or default if not set.
- * @param precision      The effective precision to use for formatting.
- * @param spec           The format specifier (e.g., 'f', 'a', 'x'). Always lowercase.
- * @param spec_is_upper  True if the original format specifier was uppercase (e.g., 'F', 'A', 'X').
- * @param o              The output string buffer to write characters to.
- * @param v              The unsigned integer representation of the absolute value of the fixed-point number.
- * @param ibit           The number of integral bits in the fixed-point type.
- * @param fbit           The number of fractional bits in the fixed-point type.
- * @return               0 on success, or an error code if the string operation fails.
- */
 #include "yio_stdfix_strfrom.h"
 #include "private.h"
 #include "yio_string.h"
 #include "yio_stdfix.h"
+#include "../yio/manip/print_int_private.h"
 #include <stdint.h>
 #include <limits.h>
 #include <assert.h>
 #include <ctype.h>
-
 #if YYIO_HAS_STDFIX_TYPES
+
 
 {% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
 
-static const char YYIO_stdfix_strfrom_i_to_c_HEX[] = "0123456789ABCDEF";
-static const char YYIO_stdfix_strfrom_i_to_c_hex[] = "0123456789abcdef";
-static inline
-const char *YYIO_stdfix_strfrom_i_to_c(bool upper) {
-	return upper ? YYIO_stdfix_strfrom_i_to_c_HEX : YYIO_stdfix_strfrom_i_to_c_hex;
+static inline int YYIO_string_print_u_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned int v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_uint_in(&ctx, v, false);
 }
+static inline int YYIO_string_print_ul_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_ulong_in(&ctx, v, false);
+}
+#if YYIO_HAS_LLONG
+static inline int YYIO_string_print_ull_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long long v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_ullong_in(&ctx, v, false);
+}
+#endif
+#if YYIO_HAS_INT128
+static inline int YYIO_string_print_u128_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned __int128 v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_uint128_in(&ctx, v, false);
+}
+#endif
+
+#if YYIO_HAS_LLONG
+#define YYIO_IF_HAS_LLONG(...) __VA_ARGS__
+#else
+#define YYIO_IF_HAS_LLONG(...)
+#endif
+#if YYIO_HAS_INT128
+#define YYIO_IF_HAS_INT128(...) __VA_ARGS__
+#else
+#define YYIO_IF_HAS_INT128(...)
+#endif
+
+#define YYIO_string_print_number(o, pf, v) _Generic((v), \
+    unsigned char: YYIO_string_print_u_in, \
+    unsigned short: YYIO_string_print_u_in, \
+    unsigned int: YYIO_string_print_u_in, \
+    unsigned long: YYIO_string_print_ul_in \
+    YYIO_IF_HAS_LLONG(, unsigned long long: YYIO_string_print_ull_in) \
+    YYIO_IF_HAS_INT128(, unsigned __int128: YYIO_string_print_u128_in) \
+)(o, pf, v)
 
 // Represents the type we will use to represnt stdfix types as an unsigned integer.
 // WIDTH is defined to a 8, 16, 32, 64 outside of this macro.
@@ -88,13 +110,13 @@ static inline yyio_next_digit_$1_t yyio_get_next_digit_$1(TYPE rem, int fbit, TY
 static inline
 int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, char spec, bool spec_is_upper, TYPE v, unsigned ibit, unsigned fbit) {
 	const int total_bits = sizeof(v) * CHAR_BIT;
-	const char *const i_to_c = YYIO_stdfix_strfrom_i_to_c(spec_is_upper);
+	const char *const i_to_c = YYIO_digit_to_hexs(!spec_is_upper);
 	const bool is_pure_fraction = fbit >= total_bits;
 	const bool alternate_form = pf->hash;
 	int err = 0;
 	//
 	if (spec == 'x' || spec == 'u' || spec == 'd') {
-		err = YYIO_string_print_int(o, (struct yio_printfmt_s){.type=spec}, v);
+		err = YYIO_string_print_number(o, ((struct yio_printfmt_s){.type=spec}), v);
 		if (err) return err;
 	} else if (spec == 'f' || spec == 'g') {
 		// Default precision for f is 6.
@@ -145,7 +167,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
     	if (peek.digit >= 5) integer_part++;
 		}
 		// Print the integer part using the full width of the type.
-		err = YYIO_string_print_int(o, (struct yio_printfmt_s){0}, integer_part);
+		err = YYIO_string_print_number(o, ((struct yio_printfmt_s){0}), integer_part);
     if (err) return err;
     // Calculate actual precision for 'g' (strip trailing zeros)
     int effective_precision = calc_limit;

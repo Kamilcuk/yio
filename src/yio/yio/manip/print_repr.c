@@ -29,7 +29,7 @@ int ss_out(struct ss_s *t, char cc) {
 	return YYIO_string_putc(t->str, cc);
 }
 
-static const char *const xdigits = "0123456789abcdef";
+#define xdigits YYIO_digit_to_hex
 static const unsigned char four = 0xfU;
 
 static inline

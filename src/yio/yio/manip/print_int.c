@@ -7,6 +7,7 @@
  */
 #include "private.h"
 #include "print_int.h"
+#include "print_int_private.h"
 #include <ctype.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -15,14 +16,6 @@
 #ifdef __INTEL_COMPILER
 #pragma warning disable 3179
 #endif
-
-static inline
-const char *YYIO_printint_to_fmt(char type) {
-	if (type == 'x') {
-		return "0123456789abcdef";
-	}
-	return "0123456789ABCDEF";
-}
 
 #ifndef YYIO_HAS_INT128
 #error YYIO_HAS_INT128 is not defined
@@ -38,8 +31,8 @@ const char *YYIO_printint_to_fmt(char type) {
 	["long", "long"],
 	["ullong", "unsigned long long", "YYIO_HAS_LLONG"],
 	["llong", "long long", "YYIO_HAS_LLONG"],
-	["u__int128", "unsigned __int128", "YYIO_HAS_INT128"],
-	["__int128", "__int128", "YYIO_HAS_INT128"],
+	["uint128", "unsigned __int128", "YYIO_HAS_INT128"],
+	["int128", "__int128", "YYIO_HAS_INT128"],
 	["ubitint128", "unsigned _BitInt(128)", "!YYIO_HAS_INT128 && YYIO_BITINT_MAXWIDTH >= 128"],
 ] %}
 
@@ -78,7 +71,7 @@ const char *YYIO_printint_to_fmt(char type) {
 static inline
 int YYIO_print_$1_inradix(yio_printctx_t *t, $2 arg, bool is_negative,
 		char type, $2 radix, char *res, size_t ressize) {
-	const char *fmt = YYIO_printint_to_fmt(type);
+	const char *fmt = YYIO_digit_to_hexs(type == 'x');
 	char *const resend = res + (ressize / sizeof(*res));
 	char *num = resend;
 	do {
@@ -178,7 +171,7 @@ int YYIO_print_{{ V.2[0:1] }}bitint$1(yio_printctx_t *t) {
 #elif WIDTH_OF(ULLONG_MAX) >= $1
 		YYIO_print_ullong_in
 #elif 128 >= $1 && YYIO_HAS_INT128
-		YYIO_print_u__int128_in
+		YYIO_print_uint128_in
 #elif 128 >= $1
 		YYIO_print_bitint128_in
 {# for each bitint printer, choose appriopriate one for the bitint size. #}
