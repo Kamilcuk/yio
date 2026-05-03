@@ -42,7 +42,7 @@ int main() {
 			YIO_TEST("-0.5", "{:g}", n_half);
 			YIO_TEST("-0.50", "{:.2f}", n_half);
 			
-			const $2 one = 1.0$1 < max ? (const $2)1.0$1 : max;
+			const $2 one = {% if j_match(V.2, ".*_Accum") %} 1.0$1 {% else %} max {% endif %};
 			if (one > 0) {
 				YIO_TEST((.rgx="-?[0-9]+\\.[0-9]+"), "{}", (const $2)-one);
 			}
@@ -79,7 +79,7 @@ int main() {
 		// Large values for Accum
 		{% if j_match(V.2, ".*_Accum") %}
 		{
-			const $2 ten = 10.0$1 < max ? (const $2)10.0$1 : zero;
+			const $2 ten = (const $2)10.0$1 < max ? (const $2)10.0$1 : zero;
 			if (ten > zero) {
 				YIO_TEST("10.000000", "{}", ten);
 				YIO_TEST("10", "{:.0f}", ten);
@@ -89,7 +89,7 @@ int main() {
 
 		// Small values near epsilon
 		{
-			const $2 small = eps * (const $2)3.0$1;
+			const $2 small = eps * 3;
 			if (small > eps) {
 				YIO_TEST((.rgx="0\\.0*[0-9]+"), "{}", small);
 			}

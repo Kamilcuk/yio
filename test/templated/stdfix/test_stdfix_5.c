@@ -25,7 +25,7 @@ int main() {
 		// Failing Large values for Accum
 		{% if j_match(V.2, ".*_Accum") %}
 		{
-			const $2 ten = 10.0$1 < max ? (const $2)10.0$1 : zero;
+			const $2 ten = (const $2)10.0$1 < max ? (const $2)10.0$1 : zero;
 			if (ten > zero) {
 				YIO_TEST("10.000000", "{}", ten);
 			}
