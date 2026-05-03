@@ -37,6 +37,9 @@ MASK(YYIO_print_float_strfromd)
 #if YYIO_HAS_strfroml
 MASK(YYIO_print_float_strfroml)
 #endif
+MASK(YYIO_print_float_ryuf)
+MASK(YYIO_print_float_ryud)
+MASK(YYIO_print_float_ryul)
 MASK(YYIO_print_float_printff)
 MASK(YYIO_print_float_printfd)
 MASK(YYIO_print_float_printfl)
@@ -44,40 +47,35 @@ MASK(YYIO_print_float_customf)
 MASK(YYIO_print_float_customd)
 MASK(YYIO_print_float_customl)
 
-#define CHECK(FUNC) \
+#define CHECK(SUFF) \
 	do{ \
-		printf("%s\n", gfunc); \
-		YIO_TESTEXPR(strcmp(gfunc, FUNC) == 0, "gfunc=%s", gfunc); \
+		printf("called function is `%s`\n", gfunc); \
+		const char *shouldbe; \
+		if (YIO_FLOAT_BACKEND_STRFROM && YYIO_HAS_strfrom##SUFF) { \
+			shouldbe = "YYIO_print_float_strfrom" #SUFF; \
+		} else if (YIO_FLOAT_BACKEND_RYU && YYIO_has_float_ryu##SUFF) { \
+			shouldbe = "YYIO_print_float_ryu" #SUFF; \
+		} else { \
+			shouldbe = "YYIO_print_float_custom" #SUFF; \
+		} \
+		YIO_TESTEXPR(strcmp(gfunc, shouldbe) == 0, \
+							 "called function was gfunc=%s but it should be=%s", gfunc, shouldbe); \
+		gfunc = ""; \
 	} while(0)
 
 int main() {
 #if YIO_HAS_FLOATf
 	yio_printf("{}", 1.0f);
-#if YYIO_HAS_strfromf
-	CHECK("YYIO_print_float_strfromf");
-#else
-	CHECK("YYIO_print_float_customf");
-	//CHECK("YYIO_print_float_printff");
-#endif
+	CHECK(f);
 #endif
 
 #if YIO_HAS_FLOATd
 	yio_printf("{}", 1.0);
-#if YYIO_HAS_strfromd
-	CHECK("YYIO_print_float_strfromd");
-#else
-	CHECK("YYIO_print_float_customd");
-	//CHECK("YYIO_print_float_printfd");
-#endif
+	CHECK(d);
 #endif
 
 #if YIO_HAS_FLOATl
 	yio_printf("{}", 1.0l);
-#if YYIO_HAS_strfroml
-	CHECK("YYIO_print_float_strfroml");
-#else
-	CHECK("YYIO_print_float_customl");
-	//CHECK("YYIO_print_float_printfl");
-#endif
+	CHECK(l);
 #endif
 }

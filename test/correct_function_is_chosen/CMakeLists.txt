@@ -8,6 +8,9 @@ foreach(ii IN ITEMS
 	YYIO_print_float_strfromf
 	YYIO_print_float_strfromd
 	YYIO_print_float_strfroml
+	YYIO_print_float_ryuf
+	YYIO_print_float_ryud
+	YYIO_print_float_ryul
 	YYIO_print_float_printff
 	YYIO_print_float_printfd
 	YYIO_print_float_printfl

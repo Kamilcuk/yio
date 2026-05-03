@@ -1,5 +1,6 @@
 #!/bin/sh
 PKGS="github:NixOS/nixpkgs/nixos-25.11"
+PKGS="github:NixOS/nixpkgs/26ef669cffa904b6f6832ab57b77892a37c1a671"
 set -x
 exec nix shell \
   $PKGS#cmake \

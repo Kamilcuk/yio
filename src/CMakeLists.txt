@@ -260,17 +260,6 @@ function(yio_add_library name)
 		target_link_libraries(${name} PUBLIC m)
 	endif()
 
-	if(YIO_DEV AND NOT BUILD_SHARED_LIBS)
-		if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-			target_compile_options(${name} PRIVATE -Werror=vla)
-		endif()
-		check_c_compiler_flag("-ffunction-sections -fdata-sections -Wl,gc-sections" YIO_GC_SECTIONS)
-		if(YIO_GC_SECTIONS)
-			target_compile_options(${name} PUBLIC -fdata-sections -ffunction-sections)
-			target_link_options(${name} PUBLIC -Wl,--gc-sections)
-		endif()
-	endif()
-
 	add_dependencies(${name} yio_gen)
 	add_dependencies(yio_targets ${name})
 

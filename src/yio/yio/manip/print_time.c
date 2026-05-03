@@ -115,7 +115,8 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 		const size_t reslen = YYIO_string_len(&res) - 1;
 		const struct yio_printfmt_s *const pf = &t->pf;
 		const size_t toprint = pf->precision == 0 ? reslen :
-			reslen < (size_t)yio_precision_get_default(pf->precision, 0) ? reslen : (size_t)yio_precision_get_default(pf->precision, 0);
+			reslen < yio_precision_get_default(pf->precision, 0) ? reslen :
+			yio_precision_get_default(pf->precision, 0);
 		err = yio_printctx_put(t, YYIO_string_data(&res), toprint);
 	}
 	YYIO_string_free(&res);

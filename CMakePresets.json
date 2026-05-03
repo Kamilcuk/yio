@@ -17,12 +17,16 @@
         "unusedCli": true,
         "systemVars": false
       },
+      "environment": {
+        "GNU": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -O1 -D_FORTIFY_SOURCE=2 -Werror=vla -ffunction-sections -fdata-sections -Wl,--gc-sections"
+      },
       "cacheVariables": {
         "YIO_DEV": "1",
         "YIO_GENERATE_LINE_DIRECTIVES": "1",
         "YIO_BUILD_TESTING": "1",
         "BUILD_TESTING": "1",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "1"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "1",
+        "CMAKE_EXE_LINKER_FLAGS": "-Wl,--gc-sections"
       }
     },
     {
@@ -30,7 +34,9 @@
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
-        "CMAKE_C_FLAGS": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -fanalyzer -Wattribute-warning -Wmissing-prototypes -O1 -D_FORTIFY_SOURCE=2 -fdiagnostics-color=always"
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_C_FLAGS": "$env{GNU} -fanalyzer -Wattribute-warning -Wmissing-prototypes -fdiagnostics-color=always -lm",
+        "CMAKE_EXE_LINKER_FLAGS": "-Wl,--gc-sections"
       }
     },
     {
@@ -38,14 +44,15 @@
       "inherits": "default",
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
-        "CMAKE_C_FLAGS": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -ffixed-point -Wno-varargs -Wno-array-bounds -Wno-sizeof-array-decay -fcolor-diagnostics"
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_FLAGS": "$env{GNU} -ffixed-point -Wno-varargs -Wno-array-bounds -Wno-sizeof-array-decay -fcolor-diagnostics"
       }
     },
     {
       "name": "coverage",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_FLAGS": " -g --coverage -fprofile-abs-path ",
+        "CMAKE_C_FLAGS": "-g --coverage -fprofile-abs-path",
         "CMAKE_BUILD_TYPE": "Release"
       }
     },
@@ -53,7 +60,7 @@
       "name": "sanitize",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_FLAGS": " -fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection"
+        "CMAKE_C_FLAGS": "-fsanitize=address -fsanitize=undefined -fsanitize=leak -fsanitize=pointer-subtract -fsanitize=pointer-compare -fno-omit-frame-pointer -fstack-protector-all -fstack-clash-protection -fcf-protection"
       }
     },
     {
@@ -67,15 +74,15 @@
     {
       "name": "arm",
       "inherits": "default",
+      "environment": {
+        "CFLAGS": "-mthumb -mcpu=cortex-m3 -mfloat-abi=soft -Os -ffunction-sections -fdata-sections -ggdb3"
+      },
       "cacheVariables": {
-        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/arm-none-eabi/arm-none-eabi.cmake"
-      }
-    },
-    {
-      "name": "arm2",
-      "inherits": "arm",
-      "cacheVariables": {
-        "CMAKE_C_FLAGS": " -mthumb -march=armv7e-m -mfloat-abi=soft -g -Os -ffunction-sections -fdata-sections -flto "
+        "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/Toolchain/arm-none-eabi-gcc.cmake",
+        "CMAKE_C_FLAGS": "$env{CFLAGS}",
+        "CMAKE_CXX_FLAGS": "$env{CFLAGS} -fno-exceptions -fno-rtti",
+        "CMAKE_EXE_LINKER_FLAGS": "--specs=rdimon.specs --specs=nosys.specs -u_printf_float -Wl,--gc-sections",
+        "CMAKE_CROSSCOMPILING_EMULATOR": "qemu-arm;-cpu;cortex-m3"
       }
     },
     {

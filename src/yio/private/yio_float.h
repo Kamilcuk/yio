@@ -13,6 +13,7 @@ extern "C" {
 #endif
 
 #include "../yio_config.h"
+#include <float.h>
 
 // {#
 #ifdef YYIO_CDT_PARSER
@@ -160,6 +161,25 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 
 /* ------------------------------------------------------------------------- */
 
+{% call(V) j_FOREACHAPPLY([
+		["f", "", "FLT"],
+		["d", "", "DBL"],
+		["l", "", "LDBL"] ]) %}
+
+#if YIO_HAS_FLOAT$1
+#ifndef YYIO_MAX_10_EXP$1
+#ifdef $3_MAX_10_EXP
+#define YYIO_MAX_10_EXP$1  $3_MAX_10_EXP
+#elif defined(__$3_MAX_10_EXP__)
+#define YYIO_MAX_10_EXP$1  __$3_MAX_10_EXP__
+#else
+#error Can not define YYIO_MAX_10_EXP$1 for type $2
+#endif
+#endif
+#endif
+
+{% endcall %}
+
 {% for v in [
 		["f", "FLT"],
 		["d", "DBL"],
@@ -174,7 +194,9 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 	] %}
 #line
 {% set j_mathsuffix = "" if v.0 == "d" else v.0 %}
+
 {{ j_floatdefine(v.0, j_mathsuffix, v.1) }}
+
 {% endfor %}
 
 /* ------------------------------------------------------------------------- */

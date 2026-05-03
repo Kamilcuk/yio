@@ -1,11 +1,44 @@
-
 include_guard()
 message(STATUS "Configuring with arm-none-eabi-gcc toolchain")
 set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR ARM)
+set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-if(IS_DIRECTORY /usr/arm-none-eabi)
-  set(CMAKE_SYSTEM_PREFIX_PATH  /usr/arm-none-eabi)
+find_program(CMAKE_C_COMPILER arm-none-eabi-gcc REQUIRED)
+find_program(CMAKE_CXX_COMPILER arm-none-eabi-g++ REQUIRED)
+
+message(STATUS ${CMAKE_C_COMPILER})
+# 1. Get the raw path from the compiler
+execute_process(
+    COMMAND ${CMAKE_C_COMPILER} -print-sysroot
+    OUTPUT_VARIABLE PRINT_SYSROOT
+    RESULT_VARIABLE PRINT_SYSROOT_RESULT
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+# 2. Comprehensive check
+if(NOT PRINT_SYSROOT_RESULT EQUAL 0)
+    message(FATAL_ERROR "Command failed with error code: ${PRINT_SYSROOT_RESULT}")
+endif()
+
+if(PRINT_SYSROOT STREQUAL "")
+    set(PRINT_SYSROOT "/usr/lib/arm-none-eabi")
+endif()
+
+# 3. Convert and validate directory
+file(TO_CMAKE_PATH "${PRINT_SYSROOT}" PRINT_SYSROOT)
+if(IS_DIRECTORY "${PRINT_SYSROOT}")
+    set(CMAKE_SYSROOT "${PRINT_SYSROOT}")
+    list(APPEND CMAKE_SYSTEM_PREFIX_PATH "${PRINT_SYSROOT}")
+    message(STATUS "Found ARM Sysroot: ${PRINT_SYSROOT}")
+    # Tell CMake to search for programs in the host but libs/headers in the sysroot
+    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+    set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+else()
+    # If it's a valid string but not a directory, this is a critical configuration error
+    message(FATAL_ERROR "The determined sysroot path is not a directory: ${PRINT_SYSROOT}")
 endif()
 
 if(IS_DIRECTORY CMAKE_SYSTEM_PREFIX_PATH)
@@ -14,13 +47,7 @@ if(IS_DIRECTORY CMAKE_SYSTEM_PREFIX_PATH)
   set(CMAKE_SYSTEM_PROGRAM_PATH ${CMAKE_SYSTEM_PREFIX_PATH}/bin)
 endif()
 
-set(_common_flags " -ffunction-sections -fdata-sections")
-set(CMAKE_C_FLAGS_INIT " ${_common_flags}")
-set(CMAKE_EXE_LINKER_FLAGS_INIT " ${_common_flags}")
-unset(_common_flags)
-string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT " -Wl,--gc-sections --specs=rdimon.specs")
-
-set(CMAKE_C_DEBUG_FLAGS_INIT " -Og")
+set(CMAKE_C_DEBUG_FLAGS_INIT " -Og -g")
 set(CMAKE_C_RELEASE_FLAGS_INIT " -Os")
 
 find_program(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
@@ -29,18 +56,11 @@ find_program(CMAKE_CXX_COMPILER  arm-none-eabi-g++)
 
 include(${CMAKE_CURRENT_LIST_DIR}/crosscompiling.cmake)
 
-get_filename_component(CMAKE_CROSSCOMPILING_EMULATOR
-  ${KCMAKELIB_SCRIPTS_DIR}/cmake_crosscompiling_emulator_arm_none_gdb.sh
-  ABSOLUTE)
+# Change this part
+find_program(QEMU_EXECUTABLE qemu-system-arm)
 
-if(ARM_NONE_EABI_GCC_PRINT_FLOAT)
-  string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT " -u_printf_float -u_scanf_float")
+if(NOT CMAKE_CROSSCOMPILING_EMULATOR)
+    get_filename_component(CMAKE_CROSSCOMPILING_EMULATOR
+      ${KCMAKELIB_SCRIPTS_DIR}/cmake_crosscompiling_emulator_arm_none_gdb.sh
+      ABSOLUTE)
 endif()
-if(ARM_NONE_EABI_GCC_RDIMON)
-  string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT " --specs=rdimon.specs")
-endif()
-if(NOT ARM_NONE_EABI_GCC_NO_NEWLIB_NANO)
-  string(APPEND CMAKE_EXE_LINKER_FLAGS_INIT " --specs=nano.specs")
-endif()
-
-

@@ -14,13 +14,13 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(kcmakelib)
 include(yio_debug_variables)
 
-include(src/version.cmake)
 project(yio
-	VERSION "${YIO_PROJECT_VERSION}"
   LANGUAGES C CXX
 	DESCRIPTION "YIO Iconic Output C Library that aims in type-safe printf replacement"
 	HOMEPAGE_URL "https://gitlab.com/kamcuk/yio"
 )
+include(src/version.cmake)
+set(PROJECT_VERSION "${YIO_PROJECT_VERSION}")
 
 include(CheckCCompilerFlag)
 include(k/force_build_dir_without_cmakelists)

@@ -9,8 +9,8 @@
 #include <yio_test.h>
 #include <yio.h>
 int main() {
-	int i = 5;
-	int a[i]; // NOLINT(runtime/arrays)
+	// int i = 5;
+	int a[5]; // NOLINT(runtime/arrays)
 	a[0] = 5;
 	a[1] = 4;
 	a[2] = 3;

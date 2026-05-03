@@ -29,10 +29,10 @@ extern "C" {
 
 /// Printing formatting options.
 struct yio_printfmt_s {
-	/// The field width. (uint8_t)-1 when unset. Values capped at 254.
-	uint8_t width;
-	/// The field precision. (uint8_t)-1 when unset. Values capped at 254.
-	uint8_t precision;
+	/// The field width. 0 when unset. Values capped at UINT16_MAX-1.
+	uint16_t width;
+	/// The field precision. 0 when unset. Values capped at UINT16_MAX-1.
+	uint16_t precision;
 	/// Filling character.
 	char fill;
 	/// May be one of '<' '>' '^' '=' characters or 0 when unset.
@@ -52,12 +52,12 @@ struct yio_printfmt_s {
 static const struct yio_printfmt_s YYIO_printfmt_zero = {0};
 
 /// Get the width, falling back to a default if unset (0).
-static inline size_t yio_width_get_default(uint8_t width, size_t default_val) {
+static inline size_t yio_width_get_default(uint16_t width, size_t default_val) {
 	return width != 0 ? (size_t)width - 1 : default_val;
 }
 
 /// Get the precision, falling back to a default if unset (0).
-static inline size_t yio_precision_get_default(uint8_t precision, size_t default_val) {
+static inline size_t yio_precision_get_default(uint16_t precision, size_t default_val) {
 	return precision != 0 ? (size_t)precision - 1 : default_val;
 }
 
@@ -111,13 +111,12 @@ int YYIO_skip_do(yio_printctx_t *t);
  * @param ptr
  * @return The converted number.
  */
-int YYIO_printctx_strtoi_noerr(const char **ptr);
+unsigned int YYIO_printctx_strtou_noerr(const char **ptr);
 
 /**
  * Parse the width or precision param, that can be either a number of a positional parameter.
  */
-int YYIO_printctx_stdintparam(yio_printctx_t *t,
-		const char *ptr, const char **endptr, uint8_t *res);
+int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *ptr, const char **endptr, uint16_t *res);
 
 /**
  * Check if @c c is not nul and is one of characters in @c s.

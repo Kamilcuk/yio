@@ -39,7 +39,7 @@ void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0,
 	*fmtpnt++ = '%';
 	if (precision0 != 0) {
 		*fmtpnt++ = '.';
-		const size_t precision = yio_precision_get_default((uint8_t)precision0, 0);
+		const size_t precision = yio_precision_get_default(precision0, 0);
 		const int len = yio_snstream(fmtpnt, INT_MAX, precision);
 		(void)len;
 		assert(len > 0);

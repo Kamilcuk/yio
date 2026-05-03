@@ -20,7 +20,6 @@ extern "C" {
 #error "YYIO_HAS_STDFIX_H must be defined"
 #endif
 #if YYIO_HAS_STDFIX_TYPES
-#include "private.h"
 #if YYIO_HAS_STDFIX_H
 #include <stdfix.h>
 #endif

@@ -86,7 +86,7 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		//
 		t->pf = YYIO_printfmt_zero;
 		if (YYIO_isdigit(t->fmt[0])) {
-			YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&t->fmt));
+			YYIO_skip_arm(t, YYIO_printctx_strtou_noerr(&t->fmt));
 		}
 		#if 0
 		// Handle conversion specifier - currently disabled.

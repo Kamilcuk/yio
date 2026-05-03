@@ -73,13 +73,9 @@ int d2exp_buffered_n(double d, uint32_t precision, char* result);
 
 /* ------------------------------------------------------------------------- */
 
-static inline
-void exp_to_upper(char *str, bool doit) {
-	if (!doit) return;
-	char *tmp = strchr(str, 'e');
-	if (tmp) {
-		*tmp = 'E';
-	}
+static inline void exp_to_upper(YYIO_string *t) {
+	char *tmp = memchr(YYIO_string_data(t), 'e', YYIO_string_len(t));
+	if (tmp) *tmp = 'E';
 }
 
 /* ------------------------------------------------------------------------- */
@@ -122,6 +118,31 @@ int YYIO_float_astrfrom_ryul(YYIO_string *res, int precision0, char spec, YYIO_F
 
 #endif
 
+/* Use the actual maximums for Ryu's shortest representation */
+#define YYIO_RYU_SHORTEST_MAX_f 15
+#define YYIO_RYU_SHORTEST_MAX_d 25
+
+static inline
+bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
+	bool fractional_part_removed = false;
+	const size_t len = YYIO_string_len(t);
+	if (len == 0) return false;
+	char * const data = YYIO_string_data(t);
+	char *p = data + len - 1;
+	// there is dot, so the following loop will always stop
+	while (p != data && *p == '0') {
+		--p;
+	}
+	assert(YYIO_isxdigit(*p) || *p == '.');
+	if (*p != '.') {
+		++p;
+	} else {
+		fractional_part_removed = true;
+	}
+	YYIO_string_set_used(t, (size_t)(p - data));
+	return fractional_part_removed;
+}
+
 {% call j_FOREACHAPPLY(["f", "d"]) %}
 #line
 
@@ -136,33 +157,61 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YY
 		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
 	}
 	// https://github.com/ulfjack/ryu/issues/197
-	const size_t minsize = 2000;
 	const size_t precision = yio_precision_get_default(precision0, 6);
-	const size_t toalloc = minsize + precision + 1;
-	int err = YYIO_string_reserve(res, toalloc);
-	if (err) return err;
-	int len = 0;
-	char *const buf = YYIO_string_data(res);
+	int err;
+	int len = -1;
 	//
 	if (spec == 'g' || spec == 'G') {
-		if (precision0 != 0) {
-			return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
-		}
-		len = d2s_buffered_n(val, buf);
-		exp_to_upper(buf, spec == 'G');
+		if (precision0 != 0) return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
+		err = YYIO_string_reserve(res, YYIO_RYU_SHORTEST_MAX_$1);
+    if (err) return err;
+		// Rational check: Use fixed-point for "human-readable" ranges
+    // Standard %g uses fixed-point if -4 <= exponent < precision
+    YYIO_FLOAT$1 dval = (double)val;
+    YYIO_FLOAT$1 abs_val = (dval < 0) ? -dval : dval;
+    if (abs_val >= 0.0001 && abs_val < 1000000.0) {
+      // Use fixed-point logic but you MUST strip trailing zeros
+      len = d2fixed_buffered_n(val, 6, YYIO_string_data(res));
+      if (len > 0) {
+      	YYIO_string_set_used(res, len);
+      	YYIO_string_remove_trailing_zeros_and_comma(res);
+      	return 0;
+      }
+    } else {
+      len = d2s_buffered_n(val, YYIO_string_data(res));
+			if (len > 0) {
+				YYIO_string_set_used(res, len);
+				if (spec == 'G') exp_to_upper(res);
+			}
+    }
 	} else if (spec == 'f' || spec == 'F') {
-		len = d2fixed_buffered_n(val, precision, buf);
+		/*
+     * Max integer digits + sign + dot + precision + null
+     * For double: 308 + 3 + precision
+     * For float:  38 + 3 + precision
+     */
+    const size_t to_reserve = YYIO_MAX_10_EXP$1 + 3 + precision;
+  	err = YYIO_string_reserve(res, to_reserve);
+  	if (err) return err;
+		len = d2fixed_buffered_n(val, precision, YYIO_string_data(res));
+		if (len > 0) {
+			YYIO_string_set_used(res, len);
+		}
 	} else if (spec == 'e' || spec == 'E') {
-		len = d2exp_buffered_n(val, precision, buf);
-		exp_to_upper(buf, spec == 'E');
+		/* Overhead: sign(1), digit(1), dot(1), 'e'(1), exp_sign(1), exp_digits(2 or 3), null(1) */
+    const size_t overhead = YYIO_MAX_10_EXP$1 > 99 ? 9 : 8;
+    const size_t to_reserve = overhead + precision;
+    err = YYIO_string_reserve(res, to_reserve);
+    if (err) return err;
+		len = d2exp_buffered_n(val, precision, YYIO_string_data(res));
+		if (len > 0) {
+			YYIO_string_set_used(res, len);
+			if (spec == 'E') exp_to_upper(res);
+		}
 	} else {
 		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
 	}
-	if (len <= 0) {
-		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
-	}
-	YYIO_string_set_used(res, len);
-	//
+	assert(len > 0);
 	return 0;
 }
 

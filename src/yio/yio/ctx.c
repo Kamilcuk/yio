@@ -46,7 +46,7 @@ static const char YYIO_SIGN_ALWAYS = '+';
 //static const char YYIO_SIGN_NEGATIVE = '-';
 static const char YYIO_SIGN_ALWAYSSPACE = ' ';
 
-static const uint8_t YYIO_LIMIT_MAX = 254;
+static const uint16_t YYIO_PRECISION_MAX = UINT16_MAX - 1;
 
 /* ------------------------------------------------------------------------- */
 
@@ -79,15 +79,15 @@ int YYIO_digit_to_number(char d) {
 	return d - '0';
 }
 
-int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
+unsigned int YYIO_printctx_strtou_noerr(const char **fmtpnt) {
 	const char *fmt = *fmtpnt;
 	assert(YYIO_isdigit(fmt[0]));
-	int num = 0;
+	unsigned int num = 0;
 	do {
-		assert(num < INT_MAX / 10);
+		assert(num < UINT_MAX / 10);
 		num *= 10;
 		const int c = YYIO_digit_to_number(fmt[0]);
-		assert(num < INT_MAX - c);
+		assert(num < UINT_MAX - c);
 		num += c;
 		++fmt;
 	} while (YYIO_isdigit(fmt[0]));
@@ -97,11 +97,11 @@ int YYIO_printctx_strtoi_noerr(const char **fmtpnt) {
 
 #if YIO_ENABLE_DYNAMIC_PFMT
 static inline
-int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
+int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
 	assert(fmt[0] == '{');
 	fmt++;
 	if (YYIO_isdigit(fmt[0])) {
-		YYIO_skip_arm(t, (unsigned int)YYIO_printctx_strtoi_noerr(&fmt));
+		YYIO_skip_arm(t, YYIO_printctx_strtou_noerr(&fmt));
 		const int skiperr = YYIO_skip_do(t);
 		if (skiperr) return skiperr;
 	}
@@ -137,12 +137,12 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NEGATIVE, "positional width or precision specifier cannot be negative");
 	}
 	*endptr = fmt;
-	*res = (num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num) + 1;
+	*res = (num > YYIO_PRECISION_MAX ? YYIO_PRECISION_MAX : num) + 1;
 	return 0;
 }
 #endif // YIO_ENABLE_DYNAMIC_PFMT
 
-int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, uint8_t *res) {
+int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
 	(void)t;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	if (fmt[0] == '{') {
@@ -150,8 +150,8 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **e
 	}
 #endif // YIO_ENABLE_DYNAMIC_PFMT
 	if (YYIO_isdigit(fmt[0])) {
-		const int num = YYIO_printctx_strtoi_noerr(&fmt);
-		*res = (num > YYIO_LIMIT_MAX ? YYIO_LIMIT_MAX : num) + 1;
+		const unsigned int num = YYIO_printctx_strtou_noerr(&fmt);
+		*res = (num > YYIO_PRECISION_MAX ? YYIO_PRECISION_MAX : num) + 1;
 		*endptr = fmt;
 	} else {
 		// do nothing
@@ -446,7 +446,7 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 					YYIO_ANYEQ(f->type, 'x', 'X', 'o', 'O', 'b', 'B');
 	const bool has_sign = is_number && (f->sign == YYIO_SIGN_ALWAYS ||
 					f->sign == YYIO_SIGN_ALWAYSSPACE || is_positive == false);
-	const size_t alllen = len + (size_t)( 2U * has_hash + has_sign );
+	const size_t alllen = len + (2U * has_hash) + has_sign;
 	*alllen0 = alllen;
 	const size_t width = yio_width_get_default(f->width, 0);
 
