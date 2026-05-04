@@ -117,7 +117,7 @@ int YYIO_print_$1_in(yio_printctx_t *t, $2 arg, bool is_negative) {
 
 int YYIO_print_$1(yio_printctx_t *t) {
 	const $2 arg = yio_printctx_va_arg_promote(t, $2);
-	const int err = yio_printctx_init(t);
+	const int err = yio_printctx_init_or_number(t, arg);
 	if (err) return err;
 	return YYIO_print_$1_in(t, arg, false);
 }
@@ -127,7 +127,7 @@ int YYIO_print_$1(yio_printctx_t *t) {
 
 int YYIO_print_$1(yio_printctx_t *t) {
 	const $2 arg = yio_printctx_va_arg_promote(t, $2);
-	const int err = yio_printctx_init(t);
+	const int err = yio_printctx_init_or_number(t, arg);
 	if (err) return err;
 	const bool is_negative = arg < 0;
 	typedef unsigned $2 unsignedtype;
@@ -158,7 +158,7 @@ int YYIO_print_$1(yio_printctx_t *t) {
 int YYIO_print_{{ V.2[0:1] }}bitint$1(yio_printctx_t *t) {
 	typedef $2 _BitInt($1) T;
 	const T arg = yio_printctx_va_arg_promote(t, T);
-	const int err = yio_printctx_init(t);
+	const int err = yio_printctx_init_or_number(t, arg);
 	if (err) return err;
 	const bool is_negative = {% if V.2 == 'unsigned' %} 0 {% else %} arg < 0 {% endif %} ;
 	typedef unsigned _BitInt($1) unsignedtype;

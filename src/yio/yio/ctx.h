@@ -13,9 +13,11 @@ extern "C" {
 #endif
 
 #include "ctx_types.h"
+#include "yio/yio_error.h"
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <limits.h>
 #include <stdint.h>
 
 /**
@@ -119,11 +121,6 @@ unsigned int YYIO_printctx_strtou_noerr(const char **ptr);
 int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *ptr, const char **endptr, uint16_t *res);
 
 /**
- * Check if @c c is not nul and is one of characters in @c s.
- */
-bool YYIO_strnulchrbool(const char *s, char c);
-
-/**
  * Parse python formatting string.
  * @param c
  * @param pf
@@ -183,6 +180,15 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
 		)
 #endif
 
+static const uint16_t YYIO_PRECISION_MAX = UINT16_MAX - 1;
+
+YYIO_wur YYIO_nn() static inline int YYIO_printctx_init_in(yio_printctx_t *t) {
+	if (t->skip != 0) {
+		return YYIO_ERROR(YIO_ERROR_SKIPPING, "error part of skipping arguments when iterating over them");
+	}
+	return t->fmt ? YYIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt) : 0;
+}
+
 /**
  * This function has to be called a callback right after calling va_arg.
  * This function checks if we are in skipping positional argument context,
@@ -193,8 +199,27 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
  * @param t
  * @return 0 on succes, otherwise error.
  */
-YYIO_wur YYIO_nn()
-int yio_printctx_init(yio_printctx_t *t);
+YYIO_wur YYIO_nn() static inline int yio_printctx_init(yio_printctx_t *t) {
+	if (t->out == NULL) {
+		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "dynamic width or precision must be an integer");
+	}
+	return YYIO_printctx_init_in(t);
+}
+
+/**
+ * Similar to @c yio_printctx_init, but if @c t->out is NULL, it will store @c val
+ * in @c t->pf.precision (mapped as val+1) and return @c YYIO_PRINTCTX_INIT_OR_NUMBER_MAGIC.
+ */
+static inline int yio_printctx_init_or_number(yio_printctx_t *t, int val) {
+	if (t->out == NULL) {
+		if (val < 0) {
+			return YYIO_ERROR(YIO_ERROR_POSITIONAL_NEGATIVE, "width or precision cannot be negative");
+		}
+		t->pf.precision = (uint16_t)(val >= (int)YYIO_PRECISION_MAX ? YYIO_PRECISION_MAX : (uint16_t)val) + 1;
+		return YYIO_ERROR(YIO_ERROR_GOT_DYNAMIC_VALUE, "dynamic parameter consumed");
+	}
+	return YYIO_printctx_init_in(t);
+}
 
 /**
  * Write size count of bytes from ptr to output stream.

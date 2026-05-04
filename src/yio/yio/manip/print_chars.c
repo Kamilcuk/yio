@@ -22,7 +22,7 @@ static size_t YYIO_strnlen(const char *str, size_t maxlen) {
 
 int YYIO_print_char(yio_printctx_t *t) {
 	const int arg = yio_printctx_va_arg_promote(t, char);
-	const int err = yio_printctx_init(t);
+	const int err = yio_printctx_init_or_number(t, arg);
 	if (err) return err;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
 	const char buf = (char)arg;

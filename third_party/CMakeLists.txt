@@ -25,7 +25,7 @@ if(NOT YIO_SDCC)
         ./ryu/ryu/s2f.c
       )
       target_include_directories(yio_ryu PUBLIC
-        ./ryu
+        "${CMAKE_CURRENT_SOURCE_DIR}/ryu"
       )
 
       if(YYIO_HAS_INT128)
@@ -50,19 +50,13 @@ foreach(suffix IN ITEMS d32 d64 d128 d32x d64x d128x)
 endforeach()
 
 if(YIO_HAS_ANY_DECIMAL_FLOAT)
-    include(FetchContent)
-
     # 1. Try to find the system library first
     find_package(dfp QUIET)
 
     if(NOT dfp_FOUND)
-        message(STATUS "libdfp not found on system. Fetching from GitHub...")
-
-        FetchContent_Declare(
-          libdfp
-          GIT_REPOSITORY https://github.com/libdfp/libdfp.git
-          GIT_TAG        master # Or a specific stable commit hash
-        )
-        FetchContent_MakeAvailable(libdfp)
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libdfp/CMakeLists.txt")
+            message(STATUS "Using libdfp from submodule.")
+            add_subdirectory(libdfp)
+        endif()
     endif()
 endif()

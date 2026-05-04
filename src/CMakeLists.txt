@@ -51,7 +51,7 @@ add_custom_target(yio_gen
 )
 
 # Generate errors
-file(GLOB_RECURSE csrcs yio/*.c)
+file(GLOB_RECURSE error_srcs yio/*.[ch])
 add_custom_command(
   OUTPUT
     ${GENDIR}/yio/yio_error_genenum.h
@@ -64,7 +64,7 @@ add_custom_command(
   COMMENT "Generate errors list from source files"
   DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
-    ${csrcs}
+    ${error_srcs}
 )
 list(APPEND _gensrcs
   yio/yio_error_genenum.h

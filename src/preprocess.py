@@ -40,10 +40,174 @@ _j_FLOATS_RAW = [
     ["d128x", "dx", "_Decimal128x", "d128x", "d128x"],
 ]
 
-j_FLOATS: List[Dict[Union[int, str], str]] = [
-    {1: x[0], **{v: k for v, k in zip(_j_FLOATS_RAW[0], x) if v != "N"}}
-    for x in _j_FLOATS_RAW[1:]
+
+def _convert_raw(raw: List[List[str]]) -> List[Dict[Union[int, str], str]]:
+    header = raw[0]
+    return [
+        {1: x[0], **{v: k for v, k in zip(header, x) if v != header[0]}}
+        for x in raw[1:]
+    ]
+
+
+j_FLOATS: List[Dict[Union[int, str], str]] = _convert_raw(_j_FLOATS_RAW)
+
+# j_STDFIX configuration
+_j_STDFIX_RAW = [
+    ["suffix", "type", "name", "max", "min", "ibit", "fbit", "epsilon"],
+    [
+        "hr",
+        "short _Fract",
+        "SFRACT",
+        "0X7FP-7HR",
+        "(-0.5HR-0.5HR)",
+        "0",
+        "7",
+        "(0x1P-7HR)",
+    ],
+    ["r", "_Fract", "FRACT", "0X7FFFP-15R", "(-0.5R-0.5R)", "0", "15", "(0x1P-15R)"],
+    [
+        "lr",
+        "long _Fract",
+        "LFRACT",
+        "0X7FFFFFFFP-31LR",
+        "(-0.5LR-0.5LR)",
+        "0",
+        "31",
+        "(0x1P-31LR)",
+    ],
+    [
+        "llr",
+        "long long _Fract",
+        "LLFRACT",
+        "0X7FFFFFFFFFFFFFFFP-63LLR",
+        "(-0.5LLR-0.5LLR)",
+        "0",
+        "63",
+        "(0x1P-63LLR)",
+    ],
+    [
+        "uhr",
+        "unsigned short _Fract",
+        "USFRACT",
+        "0XFFP-8UHR",
+        "0.0UHR",
+        "0",
+        "8",
+        "(0x1P-8UHR)",
+    ],
+    [
+        "ur",
+        "unsigned _Fract",
+        "UFRACT",
+        "0XFFFFP-16UR",
+        "0.0UR",
+        "0",
+        "16",
+        "(0x1P-16UR)",
+    ],
+    [
+        "ulr",
+        "unsigned long _Fract",
+        "ULFRACT",
+        "0XFFFFFFFFP-32ULR",
+        "0.0ULR",
+        "0",
+        "32",
+        "(0x1P-32ULR)",
+    ],
+    [
+        "ullr",
+        "unsigned long long _Fract",
+        "ULLFRACT",
+        "0XFFFFFFFFFFFFFFFFP-64ULLR",
+        "0.0ULLR",
+        "0",
+        "64",
+        "(0x1P-64ULLR)",
+    ],
+    [
+        "hk",
+        "short _Accum",
+        "SACCUM",
+        "0X7FFFP-7HK",
+        "(-0X1P7HK-0X1P7HK)",
+        "8",
+        "7",
+        "(0x1P-7HK)",
+    ],
+    [
+        "k",
+        "_Accum",
+        "ACCUM",
+        "0X7FFFFFFFP-15K",
+        "(-0X1P15K-0X1P15K)",
+        "16",
+        "15",
+        "(0x1P-15K)",
+    ],
+    [
+        "lk",
+        "long _Accum",
+        "LACCUM",
+        "0X7FFFFFFFFFFFFFFFP-31LK",
+        "(-0X1P31LK-0X1P31LK)",
+        "32",
+        "31",
+        "(0x1P-31LK)",
+    ],
+    [
+        "llk",
+        "long long _Accum",
+        "LLACCUM",
+        "0X7FFFFFFFFFFFFFFFP-31LLK",
+        "(-0X1P31LLK-0X1P31LLK)",
+        "32",
+        "31",
+        "(0x1P-31LLK)",
+    ],
+    [
+        "uhk",
+        "unsigned short _Accum",
+        "USACCUM",
+        "0XFFFFP-8UHK",
+        "0.0UHK",
+        "8",
+        "8",
+        "(0x1P-8UHK)",
+    ],
+    [
+        "uk",
+        "unsigned _Accum",
+        "UACCUM",
+        "0XFFFFFFFFP-16UK",
+        "0.0UK",
+        "16",
+        "16",
+        "(0x1P-16UK)",
+    ],
+    [
+        "ulk",
+        "unsigned long _Accum",
+        "ULACCUM",
+        "0XFFFFFFFFFFFFFFFFP-32ULK",
+        "0.0ULK",
+        "32",
+        "32",
+        "(0x1P-32ULK)",
+    ],
+    [
+        "ullk",
+        "unsigned long long _Accum",
+        "ULLACCUM",
+        "0XFFFFFFFFFFFFFFFFP-32ULLK",
+        "0.0ULLK",
+        "32",
+        "32",
+        "(0x1P-32ULLK)",
+    ],
 ]
+
+j_STDFIX: List[Dict[Union[int, str], str]] = _convert_raw(_j_STDFIX_RAW)
 
 
 def j_one_to_n(*args: Any) -> range:
@@ -85,6 +249,7 @@ class MyEnvironment(jinja2.Environment):
         self.globals.update(
             {
                 "j_FLOATS": j_FLOATS,
+                "j_STDFIX": j_STDFIX,
                 "j_MAX_ARGS": int(defines.get("j_MAX_ARGS", "32")),
                 "j_MAX_CUSTOM_SLOTS": int(defines.get("j_MAX_CUSTOM_SLOTS", "100")),
                 "j_BITINT_MAXWIDTH": int(defines.get("j_BITINT_MAXWIDTH", "128")),

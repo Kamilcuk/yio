@@ -28,7 +28,7 @@ static inline int YYIO_yio_arr(yio_printctx_t *t) {
         const char *const fmtbegin = t->fmt;
         while (t->fmt[0] != '}' && t->fmt[0] != '\0') t->fmt++;
         if (t->fmt[0] != '}') {
-                return YYIO_ERROR(YIO_ERROR_MON_MISSING_RIGHT_BRACE, "missing '}' when parsing yio_arr format specifier");
+                return -1;
         }
         const char *const fmtend = t->fmt;
         int err = yio_printctx_init(t);

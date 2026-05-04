@@ -18,7 +18,7 @@
         "systemVars": false
       },
       "environment": {
-        "GNU": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -O1 -D_FORTIFY_SOURCE=2 -Werror=vla -ffunction-sections -fdata-sections -Wl,--gc-sections"
+        "GNU": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -O1 -D_FORTIFY_SOURCE=2 -Werror=vla -ffunction-sections -fdata-sections"
       },
       "cacheVariables": {
         "YIO_DEV": "1",
@@ -35,7 +35,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
-        "CMAKE_C_FLAGS": "$env{GNU} -fanalyzer -Wattribute-warning -Wmissing-prototypes -fdiagnostics-color=always -lm",
+        "CMAKE_C_FLAGS": "$env{GNU} -fanalyzer -Wattribute-warning -Wmissing-prototypes -fdiagnostics-color=always -lm  -Wl,--gc-sections",
         "CMAKE_EXE_LINKER_FLAGS": "-Wl,--gc-sections"
       }
     },

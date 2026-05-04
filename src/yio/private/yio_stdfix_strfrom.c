@@ -18,7 +18,6 @@
 #if YYIO_HAS_STDFIX_TYPES
 
 
-{% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
 
 static inline int YYIO_string_print_u_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned int v) {
     yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
@@ -266,8 +265,9 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 
 {% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
+#ifdef YYIO_STDFIX_$3
 // Represents the number of bits in $2.
-#define BITS      ( $3_FBIT + $3_IBIT + {{0 if j_match(V.2, "unsigned") else 1}} )
+#define BITS      ( YYIO_$3_FBIT + YYIO_$3_IBIT + {{0 if j_match(V.2, "unsigned") else 1}} )
 #if BITS <= 8
 // Represents the number of bits aligned to CHAR_BIT.
 #define WIDTH    8
@@ -304,6 +304,7 @@ int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
 
 #undef BITS
 #undef WIDTH
+#endif
 {% endcall %}
 
 #endif // YYIO_HAS_STDFIX_TYPES

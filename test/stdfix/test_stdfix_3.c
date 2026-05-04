@@ -9,6 +9,10 @@
 #include <yio.h>
 #include <yio_test.h>
 
+#ifndef YYIO_HAS_STDFIX_TYPES
+#error YYIO_HAS_STDFIX_TYPES is not defined
+#endif
+
 #ifdef fract
 #error leaked stdfix.h to public headers
 #endif
@@ -29,7 +33,7 @@ static int hex_dot_hex_to_int(char *str) {
 int main() {
 	char buf[128];
 	int ret;
-#ifdef YYIO_HAS_STDFIX_TYPES
+#if YYIO_HAS_STDFIX_TYPES
 	{
 		const _Fract a = 0.5r;
 		ret = yio_snprintf(buf, sizeof(buf), "{}", a);

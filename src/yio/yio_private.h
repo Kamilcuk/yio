@@ -15,7 +15,7 @@ extern "C" {
 #include <stdbool.h>
 
 #ifndef YYIO_PRIVATE
-#error YYIO_PRIVATE
+#error YYIO_PRIVATE is not defined, but include yio_private.h. This is internal header for internal use only.
 #endif
 
 /**
@@ -27,7 +27,7 @@ extern "C" {
  * outputs (such as small integers, pointers, or short labels) and typical padding
  * requirements without immediate reallocation or excessive tiny writes.
  */
-#define YYIO_INIT_CAPACITY  8
+#define YYIO_INIT_CAPACITY  32
 
 /**
  * @def YYIO_GOLDEN_INCREASE
@@ -64,18 +64,10 @@ extern "C" {
 #define YYIO_INT_STRLEN_BOUND()   YYIO_LOG10_POW2(sizeof(int) * CHAR_BIT)
 
 /**
- * @def YYIO_ERROR(ENUM, DESC)
- * @param ENUM The suffix to YIO_ERROR_* enum name.
- * @param DESC The description of the errors
- * @short Is used to automatically parse and register an error code with description.
- */
-#define YYIO_ERROR(ENUM, DESC)  ENUM
-
-/**
  * @def YYIO_isdigit
  * @brief Fastest check if a character is a digit.
  */
-static inline bool YYIO_isdigit(char c) { return (unsigned int)((unsigned char)c - '0') <= 9u; }
+static inline bool YYIO_isdigit(char c) { return (unsigned int)((unsigned char)c - '0') <= 9U; }
 
 /**
  * @def YYIO_isxdigit

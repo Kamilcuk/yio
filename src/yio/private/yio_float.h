@@ -71,6 +71,8 @@ extern "C" {
 #endif
 #if YIO_HAS_FLOAT$1
 
+#define YYIO_IF_FLOAT$1(...)  __VA_ARGS__
+
 #ifdef __cplusplus
 {% if "$G" != "s" %}
 #define YYIO_SKIP_FLOAT_DECL$1
@@ -155,6 +157,10 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 #define YYIO_FLOAT_MIN$1       $3_MIN
 
 #endif
+
+#else
+
+#define YYIO_IF_FLOAT$1(...)
 
 #endif
 {% endcall %}{% endmacro %}

@@ -211,6 +211,14 @@ typedef struct YYIO_SDCC_FILE_s { int YYIO_SDCC_FILE_unused; } FILE;
 #define YYIO_XCONCAT(a, b)  YYIO_CONCAT(a, b)
 
 /**
+ * @def YYIO_ERROR(ENUM, DESC)
+ * @param ENUM The suffix to YIO_ERROR_* enum name.
+ * @param DESC The description of the errors
+ * @short Is used to automatically parse and register an error code with description.
+ */
+#define YYIO_ERROR(ENUM, DESC)  ENUM
+
+/**
  * @}
  */
 

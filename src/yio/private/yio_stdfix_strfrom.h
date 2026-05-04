@@ -20,10 +20,9 @@ extern "C" {
 
 #ifdef YYIO_PRIVATE
 #include "yio_string.h"
-{% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
 {% call j_FOREACHAPPLY(j_STDFIX) %}
 #line
-
+#ifdef YYIO_STDFIX_$3
 /**
  * Converts a $2 value to a string.
  * @param o YYIO_string object for result
@@ -33,6 +32,7 @@ extern "C" {
  */
 YYIO_wur YYIO_nn()
 int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val);
+#endif
 
 {% endcall %}
 #endif

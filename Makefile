@@ -158,7 +158,7 @@ valgrind:
 
 HELP +=~ clang
 clang:
-	CC=clang $(MAKE) test
+	$(MAKE) test PRESET=clang
 
 ###############################################################################
 

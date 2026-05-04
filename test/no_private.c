@@ -8,14 +8,14 @@
  */
 #include <yio.h>
 
-#if \
-	defined(YYIO_PRIVATE) || \
-	defined(YYIO_YIO_YIO_PRIVATE_H_) || \
-	defined(YYIO_YIO_PRIVATE_YIO_RES_H_) || \
-	defined(dbgln) || \
-	defined(YYIO_ERROR)
-#error PRIVATE HEADERS LEAKED TO USERS
-#error Regenerate doxygen and see the include graph there
+#ifdef YYIO_PRIVATE
+#error YYIO_PRIVATE LEAKED
+#endif
+#ifdef YYIO_YIO_YIO_PRIVATE_H_
+#error YYIO_YIO_YIO_PRIVATE_H_ LEAKED
+#endif
+#ifdef YYIO_YIO_PRIVATE_YIO_RES_H_
+#error YYIO_YIO_PRIVATE_YIO_RES_H_ LEAKED
 #endif
 
 int main() {

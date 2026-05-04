@@ -14,10 +14,10 @@
 #include "../../private/yio_stdfix.h"
 #include "../../private/yio_stdfix_strfrom.h"
 
-{% from "yio/private/yio_stdfix.h" import j_STDFIX %}
 
 {% call j_FOREACHAPPLY(j_STDFIX) %}
 #line
+#ifdef YYIO_STDFIX_$3
 int YYIO_print_$3(yio_printctx_t *t) {
 	const YYIO_STDFIX_$3 v = yio_printctx_va_arg(t, YYIO_STDFIX_$3);
 	int err = yio_printctx_init(t);
@@ -33,6 +33,7 @@ int YYIO_print_$3(yio_printctx_t *t) {
 	YYIO_string_free(&res);
 	return err;
 }
+#endif
 {% endcall %}
 
 #endif // YYIO_HAS_STDFIX_TYPES

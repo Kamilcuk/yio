@@ -46,10 +46,6 @@ static const char YYIO_SIGN_ALWAYS = '+';
 //static const char YYIO_SIGN_NEGATIVE = '-';
 static const char YYIO_SIGN_ALWAYSSPACE = ' ';
 
-static const uint16_t YYIO_PRECISION_MAX = UINT16_MAX - 1;
-
-/* ------------------------------------------------------------------------- */
-
 void YYIO_skip_arm(yio_printctx_t *t, unsigned count) {
 #if YIO_ENABLE_DYNAMIC_PFMT
 	va_end(*t->va);
@@ -97,7 +93,8 @@ unsigned int YYIO_printctx_strtou_noerr(const char **fmtpnt) {
 
 #if YIO_ENABLE_DYNAMIC_PFMT
 static inline
-int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
+int YYIO_printctx_take_dynamic_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
+	// Parse {[0-9]+} formatting string if present.
 	assert(fmt[0] == '{');
 	fmt++;
 	if (YYIO_isdigit(fmt[0])) {
@@ -105,39 +102,20 @@ int YYIO_printctx_take_positional_param(yio_printctx_t *t, const char *fmt, cons
 		const int skiperr = YYIO_skip_do(t);
 		if (skiperr) return skiperr;
 	}
-	if (t->ifunc == NULL) {
-		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NO_ARGS, "no arguments for positional width or precision");
-	}
-	int num;
-	const yio_printdata_t ifunc = *t->ifunc++;
-	// TODO: conversions
-	if (ifunc == &YYIO_print_bool)        num = yio_printctx_va_arg_promote(t, bool);
-	else if (ifunc == &YYIO_print_char)   num = yio_printctx_va_arg_promote(t, char);
-	else if (ifunc == &YYIO_print_schar)  num = yio_printctx_va_arg_promote(t, signed char);
-	else if (ifunc == &YYIO_print_uchar) num = yio_printctx_va_arg_promote(t, unsigned char);
-	else if (ifunc == &YYIO_print_short)  num = yio_printctx_va_arg_promote(t, short);
-	else if (ifunc == &YYIO_print_ushort) num = yio_printctx_va_arg_promote(t, unsigned short);
-	else if (ifunc == &YYIO_print_int)    num = yio_printctx_va_arg(t, int);
-	else if (ifunc == &YYIO_print_uint)   num = yio_printctx_va_arg(t, unsigned int); // NOLINT
-	else if (ifunc == &YYIO_print_long)   num = yio_printctx_va_arg(t, long);
-	else if (ifunc == &YYIO_print_ulong)  num = yio_printctx_va_arg(t, unsigned long);
-#if YYIO_HAS_LLONG
-	else if (ifunc == &YYIO_print_llong)  num = yio_printctx_va_arg(t, long long);
-	else if (ifunc == &YYIO_print_ullong) num = yio_printctx_va_arg(t, unsigned long long);
-#endif
-#if YYIO_HAS_INT128
-	else if (ifunc == &YYIO_print_int128)  num = yio_printctx_va_arg(t, __int128);
-	else if (ifunc == &YYIO_print_uint128) num = yio_printctx_va_arg(t, unsigned __int128);
-#endif
-	else return YYIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "positional width or precision specifier is not a number");
 	if (fmt++[0] != '}') {
-		return YYIO_ERROR(YIO_ERROR_POSITIONAL_MISSING_RIGHT_BRACE, "missing '}' when parsing positional width or precision specifier");
-	}
-	if (num < 0) {
-		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NEGATIVE, "positional width or precision specifier cannot be negative");
+		return YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_RIGHT_BRACE, "missing '}' when parsing dynamic width or precision specifier");
 	}
 	*endptr = fmt;
-	*res = (num > YYIO_PRECISION_MAX ? YYIO_PRECISION_MAX : num) + 1;
+	//
+	if (t->ifunc == NULL || *t->ifunc == NULL) {
+		return YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_ARG, "no argument for dynamic width or precision");
+	}
+	// Create a context that will just be used to work with va_arg - nothing else.
+	yio_printctx_t tmp_ctx = {.va = t->va};
+	const int ret = (*t->ifunc++)(&tmp_ctx);
+	if (ret != YIO_ERROR_GOT_DYNAMIC_VALUE) return ret;
+	// The returned precision value is returned in precision field.
+	*res = tmp_ctx.pf.precision;
 	return 0;
 }
 #endif // YIO_ENABLE_DYNAMIC_PFMT
@@ -146,7 +124,7 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **e
 	(void)t;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	if (fmt[0] == '{') {
-		return YYIO_printctx_take_positional_param(t, fmt, endptr, res);
+		return YYIO_printctx_take_dynamic_param(t, fmt, endptr, res);
 	}
 #endif // YIO_ENABLE_DYNAMIC_PFMT
 	if (YYIO_isdigit(fmt[0])) {
@@ -271,23 +249,11 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 
 /* printctx ---------------------------------------------------- */
 
-int yio_printctx_init(yio_printctx_t *t) {
-	if (t->skip != 0) {
-		return YIO_ERROR_SKIPPING;
-	}
-	if (t->fmt) {
-		const int err = YYIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt);
-		if (err) return err;
-	}
-	return 0;
-}
-
 int yio_printctx_raw_write(yio_printctx_t *t, const char *ptr, size_t size) {
 	assert(t->out != NULL);
 	assert(ptr != NULL);
 	const int ret = (*t->out)(t->outarg, ptr, size);
 	if (ret) return ret;
-	//dbgln("%d", (int)size);
 	t->writtencnt += size;
 	return 0;
 }
@@ -307,9 +273,7 @@ int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const
 	va_start(va, fmt);
 	const int ret = yio_vbprintf(t->out, t->outarg, data, fmt, &va);
 	va_end(va);
-	if (ret < 0) {
-		return ret;
-	}
+	if (ret < 0) return ret;
 	t->writtencnt += ret;
 	return 0;
 }
@@ -320,9 +284,9 @@ int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const
 #error
 #endif
 #if YIO_HAS_WCHAR_H
+/// Get display width of multibyte string by using wide characters.
 static size_t YYIO_mbwidth(const char *str, size_t str_len) {
-	mbstate_t st;
-  memset(&st, 0, sizeof(st));
+	mbstate_t st = {0};
   const char *p = str;
   size_t rem = str_len;
   size_t total = 0;
@@ -345,6 +309,7 @@ static size_t YYIO_mbwidth(const char *str, size_t str_len) {
       int w = wcwidth(wc);
       total += (w > 0) ? w : (w < 0 ? 1 : 0);
 #else
+			// Assume one wide char is 1 width.
       total += 1;
 #endif
       p += r;
@@ -358,8 +323,8 @@ static size_t YYIO_mbwidth(const char *str, size_t str_len) {
 #ifndef YYIO_HAS_UNISTRING
 #error
 #endif
-static inline
-size_t YYIO_width(const char *str, size_t str_len) {
+/// Get display width of a string.
+static inline size_t YYIO_width(const char *str, size_t str_len) {
 #if YYIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
 #elif YIO_HAS_WCHAR_H

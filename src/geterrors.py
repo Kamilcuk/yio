@@ -32,7 +32,7 @@ def get_all_errors_from_sources() -> List[Err]:
     )
     src_dir = Path(__file__).parent
     errors: Set[Err] = set()
-    for path in src_dir.glob("**/*.c"):
+    for path in src_dir.glob("**/*.[ch]"):
         try:
             content = path.read_text()
             matches = rereplace.findall(content)
