@@ -11,7 +11,6 @@ int main() {
 #ifdef YYIO_STDFIX_$3
 	{
 		const $2 max = YYIO_$3_MAX;
-		const $2 zero = 0;
 		
 		yio_fprintf(stderr, "Testing type: $2 ($3)\n");
 
@@ -23,6 +22,7 @@ int main() {
 		// Failing Large values for Accum
 		{% if j_search(V.2, ".*_Accum") %}
 		{
+			const $2 zero = 0;
 			const $2 ten = (const $2)10.0$1 < max ? (const $2)10.0$1 : zero;
 			if (ten > zero) {
 				YIO_TEST("10.000000", "{}", ten);

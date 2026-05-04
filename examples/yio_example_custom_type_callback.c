@@ -35,7 +35,7 @@ YIO_ADD_TYPE(const struct A, yio_print_A)
 // Custom yio callbacks to be used with yio invokations.
 // For type safety, make sure your arguments are proper type with _Generic.
 #define yprint_A(var)  \
-		yio_callback( yio_print_A, _Generic((var), struct A: (var), const struct A: (var)) )
+		yio_callback( yio_print_A, _Generic((var), struct A: (var)) )
 //                             ^^^^^^^^ - protect against invalid arguments
 //                ^^^^^^^^^^^ - the callback to call
 

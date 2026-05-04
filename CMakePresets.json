@@ -45,7 +45,7 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++",
-        "CMAKE_C_FLAGS": "$env{GNU} -ffixed-point -Wno-varargs -Wno-array-bounds -Wno-sizeof-array-decay -fcolor-diagnostics"
+        "CMAKE_C_FLAGS": "$env{GNU} -ffixed-point -fcolor-diagnostics -Wno-missing-field-initializers -Werror=unreachable-code-generic-assoc"
       }
     },
     {

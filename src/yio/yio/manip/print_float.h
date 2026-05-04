@@ -40,7 +40,9 @@ extern "C" {
 #error  YYIO_has_float_ryu$1 is not defined
 #endif
 
+#if YYIO_has_float_strfrom$1
 int YYIO_print_float_strfrom$1(yio_printctx_t *t);
+#endif
 #if YYIO_has_float_custom$1
 int YYIO_print_float_custom$1(yio_printctx_t *t);
 #endif

@@ -18,7 +18,7 @@
 #endif
 
 int YYIO_print_bool(yio_printctx_t *t) {
-	const bool value = yio_printctx_va_arg_promote(t, _Bool);
+	const bool value = yio_printctx_va_arg(t, int);
 	int err = yio_printctx_init_or_number(t, value);
 	if (err) return err;
 	const struct yio_printfmt_s *fmt = yio_printctx_get_fmt(t);

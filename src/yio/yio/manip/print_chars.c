@@ -21,22 +21,28 @@ static size_t YYIO_strnlen(const char *str, size_t maxlen) {
 }
 
 int YYIO_print_char(yio_printctx_t *t) {
-	const int arg = yio_printctx_va_arg_promote(t, char);
+#if UINT_MAX >= UCHAR_MAX
+	typedef int promoted_char;
+#else
+	typedef unsigned promoted_char;
+#endif
+  const char arg = yio_printctx_va_arg(t, promoted_char);
 	const int err = yio_printctx_init_or_number(t, arg);
 	if (err) return err;
 	const struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	const char buf = (char)arg;
 	switch (pf->type) {
-	case '\0':
-	case 'c':
-		return yio_printctx_put(t, &buf, 1);
-	case 'b':
-	case 'B':
-	case 'd':
-	case 'o':
-	case 'x':
-	case 'X':
-		return YYIO_print_uint_in(t, arg, false);
+		case '\0':
+		case 'c':
+			return yio_printctx_put(t, &arg, 1);
+		case 'b':
+		case 'B':
+		case 'd':
+		case 'o':
+		case 'x':
+		case 'X':
+			return YYIO_print_uint_in(t, arg, false);
+		default:
+			return YIO_ERROR_INVALID_TYPE;
 	}
 	return YIO_ERROR_INVALID_TYPE;
 }

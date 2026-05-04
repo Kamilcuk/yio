@@ -273,14 +273,8 @@ yio_config_gen_add(YYIO_MUSL_BROKEN_EXP10)
 # handle and detect stdfix
 
 yio_config_gen_check_include_file("stdfix.h"  YYIO_HAS_STDFIX_H)
-# Disable stdfix for Clang if stdfix.h is missing because it's buggy (e.g. va_arg)
-if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND NOT YYIO_HAS_STDFIX_H)
-    set(YYIO_HAS_STDFIX_TYPES 0)
-else()
-    yio_config_gen_check_type_exists(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
-endif()
+yio_config_gen_check_type_exists(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
 yio_config_gen_add(YYIO_HAS_STDFIX_TYPES)
-
 if(YYIO_HAS_STDFIX_TYPES)
     set(_stdfix_types
         "short _Fract" "_Fract" "long _Fract" "long long _Fract"
