@@ -255,6 +255,22 @@ else()
 	set(YIO_SDCC 0)
 endif()
 
+include(CMakeDependentOption)
+include(CheckIncludeFile)
+include(k/list_filter)
+include(k/var_to_0_or_1)
+include(src/yio_config_gen.cmake)
+
+# CPack
+include(src/cpack.cmake)
+# Pre checks
+# unistd is used in configuration and environmental checks
+yio_config_gen_check_include_file("unistd.h" YYIO_HAS_UNISTD_H)
+# User configuration
+include(src/configuration.cmake)
+# Environment checks
+include(src/environment_checks.cmake)
+
 add_subdirectory(./third_party EXCLUDE_FROM_ALL)
 add_subdirectory(src)
 if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
