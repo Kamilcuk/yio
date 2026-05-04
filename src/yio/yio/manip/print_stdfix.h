@@ -14,21 +14,21 @@ extern "C" {
 
 #if YYIO_HAS_STDFIX_TYPES
 
-#include "../../private/yio_stdfix.h"
-
-
-{% call j_FOREACHAPPLY(j_STDFIX) %}
-#ifdef YYIO_STDFIX_$3
+{% call j_FOREACHAPPLY(j_STDFIX) %}#line
+#ifndef YYIO_HAS_STDFIX_$3
+#error YYIO_HAS_STDFIX_$3 is not defined
+#endif
+#if YYIO_HAS_STDFIX_$3
 /// Print $2 type variable to yio_printctx stream
 int YYIO_print_$3(yio_printctx_t *t);
 #endif
-{% endcall %}
+{% endcall %}#line
 
 #ifndef __cplusplus
 #define YYIO_PRINT_STDFIX() \
-		{% call j_FOREACHAPPLY(j_STDFIX) %} \
-		YYIO_IF_$3(YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_$3)) \
-		{% endcall %} \
+		{% call j_FOREACHAPPLY(j_STDFIX) %}
+		YYIO_IF(YYIO_HAS_STDFIX_$3, YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_$3)) \
+		{% endcall %}
 		/**/
 #else
 #define YYIO_PRINT_STDFIX()

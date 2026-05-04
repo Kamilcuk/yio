@@ -128,7 +128,7 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 #define FC(x)    YYIO_FLOAT_C$1(x)
 
 #line
-{% if j_match(V.1, "^d[0-9]") %}
+{% if j_search(V.1, "^d[0-9]") %}
 #if defined(__GNUC__) && __GNUC__ < 15 && !defined(__clang__)
 // Workaround for GNU bug around decimal floating point numbers.
 // Fixed in GCC 15: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674

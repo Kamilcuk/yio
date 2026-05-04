@@ -27,6 +27,5 @@ coverage
 tmp/
 plan.md
 _build*
-test_*.c
 newplan.md
 mynewplan.md

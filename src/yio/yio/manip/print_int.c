@@ -65,7 +65,7 @@
 {% endif %}
 #line
 
-{% if j_match(V.2, "unsigned") %}
+{% if j_search(V.2, "unsigned") %}
 #line
 
 static inline

@@ -201,7 +201,7 @@ YYIO_wur YYIO_nn() static inline int YYIO_printctx_init_in(yio_printctx_t *t) {
  */
 YYIO_wur YYIO_nn() static inline int yio_printctx_init(yio_printctx_t *t) {
 	if (t->out == NULL) {
-		return YYIO_ERROR(YIO_ERROR_POSITIONAL_NOT_NUMBER, "dynamic width or precision must be an integer");
+		return YYIO_ERROR(YIO_ERROR_DYNAMIC_NOT_NUMBER, "dynamic width or precision must be an integer");
 	}
 	return YYIO_printctx_init_in(t);
 }
@@ -213,7 +213,7 @@ YYIO_wur YYIO_nn() static inline int yio_printctx_init(yio_printctx_t *t) {
 static inline int yio_printctx_init_or_number(yio_printctx_t *t, int val) {
 	if (t->out == NULL) {
 		if (val < 0) {
-			return YYIO_ERROR(YIO_ERROR_POSITIONAL_NEGATIVE, "width or precision cannot be negative");
+			return YYIO_ERROR(YIO_ERROR_DYNAMIC_NEGATIVE, "dynamic width or precision cannot be negative");
 		}
 		t->pf.precision = (uint16_t)(val >= (int)YYIO_PRECISION_MAX ? YYIO_PRECISION_MAX : (uint16_t)val) + 1;
 		return YYIO_ERROR(YIO_ERROR_GOT_DYNAMIC_VALUE, "dynamic parameter consumed");

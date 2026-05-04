@@ -226,7 +226,7 @@ foreach(ii IN LISTS _floats)
 		endforeach()
 	endif()
 endforeach()
-set(YIO_FLOAT_SUFFIXES "${YIO_FLOAT_SUFFIXES}" PARENT_SCOPE)
+set(YIO_FLOAT_SUFFIXES "${YIO_FLOAT_SUFFIXES}")
 
 yio_config_gen_check_c_source_compiles([=[
 float _Imaginary fi = 1;

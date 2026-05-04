@@ -56,7 +56,7 @@
 
 {% macro j_FOREACHAPPLY(array) %}
 	{% if array is undefined %}
-		{{- fatal("array undefined: " + array|string) -}}
+		{{- j_fatal("array undefined: " + array|string) -}}
 	{% endif %}
 	{% for I in array %}
 		{% set V = {} %}

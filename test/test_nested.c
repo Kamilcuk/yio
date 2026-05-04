@@ -26,7 +26,7 @@ int main() {
         char buf[100];
         int err = yio_snprintf(buf, sizeof(buf), "{:{}}", 123, "abc");
         YIO_TESTEXPR(err < 0);
-        YIO_TESTEXPR(err == YIO_ERROR_POSITIONAL_NOT_NUMBER, "err=%d expected=%d", err, YIO_ERROR_POSITIONAL_NOT_NUMBER);
+        YIO_TESTEXPR(err == YIO_ERROR_DYNAMIC_NOT_NUMBER, "err=%d expected=%d", err, YIO_ERROR_DYNAMIC_NOT_NUMBER);
     }
 
     // Negative width/precision
@@ -34,7 +34,7 @@ int main() {
         char buf[100];
         int err = yio_snprintf(buf, sizeof(buf), "{:{}}", 123, -5);
         YIO_TESTEXPR(err < 0);
-        YIO_TESTEXPR(err == YIO_ERROR_POSITIONAL_NEGATIVE, "err=%d expected=%d", err, YIO_ERROR_POSITIONAL_NEGATIVE);
+        YIO_TESTEXPR(err == YIO_ERROR_DYNAMIC_NEGATIVE, "err=%d expected=%d", err, YIO_ERROR_DYNAMIC_NEGATIVE);
     }
 
     return 0;

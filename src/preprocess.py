@@ -44,7 +44,10 @@ _j_FLOATS_RAW = [
 def _convert_raw(raw: List[List[str]]) -> List[Dict[Union[int, str], str]]:
     header = raw[0]
     return [
-        {1: x[0], **{v: k for v, k in zip(header, x) if v != header[0]}}
+        {
+            **{i + 1: v for i, v in enumerate(x)},
+            **{k: v for k, v in zip(header, x) if k != header[0]},
+        }
         for x in raw[1:]
     ]
 
@@ -220,8 +223,8 @@ def j_one_to_n(*args: Any) -> range:
     return range(vals[0], vals[1] + 1)
 
 
-def j_match(value: Any, regex: str) -> bool:
-    return bool(re.match(regex, str(value)))
+def j_search(value: Any, regex: str) -> bool:
+    return bool(re.search(regex, str(value)))
 
 
 def j_fatal(value: Any = "fatal error") -> None:
@@ -254,7 +257,7 @@ class MyEnvironment(jinja2.Environment):
                 "j_MAX_CUSTOM_SLOTS": int(defines.get("j_MAX_CUSTOM_SLOTS", "100")),
                 "j_BITINT_MAXWIDTH": int(defines.get("j_BITINT_MAXWIDTH", "128")),
                 "j_one_to_n": j_one_to_n,
-                "j_match": j_match,
+                "j_search": j_search,
                 "j_fatal": j_fatal,
                 "j_is_power_of_two": j_is_power_of_two,
             }
@@ -262,7 +265,7 @@ class MyEnvironment(jinja2.Environment):
         self.filters.update(
             {
                 "j_one_to_n": j_one_to_n,
-                "j_match": j_match,
+                "j_search": j_search,
             }
         )
         self.dependencies: List[str] = []

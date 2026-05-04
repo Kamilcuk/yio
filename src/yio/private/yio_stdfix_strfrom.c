@@ -64,8 +64,7 @@ static inline int YYIO_string_print_u128_in(YYIO_string *o, struct yio_printfmt_
 // WIDTH is defined to a 8, 16, 32, 64 outside of this macro.
 #define TYPE  YYIO_XCONCAT(YYIO_XCONCAT(uint_least, WIDTH), _t)
 
-{% call(V) j_FOREACHAPPLY([8, 16, 32, 64]) %}
-#line
+{% call(V) j_FOREACHAPPLY([8, 16, 32, 64]) %}#line
 
 #define WIDTH  $1
 
@@ -102,7 +101,7 @@ static inline yyio_next_digit_$1_t yyio_get_next_digit_$1(TYPE rem, int fbit, TY
   }
   return (yyio_next_digit_$1_t){ res_rem, res_digit };
 #else
-#error
+#error TYPEX2 is not defined neither $1 is 64 - what is this type? Internal error.
 #endif
 }
 
@@ -263,11 +262,10 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 #endif
 {% endcall %}
 
-{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
-#line
+{% call(V) j_FOREACHAPPLY(j_STDFIX) %}#line
 #ifdef YYIO_STDFIX_$3
 // Represents the number of bits in $2.
-#define BITS      ( YYIO_$3_FBIT + YYIO_$3_IBIT + {{0 if j_match(V.2, "unsigned") else 1}} )
+#define BITS      ( YYIO_$3_FBIT + YYIO_$3_IBIT + {{0 if j_search(V.2, ".*unsigned.*") else 1}} )
 #if BITS <= 8
 // Represents the number of bits aligned to CHAR_BIT.
 #define WIDTH    8
@@ -278,7 +276,7 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 #elif BITS <= 64
 #define WIDTH    64
 #else
-#error
+#error BITS is invalid and greater than 64 for [$1, $2, $3]
 #endif
 
 int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
@@ -290,7 +288,7 @@ int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
 	memcpy(&uint_val, &val, sizeof(val));
 	const char spec = pf->type ? tolower((unsigned char)pf->type) : 'f';
 	const bool spec_is_upper = pf->type ? isupper((unsigned char)pf->type) : false;
-	{% if not j_match(V.2, "unsigned") %}
+	{% if not j_search(V.2, "unsigned") %}#line
 	if (uint_val & ((TYPE)1 << (BITS - 1))) {
 		if (spec != 'x' && spec != 'u') {
 			int err = YYIO_string_putc(o, '-');
@@ -298,7 +296,7 @@ int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
 			uint_val = -uint_val;
 		}
 	}
-	{% endif %}
+	{% endif %}#line
 	return YYIO_XCONCAT(YYIO_stdfix_strfrom_int, WIDTH)(o, pf, spec, spec_is_upper, uint_val, YYIO_$3_IBIT, YYIO_$3_FBIT);
 }
 

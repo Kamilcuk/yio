@@ -9,9 +9,6 @@
 #include <yio_test_private.h>
 #include <yio/private/yio_stdfix.h>
 
-{% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
-#line
-
 int main() {
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line

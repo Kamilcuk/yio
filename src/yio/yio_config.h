@@ -218,6 +218,10 @@ typedef struct YYIO_SDCC_FILE_s { int YYIO_SDCC_FILE_unused; } FILE;
  */
 #define YYIO_ERROR(ENUM, DESC)  ENUM
 
+#define YYIO_IF_1(...)      __VA_ARGS__
+#define YYIO_IF_0(...)
+#define YYIO_IF(x, ...)     YYIO_XCONCAT(YYIO_IF_, x)(__VA_ARGS__)
+
 /**
  * @}
  */

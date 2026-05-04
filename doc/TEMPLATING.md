@@ -7,7 +7,7 @@ overloading and avoid repetitive code across different character and numeric typ
 
 The primary tool is `preprocess.py`, which:
 1.  Loads templates (usually `.c` or `.h` files in `src/yio/yio/`).
-2.  Provides custom Jinja2 globals and filters (e.g., `j_FLOATS`, `j_match`).
+2.  Provides custom Jinja2 globals and filters (e.g., `j_FLOATS`, `j_search`).
 3.  Automatically imports macros from `src/library.jinja`.
 4.  Renders the templates into the build directory (`_build/.../gen/`).
 

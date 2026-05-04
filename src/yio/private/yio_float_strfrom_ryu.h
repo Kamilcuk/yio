@@ -61,7 +61,7 @@ int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_
 #define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_custom$1
 #endif
 #endif
-{% elif j_match("^f[0-9]+", V.1) %}
+{% elif j_search("^f[0-9]+", V.1) %}
 #if YYIO_FLOAT_MANT_DIG$1 == FLT_MANT_DIG
 #define YYIO_has_float_ryu$1  1
 #ifdef YYIO_PRIVATE

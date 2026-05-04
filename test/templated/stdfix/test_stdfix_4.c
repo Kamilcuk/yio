@@ -5,8 +5,6 @@
 #include <yio_test_private.h>
 #include <yio/private/yio_stdfix.h>
 
-{% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
-
 int main() {
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
@@ -34,7 +32,7 @@ int main() {
 		YIO_TEST((.rgx="0\\.0*[0-9]+"), "{}", eps);
 
 		// Negative numbers (for signed types)
-		{% if not j_match(V.2, ".*unsigned.*") %}
+		{% if not j_search(V.2, ".*unsigned.*") %}
 		{
 			const $2 half = 0.5$1;
 			const $2 n_half = -half;
@@ -42,7 +40,7 @@ int main() {
 			YIO_TEST("-0.5", "{:g}", n_half);
 			YIO_TEST("-0.50", "{:.2f}", n_half);
 			
-			const $2 one = {% if j_match(V.2, ".*_Accum") %} 1.0$1 {% else %} max {% endif %};
+			const $2 one = {% if j_search(V.2, ".*_Accum") %} 1.0$1 {% else %} max {% endif %};
 			if (one > 0) {
 				YIO_TEST((.rgx="-?[0-9]+\\.[0-9]+"), "{}", (const $2)-one);
 			}
@@ -77,7 +75,7 @@ int main() {
 		YIO_TEST((.rgx="[0-9]+\\."), "{:#.0f}", max);
 		
 		// Large values for Accum
-		{% if j_match(V.2, ".*_Accum") %}
+		{% if j_search(V.2, ".*_Accum") %}
 		{
 			const $2 ten = (const $2)10.0$1 < max ? (const $2)10.0$1 : zero;
 			if (ten > zero) {

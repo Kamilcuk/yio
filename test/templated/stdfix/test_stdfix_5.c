@@ -5,8 +5,6 @@
 #include <yio_test_private.h>
 #include <yio/private/yio_stdfix.h>
 
-{% from 'yio/private/yio_stdfix.h' import j_STDFIX %}
-
 int main() {
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
@@ -23,7 +21,7 @@ int main() {
 		YIO_TEST((.rgx="[0-9]+"), "{:u}", max);
 
 		// Failing Large values for Accum
-		{% if j_match(V.2, ".*_Accum") %}
+		{% if j_search(V.2, ".*_Accum") %}
 		{
 			const $2 ten = (const $2)10.0$1 < max ? (const $2)10.0$1 : zero;
 			if (ten > zero) {
