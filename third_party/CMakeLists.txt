@@ -51,12 +51,38 @@ endforeach()
 
 if(YIO_HAS_ANY_DECIMAL_FLOAT)
     # 1. Try to find the system library first
-    find_package(dfp QUIET)
+    find_library(dfp_LIBRARY NAMES dfp PATHS /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE} /lib/${CMAKE_LIBRARY_ARCHITECTURE} /usr/lib /lib)
+
+    if(dfp_LIBRARY)
+        set(dfp_FOUND TRUE)
+        add_library(dfp INTERFACE)
+        target_link_libraries(dfp INTERFACE ${dfp_LIBRARY})
+        message(STATUS "Found system libdfp at ${dfp_LIBRARY}")
+    endif()
 
     if(NOT dfp_FOUND)
-        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libdfp/CMakeLists.txt")
-            message(STATUS "Using libdfp from submodule.")
-            add_subdirectory(libdfp)
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/libdfp/configure")
+            message(STATUS "Building libdfp from source via ExternalProject.")
+            include(ExternalProject)
+            set(LIBDFP_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/libdfp_install")
+            
+            ExternalProject_Add(libdfp_ext
+                SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libdfp"
+                PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libdfp_build"
+                INSTALL_DIR "${LIBDFP_INSTALL_DIR}"
+                CONFIGURE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/libdfp/configure" "--prefix=${LIBDFP_INSTALL_DIR}" "--enable-static" "--disable-shared" "CC=${CMAKE_C_COMPILER}"
+                BUILD_BYPRODUCTS "${LIBDFP_INSTALL_DIR}/lib/libdfp.a"
+            )
+            
+            add_library(dfp STATIC IMPORTED GLOBAL)
+            add_dependencies(dfp libdfp_ext)
+            set_target_properties(dfp PROPERTIES
+                IMPORTED_LOCATION "${LIBDFP_INSTALL_DIR}/lib/libdfp.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${LIBDFP_INSTALL_DIR}/include"
+            )
+            set(dfp_FOUND TRUE)
+        else()
+            message(WARNING "Decimal floating point library (libdfp) not found. _Decimal formatting might fail to link.")
         endif()
     endif()
 endif()

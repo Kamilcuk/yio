@@ -18,6 +18,14 @@ function(check_type_exists_bool)
   check_type_size(${ARGN})
   set(CMAKE_REQUIRED_QUIET ${CMAKE_REQUIRED_QUIET_save})
 
+  # Depend on HAVE_* variable
+  # The varibale with size does not work when -flto is enabled
+  if(HAVE_${ARGV1})
+    set(${ARGV1} 1)
+  else()
+    set(${ARGV1} 0)
+  endif()
+
   if(NOT CMAKE_REQUIRED_QUIET)
     set(_msg " - ${ARGV1}=${${ARGV1}} HAVE_${ARGV1}=${HAVE_${ARGV1}}")
     if(NOT ${ARGV1})
@@ -25,14 +33,6 @@ function(check_type_exists_bool)
     else()
       message(STATUS "Check size of ${ARGV0} - done${_msg}")
     endif()
-  endif()
-
-  # Depend on HAVE_* variable
-  # The varibale with size does not work when -flto is enabled
-  if(HAVE_${ARGV1})
-    set(${ARGV1} 1)
-  else()
-    set(${ARGV1} 0)
   endif()
 
   set(${ARGV1} "${${ARGV1}}" PARENT_SCOPE)

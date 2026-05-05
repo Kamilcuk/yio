@@ -274,25 +274,15 @@ yio_config_gen_add(YYIO_MUSL_BROKEN_EXP10)
 
 # Detect stdfix support.
 # Clang requires -ffixed-point flag to enable stdfix types.
-check_type_exists_bool(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
-
 # Clang 18.1.3 has a known bug where va_arg() with fixed-point types causes an Internal Compiler Error (ICE) or ABI mismatch.
 # Known BAD: Clang < 21.0.0
 # Known GOOD: Clang >= 21.1.7
-if(YYIO_HAS_STDFIX_TYPES AND CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "21.0.0")
+if(CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "21.0.0")
 	message(STATUS "Disabling stdfix support due to va_arg bug in Clang ${CMAKE_C_COMPILER_VERSION}")
 	set(YYIO_HAS_STDFIX_TYPES 0)
-elseif(YYIO_HAS_STDFIX_TYPES AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
-	yio_config_gen_check_c_source_compiles("
-		#include <stdarg.h>
-		void f(va_list ap) { _Accum a = va_arg(ap, _Accum); (void)a; }
-		int main() { return 0; }
-	" YYIO_HAS_STDFIX_TYPES)
-	if(NOT YYIO_HAS_STDFIX_TYPES)
-		message(STATUS "Disabling stdfix support due to va_arg bug in Clang ${CMAKE_C_COMPILER_VERSION}")
-	endif()
-else()
 	yio_config_gen_add(YYIO_HAS_STDFIX_TYPES)
+else()
+	yio_config_gen_check_type_exists(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
 endif()
 set(_stdfix_types
 	"short _Fract" "_Fract" "long _Fract" "long long _Fract"

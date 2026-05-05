@@ -292,9 +292,9 @@ if(UNISTRING_LIB)
 endif()
 
 if(TARGET dfp)
-	target_link_libraries(yio PRIVATE dfp)
+  # Avoid export issues for system libraries by using target_link_options or properties, or link to INTERFACE
+  target_link_libraries(yio PRIVATE $<BUILD_INTERFACE:dfp>)
 endif()
-
 if(NOT CMAKE_C_COMPILER_ID STREQUAL "SDCC")
 file_glob_srcs_relative_to_srcdir(GLOB _auto_compat_srcs yio/compatlib)
 yio_add_library(yio_compat
