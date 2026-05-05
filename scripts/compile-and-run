@@ -1,1 +1,51 @@
-compile_test_run.sh
+#!/bin/bash
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage: scripts/compile-and-run [CODE...]
+Compile and run a C program snippet within the Yio environment.
+
+The script supports two modes:
+1. Snippet Mode: If CODE does not contain 'main(', it is wrapped in a default 
+   main() function with common headers included.
+2. Full Source Mode: If CODE contains 'main(', it is compiled as-is (common 
+   headers like <yio_test.h> are still prepended).
+
+If CODE is provided as arguments, it is joined by spaces and executed.
+If no arguments are provided and stdin is not a terminal, CODE is read from stdin.
+Otherwise, this help message is printed.
+
+Examples:
+  scripts/compile-and-run 'yio_printf("{}\n", 123);'    # Snippet Mode
+  scripts/compile-and-run <<'EX'                        # Full Source Mode
+#include <yio.h>
+int main() {
+    yio_printf("{}\n", "Hello World");
+    return 0;
+}
+EX
+EOF
+}
+
+PROGRAM=""
+
+if [[ $# -gt 0 ]]; then
+    if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+        usage
+        exit 0
+    fi
+    PROGRAM="$*"
+elif [[ ! -t 0 ]]; then
+    PROGRAM=$(cat)
+else
+    usage
+    exit 0
+fi
+
+if [[ -z "${PROGRAM//[[:space:]]/}" ]]; then
+    echo "Error: Empty program provided." >&2
+    exit 1
+fi
+
+make TESTPROGRAM="$PROGRAM" testprogram

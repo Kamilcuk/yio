@@ -56,7 +56,6 @@ For quick one-liner tests:
 ### Templating System
 Most of the codebase is generated from templates in `src/yio/yio/`. When editing implementation:
 - Edit the files in `src/yio/yio/`, NOT the generated files in the build directory.
-- Use `TC("...")` macro in templates to handle string literals correctly.
 - `preprocess.py` is invoked during the build process to generate the actual C source files.
 
 ### Format Specification
@@ -67,10 +66,14 @@ Most of the codebase is generated from templates in `src/yio/yio/`. When editing
 - New features should include tests in `test/`.
 - Prefer adding tests to `test/templated/`.
 - Tests use a simple pass/fail mechanism, often checked by `ctest` against regex patterns in comments (e.g., `// PASS_REGULAR_EXPRESSION 1`).
+- Filter tests using the `ONLY` variable (supports regex):
+  ```bash
+  make test ONLY=".*time(spec|val).*"
+  ```
 
 ### Namespace Guidelines
 - `yio_printf`, `yio_print`: Primary type-safe API.
-- `yio_count`, `yio_arr`, `yio_mon`: Standardized modifier naming.
+- `yio_count`, `yio_mon`: Standardized modifier naming.
 - `yio_callback`: Custom callback registration.
 - `yio_*`: Public internal functions and custom modifier symbols.
 - `YIO_*`: Public macros, configuration, and constants.

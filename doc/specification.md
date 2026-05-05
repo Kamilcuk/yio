@@ -1,199 +1,202 @@
-# Format specification
+# Technical Specification: Yio Formatting Language
 
-Formatting functions like `yio_printf` use the format string syntax described here.
+This document defines the formal grammar and behavioral specification of the Yio formatting engine.
 
-The intention is to align the format specification to be similar to
-Python Format Specification Mini-Language and `fmt::format()` Format
-String Syntax and `std::formatter` from `<format>` from C++20.
+---
 
-Format strings contain "replacement fields" surrounded by curly braces
-`{` `}`. Anything that is not contained in braces is considered literal
-text, which is copied unchanged to the output. If you need to include
-a brace character in the literal text, it can be escaped by doubling:
-`{{` and `}}`.
+## 1. Replacement Field Grammar
 
-The grammar for a replacement field is as follows:
+Format strings contain "replacement fields" surrounded by curly braces `{` and `}`. Literal braces are escaped by doubling: `{{` and `}}`.
 
-```
-replacement_field ::=  "{" [arg_id] ["!" conversion] [":" (format_spec | chrono_format_spec)] "}"
-arg_id            ::=  digit+
-digit             ::=  "0"..."9"
-conversion        ::=  "a"
+```ebnf
+replacement_field ::= "{" [arg_id] ["!" conversion] [":" format_spec] "}"
+arg_id            ::= digit+
+digit             ::= "0"..."9"
+conversion        ::= "a"
 
-format_spec       ::=  [[fill]align][sign]["#"]["0"][width][grouping_option][.precision]["L"][type]
-fill              ::=  <any character>
-align             ::=  one of "<>=^"
-sign              ::=  one of "+-" or space
-width             ::=  digit+
-grouping_option   ::=  one of "_,"
-precision         ::=  digit+
-type              ::=  one of "aAbBcdeEfFgGopsxX"
-
-chrono_format_spec ::=  [[fill]align][width]["." precision][chrono_specs]
-chrono_specs       ::=  <forwarded to strftime>
+format_spec       ::= standard_format_spec | type_specific_format_spec
+standard_format_spec ::= [[fill]align][sign]["#"]["0"][width][grouping][.precision]["L"][type]
+fill              ::= <any character except "{" or "}">
+align             ::= "<" | ">" | "=" | "^"
+sign              ::= "+" | "-" | " "
+width             ::= digit+ | "{" [arg_id] "}"
+grouping          ::= "_" | ","
+precision         ::= digit+ | "{" [arg_id] "}"
+type              ::= "a"|"A"|"b"|"B"|"c"|"d"|"e"|"E"|"f"|"F"|"g"|"G"|"o"|"O"|"s"|"x"|"X"|"n"|"p"|"u"
+type_specific_format_spec ::= <any characters parsed by the type-specific formatter>
 ```
 
-The fill character can be any character other than `{` or `}`. The
-presence of a fill character is signaled by the character following it,
-which must be one of the alignment options. If the second character of
-format_spec is not a valid alignment option, then it is assumed that
-both the fill character and the alignment option are absent.
+> **Note on Parsing:** The parsing of the `format_spec` (the string after the `:`) is **solely dependent on the argument type**. While most types follow the `standard_format_spec` grammar, some types (like `struct tm`) define their own specialized mini-languages.
 
-The meaning of the various alignment options is as follows:
+> **Note on Macros:** Since `yio_printf` and related functions are C macros, arguments containing commas (like compound literals) must be wrapped in additional parentheses.
+> 
+> **Important Constraint:** An expression parsed by the library can contain **at most 62 commas**. This hardcoded limit is used by the preprocessor to detect and handle `yio_callback` invocations.
+> 
+> *Incorrect:* `yio_printf("{}", (struct timespec){.tv_sec=1, .tv_nsec=0})`
+> 
+> *Correct:* `yio_printf("{}", ((struct timespec){.tv_sec=1, .tv_nsec=0}))`
 
-| Option | Meaning                                                                                               |
-| ---    | ---                                                                                                   |
-| `'<'`  | Forces the field to be left-aligned within the available space (this is the default for not numbers). |
-| `'>'`  | Forces the field to be right-aligned within the available space (this is the default for numbers).    |
-| `'='`  | Forces the padding to be placed after the sign (if any) but before the digits.                        |
-| `'^'`  | Forces the field to be centered within the available space.                                           |
+---
 
-Note that unless a minimum field width is defined, the field width will
-always be the same size as the data to fill it, so that the alignment
-option has no meaning in this case.
+## 2. Formatting Options
 
-The sign option is only valid for number types, and can be one of the following:
+The options below apply to types following the `standard_format_spec`. For types with custom parsing (like Chrono), see Section 3.
 
-| Option | Meaning                                                                                                  |
-| ---    | ---                                                                                                      |
-| `'+'`  | Indicates that a sign should be used for both positive as well as negative numbers.                      |
-| `'-'`  | Indicates that a sign should be used only for negative numbers (this is the default behavior).           |
-| space  | indicates that a leading space should be used on positive numbers, and a minus sign on negative numbers. |
+### Alignment and Fill
+The presence of a `fill` character is signaled by the character following it, which must be a valid `align` option. Note: Alignment only has an effect if a `width` greater than the data size is specified.
 
-The `'#'` option causes the "alternate form" to be used for the
-conversion. The alternate form is defined differently for different
-types. This option is only valid for integer and floating-point types.
+| Option | Meaning | Default For |
+| :--- | :--- | :--- |
+| `<` | Left-aligned within the available space. | Non-numeric types |
+| `>` | Right-aligned within the available space. | Numeric types |
+| `=` | Padding is placed after the sign/base but before the digits. | - |
+| `^` | Centered within the available space. | - |
 
-| _type_              | Meaning                                                             |
-| ---                 | ---                                                                 |
-| `'b'`               | Prepend with `'0b'`                                                 |
-| `'B'`               | Prepend with `'0B'`                                                 |
-| `'o'`               | Prepend with `'0'`                                                  |
-| `'x'`               | Prepend with `'0x'`                                                 |
-| `'X'`               | Prepend with `'0X'`                                                 |
-| One of `'aAeEfFgG'` | The decimal point character is written even if no digits follow it. |
-| One of `'gG'`       | Additionally to above, the trailing zeros are removed.              |
+### Sign
+Specifies how signs are handled for numeric types.
 
-The _width_ is a decimal integer defining the minimum field width. If
-not specified, then the field width will be determined by the content.
+| Option | Meaning |
+| :--- | :--- |
+| `+` | Sign is used for both positive and negative numbers. |
+| `-` | Sign is used only for negative numbers (default). |
+| ` ` (space) | Leading space for positive numbers, minus for negative. |
 
-Preceding the width field by a zero (`'0'`) character enables sign-aware
-zero-padding for numeric types. It forces the padding to be placed
-after the sign or base (if any) but before the digits. This is used for
-printing fields in the form ‘+000000120’. This option is only valid
-for numeric types and it has no effect on formatting of infinity and NaN.
+### Alternate Form (`#`)
+The alternate form triggers type-specific presentation (detailed per-type in Section 3).
+- **Integers:** Adds base prefixes (`0b`, `0`, `0x`).
+- **Floating-point:** Forces a decimal point.
 
-The precision is a decimal number indicating how many digits should
-be displayed after the decimal point for a floating-point value
-formatted with `'f'` and `'F'`, or before and after the decimal point for
-a floating-point value formatted with `'g'` or `'G'`. For non-number types
-the field indicates the maximum field size - in other words, how many
-characters will be used from the field content. The precision is not
-allowed for integer, character, Boolean, and pointer values.
+### Zero Padding (`0`)
+Preceding the width with `0` is a shorthand for `0=` alignment (zero-fill after the sign/base).
 
-C string does __not__ have to be null-terminated if precision is specified.
+### Precision
+- **Floating-point:** Number of digits after the decimal point (`f`) or total significant digits (`g`).
+- **Strings:** Maximum number of characters to write.
+- **Integers/Pointers:** Not supported (error).
 
-The `'L'` option uses the current locale setting to insert the appropriate
-number separator characters. This option is only valid for numeric types.
+### Locale (`L`)
+Uses the current `LC_NUMERIC` locale for decimal points and grouping separators (requires `YIO_ENABLE_LOCALE`).
 
-Finally, the _type_ determines how the data should be presented.
+---
 
-The available string representation types are:
-- none, `s`: Copies the string to the output.
+## 3. Detailed Type Presentation
 
-The available `char` presentation types are:
-- none, `c`: Copies the character to the output.
-- `b`, `B`, `d`, `o`, `x`, `X`: Uses integer presentation types.
+The behavior of the `type` specifier and the `#` flag depends on the underlying argument type.
 
-The available `bool` presentation types are:
-- none, `s`: Copies textual representation (true or false, or the locale-specific form) to the output.
-  - The locale specific form are `YESSTR` or `NOSTR` from `nl_langinfo`.
-- `b`, `B`, `c`, `d`, `o`, `x`, `X`: Uses integer presentation types with the value `(unsigned char)value`.
+### Strings (`char *`, `const char *`, `wchar_t *`, `const wchar_t *`, `char16_t *`, `const char16_t *`, `char32_t *`, `const char32_t *`)
+- **none, `s`**: Copies the string to the output. Wide (`wchar_t`) and fixed-width (`char16_t`, `char32_t`) character strings are transparently converted to multibyte strings using the current locale's encoding (e.g., UTF-8 when in a UTF-8 locale).
+- **`precision`**: Specifies the maximum number of **bytes** written to the output. 
+  - If the string is shorter than the precision, the whole string is copied.
+  - If the string is longer, it is truncated to the specified byte length.
+  - The source string does **not** have to be null-terminated if a precision is provided.
+- **`#` flag**: No effect.
 
-The available integer presentation types:
-- `b`: Binary format. Outputs the number in base 2. Using the '#' option with this type adds the prefix "0b" to the output value.
-- `B`: Same as `b`, but with `0B` prefix.
-- `d`: Decimal integer. Outputs the number in base 10.
-- `o`: Octal format. Outputs the number in base 8. The base prefix is `0` if the corresponding argument value is nonzero and is empty otherwise.
-- `x`: Hex format. Outputs the number in base 16, using lower-case letters for the digits above 9. The base prefix is `0x`.
-- `X`: same as `x`, except that it uses uppercase letters for digits above 9 and the base prefix is `0X`.
-- none: same as `d`.
+### Display Width and Alignment
+When performing alignment (e.g., `{:<10}`), the library calculates the **display width** of the string rather than its byte length.
+- If unistring library usage is enabled (`YIO_HAS_UNISTRING`), it uses `libunistring` for precise width calculation.
+- Otherwise, if `wchar_t` is supported (`YIO_HAS_WCHAR_H`), it uses `wcwidth()` on each character of the string (after internal conversion to `wchar_t`).
+- This ensures that multibyte characters (like CJK characters or Emojis) are padded correctly according to their visual footprint.
 
-The available `bool` presentation types are:
-- none, `s`: Copies textual representation (`true` or `false`, or the locale-specific form) to the output.
-- `b`, `B`, `c`, `d`, `o`, `x`, `X`: Uses integer presentation types with the value `(unsigned)(value)`.
+### Characters (`char`)
+- **none, `c`**: Copies the character to the output.
+- **`b`, `B`, `d`, `o`, `x`, `X`**: Interprets the character as an integer and uses the Integer rules below.
+- **`#` flag**: Applicable if using integer presentation.
 
-The available floating-point presentation types are:
-- `a`, `A`, `e`, `E`, `f`, `F`, `g`, `G`: same as `printf`
+### Booleans (`bool`)
+- **none, `s`**: Textual representation (`true`/`false`). If `L` is present and locale is set, will use locale-specific forms (e.g., `YES`/`NO`).
+- **Any other type**: Interprets the boolean as a numeric digit (`0` or `1`) and uses the numeric presentation rules.
+- **`#` flag**: Adds base-specific prefixes (e.g., `0b`, `0x`) when using numeric presentation types like `b` or `x`.
 
-For lower-case presentation types, infinity and NaN are formatted as inf and nan, respectively. For upper-case presentation types, infinity and NaN are formatted as INF and NAN, respectively.
+### Integers
+Supported types include:
+- **Standard:** `signed char`, `unsigned char`, `short`, `unsigned short`, `int`, `unsigned int`, `long`, `unsigned long`, `long long`, `unsigned long long`.
+- **Extended:** `__int128`, `unsigned __int128` (if supported by compiler).
+- **Arbitrary-width:** `_BitInt(N)` (for compilers supporting C23 BitInt).
 
-The available `void *` presentation types are:
-- none, `p`: If std::uintptr_t is defined, produces the output as if by calling std::to_chars(first, last, reinterpret_cast<std::uintptr_t>(value), 16) with the prefix 0x added to the output; otherwise, the output is implementation-defined. 
+**Formatting:**
+- **none, `d`**: Decimal integer (base 10).
+- **`u`**: Unsigned decimal integer.
+- **`b`**: Binary (base 2). `#` adds `0b` prefix.
+- **`B`**: Binary (base 2). `#` adds `0B` prefix.
+- **`o`**: Octal (base 8). `#` adds `0` prefix if the value is non-zero.
+- **`x`**: Hexadecimal (base 16, lowercase). `#` adds `0x` prefix.
+- **`X`**: Hexadecimal (base 16, uppercase). `#` adds `0X` prefix.
+- **`#` flag**: Adds base-specific prefix as noted above.
 
-# Based on:
+### Floating-Point
+Supported types include:
+- **Standard:** `float`, `double`, `long double`.
+- **Interchange (C11):** `_Float16`, `_Float32`, `_Float64`, `_Float128`.
+- **Extended (C11):** `_Float32x`, `_Float64x`, `_Float128x`.
+- **Decimal (C11):** `_Decimal32`, `_Decimal64`, `_Decimal128`.
+- **Decimal Extended (C11):** `_Decimal32x`, `_Decimal64x`, `_Decimal128x`.
+- **Complex:** `float _Complex`, `double _Complex`, `long double _Complex`.
+- **Imaginary:** `float _Imaginary`, `double _Imaginary`, `long double _Imaginary`.
 
-- Parts taken from https://fmt.dev/latest/syntax.html © Copyright 2012-present, Victor Zverovich
+**Formatting:**
+- **none (Default), `g`, `G`**: General format; adaptive selection between `f` and `e`.
+- **`f`, `F`**: Fixed-point notation.
+- **`e`, `E`**: Scientific notation.
+- **`a`, `A`**: Hexadecimal floating-point notation.
+- **`precision`**: Default is **6** (for `a`, it defaults to the minimum required for an exact representation).
+- **`#` flag**: Forces the output to always include a decimal point, even if no digits follow.
 
-```
-Copyright (c) 2012 - present, Victor Zverovich
+### Complex and Imaginary
+Complex and imaginary numbers are handled by separate formatters. The format string is currently ignored.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+**Supported types:**
+- **Complex:** `float _Complex`, `double _Complex`, `long double _Complex`.
+- **Imaginary:** `float _Imaginary`, `double _Imaginary`, `long double _Imaginary`.
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+**Output Format:**
+- **Complex:** Printed as `[+-]real[+-]imagi`. 
+  - *Example:* `1.0 + 2.0i` -> `1.000000+2.000000i`
+- **Imaginary:** Printed as `[+-]imaginaryi`.
+  - *Example:* `2.0i` -> `2.000000i`
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+### Fixed-Point (`_Accum`, `_Fract`)
+- **none (Default), `f`, `F`**: Formats as a decimal fraction.
+- **`g`, `G`**: Adaptive fractional format; strips trailing zeros and the decimal point if empty.
+- **`a`, `A`**: Hexadecimal floating-point notation.
+- **`d`, `u`, `x`**: Interprets the underlying bits as an integer and uses the Integer rules (after taking the absolute value for signed types).
+- **`precision`**: Default is **6**.
 
---- Optional exception to the license ---
+### Pointers (`void *`, `const void *`)
+- **none, `p`**: Formats the address as hexadecimal with a `0x` prefix.
+- **`#` flag**: No effect (base prefix is always present).
 
-As an exception, if, as a result of your compiling your source code, portions of this Software are embedded into a machine-executable object form of such source code, you may redistribute such embedded portions in such object form without including the above copyright and permission notices.
-```
+### System Types
+- **`struct tm`**: Time formatting using `strftime` with optional alignment and width.
+  ```ebnf
+  chrono_format_spec ::= [[fill]align][width]["." precision][strftime_specs]
+  ```
+  The `strftime_specs` part is passed directly to the system `strftime` function. If empty, it defaults to `%c`.
+  *Example:* `{:%Y-%m-%d %H:%M:%S}` -> `2026-05-05 14:30:00`.
+- **`struct timespec`, `struct timeval`**:
+  - **none (Default)**: Formats as a breakdown interval: `HH:MM:SS.fraction`. `HH` represents total hours (can exceed 24), while `MM` and `SS` are zero-padded to 2 digits.
+  - **`f`**: Formats as flat decimal seconds: `total_seconds.fraction`.
+  - **`g`**: Same as above, but strips trailing zeros and the decimal point if the fractional part is empty.
+  - **`#` flag**: When used with the default format, it strips trailing zeros (Note: **Currently unimplemented**).
+  - **`precision`**: Defines the number of fractional digits. Defaults: `timespec` (9), `timeval` (6).
 
-- Parts taken from https://docs.python.org/3/library/string.html#formatspec © Copyright 2001-2022, Python Software Foundation.
+---
 
-```
-1. This LICENSE AGREEMENT is between BeOpen.com ("BeOpen"), having an office at
-   160 Saratoga Avenue, Santa Clara, CA 95051, and the Individual or Organization
-   ("Licensee") accessing and otherwise using this software in source or binary
-   form and its associated documentation ("the Software").
+## 4. Argument Resolution
 
-2. Subject to the terms and conditions of this BeOpen Python License Agreement,
-   BeOpen hereby grants Licensee a non-exclusive, royalty-free, world-wide license
-   to reproduce, analyze, test, perform and/or display publicly, prepare derivative
-   works, distribute, and otherwise use the Software alone or in any derivative
-   version, provided, however, that the BeOpen Python License is retained in the
-   Software, alone or in any derivative version prepared by Licensee.
+### Sequential and Positional
+- **Sequential:** `{}` fields consume arguments in the order they are provided.
+- **Positional:** `{n}` accesses the $n$-th argument (0-indexed).
+- **Mixed:** Sequential tracking continues from the last positional index plus one. (Note: This is current behavior and may change in the future).
 
-3. BeOpen is making the Software available to Licensee on an "AS IS" basis.
-   BEOPEN MAKES NO REPRESENTATIONS OR WARRANTIES, EXPRESS OR IMPLIED.  BY WAY OF
-   EXAMPLE, BUT NOT LIMITATION, BEOPEN MAKES NO AND DISCLAIMS ANY REPRESENTATION OR
-   WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE OR THAT THE
-   USE OF THE SOFTWARE WILL NOT INFRINGE ANY THIRD PARTY RIGHTS.
+### Dynamic Parameters
+Width and precision can be provided as runtime arguments using nested fields:
+`{:{}.{}f}` (takes 3 arguments: value, width, precision).
 
-4. BEOPEN SHALL NOT BE LIABLE TO LICENSEE OR ANY OTHER USERS OF THE SOFTWARE FOR
-   ANY INCIDENTAL, SPECIAL, OR CONSEQUENTIAL DAMAGES OR LOSS AS A RESULT OF USING,
-   MODIFYING OR DISTRIBUTING THE SOFTWARE, OR ANY DERIVATIVE THEREOF, EVEN IF
-   ADVISED OF THE POSSIBILITY THEREOF.
+---
 
-5. This License Agreement will automatically terminate upon a material breach of
-   its terms and conditions.
+## 5. References
 
-6. This License Agreement shall be governed by and interpreted in all respects
-   by the law of the State of California, excluding conflict of law provisions.
-   Nothing in this License Agreement shall be deemed to create any relationship of
-   agency, partnership, or joint venture between BeOpen and Licensee.  This License
-   Agreement does not grant permission to use BeOpen trademarks or trade names in a
-   trademark sense to endorse or promote products or services of Licensee, or any
-   third party.  As an exception, the "BeOpen Python" logos available at
-   http://www.pythonlabs.com/logos.html may be used according to the permissions
-   granted on that web page.
-
-7. By copying, installing or otherwise using the software, Licensee agrees to be
-   bound by the terms and conditions of this License Agreement.
-```
-
-- Parts taken from https://en.cppreference.com/w/cpp/utility/format/formatter#Standard_format_specification and most probably from https://en.cppreference.com/w/c/io/fprintf . Licensed under http://creativecommons.org/licenses/by-sa/3.0/ .
-
-# Written by
-
-Kamil Cukrowski © Copyright 2022
+Yio tries to align its format specification with modern high-level language standards:
+- **Python:** [Format Specification Mini-Language](https://docs.python.org/3/library/string.html#formatspec)
+- **C++:** [Standard Format Specification (std::format)](https://en.cppreference.com/w/cpp/utility/format/formatter#Standard_format_specification)
+- **Rust:** [std::fmt syntax](https://doc.rust-lang.org/std/fmt/index.html#syntax)
