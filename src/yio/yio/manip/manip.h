@@ -30,13 +30,27 @@ extern "C" {
 #include "../../yio_config.h"
 #include "print_float.h"
 #include "print_wchars.h"
-#include "print_time.h"
+#include "print_tm.h"
+#include "print_timevalspec.h"
 #include "print_stdfix.h"
 #include "print_complex.h"
 #include "print_pfmt.h"
 #include "print_mon.h"
 #include "print_int.h"
 #include "print_repr.h"
+
+#ifdef __SDCC
+#define YYIO_PRINT_GENERIC_TIME() \
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
+		YYIO_PRINT_GENERIC_TIMESPEC() \
+		YYIO_PRINT_GENERIC_TIMEVAL()
+#else
+#define YYIO_PRINT_GENERIC_TIME() \
+		YYIO_OVERLOAD_TYPE_FUNC(struct tm, YYIO_print_tm) \
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
+		YYIO_PRINT_GENERIC_TIMESPEC() \
+		YYIO_PRINT_GENERIC_TIMEVAL()
+#endif
 
 #ifndef YIO_HAS_UCHAR_H
 #error YIO_HAS_UCHAR_H

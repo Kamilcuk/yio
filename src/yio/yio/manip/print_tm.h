@@ -6,23 +6,14 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
-#define YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
+#ifndef YYIO_YIO_YIO_MANIP_PRINT_TM_H_
+#define YYIO_YIO_YIO_MANIP_PRINT_TM_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "../ctx_types.h"
 #include <time.h>
-#ifndef YYIO_HAS_timespec
-#error
-#endif
-#ifndef YYIO_HAS_timeval
-#error
-#endif
-#if YYIO_HAS_timespec || YYIO_HAS_timeval
-#include <sys/time.h>
-#endif
 
 /**
  * Copies the formatting string that will be passed to strftime
@@ -58,36 +49,7 @@ int YYIO_print_gmtime(yio_printctx_t *t);
  */
 #define yio_gmtime(v)     yio_callback(YYIO_print_gmtime, (time_t)(v))
 
-#if YYIO_HAS_timespec
-int YYIO_print_timespec(yio_printctx_t *t);
-#define YYIO_PRINT_GENERIC_TIMESPEC() \
-		YYIO_OVERLOAD_TYPE_FUNC(struct timespec, YYIO_print_timespec)
-#else
-#define YYIO_PRINT_GENERIC_TIMESPEC()
-#endif
-
-#if YYIO_HAS_timeval
-int YYIO_print_timeval(yio_printctx_t *t);
-#define YYIO_PRINT_GENERIC_TIMEVAL() \
-		YYIO_OVERLOAD_TYPE_FUNC(struct timeval, YYIO_print_timeval)
-#else // YYIO_HAS_timeval
-#define YYIO_PRINT_GENERIC_TIMEVAL()
-#endif // YYIO_HAS_timeval
-
-#ifdef __SDCC
-#define YYIO_PRINT_GENERIC_TIME() \
-		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
-		YYIO_PRINT_GENERIC_TIMESPEC() \
-		YYIO_PRINT_GENERIC_TIMEVAL()
-#else
-#define YYIO_PRINT_GENERIC_TIME() \
-		YYIO_OVERLOAD_TYPE_FUNC(struct tm, YYIO_print_tm) \
-		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
-		YYIO_PRINT_GENERIC_TIMESPEC() \
-		YYIO_PRINT_GENERIC_TIMEVAL()
-#endif
-
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_MANIP_PRINT_TIME_H_
+#endif // YYIO_YIO_YIO_MANIP_PRINT_TM_H_
