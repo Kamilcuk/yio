@@ -25,13 +25,15 @@ extern "C" {
  * @{
  */
 /**
- * The hearth of this library. The function write the data from
- * Yio printing data to the output function.
- * @param out Callback function to write output.
- * @param arg The argumnet passed to callback function.
- * @param data Pointer to printing context.
- * @param va Pointer to va_list.
- * @return Number of characters written or negative on error.
+ * The heart of this library. The function writes formatted data to a user-provided output callback.
+ * It uses a pre-calculated yio_printdata_t array to determine how to format each argument.
+ * 
+ * @param out Callback function to write output (writes to a file, buffer, or network).
+ * @param arg User-defined argument passed to the callback function (a FILE* or buffer pointer).
+ * @param data Pointer to the pre-calculated printing context data array (terminated by NULL).
+ * @param fmt The format string containing replacement fields like "{}".
+ * @param va Pointer to the va_list containing the arguments to be formatted.
+ * @return Number of characters written or a negative value on error (see yio_error.h).
  */
 YYIO_nn(1, 3, 5)
 int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
@@ -63,11 +65,19 @@ YYIO_nn(1, 2, 4)
 int yio_vasprintf(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Appends the formatted string to the existing string storage.
- * @param strp If is NULL, a new string is allocated, otherwise it is reallocated.
- * @param data
- * @param va
- * @return Number of characters written or negative on error.
- *         In case of memory error the pointer strp is freed and is set to NULL.
+ * 
+ * If *strp is NULL, a new string is allocated. Otherwise, the existing string
+ * is reallocated to accommodate the new content. The function assumes that
+ * the current string was previously allocated via malloc/realloc and is
+ * null-terminated.
+ * 
+ * @param strp Pointer to the string pointer. Updated on success/failure.
+ * @param data Pre-calculated printing data.
+ * @param fmt Format string.
+ * @param va Variadic arguments.
+ * @return Number of characters written or a negative value on error.
+ *         IMPORTANT: In case of memory error (realloc failure), the original
+ *         pointer *strp is freed and set to NULL to prevent leaks.
  */
 YYIO_nn(1, 2, 4)
 int yio_vappend(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);

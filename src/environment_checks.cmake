@@ -272,28 +272,53 @@ yio_config_gen_add(YYIO_MUSL_BROKEN_EXP10)
 #########################################################################
 # handle and detect stdfix
 
-yio_config_gen_check_include_file("stdfix.h"  YYIO_HAS_STDFIX_H)
-yio_config_gen_check_type_exists(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
-yio_config_gen_add(YYIO_HAS_STDFIX_TYPES)
+# Detect stdfix support.
+# Clang requires -ffixed-point flag to enable stdfix types.
+check_type_exists_bool(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
+
+# Clang 18.1.3 has a known bug where va_arg() with fixed-point types causes an Internal Compiler Error (ICE) or ABI mismatch.
+# Known BAD: Clang < 21.0.0
+# Known GOOD: Clang >= 21.1.7
+if(YYIO_HAS_STDFIX_TYPES AND CMAKE_C_COMPILER_ID STREQUAL "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_LESS "21.0.0")
+	message(STATUS "Disabling stdfix support due to va_arg bug in Clang ${CMAKE_C_COMPILER_VERSION}")
+	set(YYIO_HAS_STDFIX_TYPES 0)
+elseif(YYIO_HAS_STDFIX_TYPES AND CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	yio_config_gen_check_c_source_compiles("
+		#include <stdarg.h>
+		void f(va_list ap) { _Accum a = va_arg(ap, _Accum); (void)a; }
+		int main() { return 0; }
+	" YYIO_HAS_STDFIX_TYPES)
+	if(NOT YYIO_HAS_STDFIX_TYPES)
+		message(STATUS "Disabling stdfix support due to va_arg bug in Clang ${CMAKE_C_COMPILER_VERSION}")
+	endif()
+else()
+	yio_config_gen_add(YYIO_HAS_STDFIX_TYPES)
+endif()
+set(_stdfix_types
+	"short _Fract" "_Fract" "long _Fract" "long long _Fract"
+	"short _Accum" "_Accum" "long _Accum" "long long _Accum"
+	"unsigned short _Fract" "unsigned _Fract" "unsigned long _Fract" "unsigned long long _Fract"
+	"unsigned short _Accum" "unsigned _Accum" "unsigned long _Accum" "unsigned long long _Accum"
+)
+set(_stdfix_suffixes
+	"SFRACT" "FRACT" "LFRACT" "LLFRACT"
+	"SACCUM" "ACCUM" "LACCUM" "LLACCUM"
+	"USFRACT" "UFRACT" "ULFRACT" "ULLFRACT"
+	"USACCUM" "UACCUM" "ULACCUM" "ULLACCUM"
+)
 if(YYIO_HAS_STDFIX_TYPES)
-    set(_stdfix_types
-        "short _Fract" "_Fract" "long _Fract" "long long _Fract"
-        "short _Accum" "_Accum" "long _Accum" "long long _Accum"
-        "unsigned short _Fract" "unsigned _Fract" "unsigned long _Fract" "unsigned long long _Fract"
-        "unsigned short _Accum" "unsigned _Accum" "unsigned long _Accum" "unsigned long long _Accum"
-    )
-    set(_stdfix_suffixes
-        "SFRACT" "FRACT" "LFRACT" "LLFRACT"
-        "SACCUM" "ACCUM" "LACCUM" "LLACCUM"
-        "USFRACT" "UFRACT" "ULFRACT" "ULLFRACT"
-        "USACCUM" "UACCUM" "ULACCUM" "ULLACCUM"
-    )
-    set(i 0)
-    foreach(type IN LISTS _stdfix_types)
-        list(GET _stdfix_suffixes ${i} suffix)
-        yio_config_gen_check_type_exists("${type}" YYIO_HAS_STDFIX_${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
-        math(EXPR i "${i} + 1")
-    endforeach()
+	yio_config_gen_check_include_file("stdfix.h"  YYIO_HAS_STDFIX_H)
+	set(i 0)
+	foreach(type IN LISTS _stdfix_types)
+		list(GET _stdfix_suffixes ${i} suffix)
+		yio_config_gen_check_type_exists("${type}" YYIO_HAS_STDFIX_${suffix} BUILTIN_TYPES_ONLY LANGUAGE C)
+		math(EXPR i "${i} + 1")
+	endforeach()
+else()
+	yio_config_gen_add_value(YYIO_HAS_STDFIX_H 0)
+	foreach(suffix IN LISTS _stdfix_suffixes)
+		yio_config_gen_add_value(YYIO_HAS_STDFIX_${suffix} 0)
+	endforeach()
 endif()
 
 #########################################################################

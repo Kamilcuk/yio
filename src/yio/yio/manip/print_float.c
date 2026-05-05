@@ -38,8 +38,7 @@ int YYIO_print_float_$2$1(yio_printctx_t *t) {
 static inline int YYIO_print_float_$2$1_in(yio_printctx_t *t, YYIO_FLOAT$1 var) {
 	int err = yio_printctx_init(t);
 	if (err) return err;
-	// TODO: fun fact, this converts from wchar/char16/char32 -> char. Convert for real with some checks here.
-	const char type = (char)(t->pf.type ? t->pf.type : 'g');
+	const char type = t->pf.type ? t->pf.type : 'g';
 	const int precision =  t->pf.precision;
 	YYIO_string res;
 	YYIO_string_init(&res);

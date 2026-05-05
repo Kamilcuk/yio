@@ -50,6 +50,9 @@ For quick one-liner tests:
 ### NEVER USE GIT
 - NEVER stage or commit any changes using git unless the user explicitly told you to.
 
+### Temporary Files
+- Always create temporary files in `/tmp` to avoid polluting the workspace.
+
 ### Templating System
 Most of the codebase is generated from templates in `src/yio/yio/`. When editing implementation:
 - Edit the files in `src/yio/yio/`, NOT the generated files in the build directory.
