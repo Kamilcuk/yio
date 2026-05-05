@@ -28,6 +28,7 @@ int main() {
 
 	t.tv_usec = 0;
 	YIO_TEST_EQ("1234567", "{:g}", t);
+	YIO_TEST_EQ("1234567", "{:.0g}", t);
 	YIO_TEST_EQ("342:56:07", "{:#}", t);
 
 	struct timeval t2 = { .tv_sec = 1, .tv_usec = 1 };

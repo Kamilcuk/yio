@@ -8,6 +8,7 @@
  */
 #define _POSIX_C_SOURCE  1
 #include "private.h"
+#include "yio/private/yio_string.h"
 #include <time.h>
 #if YYIO_HAS_UNISTD_H
 #include <sys/time.h>
@@ -20,12 +21,22 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 	const char type = pf->type;
 	const int precision = (int)yio_precision_get_default(pf->precision, (size_t)precision_default);
 
+	long long max_nsec = 1;
+	for (int i = 0; i < precision_default; ++i) max_nsec *= 10;
+
+	sec += nsec / max_nsec;
+	nsec %= max_nsec;
+	if (nsec < 0) {
+		nsec += max_nsec;
+		sec--;
+	}
+
+	const bool is_neg = sec < 0;
+	const unsigned long long abs_sec = is_neg ? (unsigned long long)-(sec + (nsec != 0)) : (unsigned long long)sec;
+	const unsigned long long abs_nsec = is_neg ? (nsec == 0 ? 0 : (unsigned long long)(max_nsec - nsec)) : (unsigned long long)nsec;
+
 	YYIO_string res;
 	YYIO_string_init(&res);
-
-	const bool is_neg = sec < 0 || nsec < 0;
-	const unsigned long long abs_sec = (unsigned long long)(sec < 0 ? -(unsigned long long)sec : (unsigned long long)sec);
-	const unsigned long long abs_nsec = (unsigned long long)(nsec < 0 ? -(unsigned long long)nsec : (unsigned long long)nsec);
 
 	int err = 0;
 	unsigned long long fraction = abs_nsec;
@@ -42,10 +53,11 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 		if (err) goto end;
 	}
 
+	const bool dot_added = precision > 0 || pf->hash;
 	if (type == 'f' || type == 'g') {
 		err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){0}, abs_sec);
 		if (err) goto end;
-		if (precision > 0 || pf->hash) {
+		if (dot_added) {
 			err = YYIO_string_putc(&res, '.');
 			if (err) goto end;
 			if (precision > 0) {
@@ -67,7 +79,7 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 		if (err) goto end;
 		err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, s);
 		if (err) goto end;
-		if (precision > 0 || pf->hash) {
+		if (dot_added) {
 			err = YYIO_string_putc(&res, '.');
 			if (err) goto end;
 			if (precision > 0) {
@@ -80,21 +92,8 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 		goto end;
 	}
 
-	if (type == 'g' || (type == '\0' && pf->hash)) {
-		const size_t len = YYIO_string_len(&res);
-		if (len > 0) {
-			char * const data = YYIO_string_data(&res);
-			char *p = data + len - 1;
-			while (p > data && *p == '0') {
-				--p;
-			}
-			if (*p == '.') {
-				// remove dot
-			} else {
-				++p;
-			}
-			YYIO_string_set_used(&res, (size_t)(p - data));
-		}
+	if ((type == 'g' || (type == '\0' && pf->hash)) && dot_added) {
+		YYIO_string_remove_trailing_zeros_and_dot(&res);
 	}
 	err = yio_printctx_put(t, YYIO_string_data(&res), YYIO_string_len(&res));
 

@@ -219,6 +219,32 @@ static inline bool YYIO_string_equal(const YYIO_string *a, const YYIO_string *b)
     return memcmp(YYIO_string_data((YYIO_string *)a), YYIO_string_data((YYIO_string *)b), len_a) == 0;
 }
 
+/**
+ * Removes trailing zeros and the decimal point from the string.
+ * Assumes that the string represents a floating point number and HAS a decimal point.
+ * @param t The string to modify.
+ * @return true if the decimal point was removed.
+ */
+static inline bool YYIO_string_remove_trailing_zeros_and_dot(YYIO_string *t) {
+	bool dot_removed = false;
+	const size_t len = YYIO_string_len(t);
+	if (len == 0) return false;
+	char * const data = YYIO_string_data(t);
+	// Ensure there is a dot. If not, this function should not be called.
+	assert(strchr(data, '.') != NULL);
+	char *p = data + len - 1;
+	while (p > data && *p == '0') {
+		--p;
+	}
+	if (*p == '.') {
+		dot_removed = true;
+	} else {
+		++p;
+	}
+	YYIO_string_set_used(t, (size_t)(p - data));
+	return dot_removed;
+}
+
 #ifdef __cplusplus
 }
 #endif

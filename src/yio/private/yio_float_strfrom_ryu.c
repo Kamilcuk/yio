@@ -122,27 +122,6 @@ int YYIO_float_astrfrom_ryul(YYIO_string *res, int precision0, char spec, YYIO_F
 #define YYIO_RYU_SHORTEST_MAX_f 15
 #define YYIO_RYU_SHORTEST_MAX_d 25
 
-static inline
-bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
-	bool fractional_part_removed = false;
-	const size_t len = YYIO_string_len(t);
-	if (len == 0) return false;
-	char * const data = YYIO_string_data(t);
-	char *p = data + len - 1;
-	// there is dot, so the following loop will always stop
-	while (p != data && *p == '0') {
-		--p;
-	}
-	assert(YYIO_isxdigit(*p) || *p == '.');
-	if (*p != '.') {
-		++p;
-	} else {
-		fractional_part_removed = true;
-	}
-	YYIO_string_set_used(t, (size_t)(p - data));
-	return fractional_part_removed;
-}
-
 {% call j_FOREACHAPPLY(["f", "d"]) %}
 #line
 
@@ -174,7 +153,7 @@ int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YY
       len = d2fixed_buffered_n(val, 6, YYIO_string_data(res));
       if (len > 0) {
       	YYIO_string_set_used(res, len);
-      	YYIO_string_remove_trailing_zeros_and_comma(res);
+      	YYIO_string_remove_trailing_zeros_and_dot(res);
       	return 0;
       }
     } else {

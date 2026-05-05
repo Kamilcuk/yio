@@ -88,28 +88,6 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 	return err;
 }
 
-
-static inline
-bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
-	bool fractional_part_removed = false;
-	const size_t len = YYIO_string_len(t);
-	if (len == 0) return false;
-	char * const data = YYIO_string_data(t);
-	char *p = data + len - 1;
-	// there is dot, so the following loop will always stop
-	while (p != data && *p == '0') {
-		--p;
-	}
-	assert(YYIO_isxdigit(*p) || *p == '.');
-	if (*p != '.') {
-		++p;
-	} else {
-		fractional_part_removed = true;
-	}
-	YYIO_string_set_used(t, (size_t)(p - data));
-	return fractional_part_removed;
-}
-
 {% call(V) j_FOREACHAPPLY(j_FLOATS) %}
 #line
 #ifndef YIO_HAS_FLOAT$1
@@ -350,7 +328,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 			}
 		}
 		if (spec0lower == 'g' || spec0lower == 'a') {
-			YYIO_string_remove_trailing_zeros_and_comma(v);
+			YYIO_string_remove_trailing_zeros_and_dot(v);
 		}
 	}
 
