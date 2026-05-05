@@ -33,15 +33,4 @@ int main() {
 	_(_Float128x);
 #endif
 #endif // #if YYIO_USE__FLOATN
-#if YYIO_USE__DECIMALN
-#ifdef DEC32_DECIMAL_DIG
-	_(_Decimal32);
-#endif
-#ifdef DEC64_DECIMAL_DIG
-	_(_Decimal64);
-#endif
-#ifdef DEC128_DECIMAL_DIG
-	_(_Decimal128);
-#endif
-#endif // #if YYIO_USE__DECIMALN
 }

@@ -164,6 +164,34 @@ static int YYIO_string_yprintf_cb(void *ptr, const char * __sized_by(count) data
 }
 
 int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
+int YYIO_print_ulong_in(yio_printctx_t *t, unsigned long arg, bool is_negative);
+#if YYIO_HAS_LLONG
+int YYIO_print_ullong_in(yio_printctx_t *t, unsigned long long arg, bool is_negative);
+#endif
+#if YYIO_HAS_INT128
+int YYIO_print_uint128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_negative);
+#endif
+
+static inline int YYIO_string_print_u_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned int v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_uint_in(&ctx, v, false);
+}
+static inline int YYIO_string_print_ul_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_ulong_in(&ctx, v, false);
+}
+#if YYIO_HAS_LLONG
+static inline int YYIO_string_print_ull_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long long v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_ullong_in(&ctx, v, false);
+}
+#endif
+#if YYIO_HAS_INT128
+static inline int YYIO_string_print_u128_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned __int128 v) {
+    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    return YYIO_print_uint128_in(&ctx, v, false);
+}
+#endif
 
 static inline int YYIO_string_print_int(YYIO_string *t, struct yio_printfmt_s fmt, int val) {
 	yio_printctx_t ctx = {

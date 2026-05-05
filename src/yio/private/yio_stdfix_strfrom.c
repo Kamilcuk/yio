@@ -19,45 +19,13 @@
 
 
 
-static inline int YYIO_string_print_u_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned int v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
-    return YYIO_print_uint_in(&ctx, v, false);
-}
-static inline int YYIO_string_print_ul_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
-    return YYIO_print_ulong_in(&ctx, v, false);
-}
-#if YYIO_HAS_LLONG
-static inline int YYIO_string_print_ull_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long long v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
-    return YYIO_print_ullong_in(&ctx, v, false);
-}
-#endif
-#if YYIO_HAS_INT128
-static inline int YYIO_string_print_u128_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned __int128 v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
-    return YYIO_print_uint128_in(&ctx, v, false);
-}
-#endif
-
-#if YYIO_HAS_LLONG
-#define YYIO_IF_HAS_LLONG(...) __VA_ARGS__
-#else
-#define YYIO_IF_HAS_LLONG(...)
-#endif
-#if YYIO_HAS_INT128
-#define YYIO_IF_HAS_INT128(...) __VA_ARGS__
-#else
-#define YYIO_IF_HAS_INT128(...)
-#endif
-
 #define YYIO_string_print_number(o, pf, v) _Generic((v), \
     unsigned char: YYIO_string_print_u_in, \
     unsigned short: YYIO_string_print_u_in, \
     unsigned int: YYIO_string_print_u_in, \
     unsigned long: YYIO_string_print_ul_in \
-    YYIO_IF_HAS_LLONG(, unsigned long long: YYIO_string_print_ull_in) \
-    YYIO_IF_HAS_INT128(, unsigned __int128: YYIO_string_print_u128_in) \
+    YYIO_IF(YYIO_HAS_LLONG, , unsigned long long: YYIO_string_print_ull_in) \
+    YYIO_IF(YYIO_HAS_INT128, , unsigned __int128: YYIO_string_print_u128_in) \
 )(o, pf, v)
 
 // Represents the type we will use to represnt stdfix types as an unsigned integer.

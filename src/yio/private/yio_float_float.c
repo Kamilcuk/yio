@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-{% call j_FOREACHAPPLY(["f", "d", "l", "f16", "f32", "f64", "f128", "f32x", "f64x", "f128x"]) %}
+{% call j_FOREACHAPPLY(["f", "d", "l", "f16", "f32", "f64", "f128", "f32x", "f64x", "f128x", "d32", "d64", "d128", "d32x", "d64x", "d128x"]) %}
 
 /* suffix $1 ---------------------------------------------------- */
 

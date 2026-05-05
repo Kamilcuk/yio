@@ -87,10 +87,10 @@ BUILDFLAGS += --verbose
 CTESTFLAGS += -V
 endif
 
-ifdef ONE
+ifdef ONLY
 CTESTFLAGS += -j 1 -V
-R = ^$(ONE)$$
-T = $(ONE)
+R = ^$(ONLY)$$
+T = $(ONLY)
 endif
 
 ifdef VALGRIND
@@ -115,7 +115,7 @@ conf config configure $(B) $(B)/compile_commands.json:
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: conf
-	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep $(R) || echo all),$(if $(value T),$T,$*)) -j $(NPROC) <&-
+	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep '$(R)' || echo all),$(if $(value T),$T,$*)) -j $(NPROC) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen

@@ -139,7 +139,7 @@ bool YYIO_string_remove_trailing_zeros_and_comma(YYIO_string *t) {
 #define DEC_NAN  __builtin_nan$1("")
 #endif
 #define ISINF(x)  (x == DEC_INFINITY || x == -DEC_INFINITY)
-#define FPCLASSIFY(x)  (ISINF(x) ? FP_INFINITE : x != x ? DEC_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
+#define FPCLASSIFY(x)  (ISINF(x) ? FP_INFINITE : x != x ? FP_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
 #else
 #define ISINF  isinf
 #define FPCLASSIFY fpclassify
@@ -290,8 +290,7 @@ int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYP
 		exponent = exponent10;
 		val = val10;
 	} else {
-		assert(0);
-		return YIO_ERROR_FMT_INVALID;
+	  return YIO_ERROR_FMT_INVALID;
 	}
 
 	// at this point, val should be after frexp
