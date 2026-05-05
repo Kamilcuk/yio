@@ -150,7 +150,16 @@ endif()
 
 set_from_env(TESTPROGRAM)
 if(DEFINED TESTPROGRAM AND NOT TESTPROGRAM STREQUAL "")
-  set(source "
+  if(TESTPROGRAM MATCHES "main[ \t\r\n]*\\(")
+    set(source "
+#include <stdio.h>
+#include <stdlib.h>
+#include <float.h>
+#include <yio_test.h>
+${TESTPROGRAM}
+")
+  else()
+    set(source "
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
@@ -159,6 +168,7 @@ int main() {
   ${TESTPROGRAM}
   return 0;
 }")
+  endif()
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c "${source}")
   message(STATUS "COMPILING:
 ${source}")
