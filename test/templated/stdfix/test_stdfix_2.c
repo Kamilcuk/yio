@@ -16,8 +16,11 @@
 #error leaked stdfix.h to public headers
 #endif
 
+#include <stdio.h>
 int main() {
-#if YYIO_HAS_STDFIX_TYPES
+	#if !YYIO_HAS_STDFIX_TYPES
+	return 77;
+	#else
 	{
 		const short _Fract a = 0.123456789;
 		YIO_TEST((.rgx="f 0.1[12][^ ]* [^ ]*"), "{:x} {} {:a}", a, a, a);

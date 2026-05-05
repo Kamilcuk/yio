@@ -18,7 +18,7 @@ set(modes yio)
 
 file(GLOB_RECURSE srcs RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" *.c *.h)
 if(NOT YYIO_HAS_STDFIX_TYPES)
-	list(FILTER srcs EXCLUDE REGEX "stdfix/")
+	#list(FILTER srcs EXCLUDE REGEX "stdfix/")
 endif()
 if(NOT YYIO_HAS_COMPLEX)
 	list(FILTER srcs EXCLUDE REGEX "complex/")

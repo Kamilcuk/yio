@@ -30,10 +30,13 @@ static int hex_dot_hex_to_int(char *str) {
 	return r;
 }
 
+#include <stdio.h>
 int main() {
+	#if !YYIO_HAS_STDFIX_TYPES
+	return 77;
+	#else
 	char buf[128];
 	int ret;
-#if YYIO_HAS_STDFIX_TYPES
 	{
 		const _Fract a = 0.5r;
 		ret = yio_snprintf(buf, sizeof(buf), "{}", a);

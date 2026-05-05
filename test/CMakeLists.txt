@@ -19,10 +19,6 @@ endif()
 function(yio_add_test T_SOURCE)
 	cmake_parse_arguments(T "" "NAME;REALFILE;GETNAME" "LABELS" ${ARGN})
 
-	# stdfix are run only if we have stdfix
-	if(NOT YYIO_HAS_STDFIX_TYPES AND T_SOURCE MATCHES "stdfix")
-		return()
-	endif()
 
 	if(NOT T_REALFILE)
 		set(T_REALFILE ${T_SOURCE})
@@ -45,6 +41,7 @@ function(yio_add_test T_SOURCE)
 	set_tests_properties(${T_NAME} PROPERTIES
 		LABELS "${T_LABELS}"
 		TIMEOUT 10
+		SKIP_RETURN_CODE 77
 	)
 	test_extract_properties_from_file(${T_NAME} ${T_NAME} ${T_REALFILE})
 

@@ -9,7 +9,11 @@
 #include <yio_test_private.h>
 #include <yio/private/yio_stdfix.h>
 
+#include <stdio.h>
 int main() {
+	#if !YYIO_HAS_STDFIX_TYPES
+	return 77;
+	#else
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
 #ifdef YYIO_STDFIX_$3
@@ -22,4 +26,5 @@ int main() {
 	}
 #endif
 	{% endcall %}
+	#endif
 }
