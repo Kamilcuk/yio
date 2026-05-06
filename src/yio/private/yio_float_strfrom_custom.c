@@ -63,27 +63,17 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 	int err = 0;
 	const bool print_scientific_suffix = speclower == 'e' || speclower == 'a';
 	if (print_scientific_suffix) {
-		assert(strchr("eEaA", spec) != NULL);
-		const char letter = (char)(dec ? spec : is_lower_spec ? 'p' : 'P');
-		err = YYIO_string_putc(v, letter);
-		if (err) return err;
-		{
-			yio_printctx_t ctx = {
-				.pf = {
-					.width = dec ? 3 : 0,
-					.fill = '0',
-					.align = '=',
-					.sign = '+',
-				},
-				.out = YYIO_string_yprintf_cb,
-				.outarg = v,
-			};
-			const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
-			const bool is_neg = adjusted_exponent < 0;
-			const unsigned abs_val = is_neg ? -(unsigned)adjusted_exponent : (unsigned)adjusted_exponent;
-			err = YYIO_print_uint_in(&ctx, abs_val, is_neg);
-		}
-		if (err) return err;
+	  assert(strchr("eEaA", spec) != NULL);
+	  const char letter = (char)(dec ? spec : is_lower_spec ? 'p' : 'P');
+	  err = YYIO_string_putc(v, letter);
+	  if (err) return err;
+	  const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
+	  err = YYIO_string_print_int(v, (struct yio_printfmt_s){
+	    .width = dec ? 3 : 0,
+	    .fill = '0',
+	    .align = '=',
+	    .sign = '+',
+	  }, adjusted_exponent);
 	}
 	return err;
 }
