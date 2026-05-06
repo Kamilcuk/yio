@@ -58,7 +58,7 @@ int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_
 #else
 #define YYIO_has_float_ryu$1  0
 #ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_custom$1
+#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_naive$1
 #endif
 #endif
 {% elif j_search("^f[0-9]+", V.1) %}
@@ -75,13 +75,13 @@ int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_
 #else
 #define YYIO_has_float_ryu$1  0
 #ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_custom$1
+#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_naive$1
 #endif
 #endif
 {% else %}
 #define YYIO_has_float_ryu$1  0
 #ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_custom$1
+#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_naive$1
 #endif
 {% endif %}
 #else

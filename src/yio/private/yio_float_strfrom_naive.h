@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_CUSTOM_H_
-#define YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_CUSTOM_H_
+#ifndef YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_NAIVE_H_
+#define YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_NAIVE_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -35,16 +35,16 @@ extern "C" {
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, YYIO_FLOAT$1 val);
+int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, YYIO_FLOAT$1 val);
 #endif
 
-#define YYIO_has_float_custom$1  1
+#define YYIO_has_float_naive$1  1
 #else
-#define YYIO_has_float_custom$1  0
+#define YYIO_has_float_naive$1  0
 #endif // YYIO_FLOAT$1
 {% endcall %}
 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_CUSTOM_H_
+#endif // YYIO_YIO_PRIVATE_YIO_FLOAT_STRFROM_NAIVE_H_

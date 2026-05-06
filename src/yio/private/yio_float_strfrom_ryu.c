@@ -23,7 +23,7 @@
 #include "private.h"
 #include "yio/yio_error.h"
 #include "yio_float.h"
-#include "yio_float_strfrom_custom.h"
+#include "yio_float_strfrom_naive.h"
 #include "yio_string.h"
 
 #include <assert.h>
@@ -39,18 +39,18 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "yio_float_strfrom_custom.h"
+#include "yio_float_strfrom_naive.h"
 
 #ifndef YYIO_RYU_FALLBACKf
-#define YYIO_RYU_FALLBACKf  YYIO_float_astrfrom_customf
+#define YYIO_RYU_FALLBACKf  YYIO_float_astrfrom_naivef
 #endif
 
 #ifndef YYIO_RYU_FALLBACKd
-#define YYIO_RYU_FALLBACKd  YYIO_float_astrfrom_customd
+#define YYIO_RYU_FALLBACKd  YYIO_float_astrfrom_naived
 #endif
 
 #ifndef YYIO_RYU_FALLBACKl
-#define YYIO_RYU_FALLBACKl  YYIO_float_astrfrom_customl
+#define YYIO_RYU_FALLBACKl  YYIO_float_astrfrom_naivel
 #endif
 
 #ifndef YIO_USE_STRFROM_RYU

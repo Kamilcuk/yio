@@ -12,12 +12,12 @@ The `YIO_FLOAT_BACKEND` option determines the internal engine used to transform 
 | Backend | Technical Implementation | Notes |
 | :--- | :--- | :--- |
 | **`STRFROM`** | Uses C23 `strfromf/d/l`. | Industry standard, highest precision.<br>Requires modern libc. |
-| **`RYU`** | Integrated [Ryu](https://github.com/ulfjack/ryu) submodule. | Consistent across platforms. Fully supports `float` and `double`. Support for `long double` is complete if it is equal to `double`; otherwise, it requires `__int128` and supports only "shortest" scientific representation (falling back to `CUSTOM` for others). |
+| **`RYU`** | Integrated [Ryu](https://github.com/ulfjack/ryu) submodule. | Consistent across platforms. Fully supports `float` and `double`. Support for `long double` is complete if it is equal to `double`; otherwise, it requires `__int128` and supports only "shortest" scientific representation (falling back to `NAIVE` for others). |
 | **`PRINTF`** | Wraps system `snprintf`. | Minimal code footprint: reuses existing system `snprintf`. |
-| **`CUSTOM`** | Yio's baseline internal formatter. | Zero external dependencies.<br>Slow, not precise. Naive digit extraction subject to cumulative floating-point errors. |
+| **`NAIVE`** | Yio's baseline internal formatter. | Zero external dependencies.<br>Slow, not precise. Naive digit extraction subject to cumulative floating-point errors. |
 
 #### The Fallback Chain
-If `YIO_FLOAT_BACKEND` is set to `STRFROM` but the environment check fails, it automatically downgrades to **`RYU`**, and then to **`CUSTOM`**.
+If `YIO_FLOAT_BACKEND` is set to `STRFROM` but the environment check fails, it automatically downgrades to **`RYU`**, and then to **`NAIVE`**.
 
 ### Default Output (`YIO_OUTPUT_BACKEND`)
 Configures where `yio_printf` and `yio_stream` send their bytes by default.

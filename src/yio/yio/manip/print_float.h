@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #include "../../private/yio_float.h"
-#include "../../private/yio_float_strfrom_custom.h"
+#include "../../private/yio_float_strfrom_naive.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
 #include "../../private/yio_float_strfrom_printf.h"
 #include "../../private/yio_float_strfrom_ryu.h"
@@ -30,8 +30,8 @@ extern "C" {
 #ifndef YYIO_HAS_strfrom$1
 #error  YYIO_HAS_strfrom$1 is not defined
 #endif
-#ifndef YYIO_has_float_custom$1
-#error  YYIO_has_float_custom$1 is not defined
+#ifndef YYIO_has_float_naive$1
+#error  YYIO_has_float_naive$1 is not defined
 #endif
 #ifndef YYIO_has_float_printf$1
 #error  YYIO_has_float_printf$1 is not defined
@@ -43,8 +43,8 @@ extern "C" {
 #if YYIO_has_float_strfrom$1
 int YYIO_print_float_strfrom$1(yio_printctx_t *t);
 #endif
-#if YYIO_has_float_custom$1
-int YYIO_print_float_custom$1(yio_printctx_t *t);
+#if YYIO_has_float_naive$1
+int YYIO_print_float_naive$1(yio_printctx_t *t);
 #endif
 #if YYIO_has_float_printf$1
 int YYIO_print_float_printf$1(yio_printctx_t *t);
@@ -56,8 +56,8 @@ int YYIO_print_float_ryu$1(yio_printctx_t *t);
 #ifndef YYIO_PRINT_FLOAT$1
 #	if YIO_FLOAT_BACKEND_STRFROM
 #		define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
-#	elif YIO_FLOAT_BACKEND_CUSTOM && YYIO_has_float_custom$1
-#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_custom$1
+#	elif YIO_FLOAT_BACKEND_NAIVE && YYIO_has_float_naive$1
+#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_naive$1
 #	elif YIO_FLOAT_BACKEND_PRINTF && YYIO_has_float_printf$1
 #		define YYIO_PRINT_FLOAT$1  YYIO_print_float_printf$1
 #	elif YIO_FLOAT_BACKEND_RYU && YYIO_has_float_ryu$1
@@ -65,8 +65,8 @@ int YYIO_print_float_ryu$1(yio_printctx_t *t);
 #	else
 #		if YYIO_HAS_strfrom$1
 #			define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
-#		elif YYIO_has_float_custom$1
-#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_custom$1
+#		elif YYIO_has_float_naive$1
+#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_naive$1
 #		else
 #			define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
 #		endif

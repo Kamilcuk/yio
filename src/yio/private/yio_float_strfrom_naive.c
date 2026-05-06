@@ -19,7 +19,7 @@
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
 #define __STDC_WANT_IEC_60559_FUNCS_EXT__  1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
-#include "yio_float_strfrom_custom.h"
+#include "yio_float_strfrom_naive.h"
 #include "yio_string.h"
 #include "yio_float.h"
 #include "private.h"
@@ -138,7 +138,7 @@ int get_next_digit$1(YYIO_string *v, TYPE *val,
 	return 0;
 }
 
-int YYIO_float_astrfrom_custom$1(YYIO_string *v, int precision0, char spec0, TYPE val) {
+int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE val) {
 	static const int a_max_precision =
 #if FLT_RADIX == 2
 // if the precision is missing and FLT_RADIX is a power of 2,

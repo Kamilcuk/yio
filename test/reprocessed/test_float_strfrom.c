@@ -100,7 +100,7 @@ static int YYIO_test_print_float_custom_in$1(int precision,
 		// for long double and 'a', we just assume it works
 		// sadly, glibc chooses different exponents
 		if('$1' == 'l' &&
-				strcmp(astrfrom_str, "YYIO_float_astrfrom_customl") == 0 &&
+				strcmp(astrfrom_str, "YYIO_float_astrfrom_naivel") == 0 &&
 				(type == 'A' || type == 'a')) {
 			workaround = true;
 		}

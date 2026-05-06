@@ -11,7 +11,7 @@
 #include <ctype.h>
 
 #if YYIO_CDT_PARSER
-#define YYIO_float_astrfrom_$2$1  YYIO_float_astrfrom_customd
+#define YYIO_float_astrfrom_$2$1  YYIO_float_astrfrom_naived
 #define YYIO_FLOAT$3  double
 #endif
 
@@ -77,8 +77,8 @@ int YYIO_print_float_$2$1(yio_printctx_t *t) {
 {{ j_generate_print_floats(V.1, "strfrom") }}
 #endif
 
-#if YYIO_has_float_custom$1
-{{ j_generate_print_floats(V.1, "custom") }}
+#if YYIO_has_float_naive$1
+{{ j_generate_print_floats(V.1, "naive") }}
 #endif
 
 #if YYIO_has_float_printf$1

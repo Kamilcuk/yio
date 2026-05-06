@@ -8,13 +8,13 @@ set(YIO_FLOAT_BACKEND_COMMENT [=[
 Select the underlying implementation for floating-point formatting.
 Valid options are:
 - STRFROM: Uses the C23 strfrom{f,d,l} family if available. Highest precision and efficiency on modern platforms.
-- RYU: Uses the integrated Ryu library. Efficient and portable. Fully supports float and double. Support for long double is complete if it is equal to double; otherwise, it requires __int128 and supports only "shortest" scientific representation (falling back to CUSTOM for others).
+- RYU: Uses the integrated Ryu library. Efficient and portable. Fully supports float and double. Support for long double is complete if it is equal to double; otherwise, it requires __int128 and supports only "shortest" scientific representation (falling back to NAIVE for others).
 - PRINTF: Falls back to the system's snprintf. May be affected by the current LC_NUMERIC locale.
-- CUSTOM: Uses Yio's baseline internal formatter. Portable and dependency-free, but slow and not precise (uses naive digit extraction).
+- NAIVE: Uses Yio's baseline internal formatter. Portable and dependency-free, but slow and not precise (uses naive digit extraction).
 ]=])
 set(YIO_FLOAT_BACKEND "STRFROM" CACHE STRING "${YIO_FLOAT_BACKEND_COMMENT}")
-set_property(CACHE YIO_FLOAT_BACKEND PROPERTY STRINGS "STRFROM" "CUSTOM" "PRINTF" "RYU")
-set(YIO_FLOAT_BACKEND_valid_values "STRFROM;CUSTOM;PRINTF;RYU")
+set_property(CACHE YIO_FLOAT_BACKEND PROPERTY STRINGS "STRFROM" "NAIVE" "PRINTF" "RYU")
+set(YIO_FLOAT_BACKEND_valid_values "STRFROM;NAIVE;PRINTF;RYU")
 if(NOT YIO_FLOAT_BACKEND IN_LIST YIO_FLOAT_BACKEND_valid_values)
 	message(FATAL_ERROR "Invalid YIO_FLOAT_BACKEND: '${YIO_FLOAT_BACKEND}'. Valid values are: ${YIO_FLOAT_BACKEND_valid_values}")
 endif()
