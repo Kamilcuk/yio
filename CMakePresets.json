@@ -18,7 +18,7 @@
         "systemVars": false
       },
       "environment": {
-        "GNU": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -O1 -D_FORTIFY_SOURCE=2 -Werror=vla -ffunction-sections -fdata-sections"
+        "GNU": "-ggdb3 -Wall -Wextra -Wwrite-strings -Wno-unused-function -Wno-unused-parameter -O -D_FORTIFY_SOURCE=2 -Werror=vla -ffunction-sections -fdata-sections -Wl,-z,defs -Wl,-z,now -Wl,-z,relro -march=native -D_GLIBCXX_ASSERTIONS -fasynchronous-unwind-tables -fexceptions -fpie -Wl,-pie -fstack-clash-protection -fstack-protector-all -fstack-protector-strong -grecord-gcc-switches -fcf-protection -fsanitize=address,undefined,pointer-compare,pointer-subtract"
       },
       "cacheVariables": {
         "YIO_DEV": "1",
@@ -26,7 +26,7 @@
         "YIO_BUILD_TESTING": "1",
         "BUILD_TESTING": "1",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "1",
-        "CMAKE_EXE_LINKER_FLAGS": "-Wl,--gc-sections"
+        "CMAKE_EXE_LINKER_FLAGS": "$env{GNU} -Wl,--gc-sections"
       }
     },
     {
@@ -35,8 +35,8 @@
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++",
-        "CMAKE_C_FLAGS": "$env{GNU} -fanalyzer -Wattribute-warning -Wmissing-prototypes -fdiagnostics-color=always -lm  -Wl,--gc-sections",
-        "CMAKE_EXE_LINKER_FLAGS": "-Wl,--gc-sections"
+        "CMAKE_C_FLAGS": "$env{GNU} -fanalyzer -Werror=analyzer-allocation-size -Werror=analyzer-deref-before-check -Werror=analyzer-double-fclose -Werror=analyzer-double-free -Werror=analyzer-exposure-through-output-file -Werror=analyzer-exposure-through-uninit-copy -Werror=analyzer-fd-access-mode-mismatch -Werror=analyzer-fd-double-close -Werror=analyzer-fd-leak -Werror=analyzer-fd-phase-mismatch -Werror=analyzer-fd-type-mismatch -Werror=analyzer-fd-use-after-close -Werror=analyzer-fd-use-without-check -Werror=analyzer-file-leak -Werror=analyzer-free-of-non-heap -Werror=analyzer-imprecise-fp-arithmetic -Werror=analyzer-infinite-recursion -Werror=analyzer-jump-through-null -Werror=analyzer-malloc-leak -Werror=analyzer-mismatching-deallocation -Werror=analyzer-null-argument -Werror=analyzer-null-dereference -Werror=analyzer-out-of-bounds -Werror=analyzer-possible-null-argument -Werror=analyzer-possible-null-dereference -Werror=analyzer-putenv-of-auto-var -Werror=analyzer-shift-count-negative -Werror=analyzer-shift-count-overflow -Werror=analyzer-stale-setjmp-buffer -Werror=analyzer-tainted-allocation-size -Werror=analyzer-tainted-array-index -Werror=analyzer-tainted-assertion -Werror=analyzer-tainted-divisor -Werror=analyzer-tainted-offset -Werror=analyzer-tainted-size -Werror=analyzer-unsafe-call-within-signal-handler -Werror=analyzer-use-after-free -Werror=analyzer-use-of-pointer-in-stale-stack-frame -Werror=analyzer-use-of-uninitialized-value -Werror=analyzer-va-arg-type-mismatch -Werror=analyzer-va-list-exhausted -Wno-analyzer-va-list-leak -Werror=analyzer-va-list-use-after-va-end -Werror=analyzer-write-to-const -Werror=analyzer-write-to-string-literal -Wattribute-warning -Wmissing-prototypes -fdiagnostics-color=always -lm  -Wl,--gc-sections",
+        "CMAKE_EXE_LINKER_FLAGS": "$env{GNU} -Wl,--gc-sections"
       }
     },
     {

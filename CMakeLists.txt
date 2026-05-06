@@ -273,7 +273,7 @@ include(src/environment_checks.cmake)
 
 add_subdirectory(./third_party EXCLUDE_FROM_ALL)
 add_subdirectory(src)
-if((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV)
+if(((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV) AND NOT YIO_SDCC)
 	include(CTest)
 	add_subdirectory(./test)
   add_subdirectory(./examples)

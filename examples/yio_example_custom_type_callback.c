@@ -25,10 +25,8 @@ static int yio_print_A(yio_printctx_t *t) {
 	return yio_printctx_printf(t, "{} {}", a.a, a.b);
 }
 
-// Add both const and non-const of the type to callback function.
+// Add the type to callback function.
 YIO_ADD_TYPE(struct A, yio_print_A)
-#include YIO_ADD_TYPE_INC()
-YIO_ADD_TYPE(const struct A, yio_print_A)
 #include YIO_ADD_TYPE_INC()
 
 // Alternative way is to create a custom format callback.

@@ -48,6 +48,21 @@ static const char YYIO_SIGN_ALWAYSSPACE = ' ';
 
 void YYIO_skip_arm(yio_printctx_t *t, unsigned count) {
 #if YIO_ENABLE_DYNAMIC_PFMT
+	/* TODO: This violates the C standard requirement that va_copy and va_end
+	 * must be called in the same function. YYIO_skip_arm ends the original list
+	 * and re-copies from the backup (startva) here, but the corresponding va_end
+	 * for this newly copied list will be called by the upstream function that
+	 * originally created the list.
+	 *
+	 * While this works on architectures where va_list is just a pointer or struct
+	 * (x86, ARM) and va_end is a no-op, it might break on obscure platforms where
+	 * va_copy allocates a register save area or heap memory that must be unwound
+	 * in the same stack frame. It also triggers static analyzer warnings
+	 * (-Wanalyzer-va-list-leak).
+	 *
+	 * Future refactoring should surface the va_copy/va_end lifecycle management
+	 * to the upper scope where the va_list is actually owned.
+	 */
 	va_end(*t->va);
 	va_copy(*t->va, *t->startva);
 #endif

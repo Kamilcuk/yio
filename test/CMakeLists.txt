@@ -81,6 +81,8 @@ list(FILTER dirs EXCLUDE REGEX "sstest")
 
 if(NOT YIO_SDCC)
 	add_subdirectory(sstest EXCLUDE_FROM_ALL)
+else()
+	list(FILTER dirs EXCLUDE REGEX "^cpp$")
 endif()
 
 foreach(dir IN ITEMS "." ${dirs})

@@ -6,6 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#define _GNU_SOURCE
+#define _POSIX_C_SOURCE  200809L
 #include "private.h"
 #if YIO_HAS_WCHAR_H
 #include <limits.h>
@@ -14,12 +16,24 @@
 #include <string.h>
 #include <wchar.h>
 
+#ifndef __has_feature
+#define __has_feature(x) 0
+#endif
+
 static int wstr_to_yyiostring(const wchar_t *ws, size_t ws_maxlen, YYIO_string *out) {
 	mbstate_t state;
 	memset(&state, 0, sizeof(state));
 	const size_t mb_cur_max = MB_CUR_MAX;
 #if YYIO_HAS_wcsnrtombs
 	const wchar_t *psrc = ws;
+#if defined(__SANITIZE_ADDRESS__) || __has_feature(address_sanitizer)
+	// Calculate true max_len to avoid passing (size_t)-1 to wcsnrtombs.
+	// AddressSanitizer's interceptor for wcsnrtombs incorrectly flags (size_t)-1
+	// as a negative-size-param error. This workaround prevents the crash.
+	if (ws_maxlen == (size_t)-1) {
+		ws_maxlen = wcsnlen(ws, (size_t)-1);
+	}
+#endif
 	while (psrc != NULL && ws_maxlen > 0) {
 		if (YYIO_string_free_size(out) < mb_cur_max) {
 			const int err = YYIO_string_reserve_more(out, mb_cur_max);

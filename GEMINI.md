@@ -46,7 +46,8 @@ For quick one-liner tests:
 - **Documentation:** `make doxygen` (generates HTML docs in `public/doxygen`).
 - **Clean:** `make clean` or `make distclean`.
 
-## Development Conventions
+### Development Conventions
+- **Preserve Comments:** When refactoring or replacing code blocks, DO NOT remove existing comments or documentation unless explicitly told to do so or if they are entirely invalidated by the change.
 ### NEVER USE GIT
 - NEVER stage or commit any changes using git unless the user explicitly told you to.
 

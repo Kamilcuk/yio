@@ -20,8 +20,9 @@ int YYIO_yio_vbprintf_iterate_until_format_callback(yio_printctx_t *t, const cha
 	return yio_printctx_raw_write(t, begin, (size_t)(end - begin));
 }
 
-static inline
-int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *t, const char fmt[restrict], const char **restrict endptr) {
+static inline YYIO_nn(1, 2, 3)
+int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *__single t, const char *__null_terminated fmt, const char *__bidi_indexable *__single endptr) {
+	assert(fmt != NULL);
 	const char *pos = fmt;
 	while (fmt[0] != '\0') {
 		fmt += strcspn(fmt, "{}");
@@ -119,26 +120,24 @@ int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, co
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
-	yio_printctx_t _ctx = {0};
-	_ctx.va = va;
-	_ctx.fmt = fmt;
-	_ctx.ifunc = data;
-	_ctx.startifunc = data;
-	_ctx.out = out;
-	_ctx.outarg = arg;
+	yio_printctx_t ctx = {0};
+	ctx.va = va;
+	ctx.fmt = fmt;
+	ctx.ifunc = data;
+	ctx.startifunc = data;
+	ctx.out = out;
+	ctx.outarg = arg;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	va_list startva;
 	va_copy(startva, *va);
-	_ctx.startva = &startva;
+	ctx.startva = &startva;
 #endif
-	yio_printctx_t * const t = &_ctx;
+	yio_printctx_t * const t = &ctx;
 	const int err = YYIO_yio_vbprintf_in(t);
 #if YIO_ENABLE_DYNAMIC_PFMT
 	va_end(startva);
 #endif
-	if (err) {
-		return -abs(err);
-	}
+	if (err) return -abs(err);
 	assert(t->writtencnt <= (unsigned)INT_MAX);
 	return (int)t->writtencnt;
 }

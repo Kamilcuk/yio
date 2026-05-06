@@ -29,30 +29,52 @@ extern "C" {
 /// Rounds up 's' to the nearest multiple of 'a'. Works for any 'a' > 0.
 #define YYIO_ALIGN_UP(s, a) (((s) + (a) - 1) / (a) * (a))
 
+#ifdef __SIZEOF_SIZE_T__
+#define YYIO_SIZEOF_SIZE_T  __SIZEOF_SIZE_T__
+#else
+#define YYIO_SIZEOF_SIZE_T  SIZE_MAX / CHAR_BIT
+#endif
+
+#if YIO_ENABLE_MALLOC
+#define YYIO_SSO_MIN_SIZE    YYIO_MAX(YIO_SSO_BUFFER_SIZE, YYIO_SIZEOF_SIZE_T * 2)
+#else
+#define YYIO_SSO_MIN_SIZE    YIO_SSO_BUFFER_SIZE
+#endif
+
 /// Round up SSO buffer to size_t to convert potential compiler padding
 /// into usable capacity for the string.
-#define YYIO_SSO_MIN_SIZE    YYIO_MAX(YIO_SSO_BUFFER_SIZE, sizeof(size_t) * 2)
-#define YYIO_SSO_SIZE        YYIO_ALIGN_UP(YYIO_SSO_MIN_SIZE, sizeof(size_t))
+#define YYIO_SSO_SIZE        YYIO_ALIGN_UP(YYIO_SSO_MIN_SIZE, YYIO_SIZEOF_SIZE_T)
+
+typedef
+#if YIO_ENABLE_MALLOC
+	size_t
+#elif YYIO_SSO_SIZE <= UINT8_MAX
+	uint8_t
+#elif YYIO_SSO_SIZE <= UINT16_MAX
+	uint16_t
+#elif YYIO_SSO_SIZE <= UINT32_MAX
+	uint32_t
+#elif YYIO_SSO_SIZE <= UINT64_MAX
+	uint64_t
+#else
+#error too big YYIO_SSO_SIZE
+#endif
+	YYIO_string_size_t;
 
 /// Represents a string with SSO and dynamic allocation.
 typedef struct YYIO_string {
-	/// if YIO_ENABLE_MALLOC:
 	///  Bit 0: dynamic_flag (1=Heap, 0=SSO)
 	///  Heap: Bits 1-63: Capacity (Heap)
 	///  SSO: Bits 1-63: SSO_len
-	///else:
-	///  All bits is SSO_len.
-	size_t info;
+	YYIO_string_size_t info;
 	union {
-		#if YIO_ENABLE_MALLOC
+#if YIO_ENABLE_MALLOC
 		struct {
 			size_t len;  /* Used only in Heap mode */
 			char * __sized_by(info >> 1) ptr;   /* Used only in Heap mode */
 		} h;
-		#endif
-		struct {
-			char buf[YYIO_SSO_SIZE];
-		} s;
+#endif
+		char buf[YYIO_SSO_SIZE];
 	};
 } YYIO_string;
 
@@ -80,17 +102,17 @@ YYIO_wur static inline size_t YYIO_string_len(const YYIO_string *t) {
 
 YYIO_wur static inline char * __indexable YYIO_string_data(YYIO_string *t) {
 	#if YIO_ENABLE_MALLOC
-	return YYIO_string_is_dynamic(t) ? t->h.ptr : t->s.buf;
+	return YYIO_string_is_dynamic(t) ? t->h.ptr : t->buf;
 	#else
-	return t->s.buf;
+	return t->buf;
 	#endif
 }
 
 YYIO_wur static inline size_t YYIO_string_capacity(const YYIO_string *t) {
 	#if YIO_ENABLE_MALLOC
-	return YYIO_string_is_dynamic(t) ? (t->info >> 1) : sizeof(t->s.buf);
+	return YYIO_string_is_dynamic(t) ? (t->info >> 1) : sizeof(t->buf);
 	#else
-	return sizeof(t->s.buf);
+	return sizeof(t->buf);
 	#endif
 }
 

@@ -68,12 +68,13 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 	  err = YYIO_string_putc(v, letter);
 	  if (err) return err;
 	  const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
-	  err = YYIO_string_print_int(v, (struct yio_printfmt_s){
+	  struct yio_printfmt_s fmt = {
 	    .width = dec ? 3 : 0,
 	    .fill = '0',
 	    .align = '=',
 	    .sign = '+',
-	  }, adjusted_exponent);
+	  };
+	  err = YYIO_string_print_int(v, fmt, adjusted_exponent);
 	}
 	return err;
 }

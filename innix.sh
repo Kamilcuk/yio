@@ -9,7 +9,7 @@ exec nix shell \
   $PKGS#gnumake \
   $PKGS#gcc-arm-embedded \
   $PKGS#python312Packages.jinja2 \
-  $PKGS#gcc \
+  $PKGS#gcc15 \
   $PKGS#qemu \
   $PKGS#sdcc \
   -c "$@"
