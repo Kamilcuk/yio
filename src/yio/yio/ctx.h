@@ -14,6 +14,7 @@ extern "C" {
 
 #include "ctx_types.h"
 #include "yio/yio_error.h"
+#include <assert.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -71,14 +72,14 @@ struct YYIO_printctx_s {
 	const char * __null_terminated fmt;
 	/// va_list of current argument.
 	va_list * __single va;
+	/// Iterator in callback functions.
+	const yio_printdata_t * __null_terminated ifunc;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	/// Copy of va_list when iterating
 	va_list * __single startva;
-#endif
-	/// Iterator in callback functions.
-	const yio_printdata_t * __null_terminated ifunc;
 	/// The pointer to the data.
 	const yio_printdata_t * __null_terminated startifunc;
+#endif
 	/// The outputting function.
 	YYIO_printcb_t * __single out;
 	/// User argument for outputting functions.
@@ -93,19 +94,47 @@ struct YYIO_printctx_s {
 
 /* functions ------------------------------------------------------------------------- */
 
-/**
- * For positional arguments, arm the _skip_do function for @c count jumps.
- * @param t
- * @param count The positional number.
- */
-void YYIO_skip_arm(yio_printctx_t *t, unsigned int count);
+#if YIO_ENABLE_DYNAMIC_PFMT
+typedef struct {
+	const yio_printdata_t __null_terminated *saveifunc;
+	va_list *saveva;
+	va_list va;
+} YYIO_skipper;
 
-/**
- * For positional arguments, skip until the proper positional argument is in va_arg.
- * @param t
- * @return 0 on success, otherwise error.
- */
-int YYIO_skip_do(yio_printctx_t *t);
+static int YYIO_skip_do_in(YYIO_skipper *s, yio_printctx_t *t, unsigned char count) {
+	// Setup
+	assert(s->saveifunc == NULL);
+	s->saveva = t->va;
+	s->saveifunc = t->ifunc;
+	t->va = &s->va;
+	t->ifunc = t->startifunc;
+	t->skip = count;
+	//
+	const char *savefmt = t->fmt;
+	t->fmt = NULL;
+	while (t->skip) {
+		if (*t->ifunc == NULL) return YIO_ERROR_TOO_MANY_FMT;
+		const int err = (*t->ifunc++)(t);
+		if (err != YIO_ERROR_SKIPPING) return err;
+	}
+	t->fmt = savefmt;
+	return 0;
+}
+static bool YYIO_skip_end_in(YYIO_skipper *s, yio_printctx_t *t) {
+	if (s->saveifunc) {
+		t->ifunc = s->saveifunc;
+		t->va = s->saveva;
+		s->saveifunc = 0;
+		return true;
+  }
+	return false;
+}
+#define YYIO_skipper_do(s, t, count)  (va_copy((s)->va, *(t)->startva), YYIO_skip_do_in(s, t, count))
+#define YYIO_skipper_end(s, t) do { if (YYIO_skip_end_in(s, t)) va_end((s)->va); } while(0)
+#else
+#define YYIO_skipper_setup(s, t, count) /* */
+#define YYIO_skipper_end(s, t) /* */
+#endif
 
 /**
  * Convert the string pointed to by ptr to a digit.
@@ -183,7 +212,8 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
 static const uint16_t YYIO_PRECISION_MAX = UINT16_MAX - 1;
 
 YYIO_wur YYIO_nn() static inline int YYIO_printctx_init_in(yio_printctx_t *t) {
-	if (t->skip != 0) {
+	if (t->skip) {
+		t->skip--;
 		return YYIO_ERROR(YIO_ERROR_SKIPPING, "error part of skipping arguments when iterating over them");
 	}
 	return t->fmt ? YYIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt) : 0;

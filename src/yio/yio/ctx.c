@@ -46,44 +46,6 @@ static const char YYIO_SIGN_ALWAYS = '+';
 //static const char YYIO_SIGN_NEGATIVE = '-';
 static const char YYIO_SIGN_ALWAYSSPACE = ' ';
 
-void YYIO_skip_arm(yio_printctx_t *t, unsigned count) {
-#if YIO_ENABLE_DYNAMIC_PFMT
-	/* TODO: This violates the C standard requirement that va_copy and va_end
-	 * must be called in the same function. YYIO_skip_arm ends the original list
-	 * and re-copies from the backup (startva) here, but the corresponding va_end
-	 * for this newly copied list will be called by the upstream function that
-	 * originally created the list.
-	 *
-	 * While this works on architectures where va_list is just a pointer or struct
-	 * (x86, ARM) and va_end is a no-op, it might break on obscure platforms where
-	 * va_copy allocates a register save area or heap memory that must be unwound
-	 * in the same stack frame. It also triggers static analyzer warnings
-	 * (-Wanalyzer-va-list-leak).
-	 *
-	 * Future refactoring should surface the va_copy/va_end lifecycle management
-	 * to the upper scope where the va_list is actually owned.
-	 */
-	va_end(*t->va);
-	va_copy(*t->va, *t->startva);
-#endif
-	t->ifunc = t->startifunc;
-	t->skip = count;
-}
-
-int YYIO_skip_do(yio_printctx_t *t) {
-	for (; t->skip != 0; --t->skip) {
-		if (*t->ifunc == NULL) {
-			return YIO_ERROR_TOO_MANY_FMT;
-		}
-		const int ifuncret = (*t->ifunc++)(t);
-		assert(ifuncret != 0); // this is not possible
-		if (ifuncret != YIO_ERROR_SKIPPING) {
-			return ifuncret;
-		}
-	}
-	return 0;
-}
-
 static inline
 int YYIO_digit_to_number(char d) {
 	assert(YYIO_isdigit(d));
@@ -112,26 +74,34 @@ int YYIO_printctx_take_dynamic_param(yio_printctx_t *t, const char *fmt, const c
 	// Parse {[0-9]+} formatting string if present.
 	assert(fmt[0] == '{');
 	fmt++;
+	int err = 0;
+	YYIO_skipper skipper = {0};
 	if (YYIO_isdigit(fmt[0])) {
-		YYIO_skip_arm(t, YYIO_printctx_strtou_noerr(&fmt));
-		const int skiperr = YYIO_skip_do(t);
-		if (skiperr) return skiperr;
+		const unsigned count = YYIO_printctx_strtou_noerr(&fmt);
+		err = YYIO_skipper_do(&skipper, t, count);
+		if (err) goto EXIT;
 	}
 	if (fmt++[0] != '}') {
-		return YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_RIGHT_BRACE, "missing '}' when parsing dynamic width or precision specifier");
+		err = YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_RIGHT_BRACE, "missing '}' when parsing dynamic width or precision specifier");
+		goto EXIT;
 	}
 	*endptr = fmt;
 	//
 	if (t->ifunc == NULL || *t->ifunc == NULL) {
-		return YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_ARG, "no argument for dynamic width or precision");
+		err = YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_ARG, "no argument for dynamic width or precision");
+		goto EXIT;
 	}
 	// Create a context that will just be used to work with va_arg - nothing else.
 	yio_printctx_t tmp_ctx = {.va = t->va};
-	const int ret = (*t->ifunc++)(&tmp_ctx);
-	if (ret != YIO_ERROR_GOT_DYNAMIC_VALUE) return ret;
+	err = (*t->ifunc++)(&tmp_ctx);
+	// It is expected ifunc returns here exit code for returning parameter value.
+	if (err != YIO_ERROR_GOT_DYNAMIC_VALUE) goto EXIT;
+	err = 0;
 	// The returned precision value is returned in precision field.
 	*res = tmp_ctx.pf.precision;
-	return 0;
+EXIT:
+	YYIO_skipper_end(&skipper, t);
+	return err;
 }
 #endif // YIO_ENABLE_DYNAMIC_PFMT
 

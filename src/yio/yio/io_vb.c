@@ -78,42 +78,44 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		}
 		return 0;
 	}
+	int err = 0;
+#if YIO_ENABLE_DYNAMIC_PFMT
+	YYIO_skipper skipper = {0};
+#endif
 	while (1) {
-		int err = YYIO_yio_vbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
+		err = YYIO_yio_vbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
 		if (err) return err;
 		if (t->fmt[0] == '\0') break;
 		assert(t->fmt[0] == '{');
 		t->fmt++;
 		//
 		t->pf = YYIO_printfmt_zero;
+#if YIO_ENABLE_DYNAMIC_PFMT
 		if (YYIO_isdigit(t->fmt[0])) {
-			YYIO_skip_arm(t, YYIO_printctx_strtou_noerr(&t->fmt));
+			const unsigned count = YYIO_printctx_strtou_noerr(&t->fmt);
+			err = YYIO_skipper_do(&skipper, t, count);
+			if (err) goto EXIT;
 		}
-		#if 0
-		// Handle conversion specifier - currently disabled.
-		if (t->fmt[0] == '!') {
-			t->fmt++;
-			if (t->fmt[0] != 'a') {
-				return YIO_ERROR_UNKNOWN_CONVERSION;
-			}
-			t->pf.c_onversion = t->fmt[0];
-			t->fmt++;
-		}
-		#endif
+#endif
 		if (t->fmt[0] == ':') {
 			t->fmt++;
 		} else if (t->fmt[0] != '}') {
-			return YIO_ERROR_PYFMT_INVALID;
+			err = YIO_ERROR_PYFMT_INVALID;
+			goto EXIT;
 		}
-		const int skipret = YYIO_skip_do(t);
-		if (skipret) return skipret;
+		//
 		if (t->ifunc == NULL || *t->ifunc == NULL) {
-			return YIO_ERROR_TOO_MANY_FMT;
+			err = YIO_ERROR_TOO_MANY_FMT;
+			goto EXIT;
 		}
-		const int ifuncret = (*t->ifunc++)(t);
-		if (ifuncret) return ifuncret;
+		err = (*t->ifunc++)(t);
+		if (err) goto EXIT;
+		YYIO_skipper_end(&skipper, t);
 	}
 	return 0;
+EXIT:
+	YYIO_skipper_end(&skipper, t);
+	return err;
 }
 
 int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, va_list *va) {
@@ -124,13 +126,13 @@ int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, co
 	ctx.va = va;
 	ctx.fmt = fmt;
 	ctx.ifunc = data;
-	ctx.startifunc = data;
 	ctx.out = out;
 	ctx.outarg = arg;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	va_list startva;
 	va_copy(startva, *va);
 	ctx.startva = &startva;
+	ctx.startifunc = data;
 #endif
 	yio_printctx_t * const t = &ctx;
 	const int err = YYIO_yio_vbprintf_in(t);

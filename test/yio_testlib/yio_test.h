@@ -110,7 +110,7 @@ struct testparam {
 #define BRACES_IN(arg, ...)              BRACES_IN2(0, arg, 2, 1)(__VA_ARGS__)
 #define BRACES(arg, has, dont)           BRACES_IN(BRACES_ESC arg, has, dont)
 
-#define in_YIO_TEST(shouldbe, fmt, buf, err)  do { \
+#define in_YIO_TEST(shouldbe, fmt, buf, err, ...)  do { \
 		const struct testparam testparam = { \
 			BRACES(shouldbe, \
 				shouldbe \
