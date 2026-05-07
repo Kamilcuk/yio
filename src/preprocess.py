@@ -19,29 +19,32 @@ import jinja2.ext
 
 log = logging.getLogger(Path(__file__).name)
 
+# j_FLOATREPRS configuration
+j_FLOATREPRS = ["B16", "B32", "B64", "B80", "B128", "D32", "D64", "D128"]
+
 # j_FLOATS configuration
 _j_FLOATS_RAW = [
-    ["N", "G", "type", "math", "strto"],
-    ["f", "s", "float", "f", "f"],
-    ["d", "s", "double", "", "d"],
-    ["l", "s", "long double", "l", "ld"],
-    ["f16", "f", "_Float16", "f16", "f16"],
-    ["f32", "f", "_Float32", "f32", "f32"],
-    ["f64", "f", "_Float64", "f64", "f64"],
-    ["f128", "f", "_Float128", "f128", "f128"],
-    ["f32x", "fx", "_Float32x", "f32x", "f32x"],
-    ["f64x", "fx", "_Float64x", "f64x", "f64x"],
-    ["f128x", "fx", "_Float128x", "f128x", "f128x"],
-    ["d32", "d", "_Decimal32", "d32", "d32"],
-    ["d64", "d", "_Decimal64", "d64", "d64"],
-    ["d128", "d", "_Decimal128", "d128", "d128"],
-    ["d32x", "dx", "_Decimal32x", "d32x", "d32x"],
-    ["d64x", "dx", "_Decimal64x", "d64x", "d64x"],
-    ["d128x", "dx", "_Decimal128x", "d128x", "d128x"],
+    ["N", "G", "type", "math", "strto", "reprs"],
+    ["f", "s", "float", "f", "f", "B32"],
+    ["d", "s", "double", "", "d", "B64"],
+    ["l", "s", "long double", "l", "ld", "B80 B128 B64"],  # Long double varies by platform
+    ["f16", "f", "_Float16", "f16", "f16", "B16"],
+    ["f32", "f", "_Float32", "f32", "f32", "B32"],
+    ["f64", "f", "_Float64", "f64", "f64", "B64"],
+    ["f128", "f", "_Float128", "f128", "f128", "B128"],
+    ["f32x", "fx", "_Float32x", "f32x", "f32x", "B64"],  # Float32x is usually Binary64
+    ["f64x", "fx", "_Float64x", "f64x", "f64x", "B80 B128 B64"], # Float64x varies
+    ["f128x", "fx", "_Float128x", "f128x", "f128x", "B128"],
+    ["d32", "d", "_Decimal32", "d32", "d32", "D32"],
+    ["d64", "d", "_Decimal64", "d64", "d64", "D64"],
+    ["d128", "d", "_Decimal128", "d128", "d128", "D128"],
+    ["d32x", "dx", "_Decimal32x", "d32x", "d32x", "D64"],
+    ["d64x", "dx", "_Decimal64x", "d64x", "d64x", "D128 D64"],
+    ["d128x", "dx", "_Decimal128x", "d128x", "d128x", "D128"],
 ]
 
 
-def _convert_raw(raw: List[List[str]]) -> List[Dict[Union[int, str], str]]:
+def _convert_raw(raw: List[List[str]]) -> List[Dict[Union[int, str], Any]]:
     header = raw[0]
     return [
         {
@@ -52,7 +55,9 @@ def _convert_raw(raw: List[List[str]]) -> List[Dict[Union[int, str], str]]:
     ]
 
 
-j_FLOATS: List[Dict[Union[int, str], str]] = _convert_raw(_j_FLOATS_RAW)
+j_FLOATS: List[Dict[Union[int, str], Any]] = _convert_raw(_j_FLOATS_RAW)
+for float_info in j_FLOATS:
+    float_info["reprs"] = float_info["reprs"].split()
 
 # j_STDFIX configuration
 _j_STDFIX_RAW = [
@@ -252,6 +257,7 @@ class MyEnvironment(jinja2.Environment):
         self.globals.update(
             {
                 "j_FLOATS": j_FLOATS,
+                "j_FLOATREPRS": j_FLOATREPRS,
                 "j_STDFIX": j_STDFIX,
                 "j_MAX_ARGS": int(defines.get("j_MAX_ARGS", "32")),
                 "j_MAX_CUSTOM_SLOTS": int(defines.get("j_MAX_CUSTOM_SLOTS", "100")),

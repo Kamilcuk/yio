@@ -39,30 +39,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "yio_float_strfrom_naive.h"
-
-#ifndef YYIO_RYU_FALLBACKf
-#define YYIO_RYU_FALLBACKf  YYIO_float_astrfrom_naivef
-#endif
-
-#ifndef YYIO_RYU_FALLBACKd
-#define YYIO_RYU_FALLBACKd  YYIO_float_astrfrom_naived
-#endif
-
-#ifndef YYIO_RYU_FALLBACKl
-#define YYIO_RYU_FALLBACKl  YYIO_float_astrfrom_naivel
-#endif
-
 #ifndef YIO_USE_STRFROM_RYU
 #error YIO_USE_STRFROM_RYU not defined
 #endif
-#ifndef YIO_HAS_FLOATf
-#error YIO_HAS_FLOATf not defined
-#endif
-#ifndef YIO_HAS_FLOATd
-#error YIO_HAS_FLOATd not defined
-#endif
-#if YIO_USE_STRFROM_RYU && YIO_HAS_FLOATf && YIO_HAS_FLOATd
+
+#if YIO_USE_STRFROM_RYU
 
 /* ------------------------------------------------------------------------- */
 
@@ -80,33 +61,93 @@ static inline void exp_to_upper(YYIO_string *t) {
 
 /* ------------------------------------------------------------------------- */
 
-#ifndef YYIO_HAS_INT128
-#error  YYIO_HAS_INT128
-#endif
-#if YYIO_HAS_INT128 && YIO_HAS_FLOATl
-
+#if YYIO_HAS_INT128
 #include "ryu/ryu_generic_128.h"
+#endif
 
-int YYIO_float_astrfrom_ryul(YYIO_string *res, int precision0, char spec, YYIO_FLOATl val) {
+/* Use the actual maximums for Ryu's shortest representation */
+#define YYIO_RYU_SHORTEST_MAX_B32 15
+#define YYIO_RYU_SHORTEST_MAX_B64 25
+
+{% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
+#line
+#ifdef YYIO_FLOAT_REPR_$1
+
+{% if V.1 in ["B32", "B64"] %}
+int YYIO_float_astrfrom_ryu_$1(YYIO_string *res, int precision, char spec, YYIO_FLOAT_REPR_$1 val) {
+	if (spec == 'a' || spec == 'A') {
+		return YYIO_float_astrfrom_naive_$1(res, precision, spec, val);
+	}
 	if (!isfinite(val)) {
-		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
+		return YYIO_float_astrfrom_naive_$1(res, precision, spec, val);
+	}
+	// https://github.com/ulfjack/ryu/issues/197
+	const size_t precision_def = yio_precision_get_default(precision, 6);
+	int err;
+	int len = -1;
+	if (spec == 'g' || spec == 'G') {
+		if (precision != 0) return YYIO_float_astrfrom_naive_$1(res, precision, spec, val);
+		err = YYIO_string_reserve(res, YYIO_RYU_SHORTEST_MAX_$1);
+    if (err) return err;
+    double dval = (double)val;
+    double abs_val = (dval < 0) ? -dval : dval;
+    if (abs_val >= 0.0001 && abs_val < 1000000.0) {
+      len = d2fixed_buffered_n((double)val, 6, YYIO_string_data(res));
+      if (len > 0) {
+      	YYIO_string_set_used(res, len);
+      	YYIO_string_remove_trailing_zeros_and_dot(res);
+      	return 0;
+      }
+    } else {
+      len = d2s_buffered_n((double)val, YYIO_string_data(res));
+			if (len > 0) {
+				YYIO_string_set_used(res, len);
+				if (spec == 'G') exp_to_upper(res);
+			}
+    }
+	} else if (spec == 'f' || spec == 'F') {
+    const size_t to_reserve = YYIO_MAX_10_EXP_RC_$1 + 3 + precision_def;
+  	err = YYIO_string_reserve(res, to_reserve);
+  	if (err) return err;
+		len = d2fixed_buffered_n((double)val, precision_def, YYIO_string_data(res));
+		if (len > 0) {
+			YYIO_string_set_used(res, len);
+		}
+	} else if (spec == 'e' || spec == 'E') {
+    const size_t overhead = YYIO_MAX_10_EXP_RC_$1 > 99 ? 9 : 8;
+    const size_t to_reserve = overhead + precision_def;
+    err = YYIO_string_reserve(res, to_reserve);
+    if (err) return err;
+		len = d2exp_buffered_n((double)val, precision_def, YYIO_string_data(res));
+		if (len > 0) {
+			YYIO_string_set_used(res, len);
+			if (spec == 'E') exp_to_upper(res);
+		}
+	} else {
+		return YYIO_float_astrfrom_naive_$1(res, precision, spec, val);
+	}
+	assert(len > 0);
+	return 0;
+}
+
+{% elif V.1 in ["B80", "B128"] %}
+#if YYIO_HAS_INT128
+int YYIO_float_astrfrom_ryu_$1(YYIO_string *res, int precision0, char spec, YYIO_FLOAT_REPR_$1 val) {
+	if (!isfinite(val)) {
+		return YYIO_float_astrfrom_naive_$1(res, precision0, spec, val);
 	}
 	if (spec == 'a' || spec == 'A') {
-		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
+		return YYIO_float_astrfrom_naive_$1(res, precision0, spec, val);
 	}
-	if (!(
-			(spec == 'e' || spec == 'E') &&
-			precision0 < 0
-	)) {
-		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
+	if (!( (spec == 'e' || spec == 'E') && precision0 < 0 )) {
+		return YYIO_float_astrfrom_naive_$1(res, precision0, spec, val);
 	}
-	// https://github.com/ulfjack/ryu/blob/master/ryu/ryu_generic_128.h#L65
 	const size_t maximal_char_buffer_requirement_for_ryu = 53;
 	int err = YYIO_string_reserve(res, maximal_char_buffer_requirement_for_ryu);
 	if (err) return err;
 	int lengthp = generic_to_chars(long_double_to_fd128(val), YYIO_string_data(res));
 	if (lengthp <= 0) {
-		return YYIO_RYU_FALLBACKl(res, precision0, spec, val);
+		return YYIO_float_astrfrom_naive_$1(res, precision0, spec, val);
 	}
 	if (spec == 'e') {
 		char *const e = strchr(YYIO_string_data(res), 'E');
@@ -115,92 +156,19 @@ int YYIO_float_astrfrom_ryul(YYIO_string *res, int precision0, char spec, YYIO_F
 	YYIO_string_set_used(res, lengthp);
 	return 0;
 }
-
+#else
+int YYIO_float_astrfrom_ryu_$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT_REPR_$1 val) {
+	return YYIO_float_astrfrom_naive_$1(res, precision, spec0, val);
+}
 #endif
 
-/* Use the actual maximums for Ryu's shortest representation */
-#define YYIO_RYU_SHORTEST_MAX_f 15
-#define YYIO_RYU_SHORTEST_MAX_d 25
-
-{% call j_FOREACHAPPLY(["f", "d"]) %}
-#line
-
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-#if YIO_HAS_FLOAT$1
-
-static inline
-int YYIO_float_astrfrom_ryu$1_in(YYIO_string *res, int precision0, char spec, YYIO_FLOAT$1 val) {
-	if (!isfinite(val)) {
-		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
-	}
-	// https://github.com/ulfjack/ryu/issues/197
-	const size_t precision = yio_precision_get_default(precision0, 6);
-	int err;
-	int len = -1;
-	//
-	if (spec == 'g' || spec == 'G') {
-		if (precision0 != 0) return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
-		err = YYIO_string_reserve(res, YYIO_RYU_SHORTEST_MAX_$1);
-    if (err) return err;
-		// Rational check: Use fixed-point for "human-readable" ranges
-    // Standard %g uses fixed-point if -4 <= exponent < precision
-    YYIO_FLOAT$1 dval = (double)val;
-    YYIO_FLOAT$1 abs_val = (dval < 0) ? -dval : dval;
-    if (abs_val >= 0.0001 && abs_val < 1000000.0) {
-      // Use fixed-point logic but you MUST strip trailing zeros
-      len = d2fixed_buffered_n(val, 6, YYIO_string_data(res));
-      if (len > 0) {
-      	YYIO_string_set_used(res, len);
-      	YYIO_string_remove_trailing_zeros_and_dot(res);
-      	return 0;
-      }
-    } else {
-      len = d2s_buffered_n(val, YYIO_string_data(res));
-			if (len > 0) {
-				YYIO_string_set_used(res, len);
-				if (spec == 'G') exp_to_upper(res);
-			}
-    }
-	} else if (spec == 'f' || spec == 'F') {
-		/*
-     * Max integer digits + sign + dot + precision + null
-     * For double: 308 + 3 + precision
-     * For float:  38 + 3 + precision
-     */
-    const size_t to_reserve = YYIO_MAX_10_EXP$1 + 3 + precision;
-  	err = YYIO_string_reserve(res, to_reserve);
-  	if (err) return err;
-		len = d2fixed_buffered_n(val, precision, YYIO_string_data(res));
-		if (len > 0) {
-			YYIO_string_set_used(res, len);
-		}
-	} else if (spec == 'e' || spec == 'E') {
-		/* Overhead: sign(1), digit(1), dot(1), 'e'(1), exp_sign(1), exp_digits(2 or 3), null(1) */
-    const size_t overhead = YYIO_MAX_10_EXP$1 > 99 ? 9 : 8;
-    const size_t to_reserve = overhead + precision;
-    err = YYIO_string_reserve(res, to_reserve);
-    if (err) return err;
-		len = d2exp_buffered_n(val, precision, YYIO_string_data(res));
-		if (len > 0) {
-			YYIO_string_set_used(res, len);
-			if (spec == 'E') exp_to_upper(res);
-		}
-	} else {
-		return YYIO_RYU_FALLBACK$1(res, precision0, spec, val);
-	}
-	assert(len > 0);
-	return 0;
+{% else %}
+int YYIO_float_astrfrom_ryu_$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT_REPR_$1 val) {
+	return YYIO_float_astrfrom_naive_$1(res, precision, spec0, val);
 }
-
-int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec, YYIO_FLOAT$1 val) {
-	if (spec == 'a' || spec == 'A') {
-		return YYIO_RYU_FALLBACK$1(res, precision, spec, val);
-	}
-	return YYIO_float_astrfrom_ryu$1_in(res, precision, spec, val);
-}
+{% endif %}
 
 #endif
 {% endcall %}
+
 #endif

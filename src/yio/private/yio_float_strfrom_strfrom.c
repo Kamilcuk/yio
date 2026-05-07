@@ -52,28 +52,18 @@ void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0,
 	(void)fmt_size;
 }
 
-{% call j_FOREACHAPPLY(j_FLOATS) %}
+{% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-#if YIO_HAS_FLOAT$1
-#ifndef YYIO_HAS_strfrom$1
-#error  YYIO_HAS_strfrom$1
-#endif
+#ifdef YYIO_FLOAT_REPR_$1
+#if YYIO_HAS_strfrom_RC_$1
 
-#if !YYIO_HAS_strfrom$1
-// In case it's not defined in standard headers, so that we get a link time error.
-extern int strfrom$1(char *str, size_t n, const char *format, YYIO_FLOAT$1 fp);
-#endif
-
-int YYIO_float_astrfrom_strfrom$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT$1 val) {
+int YYIO_float_astrfrom_strfrom_$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT_REPR_$1 val) {
 	// create format string
 	char fmt[FMT_SIZE];
 	YYIO_float_astrfrom_strfrom_create_format_string(fmt, precision0, spec);
 	// get length
 	assert(YYIO_string_capacity(v) < INT_MAX);
-	const int len = strfrom$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+	const int len = YYIO_strfrom_RC_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 	if (len <= 0) {
 		// this is not possible
 		return YYIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned -1");
@@ -81,7 +71,7 @@ int YYIO_float_astrfrom_strfrom$1(YYIO_string *v, int precision0, char spec, YYI
 	if ((size_t)len >= YYIO_string_capacity(v)) {
 		const int err = YYIO_string_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = strfrom$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+		const int len2 = YYIO_strfrom_RC_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 		(void)len2;
 		assert(len2 > 0);
 		assert(len2 == len);
@@ -90,6 +80,7 @@ int YYIO_float_astrfrom_strfrom$1(YYIO_string *v, int precision0, char spec, YYI
 	return 0;
 }
 
+#endif
 #endif
 
 {% endcall %}

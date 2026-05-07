@@ -100,19 +100,16 @@ YYIO_FLOAT$1 YYIO_frexp2$1(YYIO_FLOAT$1 x, int *exp);
  * @define YYIO_frexp10$1
  * Like frexp(), but always with base 10.
  */
-{% if varargs.3 is defined %}
-#line
-#define YYIO_frexp10$1  frexp$2
-{% else %}
 #line
 YYIO_FLOAT$1 YYIO_frexp10$1(YYIO_FLOAT$1 x, int *exp);
-{% endif %}
 #line
 
 YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x);
 #define YYIO_floor$1   floor$2
 YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 x);
 #define YYIO_exp2$1    exp2$2
+YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x);
+#define YYIO_log2$1    log2$2
 YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 x);
 #define YYIO_log10$1   log10$2
 YYIO_FLOAT$1 fabs$2(YYIO_FLOAT$1 x);
@@ -215,6 +212,308 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 {% set j_CONSTPREFIX = "DEC" + v|replace('d','')|upper %}
 {{ j_floatdefine(v, v, j_CONSTPREFIX, "DEC") }}
 {% endfor %}
+
+/* ------------------------------------------------------------------------- */
+
+{% for V in j_FLOATS %}
+#line
+#if YIO_HAS_FLOAT{{V.1}}
+#ifdef __cplusplus
+{% if V.1 not in ["f", "d", "l"] %}
+#undef YIO_HAS_FLOAT{{V.1}}
+#define YIO_HAS_FLOAT{{V.1}} 0
+{% endif %}
+#endif
+#endif
+
+#if YIO_HAS_FLOAT{{V.1}}
+/* Binary Representations */
+#  if YYIO_FLOAT_MANT_DIG{{V.1}} == 11
+#    define YYIO_REPR_OF_{{V.1}}_IS_B16 1
+#    ifndef YYIO_FLOAT_REPR_B16
+#      define YYIO_FLOAT_REPR_B16 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_B16 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_B16   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_B16    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_B16    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_B16   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_B16    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_B16   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_B16    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_B16   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_B16  YYIO_frexp2{{V.1}}
+#      define YYIO_frexp10_RC_B16 YYIO_frexp10_RC_B16_IMPL
+#      define YYIO_nextafter_RC_B16 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_B16 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_B16 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_B16 YYIO_HAS_strfrom{{V.1}}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_B16 double
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_B16 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_B16 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_B16 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  elif YYIO_FLOAT_MANT_DIG{{V.1}} == 24
+#    define YYIO_REPR_OF_{{V.1}}_IS_B32 1
+#    ifndef YYIO_FLOAT_REPR_B32
+#      define YYIO_FLOAT_REPR_B32 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_B32 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_B32   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_B32    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_B32    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_B32   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_B32    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_B32   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_B32    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_B32   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_B32  YYIO_frexp2{{V.1}}
+#      define YYIO_frexp10_RC_B32 YYIO_frexp10_RC_B32_IMPL
+#      define YYIO_nextafter_RC_B32 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_B32 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_B32 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_B32 YYIO_HAS_strfrom{{V.1}}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_B32 double
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_B32 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_B32 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_B32 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  elif YYIO_FLOAT_MANT_DIG{{V.1}} == 53
+#    define YYIO_REPR_OF_{{V.1}}_IS_B64 1
+#    ifndef YYIO_FLOAT_REPR_B64
+#      define YYIO_FLOAT_REPR_B64 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_B64 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_B64   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_B64    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_B64    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_B64   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_B64    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_B64   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_B64    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_B64   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_B64  YYIO_frexp2{{V.1}}
+#      define YYIO_frexp10_RC_B64 YYIO_frexp10_RC_B64_IMPL
+#      define YYIO_nextafter_RC_B64 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_B64 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_B64 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_B64 YYIO_HAS_strfrom{{V.1}}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_B64 double
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_B64 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_B64 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_B64 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  elif YYIO_FLOAT_MANT_DIG{{V.1}} == 64
+#    define YYIO_REPR_OF_{{V.1}}_IS_B80 1
+#    ifndef YYIO_FLOAT_REPR_B80
+#      define YYIO_FLOAT_REPR_B80 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_B80 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_B80   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_B80    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_B80    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_B80   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_B80    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_B80   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_B80    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_B80   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_B80  YYIO_frexp2{{V.1}}
+#      define YYIO_frexp10_RC_B80 YYIO_frexp10_RC_B80_IMPL
+#      define YYIO_nextafter_RC_B80 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_B80 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_B80 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_B80 YYIO_HAS_strfrom{{V.1}}
+{% if V.math == 'l' %}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_B80 long double
+{% else %}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_B80 double
+{% endif %}
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_B80 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_B80 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_B80 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  elif YYIO_FLOAT_MANT_DIG{{V.1}} == 113
+#    define YYIO_REPR_OF_{{V.1}}_IS_B128 1
+#    ifndef YYIO_FLOAT_REPR_B128
+#      define YYIO_FLOAT_REPR_B128 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_B128 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_B128   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_B128    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_B128    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_B128   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_B128    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_B128   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_B128    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_B128   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_B128  YYIO_frexp2{{V.1}}
+#      define YYIO_frexp10_RC_B128 YYIO_frexp10_RC_B128_IMPL
+#      define YYIO_nextafter_RC_B128 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_B128 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_B128 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_B128 YYIO_HAS_strfrom{{V.1}}
+{% if V.math == 'l' %}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_B128 long double
+{% else %}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_B128 double
+{% endif %}
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_B128 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_B128 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_B128 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  endif
+/* Decimal Representations */
+#  if YYIO_FLOAT_MANT_DIG{{V.1}} == 7
+#    define YYIO_REPR_OF_{{V.1}}_IS_D32 1
+#    ifndef YYIO_FLOAT_REPR_D32
+#      define YYIO_FLOAT_REPR_D32 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_D32 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_D32   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_D32    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_D32    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_D32   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_D32    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_D32   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_D32    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_D32   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_D32  YYIO_frexp2_RC_D32_IMPL
+#      define YYIO_frexp10_RC_D32 YYIO_frexp10_RC_D32_IMPL
+#      define YYIO_nextafter_RC_D32 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_D32 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_D32 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_D32 YYIO_HAS_strfrom{{V.1}}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_D32 YYIO_FLOAT{{V.1}}
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_D32 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_D32 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_D32 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  elif YYIO_FLOAT_MANT_DIG{{V.1}} == 16
+#    define YYIO_REPR_OF_{{V.1}}_IS_D64 1
+#    ifndef YYIO_FLOAT_REPR_D64
+#      define YYIO_FLOAT_REPR_D64 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_D64 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_D64   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_D64    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_D64    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_D64   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_D64    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_D64   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_D64    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_D64   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_D64  YYIO_frexp2_RC_D64_IMPL
+#      define YYIO_frexp10_RC_D64 YYIO_frexp10_RC_D64_IMPL
+#      define YYIO_nextafter_RC_D64 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_D64 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_D64 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_D64 YYIO_HAS_strfrom{{V.1}}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_D64 YYIO_FLOAT{{V.1}}
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_D64 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_D64 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_D64 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  elif YYIO_FLOAT_MANT_DIG{{V.1}} == 34
+#    define YYIO_REPR_OF_{{V.1}}_IS_D128 1
+#    ifndef YYIO_FLOAT_REPR_D128
+#      define YYIO_FLOAT_REPR_D128 YYIO_FLOAT{{V.1}}
+#      define YYIO_FLOAT_MANT_DIG_RC_D128 YYIO_FLOAT_MANT_DIG{{V.1}}
+#      define YYIO_floor_RC_D128   YYIO_floor{{V.1}}
+#      define YYIO_modf_RC_D128    YYIO_modf{{V.1}}
+#      define YYIO_log2_RC_D128    YYIO_log2{{V.1}}
+#      define YYIO_log10_RC_D128   YYIO_log10{{V.1}}
+#      define YYIO_exp2_RC_D128    YYIO_exp2{{V.1}}
+#      define YYIO_exp10_RC_D128   YYIO_exp10{{V.1}}
+#      define YYIO_fabs_RC_D128    YYIO_fabs{{V.1}}
+#      define YYIO_frexp_RC_D128   YYIO_frexp{{V.1}}
+#      define YYIO_frexp2_RC_D128  YYIO_frexp2_RC_D128_IMPL
+#      define YYIO_frexp10_RC_D128 YYIO_frexp10_RC_D128_IMPL
+#      define YYIO_nextafter_RC_D128 YYIO_nextafter{{V.1}}
+#      define YYIO_FLOAT_C_RC_D128 YYIO_FLOAT_C{{V.1}}
+#      define YYIO_strfrom_RC_D128 strfrom{{V.1}}
+#      define YYIO_HAS_strfrom_RC_D128 YYIO_HAS_strfrom{{V.1}}
+#      define YYIO_FLOAT_PRINTF_TYPE_RC_D128 YYIO_FLOAT{{V.1}}
+#      ifdef YYIO_FLOAT_PRI{{V.1}}
+#        define YYIO_FLOAT_PRI_RC_D128 YYIO_FLOAT_PRI{{V.1}}
+#      else
+#        define YYIO_FLOAT_PRI_RC_D128 ""
+#      endif
+#      define YYIO_MAX_10_EXP_RC_D128 YYIO_MAX_10_EXP{{V.1}}
+#    endif
+#  endif
+#endif
+{% endfor %}
+
+/* ------------------------------------------------------------------------- */
+
+{% for V in j_FLOATS %}
+#if YIO_HAS_FLOAT{{V.1}}
+
+{% for R in V.reprs %}
+#if YYIO_REPR_OF_{{V.1}}_IS_{{R}}
+
+#  ifndef YYIO_frexp10{{V.1}}
+#    define YYIO_frexp10{{V.1}}  YYIO_frexp10_RC_{{R}}
+#  endif
+#  ifndef YYIO_frexp2{{V.1}}
+#    define YYIO_frexp2{{V.1}}   YYIO_frexp2_RC_{{R}}
+#  endif
+
+#  ifndef YYIO_float_astrfrom_naive{{V.1}}
+#    define YYIO_float_astrfrom_naive{{V.1}}  YYIO_float_astrfrom_naive_{{R}}
+#  endif
+#  ifndef YYIO_float_astrfrom_strfrom{{V.1}}
+#    define YYIO_float_astrfrom_strfrom{{V.1}} YYIO_float_astrfrom_strfrom_{{R}}
+#  endif
+#  ifndef YYIO_float_astrfrom_printf{{V.1}}
+#    define YYIO_float_astrfrom_printf{{V.1}}  YYIO_float_astrfrom_printf_{{R}}
+#  endif
+#  ifndef YYIO_float_astrfrom_ryu{{V.1}}
+#    define YYIO_float_astrfrom_ryu{{V.1}}     YYIO_float_astrfrom_ryu_{{R}}
+#  endif
+#  ifndef YYIO_has_float_naive{{V.1}}
+#    define YYIO_has_float_naive{{V.1}}       YYIO_has_float_naive_{{R}}
+#  endif
+#  ifndef YYIO_has_float_strfrom{{V.1}}
+#    define YYIO_has_float_strfrom{{V.1}}      YYIO_has_float_strfrom_{{R}}
+#  endif
+#  ifndef YYIO_has_float_printf{{V.1}}
+#    define YYIO_has_float_printf{{V.1}}       YYIO_has_float_printf_{{R}}
+#  endif
+#  ifndef YYIO_has_float_ryu{{V.1}}
+#    define YYIO_has_float_ryu{{V.1}}          YYIO_has_float_ryu_{{R}}
+#  endif
+#endif
+{% endfor %}
+
+#endif
+{% endfor %}
+
+/* ------------------------------------------------------------------------- */
+
+#ifdef YYIO_PRIVATE
+{% for R in j_FLOATREPRS %}
+#line
+#ifdef YYIO_FLOAT_REPR_{{R}}
+YYIO_FLOAT_REPR_{{R}} YYIO_frexp10_RC_{{R}}_IMPL(YYIO_FLOAT_REPR_{{R}} val, int *exp);
+YYIO_FLOAT_REPR_{{R}} YYIO_frexp2_RC_{{R}}_IMPL(YYIO_FLOAT_REPR_{{R}} val, int *exp);
+#endif
+{% endfor %}
+#endif
 
 /* ------------------------------------------------------------------------- */
 

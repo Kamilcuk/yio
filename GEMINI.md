@@ -71,6 +71,7 @@ Most of the codebase is generated from templates in `src/yio/yio/`. When editing
   ```bash
   make test ONLY=".*time(spec|val).*"
   ```
+- **Large Test Output:** Tests for `float` and `decimal` produce extremely high-volume output. When running these, always redirect to a file or pipe through `tail`/`grep` to avoid overwhelming the session context.
 
 ### Namespace Guidelines
 - `yio_printf`, `yio_print`: Primary type-safe API.

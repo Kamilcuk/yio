@@ -12,39 +12,38 @@
 extern "C" {
 #endif
 
+#ifndef YYIO_PRIVATE
+#error THIS FILE IS ONLY FOR PRIVATE USE
+#endif
+
 #include "../yio_config.h"
-#ifdef YYIO_PRIVATE
 #include "yio_string.h"
-#endif
+#include "yio_float.h"
 
-{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
+{% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-{% if V.1 in ["f", "d", "l", "d32", "d64", "d128"] %}
-#if YIO_HAS_FLOAT$1
+#ifdef YYIO_FLOAT_REPR_$1
 
-#ifdef YYIO_PRIVATE
 /**
  * Convert the floating number val according to specified precision
  * and specification using snprintf function.
- * @param o
+ * @param v
  * @param precision Negative if unset
  * @param spec a, A, e, E, f, F, g, or G
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int YYIO_float_astrfrom_printf$1(YYIO_string *v, int precision, char spec, YYIO_FLOAT$1 val);
+int YYIO_float_astrfrom_printf_$1(YYIO_string *v, int precision, char spec, YYIO_FLOAT_REPR_$1 val);
+
+#if YIO_USE_STRFROM_PRINTF
+#  define YYIO_has_float_printf_$1  1
+#else
+#  define YYIO_has_float_printf_$1  0
 #endif
 
-#define YYIO_has_float_printf$1  1
 #else
-#define YYIO_has_float_printf$1  0
+#define YYIO_has_float_printf_$1 0
 #endif
-{% else %}
-#define YYIO_has_float_printf$1 0
-{% endif %}
 {% endcall %}
 
 #ifdef __cplusplus

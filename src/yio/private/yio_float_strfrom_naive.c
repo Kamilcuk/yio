@@ -38,6 +38,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+_Static_assert(FLT_RADIX == 2, "FLT_RADIX must be 2");
+
 #ifndef NDEBUG
 #define ASSERTMSG(expr, fmt, ...) do { \
 	if (!(expr)) { \
@@ -69,7 +71,7 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 	  if (err) return err;
 	  const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
 	  struct yio_printfmt_s fmt = {
-	    .width = dec ? 3 : 0,
+	    .width = dec ? 4 : 0,
 	    .fill = '0',
 	    .align = '=',
 	    .sign = '+',
@@ -79,33 +81,30 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 	return err;
 }
 
-{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
+{% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-#if YIO_HAS_FLOAT$1
+#ifdef YYIO_FLOAT_REPR_$1
 
-#define TYPE     YYIO_FLOAT$1
-#define FLOOR    YYIO_floor$1
-#define MODF     YYIO_modf$1
-#define EXP2     YYIO_exp2$1
-#define EXP10    YYIO_exp10$1
-#define FABS     YYIO_fabs$1
-#define FREXP2   YYIO_frexp2$1
-#define FREXP10  YYIO_frexp10$1
-#define FC(x)    YYIO_FLOAT_C$1(x)
+#define TYPE     YYIO_FLOAT_REPR_$1
+#define FLOOR    YYIO_floor_RC_$1
+#define MODF     YYIO_modf_RC_$1
+#define EXP2     YYIO_exp2_RC_$1
+#define EXP10    YYIO_exp10_RC_$1
+#define FABS     YYIO_fabs_RC_$1
+#define FREXP2   YYIO_frexp2_RC_$1
+#define FREXP10  YYIO_frexp10_RC_$1
+#define FC(x)    YYIO_FLOAT_C_RC_$1(x)
 
 #line
-{% if j_search(V.1, "^d[0-9]") %}
+{% if j_search(V.1, "^D") %}
 #if defined(__GNUC__) && __GNUC__ < 15 && !defined(__clang__)
 // Workaround for GNU bug around decimal floating point numbers.
 // Fixed in GCC 15: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674
 #ifndef DEC_INFINITY
-#define DEC_INFINITY  __builtin_inf$1()
+#define DEC_INFINITY  __builtin_infd64() // FIXME: this is a bit of a hack, should depend on R
 #endif
 #ifndef DEC_NAN
-#define DEC_NAN  __builtin_nan$1("")
+#define DEC_NAN  __builtin_nand64("") // FIXME: same here
 #endif
 #define ISINF(x)  (x == DEC_INFINITY || x == -DEC_INFINITY)
 #define FPCLASSIFY(x)  (ISINF(x) ? FP_INFINITE : x != x ? FP_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
@@ -120,7 +119,7 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 #line
 
 static inline
-int get_next_digit$1(YYIO_string *v, TYPE *val,
+int get_next_digit_$1(YYIO_string *v, TYPE *val,
 		bool dec, const char *to_digit_str, bool is_last) {
 	TYPE digit_fp;
 	*val = MODF(*val * (dec ? FC(10.0) : FC(16.0)), &digit_fp);
@@ -139,19 +138,11 @@ int get_next_digit$1(YYIO_string *v, TYPE *val,
 	return 0;
 }
 
-int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE val) {
+int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYPE val) {
 	static const int a_max_precision =
-#if FLT_RADIX == 2
 // if the precision is missing and FLT_RADIX is a power of 2,
 // then the precision is sufficient for an exact representation of the value
-			YYIO_FLOAT_MANT_DIG$1 / 4 + ((YYIO_FLOAT_MANT_DIG$1 % 4) != 0);
-#else
-// if the precision is missing and FLT_RADIX is not a power of 2,
-// then the precision is sufficient to distinguish values of type double,
-// except that trailing zeros may be omitted
-// Will this code ever execute?
-			round(log2(exp(FLT_RADIX, YYIO_FLOAT_MANT_DIG$1)) + 0.5);
-#endif
+			YYIO_FLOAT_MANT_DIG_RC_$1 / 4 + ((YYIO_FLOAT_MANT_DIG_RC_$1 % 4) != 0);
 
 	int err = 0;
 
@@ -232,7 +223,7 @@ int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE
 	if (val_is_zero) {
 		exponent = 0;
 	} else if (speclower == 'f') {
-		const YYIO_FLOAT$1 tmp = val + FC(0.5) * EXP10(-(TYPE)precision);
+		const TYPE tmp = val + FC(0.5) * EXP10(-(TYPE)precision);
 		if (!ISINF(tmp)) {
 			val = tmp;
 		}
@@ -246,7 +237,7 @@ int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE
 				return YIO_ERROR_ENOSYS;
 			}
 			const int bitpos = -5 + -4 * (int)precision + exponent_tmp;
-			const YYIO_FLOAT$1 tmp = val + EXP2((TYPE)bitpos);
+			const TYPE tmp = val + EXP2((TYPE)bitpos);
 			if (!ISINF(tmp)) {
 				val = tmp;
 			}
@@ -277,7 +268,7 @@ int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE
 		} else {
 			assert(exponent > 0);
 			for (int i = exponent; i; --i) {
-				err = get_next_digit$1(v, &val, dec, to_digit_str, i == 1 && precision == 0);
+				err = get_next_digit_$1(v, &val, dec, to_digit_str, i == 1 && precision == 0);
 				if (err) return err;
 			}
 		}
@@ -286,7 +277,7 @@ int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE
 			err = YYIO_string_putc(v, '0');
 			if (err) return err;
 		} else {
-			err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
+			err = get_next_digit_$1(v, &val, dec, to_digit_str, precision == 0);
 			if (err) return err;
 		}
 	} else if (speclower == 'a') {
@@ -299,7 +290,7 @@ int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE
 			if (err) return err;
 		} else {
 			// print first number
-			err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
+			err = get_next_digit_$1(v, &val, dec, to_digit_str, precision == 0);
 			if (err) return err;
 		}
 	}
@@ -314,7 +305,7 @@ int YYIO_float_astrfrom_naive$1(YYIO_string *v, int precision0, char spec0, TYPE
 				err = YYIO_string_putc(v, '0');
 				if (err) return err;
 			} else {
-				err = get_next_digit$1(v, &val, dec, to_digit_str, precision == 0);
+				err = get_next_digit_$1(v, &val, dec, to_digit_str, precision == 0);
 				if (err) return err;
 			}
 		}

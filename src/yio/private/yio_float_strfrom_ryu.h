@@ -12,20 +12,33 @@
 extern "C" {
 #endif
 
-#include "../yio_config.h"
-#include "yio_float.h"
-#ifdef YYIO_PRIVATE
-#include "yio_string.h"
+#ifndef YYIO_PRIVATE
+#error THIS FILE IS ONLY FOR PRIVATE USE
 #endif
 
-{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
+#include "../yio_config.h"
+#include "yio_string.h"
+#include "yio_float.h"
+
+{% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-#if YIO_HAS_FLOAT$1
-{% if V.1 == "f" or V.1 == "d" %}
-#ifdef YYIO_PRIVATE
+#ifdef YYIO_FLOAT_REPR_$1
+
+{% if V.1 in ["B32", "B64"] %}
+#  define YYIO_has_float_ryu_$1 1
+{% elif V.1 in ["B80", "B128"] %}
+#  ifndef YYIO_HAS_INT128
+#    error  YYIO_HAS_INT128
+#  endif
+#  if YYIO_HAS_INT128
+#    define YYIO_has_float_ryu_$1 1
+#  else
+#    define YYIO_has_float_ryu_$1 0
+#  endif
+{% else %}
+#  define YYIO_has_float_ryu_$1 0
+{% endif %}
+
 /**
  * Convert the floating number val according to specified precision
  * and specification using method written by myself.
@@ -35,58 +48,11 @@ extern "C" {
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT$1 val);
-#endif
-#define YYIO_has_float_ryu$1  1
-{% elif V.1 == "l" %}
-#if YYIO_HAS_INT128
-#ifdef YYIO_PRIVATE
-/** long double native support requires __int128. */
-int YYIO_float_astrfrom_ryu$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT$1 val);
-#endif
-#define YYIO_has_float_ryu$1  1
-#elif YYIO_FLOAT_MANT_DIG$1 == FLT_MANT_DIG
-#define YYIO_has_float_ryu$1  1
-#ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryuf(res, prec, spec, (float)(val))
-#endif
-#elif YYIO_FLOAT_MANT_DIG$1 == DBL_MANT_DIG
-#define YYIO_has_float_ryu$1  1
-#ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryud(res, prec, spec, (double)(val))
-#endif
+int YYIO_float_astrfrom_ryu_$1(YYIO_string *res, int precision, char spec0, YYIO_FLOAT_REPR_$1 val);
+
 #else
-#define YYIO_has_float_ryu$1  0
-#ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_naive$1
+#define YYIO_has_float_ryu_$1 0
 #endif
-#endif
-{% elif j_search("^f[0-9]+", V.1) %}
-#if YYIO_FLOAT_MANT_DIG$1 == FLT_MANT_DIG
-#define YYIO_has_float_ryu$1  1
-#ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryuf(res, prec, spec, (float)(val))
-#endif
-#elif YYIO_FLOAT_MANT_DIG$1 == DBL_MANT_DIG
-#define YYIO_has_float_ryu$1  1
-#ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1(res, prec, spec, val)  YYIO_float_astrfrom_ryud(res, prec, spec, (double)(val))
-#endif
-#else
-#define YYIO_has_float_ryu$1  0
-#ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_naive$1
-#endif
-#endif
-{% else %}
-#define YYIO_has_float_ryu$1  0
-#ifdef YYIO_PRIVATE
-#define YYIO_float_astrfrom_ryu$1  YYIO_float_astrfrom_naive$1
-#endif
-{% endif %}
-#else
-#define YYIO_has_float_ryu$1  0
-#endif // YYIO_FLOAT$1
 {% endcall %}
 
 #ifdef __cplusplus

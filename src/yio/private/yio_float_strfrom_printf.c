@@ -47,40 +47,36 @@ void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 	assert(fmtpnt <= fmt + fmtsize);
 }
 
-{% call j_FOREACHAPPLY(["f", "d", "l", "d32", "d64", "d128"]) %}
+{% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
+#ifdef YYIO_FLOAT_REPR_$1
 
-#ifndef YYIO_has_float_printf$1
-#error  YYIO_has_float_printf$1
-#endif
-#if YYIO_has_float_printf$1
-
-#define FMT_SIZE$1 ( \
+#define FMT_SIZE_$1 ( \
 		\
 		sizeof("%") - 1 + \
 		sizeof(".") - 1 + \
 		YYIO_INT_STRLEN_BOUND() + \
-		sizeof(YYIO_FLOAT_PRI$1) - 1 + \
+		sizeof(YYIO_FLOAT_PRI_RC_$1) - 1 + \
 		sizeof(char) + \
 		1 \
 )
 
 static inline
-void YYIO_create_format_string$1(char *restrict fmt, int precision0, char spec) {
-	YYIO_create_format_string_generic(fmt, FMT_SIZE$1,
-			precision0, spec, YYIO_FLOAT_PRI$1, sizeof(YYIO_FLOAT_PRI$1) - 1);
+void YYIO_create_format_string_$1(char *restrict fmt, int precision0, char spec) {
+	YYIO_create_format_string_generic(fmt, FMT_SIZE_$1,
+			precision0, spec, YYIO_FLOAT_PRI_RC_$1, sizeof(YYIO_FLOAT_PRI_RC_$1) - 1);
 }
 
-int YYIO_float_astrfrom_printf$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT$1 val) {
-	char fmt[FMT_SIZE$1];
-	YYIO_create_format_string$1(fmt, precision0, spec);
+int YYIO_float_astrfrom_printf_$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT_REPR_$1 val) {
+	char fmt[FMT_SIZE_$1];
+	YYIO_create_format_string_$1(fmt, precision0, spec);
 	assert(YYIO_string_capacity(v) < INT_MAX);
-	const int len = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+	const int len = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, (YYIO_FLOAT_PRINTF_TYPE_RC_$1)val);
 	assert(len >= 0);
 	if ((size_t)len >= YYIO_string_capacity(v)) {
 		int err = YYIO_string_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+		const int len2 = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, (YYIO_FLOAT_PRINTF_TYPE_RC_$1)val);
 		(void)len2;
 		assert(len2 >= 0);
 		assert(len2 == len);

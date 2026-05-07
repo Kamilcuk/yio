@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  */
 #include "private.h"
+#include "../../private/yio_string.h"
 #if YIO_HAS_UCHAR_H
 #include <uchar.h>
 #include <string.h>

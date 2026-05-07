@@ -11,38 +11,37 @@
 #include "private.h"
 #include <math.h>
 
-{% call j_FOREACHAPPLY(["d32", "d64", "d128", "d32x", "d64x", "d128x"]) %}
+{% for R in j_FLOATREPRS %}
 #line
+#ifdef YYIO_FLOAT_REPR_{{R}}
 
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-#if YIO_HAS_FLOAT$1
+#define TYPE     YYIO_FLOAT_REPR_{{R}}
+#define FLOOR    YYIO_floor_RC_{{R}}
+#define LOG2     YYIO_log2_RC_{{R}}
+#define EXP2     YYIO_exp2_RC_{{R}}
+#define FC(x)    YYIO_FLOAT_C_RC_{{R}}(x)
 
-// Forward declaration so we get compile time errors.
-// If you see link errors, link with an implementation of decimal-library.
-YYIO_FLOAT$1 floor$1(YYIO_FLOAT$1 x);
-YYIO_FLOAT$1 log2$1(YYIO_FLOAT$1 x);
-YYIO_FLOAT$1 exp2$1(YYIO_FLOAT$1 x);
-YYIO_FLOAT$1 frexp$1(YYIO_FLOAT$1 x, int *);
-
-YYIO_FLOAT$1 YYIO_frexp2$1(YYIO_FLOAT$1 val, int *exp) {
-	if (val == YYIO_FLOAT_C$1(0.0)) {
-		*exp = YYIO_FLOAT_C$1(0.0);
+TYPE YYIO_frexp2_RC_{{R}}_IMPL(TYPE val, int *exp) {
+	if (val == FC(0.0)) {
+		*exp = 0;
 	} else {
-		const int tmp = 1 + floor$1(log2$1(val));
+		const int tmp = (int)(FC(1.0) + FLOOR(LOG2(val)));
 		*exp = tmp;
-		val *= exp2$1(-tmp);
-		if (val < YYIO_FLOAT_C$1(0.5)) {
-			val = YYIO_FLOAT_C$1(0.5);
-		} else if (val > YYIO_FLOAT_C$1(1.0)) {
-			val = YYIO_FLOAT_C$1(1.0);
+		val *= EXP2((TYPE)-( (long long)tmp ));
+		if (val < FC(0.5)) {
+			val = FC(0.5);
+		} else if (val > FC(1.0)) {
+			val = FC(1.0);
 		}
 	}
 	return val;
 }
 
+#undef TYPE
+#undef FLOOR
+#undef LOG2
+#undef EXP2
+#undef FC
+
 #endif
-
-{% endcall %}
-
+{% endfor %}

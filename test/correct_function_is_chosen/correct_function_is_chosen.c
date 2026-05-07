@@ -8,55 +8,63 @@
  */
 #include <yio_test.h>
 
+#define YYIO_PRIVATE 1
+#include <yio/private/yio_float.h>
+#include <yio/private/yio_float_strfrom_naive.h>
+#include <yio/private/yio_float_strfrom_ryu.h>
+#include <yio/private/yio_float_strfrom_strfrom.h>
+#include <yio/private/yio_float_strfrom_printf.h>
+
 static const char *gfunc = "";
 
-#define MASK(FUNC) \
-	int FUNC(yio_printctx_t *t); \
-	int __real_##FUNC(yio_printctx_t *t); \
-	int __wrap_##FUNC(yio_printctx_t *t); \
-	int __wrap_##FUNC(yio_printctx_t *t) { \
-		gfunc = #FUNC; \
-		return __real_##FUNC(t); \
+#define MASK(BACKEND, REPR) \
+	int __wrap_YYIO_float_astrfrom_##BACKEND##_##REPR(YYIO_string *v, int precision, char spec, ...); \
+	int __wrap_YYIO_float_astrfrom_##BACKEND##_##REPR(YYIO_string *v, int precision, char spec, ...) { \
+		(void)v; (void)precision; (void)spec; \
+		gfunc = "YYIO_float_astrfrom_" #BACKEND "_" #REPR; \
+		return 0; \
 	}
 
-#ifndef YYIO_HAS_strfromf
-#error YYIO_HAS_strfromf
+#ifdef YYIO_FLOAT_REPR_B32
+MASK(strfrom, B32)
+MASK(ryu, B32)
+MASK(printf, B32)
+MASK(naive, B32)
 #endif
-#if YYIO_HAS_strfromf
-MASK(YYIO_print_float_strfromf)
-#endif
-#ifndef YYIO_HAS_strfromd
-#error YYIO_HAS_strfromd
-#endif
-#if YYIO_HAS_strfromd
-MASK(YYIO_print_float_strfromd)
-#endif
-#ifndef YYIO_HAS_strfroml
-#error YYIO_HAS_strfroml
-#endif
-#if YYIO_HAS_strfroml
-MASK(YYIO_print_float_strfroml)
-#endif
-MASK(YYIO_print_float_ryuf)
-MASK(YYIO_print_float_ryud)
-MASK(YYIO_print_float_ryul)
-MASK(YYIO_print_float_printff)
-MASK(YYIO_print_float_printfd)
-MASK(YYIO_print_float_printfl)
-MASK(YYIO_print_float_customf)
-MASK(YYIO_print_float_customd)
-MASK(YYIO_print_float_customl)
 
-#define CHECK(SUFF) \
+#ifdef YYIO_FLOAT_REPR_B64
+MASK(strfrom, B64)
+MASK(ryu, B64)
+MASK(printf, B64)
+MASK(naive, B64)
+#endif
+
+#ifdef YYIO_FLOAT_REPR_B80
+MASK(strfrom, B80)
+MASK(ryu, B80)
+MASK(printf, B80)
+MASK(naive, B80)
+#endif
+
+#ifdef YYIO_FLOAT_REPR_B128
+MASK(strfrom, B128)
+MASK(ryu, B128)
+MASK(printf, B128)
+MASK(naive, B128)
+#endif
+
+#define CHECK(SUFF, REPR) \
 	do{ \
-		printf("called function is `%s`\n", gfunc); \
+		printf("called function is `%s` for SUFF=" #SUFF " REPR=" #REPR "\n", gfunc); \
 		const char *shouldbe; \
-		if (YIO_FLOAT_BACKEND_STRFROM && YYIO_HAS_strfrom##SUFF) { \
-			shouldbe = "YYIO_print_float_strfrom" #SUFF; \
-		} else if (YIO_FLOAT_BACKEND_RYU && YYIO_has_float_ryu##SUFF) { \
-			shouldbe = "YYIO_print_float_ryu" #SUFF; \
+		if (YIO_FLOAT_BACKEND_STRFROM && YYIO_has_float_strfrom_##REPR) { \
+			shouldbe = "YYIO_float_astrfrom_strfrom_" #REPR; \
+		} else if (YIO_FLOAT_BACKEND_RYU && YYIO_has_float_ryu_##REPR) { \
+			shouldbe = "YYIO_float_astrfrom_ryu_" #REPR; \
+		} else if (YIO_FLOAT_BACKEND_PRINTF && YYIO_has_float_printf_##REPR) { \
+			shouldbe = "YYIO_float_astrfrom_printf_" #REPR; \
 		} else { \
-			shouldbe = "YYIO_print_float_custom" #SUFF; \
+			shouldbe = "YYIO_float_astrfrom_naive_" #REPR; \
 		} \
 		YIO_TESTEXPR(strcmp(gfunc, shouldbe) == 0, \
 							 "called function was gfunc=%s but it should be=%s", gfunc, shouldbe); \
@@ -66,16 +74,28 @@ MASK(YYIO_print_float_customl)
 int main() {
 #if YIO_HAS_FLOATf
 	yio_printf("{}", 1.0f);
-	CHECK(f);
+#if YYIO_REPR_OF_f_IS_B32
+	CHECK(f, B32);
+#elif YYIO_REPR_OF_f_IS_B64
+	CHECK(f, B64);
+#endif
 #endif
 
 #if YIO_HAS_FLOATd
 	yio_printf("{}", 1.0);
-	CHECK(d);
+#if YYIO_REPR_OF_d_IS_B64
+	CHECK(d, B64);
+#endif
 #endif
 
 #if YIO_HAS_FLOATl
 	yio_printf("{}", 1.0l);
-	CHECK(l);
+#if YYIO_REPR_OF_l_IS_B80
+	CHECK(l, B80);
+#elif YYIO_REPR_OF_l_IS_B128
+	CHECK(l, B128);
+#elif YYIO_REPR_OF_l_IS_B64
+	CHECK(l, B64);
+#endif
 #endif
 }

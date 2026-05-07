@@ -65,12 +65,18 @@ if(YIO_HAS_ANY_DECIMAL_FLOAT)
             message(STATUS "Building libdfp from source via ExternalProject.")
             include(ExternalProject)
             set(LIBDFP_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/libdfp_install")
+            file(MAKE_DIRECTORY "${LIBDFP_INSTALL_DIR}/include")
             
             ExternalProject_Add(libdfp_ext
                 SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libdfp"
                 PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libdfp_build"
                 INSTALL_DIR "${LIBDFP_INSTALL_DIR}"
-                CONFIGURE_COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/libdfp/configure" "--prefix=${LIBDFP_INSTALL_DIR}" "--enable-static" "--disable-shared" "CC=${CMAKE_C_COMPILER}"
+                CONFIGURE_COMMAND "${CMAKE_COMMAND}" -E env "CC=${CMAKE_C_COMPILER}" "AR=${CMAKE_AR}" "RANLIB=${CMAKE_RANLIB}" "${CMAKE_CURRENT_SOURCE_DIR}/libdfp/configure" "--prefix=${LIBDFP_INSTALL_DIR}" "--enable-static" "--disable-shared"
+                BUILD_COMMAND "${CMAKE_COMMAND}" -E env "AR=${CMAKE_AR}" "RANLIB=${CMAKE_RANLIB}" make
+                INSTALL_COMMAND "${CMAKE_COMMAND}" -E env "AR=${CMAKE_AR}" "RANLIB=${CMAKE_RANLIB}" make install-headers install-doc
+                COMMAND "${CMAKE_COMMAND}" -E make_directory "${LIBDFP_INSTALL_DIR}/lib"
+                COMMAND "${CMAKE_COMMAND}" -E copy "libdfp.a" "${LIBDFP_INSTALL_DIR}/lib/"
+                COMMAND "${CMAKE_COMMAND}" -E copy "libdecnumber/libdecnumber.a" "${LIBDFP_INSTALL_DIR}/lib/"
                 BUILD_BYPRODUCTS "${LIBDFP_INSTALL_DIR}/lib/libdfp.a"
             )
             
@@ -79,6 +85,7 @@ if(YIO_HAS_ANY_DECIMAL_FLOAT)
             set_target_properties(dfp PROPERTIES
                 IMPORTED_LOCATION "${LIBDFP_INSTALL_DIR}/lib/libdfp.a"
                 INTERFACE_INCLUDE_DIRECTORIES "${LIBDFP_INSTALL_DIR}/include"
+                INTERFACE_LINK_LIBRARIES "${LIBDFP_INSTALL_DIR}/lib/libdecnumber.a"
             )
             set(dfp_FOUND TRUE)
         else()

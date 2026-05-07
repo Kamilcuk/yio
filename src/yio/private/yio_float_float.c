@@ -16,26 +16,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-{% call j_FOREACHAPPLY(["f", "d", "l", "f16", "f32", "f64", "f128", "f32x", "f64x", "f128x", "d32", "d64", "d128", "d32x", "d64x", "d128x"]) %}
-
-/* suffix $1 ---------------------------------------------------- */
+{% for R in j_FLOATREPRS %}
+#line
+#ifdef YYIO_FLOAT_REPR_{{R}}
 
 #ifndef YYIO_MUSL_BROKEN_EXP10
 #error  YYIO_MUSL_BROKEN_EXP10
 #endif
 
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
-#endif
-#if YIO_HAS_FLOAT$1
+#define TYPE     YYIO_FLOAT_REPR_{{R}}
+#define FLOOR    YYIO_floor_RC_{{R}}
+#define LOG10    YYIO_log10_RC_{{R}}
+#define FABS     YYIO_fabs_RC_{{R}}
+#define EXP10    YYIO_exp10_RC_{{R}}
+#define NEXTAFTER YYIO_nextafter_RC_{{R}}
+#define FC(x)    YYIO_FLOAT_C_RC_{{R}}(x)
 
-YYIO_FLOAT$1 YYIO_frexp10$1(YYIO_FLOAT$1 val, int *exp) {
-	const int tmp = val == 0 ? 0 : (int)(
-			YYIO_FLOAT_C$1(1.0) + YYIO_floor$1(YYIO_log10$1(YYIO_fabs$1(val)))
+TYPE YYIO_frexp10_RC_{{R}}_IMPL(TYPE val, int *exp) {
+	if (val == FC(0.0)) {
+		*exp = 0;
+		return val;
+	}
+	const int tmp = (int)(
+			FC(1.0) + FLOOR(LOG10(FABS(val)))
 	);
 	*exp = tmp;
-	YYIO_FLOAT$1 ex = YYIO_exp10$1( (YYIO_FLOAT$1)-tmp );
-	const YYIO_FLOAT$1 minval = YYIO_FLOAT_C$1(0.1);
+	TYPE ex = EXP10( (TYPE)-( (long long)tmp ) );
+	const TYPE minval = FC(0.1);
 #if YYIO_MUSL_BROKEN_EXP10
 	// Musl incorrectly implements exp10 for big numbers.
 	if (ex == 0 && tmp > 10) {
@@ -46,16 +53,21 @@ YYIO_FLOAT$1 YYIO_frexp10$1(YYIO_FLOAT$1 val, int *exp) {
 	}
 #endif
 	val *= ex;
-	//printf("%Lg %d %Lg %Lg %Lg\n", (long double)exp10l(-tmp), errno, (long double)powl(10.0, -tmp), (long double)ex, (long double)val);
-	//printf("%d %zu %d %d %d\n", DBL_MANT_DIG, sizeof(double), DBL_MAX_EXP, DBL_MAX_10_EXP, DBL_HAS_SUBNORM);
 	if (val < minval) {
 		val = minval;
-	} else if (val >= YYIO_FLOAT_C$1(1.0)) {
-		val = YYIO_nextafter$1(YYIO_FLOAT_C$1(1.0), 0);
+	} else if (val >= FC(1.0)) {
+		val = NEXTAFTER(FC(1.0), 0);
 	}
 	return val;
 }
 
-#endif // YIO_HAS_FLOAT$1
+#undef TYPE
+#undef FLOOR
+#undef LOG10
+#undef FABS
+#undef EXP10
+#undef NEXTAFTER
+#undef FC
 
-{% endcall %}
+#endif
+{% endfor %}

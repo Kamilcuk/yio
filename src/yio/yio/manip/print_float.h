@@ -13,91 +13,63 @@ extern "C" {
 #endif
 
 #include "../../private/yio_float.h"
-#include "../../private/yio_float_strfrom_naive.h"
-#include "../../private/yio_float_strfrom_strfrom.h"
-#include "../../private/yio_float_strfrom_printf.h"
-#include "../../private/yio_float_strfrom_ryu.h"
+#include "../../private/yio_string.h"
 #include "../ctx.h"
 
-{% call(V) j_FOREACHAPPLY(j_FLOATS) %}
+/* Layer 2: Representation Dispatchers */
+{% for R in j_FLOATREPRS %}
 #line
+#ifdef YYIO_FLOAT_REPR_{{R}}
+int YYIO_float_dispatch_{{R}}(yio_printctx_t *t, YYIO_FLOAT_REPR_{{R}} val);
+#endif
+{% endfor %}
 
-#ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1  is not defined
-#endif
-#if YIO_HAS_FLOAT$1
+{% for V in j_FLOATS %}
+#line
+#if YIO_HAS_FLOAT{{V.1}}
 
-#ifndef YYIO_HAS_strfrom$1
-#error  YYIO_HAS_strfrom$1 is not defined
-#endif
-#ifndef YYIO_has_float_naive$1
-#error  YYIO_has_float_naive$1 is not defined
-#endif
-#ifndef YYIO_has_float_printf$1
-#error  YYIO_has_float_printf$1 is not defined
-#endif
-#ifndef YYIO_has_float_ryu$1
-#error  YYIO_has_float_ryu$1 is not defined
-#endif
-
-#if YYIO_has_float_strfrom$1
-int YYIO_print_float_strfrom$1(yio_printctx_t *t);
-#endif
-#if YYIO_has_float_naive$1
-int YYIO_print_float_naive$1(yio_printctx_t *t);
-#endif
-#if YYIO_has_float_printf$1
-int YYIO_print_float_printf$1(yio_printctx_t *t);
-#endif
-#if YYIO_has_float_ryu$1
-int YYIO_print_float_ryu$1(yio_printctx_t *t);
-#endif
-
-#ifndef YYIO_PRINT_FLOAT$1
-#	if YIO_FLOAT_BACKEND_STRFROM
-#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
-#	elif YIO_FLOAT_BACKEND_NAIVE && YYIO_has_float_naive$1
-#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_naive$1
-#	elif YIO_FLOAT_BACKEND_PRINTF && YYIO_has_float_printf$1
-#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_printf$1
-#	elif YIO_FLOAT_BACKEND_RYU && YYIO_has_float_ryu$1
-#		define YYIO_PRINT_FLOAT$1  YYIO_print_float_ryu$1
-#	else
-#		if YYIO_HAS_strfrom$1
-#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
-#		elif YYIO_has_float_naive$1
-#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_naive$1
-#		else
-#			define YYIO_PRINT_FLOAT$1  YYIO_print_float_strfrom$1
-#		endif
-#	endif
-#endif
-
-
-#ifdef __cplusplus
-{% if V.G == "s" %}
-#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
-		YYIO_OVERLOAD_TYPE_FUNC(YYIO_FLOAT$1, YYIO_PRINT_FLOAT$1)
+{% if V.1 in ["f", "d", "l"] %}
+#line
+int YYIO_print_{{V.1}}(yio_printctx_t *t);
+#define YYIO_PRINT_FLOAT{{V.1}} YYIO_print_{{V.1}}
 {% else %}
-#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()
+#line
+{% for R in V.reprs %}
+#if YYIO_REPR_OF_{{V.1}}_IS_{{R}}
+int YYIO_print_{{V.1}}_as_{{R}}(yio_printctx_t *t);
+#define YYIO_PRINT_FLOAT{{V.1}} YYIO_print_{{V.1}}_as_{{R}}
+#endif
+{% endfor %}
+{% endif %}
+
+#if defined(YYIO_PRINT_FLOAT{{V.1}})
+#ifdef __cplusplus
+{% if V.1 in ["f", "d", "l"] %}
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT{{V.1}}()  \
+		YYIO_OVERLOAD_TYPE_FUNC(YYIO_FLOAT{{V.1}}, YYIO_PRINT_FLOAT{{V.1}})
+{% else %}
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT{{V.1}}()
 {% endif %}
 #else
-#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()  \
-		YYIO_OVERLOAD_TYPE_FUNC(YYIO_FLOAT$1, YYIO_PRINT_FLOAT$1)
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT{{V.1}}()  \
+		YYIO_OVERLOAD_TYPE_FUNC(YYIO_FLOAT{{V.1}}, YYIO_PRINT_FLOAT{{V.1}})
+#endif
+#else
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT{{V.1}}()
 #endif
 
 #else
 
-#define YYIO_PRINT_FUNC_GENERIC_FLOAT$1()
+#define YYIO_PRINT_FUNC_GENERIC_FLOAT{{V.1}}()
 
 #endif
 
-{% endcall %}
+{% endfor %}
 
 #define YYIO_PRINT_FUNC_GENERIC_FLOATS() \
-		{% call j_FOREACHAPPLY(j_FLOATS) %}
-		YYIO_PRINT_FUNC_GENERIC_FLOAT$1() \
-		{% endcall %}
+		{% for V in j_FLOATS %}
+		YYIO_PRINT_FUNC_GENERIC_FLOAT{{V.1}}() \
+		{% endfor %}
 		/**/
 
 #ifdef __cplusplus

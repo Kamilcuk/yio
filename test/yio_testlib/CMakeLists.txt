@@ -29,14 +29,13 @@ find_library(DFP
 	NAMES dfp
 	DOC "Path to decimal floating point library"
 )
+target_link_libraries(${PROJECT_NAME} PUBLIC
+	yio_compat
+)
 if(DFP)
   target_link_libraries(${PROJECT_NAME} INTERFACE
 		${DFP}
 	)
-#else()
-	#target_link_libraries(${PROJECT_NAME} PUBLIC
-		#yio_compat
-	#)
 endif()
 if(CMAKE_COMPILER_IS_GNUCC)
   target_compile_options(${PROJECT_NAME} INTERFACE

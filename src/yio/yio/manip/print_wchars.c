@@ -9,6 +9,7 @@
 #define _GNU_SOURCE
 #define _POSIX_C_SOURCE  200809L
 #include "private.h"
+#include "../../private/yio_string.h"
 #if YIO_HAS_WCHAR_H
 #include <limits.h>
 #include <stdio.h>

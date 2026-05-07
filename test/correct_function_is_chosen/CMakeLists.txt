@@ -4,24 +4,18 @@ if(NOT CMAKE_C_COMPILER_ID STREQUAL "GNU")
 endif()
 
 add_executable(correct_function_is_chosen correct_function_is_chosen.c)
-foreach(ii IN ITEMS
-	YYIO_print_float_strfromf
-	YYIO_print_float_strfromd
-	YYIO_print_float_strfroml
-	YYIO_print_float_ryuf
-	YYIO_print_float_ryud
-	YYIO_print_float_ryul
-	YYIO_print_float_printff
-	YYIO_print_float_printfd
-	YYIO_print_float_printfl
-	YYIO_print_float_customf
-	YYIO_print_float_customd
-	YYIO_print_float_customl
-)
-	target_link_options(correct_function_is_chosen PRIVATE
-		-Wl,--wrap=${ii}
-	)
+
+set(backends strfrom ryu printf naive)
+set(reprs B16 B32 B64 B80 B128 D32 D64 D128)
+
+foreach(bb IN LISTS backends)
+	foreach(rr IN LISTS reprs)
+		target_link_options(correct_function_is_chosen PRIVATE
+			-Wl,--wrap=YYIO_float_astrfrom_${bb}_${rr}
+		)
+	endforeach()
 endforeach()
+
 target_link_libraries(correct_function_is_chosen PRIVATE
 	yio
 	yio_testlib

@@ -116,6 +116,26 @@ YYIO_wur static inline size_t YYIO_string_capacity(const YYIO_string *t) {
 	#endif
 }
 
+/// Set the count of used bytes in container.
+static inline YYIO_nn()
+void YYIO_string_set_used(YYIO_string *t, size_t newused) {
+	assert(newused <= YYIO_string_capacity(t));
+	#if YIO_ENABLE_MALLOC
+	if (YYIO_string_is_dynamic(t)) {
+		t->h.len = newused;
+	} else {
+		t->info = (newused << 1);
+	}
+	#else
+	t->info = newused;
+	#endif
+}
+
+/// Clears the string.
+static inline void YYIO_string_clear(YYIO_string *t) {
+	YYIO_string_set_used(t, 0);
+}
+
 /// Free the string object, freeing any dynamic memory.
 static inline YYIO_access_rw(1)
 void YYIO_string_free(YYIO_string *t) {
@@ -132,21 +152,6 @@ void YYIO_string_free(YYIO_string *t) {
 static inline YYIO_wur YYIO_nn()
 size_t YYIO_string_free_size(const YYIO_string *t) {
 	return YYIO_string_capacity(t) - YYIO_string_len(t);
-}
-
-/// Set the count of used bytes in container.
-static inline YYIO_nn()
-void YYIO_string_set_used(YYIO_string *t, size_t newused) {
-	assert(newused <= YYIO_string_capacity(t));
-	#if YIO_ENABLE_MALLOC
-	if (YYIO_string_is_dynamic(t)) {
-		t->h.len = newused;
-	} else {
-		t->info = (newused << 1);
-	}
-	#else
-	t->info = newused;
-	#endif
 }
 
 #if YIO_ENABLE_MALLOC
@@ -176,12 +181,21 @@ static inline int YYIO_string_putc(YYIO_string *t, char c) {
 	return 0;
 }
 
+/// Ensures the string is null-terminated and returns the pointer.
+static inline char *YYIO_string_c_str(YYIO_string *t) {
+	const size_t len = YYIO_string_len(t);
+	if (len == 0 || YYIO_string_data(t)[len - 1] != '\0') {
+		if (YYIO_string_putc(t, '\0') != 0) return NULL;
+	}
+	return YYIO_string_data(t);
+}
+
 /// Add memory
 YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2, 3)
 int YYIO_string_putsn(YYIO_string *t, const char * __sized_by(size) ptr, size_t size);
 
 static int YYIO_string_yprintf_cb(void *ptr, const char * __sized_by(count) data, size_t count) {
-	YYIO_string *o = ptr;
+	YYIO_string *o = (YYIO_string *)ptr;
 	return YYIO_string_putsn(o, data, count);
 }
 
@@ -195,32 +209,43 @@ int YYIO_print_uint128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_nega
 #endif
 
 static inline int YYIO_string_print_u_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned int v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YYIO_string_yprintf_cb;
+  	ctx.outarg = o;
     return YYIO_print_uint_in(&ctx, v, false);
 }
 static inline int YYIO_string_print_ul_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YYIO_string_yprintf_cb;
+  	ctx.outarg = o;
     return YYIO_print_ulong_in(&ctx, v, false);
 }
 #if YYIO_HAS_LLONG
 static inline int YYIO_string_print_ull_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long long v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YYIO_string_yprintf_cb;
+  	ctx.outarg = o;
     return YYIO_print_ullong_in(&ctx, v, false);
 }
 #endif
 #if YYIO_HAS_INT128
 static inline int YYIO_string_print_u128_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned __int128 v) {
-    yio_printctx_t ctx = {.pf = pf, .out = YYIO_string_yprintf_cb, .outarg = o};
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YYIO_string_yprintf_cb;
+  	ctx.outarg = o;
     return YYIO_print_uint128_in(&ctx, v, false);
 }
 #endif
 
-static inline int YYIO_string_print_int(YYIO_string *t, struct yio_printfmt_s fmt, int val) {
-	yio_printctx_t ctx = {
-		.pf = fmt,
-		.out = YYIO_string_yprintf_cb,
-		.outarg = t,
-	};
+static inline int YYIO_string_print_int(YYIO_string *o, struct yio_printfmt_s pf, int val) {
+  yio_printctx_t ctx = {0};
+  ctx.pf = pf;
+  ctx.out = YYIO_string_yprintf_cb;
+  ctx.outarg = o;
 	const bool is_neg = val < 0;
 	const unsigned abs_val = is_neg ? -(unsigned)val : (unsigned)val;
 	return YYIO_print_uint_in(&ctx, abs_val, is_neg);

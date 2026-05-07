@@ -65,111 +65,179 @@ static inline void floaterror(const char *func) {
 #line
 
 #ifndef YIO_HAS_FLOAT$1
-#error  YIO_HAS_FLOAT$1
+#error YIO_HAS_FLOAT$1 not defined
 #endif
+
 #if YIO_HAS_FLOAT$1
 
+{% set is_decimal = j_search(V.1, "^d") %}
+
+#ifndef YYIO_HAS_floor$1
+#error YYIO_HAS_floor$1 not defined
+#endif
+#if !YYIO_HAS_floor$1
 weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x);
 weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x) {
-	return (YYIO_FLOAT$1)(int)x;
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)floorl((long double)x);
+{% else %}
+	return (YYIO_FLOAT$1)floor((double)x);
+{% endif %}
 }
+#endif
 
+#ifndef YYIO_HAS_fabs$1
+#error YYIO_HAS_fabs$1 not defined
+#endif
+#if !YYIO_HAS_fabs$1
 weak YYIO_FLOAT$1 fabs$2(YYIO_FLOAT$1 x);
 weak YYIO_FLOAT$1 fabs$2(YYIO_FLOAT$1 x) {
 	return x > 0 ? x : -x;
 }
-
-#ifdef exp2$2
-#undef exp2$2
 #endif
+
+#ifndef YYIO_HAS_exp2$1
+#error YYIO_HAS_exp2$1 not defined
+#endif
+#if !YYIO_HAS_exp2$1
 weak YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 y);
 weak YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 y) {
-	ERROR();
-	return NAN;
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)exp2l((long double)y);
+{% else %}
+	return (YYIO_FLOAT$1)exp2((double)y);
+{% endif %}
 }
-
-#ifdef round$2
-#undef round$2
 #endif
+
+#ifndef YYIO_HAS_exp10$1
+#error YYIO_HAS_exp10$1 not defined
+#endif
+#if !YYIO_HAS_exp10$1
 weak YYIO_FLOAT$1 exp10$2(YYIO_FLOAT$1 y);
 weak YYIO_FLOAT$1 exp10$2(YYIO_FLOAT$1 y) {
-	ERROR();
-	return NAN;
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)powl(10.0L, (long double)y);
+{% else %}
+	return (YYIO_FLOAT$1)pow(10.0, (double)y);
+{% endif %}
 }
-
-#ifdef round$2
-#undef round$2
 #endif
-weak YYIO_FLOAT$1 round$2(YYIO_FLOAT$1 y);
-weak YYIO_FLOAT$1 round$2(YYIO_FLOAT$1 y) {
-	ERROR();
-	return NAN;
-}
 
-#ifdef log2$2
-#undef log2$2
+
+
+#ifndef YYIO_HAS_log2$1
+#error YYIO_HAS_log2$1 not defined
 #endif
+#if !YYIO_HAS_log2$1
 weak YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x);
 weak YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x) {
-	// https://stackoverflow.com/questions/39864840/using-series-to-approximate-log2
-	unsigned long n = 1;
-	const YYIO_FLOAT$1 eps = YYIO_FLOAT_C$1(0.00001);
-	YYIO_FLOAT$1 kpow = (x - 1) / (x + 1);
-	YYIO_FLOAT$1 kpow2 = kpow * kpow;
-	YYIO_FLOAT$1 dk;
-	YYIO_FLOAT$1 k = 2 * kpow;
-
-	do {
-	    n += 2;
-	    kpow *= kpow2;
-	    dk = YYIO_FLOAT_C$1(2.0) * kpow / (YYIO_FLOAT$1)n;
-	    k += dk;
-	} while (fabs$2(dk) >= eps);
-
-	return k;
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)log2l((long double)x);
+{% else %}
+	return (YYIO_FLOAT$1)log2((double)x);
+{% endif %}
 }
-
-#ifdef log10$2
-#undef log10$2
 #endif
+
+#ifndef YYIO_HAS_log10$1
+#error YYIO_HAS_log10$1 not defined
+#endif
+#if !YYIO_HAS_log10$1
 weak YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 y);
 weak YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 y) {
-	ERROR();
-	return NAN;
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)log10l((long double)y);
+{% else %}
+	return (YYIO_FLOAT$1)log10((double)y);
+{% endif %}
 }
-
-#ifdef frexp$2
-#undef frexp$2
 #endif
+
+#ifndef YYIO_HAS_frexp$1
+#error YYIO_HAS_frexp$1 not defined
+#endif
+#if !YYIO_HAS_frexp$1
 weak YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 val, int *exp);
 weak YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 val, int *exp) {
-	ERROR();
-	return NAN;
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)frexpl((long double)val, exp);
+{% else %}
+	return (YYIO_FLOAT$1)frexp((double)val, exp);
+{% endif %}
 }
-
-#ifdef frexp$2
-#undef frexp$2
 #endif
+
+#ifndef YYIO_HAS_modf$1
+#error YYIO_HAS_modf$1 not defined
+#endif
+#if !YYIO_HAS_modf$1
+weak YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr);
+weak YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr) {
+{% if not is_decimal %}
+    long double i;
+    long double f = modfl((long double)x, &i);
+    *iptr = (YYIO_FLOAT$1)i;
+    return (YYIO_FLOAT$1)f;
+{% else %}
+    double i;
+    double f = modf((double)x, &i);
+    *iptr = (YYIO_FLOAT$1)i;
+    return (YYIO_FLOAT$1)f;
+{% endif %}
+}
+#endif
+
+#ifndef YYIO_HAS_pow$1
+#error YYIO_HAS_pow$1 not defined
+#endif
+#if !YYIO_HAS_pow$1
 weak YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 val, YYIO_FLOAT$1 to);
 weak YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 val, YYIO_FLOAT$1 to) {
-	ERROR();
-	return NAN;
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)powl((long double)val, (long double)to);
+{% else %}
+	return (YYIO_FLOAT$1)pow((double)val, (double)to);
+{% endif %}
 }
+#endif
 
-int strfrom$1(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp);
+#ifndef YYIO_HAS_nextafter$1
+#error YYIO_HAS_nextafter$1 not defined
+#endif
+#if !YYIO_HAS_nextafter$1
+weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y);
+weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y) {
+{% if not is_decimal %}
+	return (YYIO_FLOAT$1)nextafterl((long double)x, (long double)y);
+{% else %}
+	return (YYIO_FLOAT$1)nextafter((double)x, (double)y);
+{% endif %}
+}
+#endif
+
+#ifndef YYIO_HAS_strfrom$1
+#error YYIO_HAS_strfrom$1 not defined
+#endif
+#if !YYIO_HAS_strfrom$1
+weak int strfrom$1(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp);
 weak int strfrom$1(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp) {
 	errno = ENOSYS;
 	return -1;
 }
+#endif
 
-YYIO_FLOAT$1 strto$3(const char *restrict str, char **restrict pnt);
+#ifndef YYIO_HAS_strto$1
+#error YYIO_HAS_strto$1 not defined
+#endif
+#if !YYIO_HAS_strto$1
+weak YYIO_FLOAT$1 strto$3(const char *restrict str, char **restrict pnt);
 weak YYIO_FLOAT$1 strto$3(const char *restrict str, char **restrict pnt) {
 	errno = ENOSYS;
 	return -1;
 }
+#endif
 
 #endif // YIO_HAS_FLOAT$1
 
 {% endcall %}{% endfor %}
-
-
