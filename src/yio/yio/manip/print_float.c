@@ -22,7 +22,7 @@
 {% for R in j_FLOATREPRS %}
 #line
 #ifdef YYIO_FLOAT_REPR_{{R}}
-int YYIO_float_dispatch_{{R}}(yio_printctx_t *t, YYIO_FLOAT_REPR_{{R}} val) {
+static int YYIO_float_dispatch_{{R}}(yio_printctx_t *t, YYIO_FLOAT_REPR_{{R}} val) {
     int err = yio_printctx_init(t);
     if (err) return err;
     const char spec = t->pf.type ? t->pf.type : 'g';
@@ -54,27 +54,17 @@ EXIT:
 {% for V in j_FLOATS %}
 #line
 #if YIO_HAS_FLOAT{{V.1}}
-{% if V.1 in ["f", "d", "l"] %}
 #line
 int YYIO_print_{{V.1}}(yio_printctx_t *t) {
     const YYIO_FLOAT{{V.1}} val = yio_printctx_va_arg_promote(t, YYIO_FLOAT{{V.1}});
+#if 0
 {% for R in V.reprs %}
-#if YYIO_REPR_OF_{{V.1}}_IS_{{R}}
+#elif YYIO_REPR_OF_{{V.1}}_IS_{{R}}
     return YYIO_float_dispatch_{{R}}(t, (YYIO_FLOAT_REPR_{{R}})val);
-#endif
 {% endfor %}
-    return YIO_ERROR_ENOSYS;
-}
-{% else %}
-#line
-{% for R in V.reprs %}
-#if YYIO_REPR_OF_{{V.1}}_IS_{{R}}
-int YYIO_print_{{V.1}}_as_{{R}}(yio_printctx_t *t) {
-    const YYIO_FLOAT{{V.1}} val = yio_printctx_va_arg_promote(t, YYIO_FLOAT{{V.1}});
-    return YYIO_float_dispatch_{{R}}(t, (YYIO_FLOAT_REPR_{{R}})val);
-}
+#else
+#error No idea how to dispatch represetation of {{V.1}}
 #endif
-{% endfor %}
-{% endif %}
+}
 #endif
 {% endfor %}

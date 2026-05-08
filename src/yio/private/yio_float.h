@@ -52,7 +52,9 @@ extern "C" {
 	]) %}
 #line
 #if YIO_HAS_FLOAT$1
-#ifdef $2_MANT_DIG
+#ifdef __$2_MANT_DIG__
+#define YYIO_FLOAT_MANT_DIG$1  __$2_MANT_DIG__
+#elif defined($2_MANT_DIG)
 #define YYIO_FLOAT_MANT_DIG$1  $2_MANT_DIG
 #else
 #define YYIO_FLOAT_MANT_DIG$1  $6
