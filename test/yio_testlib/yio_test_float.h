@@ -201,10 +201,25 @@ struct YYIO_astrfroms$1_s {
 };
 
 static const struct YYIO_astrfroms$1_s  YYIO_astrfroms$1[] = {
-#define T(a)  { a, #a, }
+#define T(a)  { (int (*)(YYIO_string *, int, char, YYIO_FLOAT$1))a, #a, }
+#ifndef YYIO_has_float_astrfrom_strfrom$1
+#error YYIO_has_float_astrfrom_strfrom$1
+#endif
+#if YYIO_has_float_astrfrom_strfrom$1
 		T(YYIO_float_astrfrom_strfrom$1),
+#endif
+#ifndef YYIO_has_float_astrfrom_naive$1
+#error YYIO_has_float_astrfrom_naive$1
+#endif
+#if YYIO_has_float_astrfrom_naive$1
 		T(YYIO_float_astrfrom_naive$1),
+#endif
+#ifndef YYIO_has_float_astrfrom_printf$1
+#error YYIO_has_float_astrfrom_printf$1
+#endif
+#if YYIO_has_float_astrfrom_printf$1
 		T(YYIO_float_astrfrom_printf$1)
+#endif
 #undef T
 };
 

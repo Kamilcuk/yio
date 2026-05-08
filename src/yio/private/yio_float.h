@@ -1,3 +1,4 @@
+// NOLINE
 /**
  * @file
  * @date 2020-06-12
@@ -65,41 +66,61 @@ YYIO_FLOAT$1 YYIO_frexp2$1(YYIO_FLOAT$1 x, int *exp);
 #define YYIO_frexp2$1  frexp$2
 {% endif %}
 
+#ifndef frexp$2
 YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 x, int *exp);
+#endif
 #define YYIO_frexp$1     frexp$2
 
 /// Like frexp(), but always with base 10.
 YYIO_FLOAT$1 YYIO_frexp10$1(YYIO_FLOAT$1 x, int *exp);
 
+#ifndef floor$2
 YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x);
+#endif
 #define YYIO_floor$1   floor$2
 
+#ifndef exp2$2
 YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 x);
+#endif
 #define YYIO_exp2$1    exp2$2
 
+#ifndef log2$2
 YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x);
+#endif
 #define YYIO_log2$1    log2$2
 
+#ifndef log10$2
 YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 x);
+#endif
 #define YYIO_log10$1   log10$2
 
+#ifndef fabs$2
 YYIO_FLOAT$1 fabs$2(YYIO_FLOAT$1 x);
+#endif
 #define YYIO_fabs$1    fabs$2
 
+#ifndef pow$2
 YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y);
+#endif
 #define YYIO_pow$1     pow$2
 
+#ifndef nextafter$2
 YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y);
+#endif
 #define YYIO_nextafter$1  nextafter$2
 
+#ifndef modf$2
 YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr);
+#endif
 #define YYIO_modf$1       modf$2
 
 #ifndef YYIO_HAS_exp10$1
 #error YYIO_HAS_exp10$1 is not defined
 #endif
 #if YYIO_HAS_exp10$1
+#ifndef exp10$2
 YYIO_FLOAT$1 exp10$2(YYIO_FLOAT$1 x);
+#endif
 #define YYIO_exp10$1  exp10$2
 #else
 static inline
@@ -117,16 +138,6 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 /* ------------------------------------------------------------------------- */
 
 {% for V in j_FLOATS %}
-#line
-#if YIO_HAS_FLOAT{{V.1}}
-#ifdef __cplusplus
-{% if V.1 not in ["f", "d", "l"] %}
-#undef YIO_HAS_FLOAT{{V.1}}
-#define YIO_HAS_FLOAT{{V.1}} 0
-{% endif %}
-#endif
-#endif
-
 #if YIO_HAS_FLOAT{{V.1}}
 {% if j_search(V.1, "^d[0-9]") %}
 /* Decimal Representations */
