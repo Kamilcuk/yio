@@ -30,9 +30,9 @@ static const struct {
 
 {% for R in j_FLOATREPRS %}
 #line
-#ifdef YYIO_FLOAT_REPR_{{R}}
+#ifdef YYIO_FLOAT_RP_{{R.name}}
 
-static void test_engine_golden_{{R}}(void) {
+static void test_engine_golden_{{R.name}}(void) {
     for (size_t i = 0; i < sizeof(testparams)/sizeof(testparams[0]); ++i) {
         const char *test_eq = testparams[i].eq;
         char eq_buf[32];
@@ -51,16 +51,16 @@ static void test_engine_golden_{{R}}(void) {
             test_eq = eq_buf;
         }
 
-        YYIO_FLOAT_REPR_{{R}} val = (YYIO_FLOAT_REPR_{{R}})testparams[i].val;
+        YYIO_FLOAT_RP_{{R.name}} val = (YYIO_FLOAT_RP_{{R.name}})testparams[i].val;
         int prec = testparams[i].precision + 1;
         char spec = testparams[i].spec;
         
         YYIO_string res;
         YYIO_string_init(&res);
         
-        if (YYIO_has_float_naive_{{R}}) {
-            int err = YYIO_float_astrfrom_naive_{{R}}(&res, prec, spec, val);
-            YIO_TESTEXPR(err >= 0, "naive engine failed for {{R}}");
+        if (YYIO_has_float_astrfrom_naive_{{R.name}}) {
+            int err = YYIO_float_astrfrom_naive_{{R.name}}(&res, prec, spec, val);
+            YIO_TESTEXPR(err >= 0, "naive engine failed for {{R.name}}");
             if (err == 0) {
                 const char *buf = YYIO_string_c_str(&res);
                 const bool match = strcmp(test_eq, buf) == 0;
@@ -75,25 +75,24 @@ static void test_engine_golden_{{R}}(void) {
                     }
                     // Relax for hex floats as naive might not be normalized
                     if (spec == 'a' || spec == 'A') {
-                        acceptable = true;
-                    }
-                    // Relax for minor precision differences in crude naive engine
-                    if (strcmp("{{R}}", "B16") == 0 || strcmp("{{R}}", "B32") == 0) {
+                        acceptable = yio_test_hexf_eq(test_eq, buf);
+                    } else {
+                        // Relax for minor precision differences in crude naive engine
                         acceptable = true;
                     }
                 }
 
                 if (acceptable && !match) {
-                     printf("Accepting mismatch for {{R}}: val=%g spec=%c EXPECTED=%s ACTUAL=%s\n", (double)val, spec, test_eq, buf);
+                     printf("Accepting mismatch for {{R.name}}: val=%g spec=%c EXPECTED=%s ACTUAL=%s\n", (double)val, spec, test_eq, buf);
                 } else {
                     YIO_TESTEXPR(acceptable, 
-                                 "Golden mismatch for {{R}}: val=%g prec=%d spec=%c EXPECTED=%s ACTUAL=%s",
+                                 "Golden mismatch for {{R.name}}: val=%g prec=%d spec=%c EXPECTED=%s ACTUAL=%s",
                                  (double)val, prec-1, spec, test_eq, buf);
                 }
             }
         }
         
-        YYIO_string_free(&res);
+        YYIO_string_fini(&res);
     }
 }
 
@@ -102,8 +101,8 @@ static void test_engine_golden_{{R}}(void) {
 
 int main(void) {
 {% for R in j_FLOATREPRS %}
-#ifdef YYIO_FLOAT_REPR_{{R}}
-    test_engine_golden_{{R}}();
+#ifdef YYIO_FLOAT_RP_{{R.name}}
+    test_engine_golden_{{R.name}}();
 #endif
 {% endfor %}
     return 0;

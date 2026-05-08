@@ -47,24 +47,24 @@ j_FLOATREPRS: List[Dict[Union[int, str], Any]] = _convert_raw(_j_FLOATREPRS_RAW)
 
 # j_FLOATS configuration
 _j_FLOATS_RAW = [
-    ["N", "G", "type", "math", "strto", "reprs"],
-    ["f", "s", "float", "f", "f", ["B32"]],
-    ["d", "s", "double", "", "d", ["B64"]],
-    ["l", "s", "long double", "l", "ld", ["B80", "B128", "B64"]],  # Long double varies by platform
-    ["f16", "f", "_Float16", "f16", "f16", ["B16"]],
-    ["f32", "f", "_Float32", "f32", "f32", ["B32"]],
-    ["f64", "f", "_Float64", "f64", "f64", ["B64"]],
-    ["f128", "f", "_Float128", "f128", "f128", ["B128"]],
-    ["f32x", "fx", "_Float32x", "f32x", "f32x", ["B64"]],  # Float32x is usually Binary64
-    ["f64x", "fx", "_Float64x", "f64x", "f64x", ["B80", "B128", "B64"]], # Float64x varies
-    ["f128x", "fx", "_Float128x", "f128x", "f128x", ["B128"]],
-    ["d32", "d", "_Decimal32", "d32", "d32", ["D32"]],
-    ["d64", "d", "_Decimal64", "d64", "d64", ["D64"]],
-    ["d128", "d", "_Decimal128", "d128", "d128", ["D128"]],
-    ["d32x", "dx", "_Decimal32x", "d32x", "d32x", ["D64"]],
-    ["d64x", "dx", "_Decimal64x", "d64x", "d64x", ["D128", "D64"]],
-    ["d128x", "dx", "_Decimal128x", "d128x", "d128x", ["D128"]],
-]
+    ["N", "G", "type", "math", "strto", "reprs", "CONSTPREF", "CS_VAL", "PRI_VAL", "MANT_VAL", "HUGE_VAL_SUFF", "EXP10_VAL"],
+    ["f", "s", "float", "f", "f", ["B32"], "FLT", "f", '""', 0, "F", ""],
+    ["d", "s", "double", "", "d", ["B64"], "DBL", "", '"l"', 0, "", ""],
+    ["l", "s", "long double", "l", "ld", ["B80", "B128", "B64"], "LDBL", "l", '"L"', 0, "L", ""],
+    ["f16", "f", "_Float16", "f16", "f16", ["B16"], "FLT16", "f16", '""', 0, "_F16", ""],
+    ["f32", "f", "_Float32", "f32", "f32", ["B32"], "FLT32", "f32", '""', 0, "_F32", ""],
+    ["f64", "f", "_Float64", "f64", "f64", ["B64"], "FLT64", "f64", '""', 0, "_F64", ""],
+    ["f128", "f", "_Float128", "f128", "f128", ["B128"], "FLT128", "f128", '""', 0, "_F128", ""],
+    ["f32x", "fx", "_Float32x", "f32x", "f32x", ["B64"], "FLT32X", "f32x", '""', 0, "_F32X", ""],
+    ["f64x", "fx", "_Float64x", "f64x", "f64x", ["B80", "B128", "B64"], "FLT64X", "f64x", '""', 0, "_F64X", ""],
+    ["f128x", "fx", "_Float128x", "f128x", "f128x", ["B128"], "FLT128X", "f128x", '""', 0, "_F128X", ""],
+    ["d32", "d", "_Decimal32", "d32", "d32", ["D32"], "DEC32", "df", '"H"', 7, "_D32", "96"],
+    ["d64", "d", "_Decimal64", "d64", "d64", ["D64"], "DEC64", "dd", '"D"', 16, "_D64", "384"],
+    ["d128", "d", "_Decimal128", "d128", "d128", ["D128"], "DEC128", "dl", '"DD"', 34, "_D128", "6144"],
+    ["d32x", "dx", "_Decimal32x", "d32x", "d32x", ["D64"], "DEC32X", "df", '"H"', 7, "_D32X", "96"],
+    ["d64x", "dx", "_Decimal64x", "d64x", "d64x", ["D128", "D64"], "DEC64X", "dd", '"D"', 16, "_D64X", "384"],
+    ["d128x", "dx", "_Decimal128x", "d128x", "d128x", ["D128"], "DEC128X", "dl", '"DD"', 34, "_D128X", "6144"],
+    ]
 
 j_FLOATS: List[Dict[Union[int, str], Any]] = _convert_raw(_j_FLOATS_RAW)
 

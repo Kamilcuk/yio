@@ -64,6 +64,18 @@ extern "C" {
 #define YYIO_INT_STRLEN_BOUND()   YYIO_LOG10_POW2(sizeof(int) * CHAR_BIT)
 
 /**
+ * @def YYIO_tolower
+ * @brief Simple conversion to lowercase. Only for safe characters!
+ */
+static inline char YYIO_tolower(char c) { return (char)((unsigned char)c | 32); }
+
+/**
+ * @def YYIO_isupper
+ * @brief Simple check if character is uppercase. Only for safe characters!
+ */
+static inline bool YYIO_isupper(char c) { return (unsigned char)c >= 'A' && (unsigned char)c <= 'Z'; }
+
+/**
  * @def YYIO_isdigit
  * @brief Fastest check if a character is a digit.
  */
@@ -75,7 +87,7 @@ static inline bool YYIO_isdigit(char c) { return (unsigned int)((unsigned char)c
  */
 static inline bool YYIO_isxdigit(char c) {
 	const unsigned char uc = (unsigned char)c;
-	return YYIO_isdigit(c) || ( (unsigned int)((uc | 32) - 'a') <= (unsigned int)('f' - 'a') );
+	return YYIO_isdigit(c) || ( (unsigned int)(YYIO_tolower((char)uc) - 'a') <= (unsigned int)('f' - 'a') );
 }
 
 static const char *const YYIO_digit_to_HEX = "0123456789ABCDEF";

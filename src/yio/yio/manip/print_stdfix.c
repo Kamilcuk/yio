@@ -41,13 +41,13 @@ int YYIO_print_$3(yio_printctx_t *t) {
 	if (err) return err;
 	struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
 	YYIO_string res = {0};
-	err = YYIO_astrfrom$1(&res, pf, v);
+	err = YYIO_strfrom$1(&res, pf, v);
 	if (err) return err;
 	const char *const result = YYIO_string_data(&res);
 	const size_t length = YYIO_string_len(&res);
 	const bool negative = result[0] == '-';
 	err = yio_printctx_put_number(t, result + negative, length - negative, !negative);
-	YYIO_string_free(&res);
+	YYIO_string_fini(&res);
 	return err;
 }
 #endif

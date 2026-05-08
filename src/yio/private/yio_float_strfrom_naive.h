@@ -22,22 +22,22 @@ extern "C" {
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifdef YYIO_FLOAT_REPR_$1
+#ifdef YYIO_FLOAT_RP_$1
 
 /**
  * Convert the floating number val according to specified precision
  * and specification using method written by myself.
  * @param v @see YYIO_string
- * @param precision0 Negative if unset
+ * @param precision0 Negative if unset, non-negative represents exact precision.
  * @param spec0 a, A, e, E, f, F, g, or G
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, YYIO_FLOAT_REPR_$1 val);
+int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, YYIO_FLOAT_RP_$1 val);
 
-#define YYIO_has_float_naive_$1  1
+#define YYIO_has_float_astrfrom_naive_$1  1
 #else
-#define YYIO_has_float_naive_$1  0
+#define YYIO_has_float_astrfrom_naive_$1  0
 #endif
 {% endcall %}
 

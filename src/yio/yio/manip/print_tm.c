@@ -109,7 +109,7 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	YYIO_string res;
 	YYIO_string_init(&res);
 	err = YYIO_astrftime_nonzero(&res, format, tm);
-	YYIO_string_free(&fmtbut);
+	YYIO_string_fini(&fmtbut);
 	if (err == 0) {
 		assert(YYIO_string_len(&res) > 1);
 		const size_t reslen = YYIO_string_len(&res) - 1;
@@ -119,7 +119,7 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 			yio_precision_get_default(pf->precision, 0);
 		err = yio_printctx_put(t, YYIO_string_data(&res), toprint);
 	}
-	YYIO_string_free(&res);
+	YYIO_string_fini(&res);
 	return err;
 }
 

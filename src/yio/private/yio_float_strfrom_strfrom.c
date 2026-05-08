@@ -37,10 +37,9 @@ static inline
 void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0, char spec) {
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
-	if (precision0 != 0) {
+	if (precision0 >= 0) {
 		*fmtpnt++ = '.';
-		const size_t precision = yio_precision_get_default(precision0, 0);
-		const int len = yio_snstream(fmtpnt, INT_MAX, precision);
+		const int len = yio_snstream(fmtpnt, INT_MAX, precision0);
 		(void)len;
 		assert(len > 0);
 		assert((size_t)len < fmt_size - 2);
@@ -54,33 +53,30 @@ void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0,
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifdef YYIO_FLOAT_REPR_$1
-#if YYIO_HAS_strfrom_RC_$1
+#if YYIO_has_float_astrfrom_strfrom_$1
 
-int YYIO_float_astrfrom_strfrom_$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT_REPR_$1 val) {
+int YYIO_float_astrfrom_strfrom_$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT_RP_$1 val) {
 	// create format string
 	char fmt[FMT_SIZE];
 	YYIO_float_astrfrom_strfrom_create_format_string(fmt, precision0, spec);
 	// get length
 	assert(YYIO_string_capacity(v) < INT_MAX);
-	const int len = YYIO_strfrom_RC_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+	const int len = YYIO_strfrom_RP_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
 	if (len <= 0) {
-		// this is not possible
-		return YYIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned -1");
+		return YYIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned zero or negative");
 	}
 	if ((size_t)len >= YYIO_string_capacity(v)) {
 		const int err = YYIO_string_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = YYIO_strfrom_RC_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
-		(void)len2;
-		assert(len2 > 0);
-		assert(len2 == len);
+		const int len2 = YYIO_strfrom_RP_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+		if (len2 != len) {
+			return YIO_ERROR_STRFROM;
+		}
 	}
 	YYIO_string_set_used(v, len);
 	return 0;
 }
 
-#endif
 #endif
 
 {% endcall %}

@@ -31,7 +31,7 @@ extern "C" {
  * @return 0 on success, negative on error.
  */
 YYIO_wur YYIO_nn()
-int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val);
+int YYIO_strfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val);
 #endif
 
 {% endcall %}

@@ -3,20 +3,44 @@
 #include <string.h>
 #include <stdio.h>
 
+#define YYIO_PRIVATE 1
+#include <yio/private/yio_float.h>
+
+#if YIO_HAS_FLOATd32
+#ifndef DEC32_MAX
+#define DEC32_MAX YYIO_FLOAT_MAXd32
+#define DEC32_MIN YYIO_FLOAT_MINd32
+#define DEC32_EPSILON YYIO_FLOAT_EPSILONd32
+#endif
+#endif
+
+#if YIO_HAS_FLOATd64
+#ifndef DEC64_MAX
+#define DEC64_MAX YYIO_FLOAT_MAXd64
+#define DEC64_MIN YYIO_FLOAT_MINd64
+#define DEC64_EPSILON YYIO_FLOAT_EPSILONd64
+#endif
+#endif
+
+#if YIO_HAS_FLOATd128
+#ifndef DEC128_MAX
+#define DEC128_MAX YYIO_FLOAT_MAXd128
+#define DEC128_MIN YYIO_FLOAT_MINd128
+#define DEC128_EPSILON YYIO_FLOAT_EPSILONd128
+#endif
+#endif
+
 int main(void) {
 #if YIO_HAS_FLOATd32 || YIO_HAS_FLOATd64 || YIO_HAS_FLOATd128
 
 #if YIO_HAS_FLOATd32
-#if YIO_FLOAT_BACKEND_STRFROM && !YYIO_HAS_strfromd32
-    // Skip
-#else
     // Special Values
     YIO_TEST("9.999999e+96", "{:e}", DEC32_MAX);
     YIO_TEST("1.000000e-95", "{:e}", DEC32_MIN);
     YIO_TEST("0.000001", "{:a}", DEC32_EPSILON);
     YIO_TEST("0.000000", "{:f}", 0.0df);
     YIO_TEST("-0.000000", "{:f}", -0.0df);
-    
+
     YIO_TEST("inf", "{:f}", __builtin_infd32());
     YIO_TEST("-inf", "{:f}", -__builtin_infd32());
     YIO_TEST("nan", "{:g}", __builtin_nand32(""));
@@ -54,12 +78,8 @@ int main(void) {
     YIO_TEST_FAIL("{:x}", 1.25df);
     YIO_TEST_FAIL("{:X}", 1.25df);
 #endif
-#endif
 
 #if YIO_HAS_FLOATd64
-#if YIO_FLOAT_BACKEND_STRFROM && !YYIO_HAS_strfromd64
-    // Skip
-#else
     YIO_TEST("1.000000e+385", "{:e}", DEC64_MAX);
     YIO_TEST("1.000000e-383", "{:e}", DEC64_MIN);
     YIO_TEST("1.000000e-15", "{:e}", DEC64_EPSILON);
@@ -97,12 +117,8 @@ int main(void) {
     YIO_TEST_FAIL("{:x}", 1.25dd);
     YIO_TEST_FAIL("{:X}", 1.25dd);
 #endif
-#endif
 
 #if YIO_HAS_FLOATd128
-#if YIO_FLOAT_BACKEND_STRFROM && !YYIO_HAS_strfromd128
-    // Skip
-#else
     YIO_TEST("1.000000e+6145", "{:e}", DEC128_MAX);
     YIO_TEST("1.000000e-6143", "{:e}", DEC128_MIN);
     YIO_TEST("1.000000e-33", "{:e}", DEC128_EPSILON);
@@ -139,7 +155,6 @@ int main(void) {
 
     YIO_TEST_FAIL("{:x}", 1.25dl);
     YIO_TEST_FAIL("{:X}", 1.25dl);
-#endif
 #endif
 
 #else

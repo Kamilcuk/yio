@@ -13,15 +13,15 @@
 
 {% for R in j_FLOATREPRS %}
 #line
-#ifdef YYIO_FLOAT_REPR_{{R}}
+#ifdef YYIO_FLOAT_RP_{{R.name}}
 
-#define TYPE     YYIO_FLOAT_REPR_{{R}}
-#define FLOOR    YYIO_floor_RC_{{R}}
-#define LOG2     YYIO_log2_RC_{{R}}
-#define EXP2     YYIO_exp2_RC_{{R}}
-#define FC(x)    YYIO_FLOAT_C_RC_{{R}}(x)
+#define TYPE     YYIO_FLOAT_RP_{{R.name}}
+#define FLOOR    YYIO_floor_RP_{{R.name}}
+#define LOG2     YYIO_log2_RP_{{R.name}}
+#define EXP2     YYIO_exp2_RP_{{R.name}}
+#define FC(x)    YYIO_FLOAT_C_RP_{{R.name}}(x)
 
-TYPE YYIO_frexp2_RC_{{R}}_IMPL(TYPE val, int *exp) {
+TYPE YYIO_frexp2_RP_{{R.name}}_IMPL(TYPE val, int *exp) {
 	if (val == FC(0.0)) {
 		*exp = 0;
 	} else {

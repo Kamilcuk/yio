@@ -12,6 +12,7 @@ from pathlib import Path
 os.chdir(Path(__file__).resolve().parent.parent)
 
 parser = argparse.ArgumentParser(description="Run or build a docker target from the Dockerfile.")
+parser.add_argument("-m", "--multiple", action="store_true", help="Run multiple targets sequentially.")
 parser.add_argument("target", nargs="?", help="The docker target to build or run.")
 parser.add_argument("command", nargs=argparse.REMAINDER, help="The command to run inside the container.")
 args = parser.parse_args()
@@ -27,26 +28,27 @@ if not args.target:
                 print(f"  - {t}", file=sys.stderr)
     sys.exit(1)
 
-command = args.command
-target = args.target
+def run_target(target, command):
+    if command and command[0] == "--":
+        command = command[1:]
+    if command == ["sh"]:
+        if not target.endswith("-sh"):
+            target += "-sh"
+        command = ["sh", "-c", "hash bash 2>/dev/null && exec bash -l || exec sh -l"]
+    if command:
+        cmd = f"""
+            docker run -ti --rm -w $PWD -v $PWD:$PWD -u $(id -u):$(id -g) "$(TERM=dumb docker build --target {target} -q .)" {" ".join(shlex.quote(x) for x in command)}
+            """
+    else:
+        cmd = f"""
+            TERM=dumb docker build --network=host --target {target} .
+            """
+    print(f"+ {cmd.strip()}", file=sys.stderr)
+    subprocess.run(cmd, shell=True, check=True)
 
-if command and command[0] == "--":
-    command = command[1:]
-if command == ["sh"]:
-    if not target.endswith("-sh"):
-        target += "-sh"
-    command = ["sh", "-c", "hash bash 2>/dev/null && exec bash -l || exec sh -l"]
-if command:
-    cmd = f"""
-        docker run -ti --rm -w $PWD -v $PWD:$PWD -u $(id -u):$(id -g) "$(TERM=dumb docker build --target {target} -q .)" {" ".join(shlex.quote(x) for x in command)}
-        """
+if args.multiple:
+    targets = [args.target] + args.command
+    for t in targets:
+        run_target(t, [])
 else:
-    cmd = f"""
-        TERM=dumb docker build --target {target} .
-        """
-print(f"+ {cmd.strip()}", file=sys.stderr)
-ss = subprocess.run(
-    cmd,
-    shell=True,
-)
-exit(ss.returncode)
+    run_target(args.target, args.command)

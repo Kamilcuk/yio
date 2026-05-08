@@ -62,7 +62,7 @@ int YYIO_print_constchar16pnt(yio_printctx_t *t) {
 	if (err == 0) {
 		err = yio_printctx_put(t, YYIO_string_data(&out), YYIO_string_len(&out));
 	}
-	YYIO_string_free(&out);
+	YYIO_string_fini(&out);
 	return err;
 }
 
@@ -80,7 +80,7 @@ int YYIO_print_constchar32pnt(yio_printctx_t *t) {
 	if (err == 0) {
 		err = yio_printctx_put(t, YYIO_string_data(&out), YYIO_string_len(&out));
 	}
-	YYIO_string_free(&out);
+	YYIO_string_fini(&out);
 	return err;
 }
 

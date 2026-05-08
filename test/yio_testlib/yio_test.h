@@ -94,6 +94,11 @@ static int re_match(const char *pat, const char *str, int *len) {
 #define STRING(a)   #a
 #define XSTRING(a)  STRING(a)
 
+struct YYIO_string;
+bool YYIO_test_string_float_equal(struct YYIO_string *ref, struct YYIO_string *res, char spec);
+bool YYIO_test_float_equal(const char *ref, const char *res, char spec);
+bool yio_test_hexf_eq(const char *s1, const char *s2);
+
 struct testparam {
 	const char *eq;
 	const char *rgx;

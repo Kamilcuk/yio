@@ -111,7 +111,7 @@ static void test_sso_transition(void) {
     YIO_TESTEXPR(YYIO_string_is_dynamic(&s));
     YIO_TESTEXPR(YYIO_string_data(&s)[YYIO_string_len(&s)-1] == 'B');
 
-    YYIO_string_free(&s);
+    YYIO_string_fini(&s);
 }
 #endif
 

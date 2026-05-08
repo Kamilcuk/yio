@@ -76,6 +76,7 @@ static inline void floaterror(const char *func) {
 #error YYIO_HAS_floor$1 not defined
 #endif
 #if !YYIO_HAS_floor$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x);
 weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x) {
 {% if not is_decimal %}
@@ -84,6 +85,13 @@ weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x) {
 	return (YYIO_FLOAT$1)floor((double)x);
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x);
+weak YYIO_FLOAT$1 floor$2(YYIO_FLOAT$1 x) {
+	ERROR();
+	return x;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_fabs$1
@@ -100,6 +108,7 @@ weak YYIO_FLOAT$1 fabs$2(YYIO_FLOAT$1 x) {
 #error YYIO_HAS_exp2$1 not defined
 #endif
 #if !YYIO_HAS_exp2$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 y);
 weak YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 y) {
 {% if not is_decimal %}
@@ -108,6 +117,13 @@ weak YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 y) {
 	return (YYIO_FLOAT$1)exp2((double)y);
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 y);
+weak YYIO_FLOAT$1 exp2$2(YYIO_FLOAT$1 y) {
+	ERROR();
+	return y;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_exp10$1
@@ -130,6 +146,7 @@ weak YYIO_FLOAT$1 exp10$2(YYIO_FLOAT$1 y) {
 #error YYIO_HAS_log2$1 not defined
 #endif
 #if !YYIO_HAS_log2$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x);
 weak YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x) {
 {% if not is_decimal %}
@@ -138,12 +155,20 @@ weak YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x) {
 	return (YYIO_FLOAT$1)log2((double)x);
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x);
+weak YYIO_FLOAT$1 log2$2(YYIO_FLOAT$1 x) {
+	ERROR();
+	return x;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_log10$1
 #error YYIO_HAS_log10$1 not defined
 #endif
 #if !YYIO_HAS_log10$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 y);
 weak YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 y) {
 {% if not is_decimal %}
@@ -152,12 +177,20 @@ weak YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 y) {
 	return (YYIO_FLOAT$1)log10((double)y);
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 y);
+weak YYIO_FLOAT$1 log10$2(YYIO_FLOAT$1 y) {
+	ERROR();
+	return y;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_frexp$1
 #error YYIO_HAS_frexp$1 not defined
 #endif
 #if !YYIO_HAS_frexp$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 val, int *exp);
 weak YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 val, int *exp) {
 {% if not is_decimal %}
@@ -166,12 +199,20 @@ weak YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 val, int *exp) {
 	return (YYIO_FLOAT$1)frexp((double)val, exp);
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 val, int *exp);
+weak YYIO_FLOAT$1 frexp$2(YYIO_FLOAT$1 val, int *exp) {
+	ERROR();
+	return val;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_modf$1
 #error YYIO_HAS_modf$1 not defined
 #endif
 #if !YYIO_HAS_modf$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr);
 weak YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr) {
 {% if not is_decimal %}
@@ -186,12 +227,20 @@ weak YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr) {
     return (YYIO_FLOAT$1)f;
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr);
+weak YYIO_FLOAT$1 modf$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 *iptr) {
+	ERROR();
+	return x;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_pow$1
 #error YYIO_HAS_pow$1 not defined
 #endif
 #if !YYIO_HAS_pow$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 val, YYIO_FLOAT$1 to);
 weak YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 val, YYIO_FLOAT$1 to) {
 {% if not is_decimal %}
@@ -200,12 +249,20 @@ weak YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 val, YYIO_FLOAT$1 to) {
 	return (YYIO_FLOAT$1)pow((double)val, (double)to);
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 val, YYIO_FLOAT$1 to);
+weak YYIO_FLOAT$1 pow$2(YYIO_FLOAT$1 val, YYIO_FLOAT$1 to) {
+	ERROR();
+	return val;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_nextafter$1
 #error YYIO_HAS_nextafter$1 not defined
 #endif
 #if !YYIO_HAS_nextafter$1
+{% if V.2 %}
 weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y);
 weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y) {
 {% if not is_decimal %}
@@ -214,6 +271,13 @@ weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y) {
 	return (YYIO_FLOAT$1)nextafter((double)x, (double)y);
 {% endif %}
 }
+{% else %}
+weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y);
+weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y) {
+	ERROR();
+	return x;
+}
+{% endif %}
 #endif
 
 #ifndef YYIO_HAS_strfrom$1

@@ -98,7 +98,7 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 	err = yio_printctx_put(t, YYIO_string_data(&res), YYIO_string_len(&res));
 
 end:
-	YYIO_string_free(&res);
+	YYIO_string_fini(&res);
 	return err;
 }
 #endif

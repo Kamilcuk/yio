@@ -247,15 +247,15 @@ int YYIO_stdfix_strfrom_int$1(YYIO_string *o, const struct yio_printfmt_s *pf, c
 #error BITS is invalid and greater than 64 for [$1, $2, $3]
 #endif
 
-int YYIO_astrfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
+int YYIO_strfrom$1(YYIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
 	_Static_assert(CHAR_BIT == 8, "");
 	// Dispatching each type to the same size of variable.
 	// After removing negative numbers and in twos-complement representation we do not really care.
 	TYPE uint_val = 0;
 	_Static_assert(sizeof(val) <= sizeof(uint_val), "");
 	memcpy(&uint_val, &val, sizeof(val));
-	const char spec = pf->type ? tolower((unsigned char)pf->type) : 'f';
-	const bool spec_is_upper = pf->type ? isupper((unsigned char)pf->type) : false;
+	const char spec = pf->type ? YYIO_tolower(pf->type) : 'f';
+	const bool spec_is_upper = pf->type ? YYIO_isupper(pf->type) : false;
 	{% if not j_search(V.2, "unsigned") %}#line
 	if (uint_val & ((TYPE)1 << (BITS - 1))) {
 		if (spec != 'x' && spec != 'u') {

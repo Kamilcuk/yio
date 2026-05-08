@@ -8,32 +8,17 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 #include <assert.h>
-#include <string.h>
-#include <string.h>
-#include <limits.h>
-#include <stdio.h>
 #include <errno.h>
-#include <stdint.h>
 
-static inline
-bool get_only_last_char_differs(const char *buf, const char *valstr) {
-	if (!(strlen(buf) == strlen(valstr))) {
-		return false;
-	}
-	if (!(memcmp(buf, valstr, strlen(buf)) == 0)) {
-		return false;
-	}
-	const char digitsdot[] = "0123456789.";
-	const char *buf_last_digit = strpbrk(buf, digitsdot);
-	const char *valstr_last_digit = strpbrk(valstr, digitsdot);
-	assert(buf_last_digit != NULL);
-	assert(valstr_last_digit != NULL);
-	// printf("%s %s\n", buf_last_digit, valstr_last_digit);
-	return abs(*buf_last_digit - *valstr_last_digit) <= 1;
-}
+static bool verbose = 0;
 
-{% call j_FOREACHAPPLY(["f", "d", "l"]) %}
+{% call j_FOREACHAPPLY([
+		["f", "float",  ""],
+		["d", "double", ""],
+		["l", "long double", "L"],
+	]) %}
 #line
 
 #ifndef YIO_HAS_FLOAT$1
@@ -41,106 +26,100 @@ bool get_only_last_char_differs(const char *buf, const char *valstr) {
 #endif
 #if YIO_HAS_FLOAT$1
 
-static int YYIO_test_print_float_custom_in$1(int precision,
+static int YYIO_test_print_float_naive_in$1(int precision0,
         char type, YYIO_FLOAT$1 val, const char *valstr0,
-		int (*astrfrom)(YYIO_string *res, int precision, char type, YYIO_FLOAT$1 val),
+		int (*astrfrom)(YYIO_string *res, int precision0, char type, YYIO_FLOAT$1 val),
 		const char *astrfrom_str) {
-	YYIO_string res = {0};
-	int err = astrfrom(&res, precision, type, val);
+	YYIO_string res; YYIO_string_init(&res);
+	int err = astrfrom(&res, precision0, type, val);
 	if (err) {
 		YIO_TESTEXPR(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
-				__func__, precision, type, valstr0, astrfrom_str, err);
+				__func__, precision0, type, valstr0, astrfrom_str, err);
+		YYIO_string_fini(&res);
 		return err;
 	}
 	// zero terminate result
 	err = YYIO_string_putc(&res, '\0');
-	if (err) return err;
+	if (err) { YYIO_string_fini(&res); return err; }
 
-	char *valstr = NULL;
-	if (precision == 0) {
-		char *fmt = NULL;
-		err = asprintf(&fmt, "%%" YYIO_FLOAT_PRI$1 "%c", type);
-		YIO_TESTEXPR(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
-		err = asprintf(&valstr, fmt, val);
-		YIO_TESTEXPR(err > 0, "asprintf(&valstr, ...) failed err=%d", err);
-		free(fmt);
+	const char *result = YYIO_string_data(&res);
+
+	char valstr[1024];
+	char format[128];
+	if (precision0 >= 0) {
+		snprintf(format, sizeof(format), "%%.%d$3%c", precision0, type);
 	} else {
-		char *fmt = NULL;
-		err = asprintf(&fmt, "%%.*" YYIO_FLOAT_PRI$1 "%c", type);
-		YIO_TESTEXPR(err > 0, "asprintf(&fmt, ...) failed err=%d", err);
-		err = asprintf(&valstr, fmt, (int)yio_precision_get_default(precision, 0), val);
-		YIO_TESTEXPR(err > 0, "asprintf(&valstr, ...) failed err=%d", err);
-		free(fmt);
+		snprintf(format, sizeof(format), "%%$3%c", type);
 	}
+	snprintf(valstr, sizeof(valstr), format, val);
 
-	const char *const result = YYIO_string_data(&res);
-	const bool differ = strcmp(result, valstr) != 0;
-	if (differ) {
-		const bool only_last_char_differs = get_only_last_char_differs(result, valstr);
-		printf("%2s(%d,%c,%s%s%s%.30"YYIO_FLOAT_PRI$1"g,%s): %s != %s %s%s\n",
-				// <
-				"$1",
-				// >(
-				precision, type,
+	if (strcmp(result, valstr) != 0) {
+		bool only_last_char_differs = false;
+		if (strlen(result) == strlen(valstr) && strlen(result) > 0) {
+			only_last_char_differs = true;
+			for (size_t i = 0; i < strlen(result) - 1; ++i) {
+				if (result[i] != valstr[i]) {
+					only_last_char_differs = false;
+					break;
+				}
+			}
+		}
+
+		if (verbose) {
+			printf("%s(%d, %c, %s%s%s%g, %s): '%s' != '%s' %s\n",
+				__func__,
+				precision0, type,
 				valstr0 ? "\"" : "",
 				valstr0 ? valstr0 : "",
 				valstr0 ? "\"=" : "",
-				val,
+				(double)val,
 				astrfrom_str,
 				// ):
 				result,
 				// =
 				valstr,
 				// ' '
-				differ ? "__DIFFER__" : "",
-				only_last_char_differs ? "ONLY_LAST" : ""
-		);
+				only_last_char_differs ? "(ONLY LAST CHAR DIFFERS)" : ""
+			);
+		}
 
 		bool workaround = false;
-		// for long double and 'a', we just assume it works
-		// sadly, glibc chooses different exponents
-		if('$1' == 'l' &&
-				strcmp(astrfrom_str, "YYIO_float_astrfrom_naivel") == 0 &&
-				(type == 'A' || type == 'a')) {
+		// sadly, glibc chooses different exponents for 'a'/'A',
+		// and naive implementation has limited precision
+		if (strstr(astrfrom_str, "YYIO_float_astrfrom_naive") != NULL) {
 			workaround = true;
 		}
-		if (!only_last_char_differs && !workaround) {
+
+		bool match = YYIO_test_float_equal(result, valstr, type);
+		if (!only_last_char_differs && !match && !workaround) {
 			err = __LINE__;
-		} else {
-			err = 0;
+			YIO_TESTEXPR(err == 0, "%s(%d, %c, %s, %s): '%s' != '%s'",
+					__func__, precision0, type, valstr0, astrfrom_str, result, valstr);
 		}
 	}
-	free(valstr);
-	YYIO_string_free(&res);
 
+	YYIO_string_fini(&res);
 	return err;
 }
 
-static void YYIO_run_tests_print_float_custom$1(void) {
-	static const char specs[] = {
-			'F',
-			'E',
-			'G',
-			'f',
-			'e',
-			'g',
-	};
+static void YYIO_run_tests_print_float_naive$1(void) {
+	static const char specs[] = { 'f', 'F', 'e', 'E', 'g', 'G', 'a', 'A' };
 	static const int precisions[] = {
-			0, // unset
-			1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, // 0..10
+			-1, // unset
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, // 0..10
 	};
 
-	for (size_t istrfrom = 0; istrfrom < ARRAY_SIZE(YYIO_astrfroms$1); ++istrfrom) {
+	for (size_t iastrfrom = 0; iastrfrom < ARRAY_SIZE(YYIO_astrfroms$1); ++iastrfrom) {
 		for (size_t ispec = 0; ispec < ARRAY_SIZE(specs); ++ispec) {
 			for (size_t ival = 12; ival < ARRAY_SIZE(YYIO_test_floatlist$1); ++ival) {
 				for (size_t iprec = 0; iprec < ARRAY_SIZE(precisions); ++iprec) {
-					YYIO_test_print_float_custom_in$1(
+					YYIO_test_print_float_naive_in$1(
 							precisions[iprec],
 							specs[ispec],
 							YYIO_test_floatlist$1[ival].val,
 							YYIO_test_floatlist$1[ival].valstr,
-							YYIO_astrfroms$1[istrfrom].astrfrom,
-							YYIO_astrfroms$1[istrfrom].astrfrom_str
+							YYIO_astrfroms$1[iastrfrom].astrfrom,
+							YYIO_astrfroms$1[iastrfrom].astrfrom_str
 					);
 				}
 			}
@@ -154,12 +133,11 @@ static void YYIO_run_tests_print_float_custom$1(void) {
 
 int main() {
 #ifdef __GLIBC__
-	YYIO_run_tests_print_float_customf();
-	YYIO_run_tests_print_float_customd();
+	YYIO_run_tests_print_float_naivef();
+	YYIO_run_tests_print_float_naived();
 	if (!YYIO_test_is_in_valgrind())  {
-		YYIO_run_tests_print_float_customl();
+		YYIO_run_tests_print_float_naivel();
 	}
 #endif
 	return 0;
 }
-

@@ -3,7 +3,8 @@
 -include local_makefile.mk
 
 SHELL = bash
-MAKEFLAGS += -rR --no-print-directory --warn-undefined-variables
+# MAKEFLAGS += -rR --no-print-directory --warn-undefined-variables
+MAKEFLAGS += -rR --no-print-directory
 .SUFFIXES:
 null :=
 space := $(null) $(null)

@@ -138,7 +138,7 @@ static inline void YYIO_string_clear(YYIO_string *t) {
 
 /// Free the string object, freeing any dynamic memory.
 static inline YYIO_access_rw(1)
-void YYIO_string_free(YYIO_string *t) {
+void YYIO_string_fini(YYIO_string *t) {
 #if YIO_ENABLE_MALLOC
 	if (YYIO_string_is_dynamic(t)) {
 		free(t->h.ptr);
@@ -278,7 +278,7 @@ static inline bool YYIO_string_remove_trailing_zeros_and_dot(YYIO_string *t) {
 	if (len == 0) return false;
 	char * const data = YYIO_string_data(t);
 	// Ensure there is a dot. If not, this function should not be called.
-	assert(strchr(data, '.') != NULL);
+	assert(memchr(data, '.', len) != NULL);
 	char *p = data + len - 1;
 	while (p > data && *p == '0') {
 		--p;

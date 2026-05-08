@@ -218,7 +218,7 @@ int YYIO_print_repr_$1(yio_printctx_t *t) {
 	if (err < 0) goto EXIT;
 	err = yio_printctx_put(t, YYIO_string_data(&str), YYIO_string_len(&str));
 EXIT:
-	YYIO_string_free(&str);
+	YYIO_string_fini(&str);
 	return err;
 }
 {% endcall %}

@@ -43,6 +43,11 @@ list(APPEND CMAKE_REQUIRED_DEFINITIONS
 list(APPEND CMAKE_REQUIRED_LIBRARIES
 	m
 )
+# if(TARGET DFP)
+	list(APPEND CMAKE_REQUIRED_LIBRARIES
+		dfp
+	)
+# endif()
 
 #########################################################################
 # some generic checks
@@ -307,8 +312,6 @@ else()
 endif()
 
 #########################################################################
-
-yio_config_gen_add_value(YIO_FLOAT_BACKEND "${YIO_FLOAT_BACKEND}")
 
 yio_config_gen_fini()
 

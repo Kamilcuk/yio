@@ -83,20 +83,20 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifdef YYIO_FLOAT_REPR_$1
+#ifdef YYIO_FLOAT_RP_$1
 
-#define TYPE     YYIO_FLOAT_REPR_$1
-#define FLOOR    YYIO_floor_RC_$1
-#define MODF     YYIO_modf_RC_$1
-#define EXP2     YYIO_exp2_RC_$1
-#define EXP10    YYIO_exp10_RC_$1
-#define FABS     YYIO_fabs_RC_$1
-#define FREXP2   YYIO_frexp2_RC_$1
-#define FREXP10  YYIO_frexp10_RC_$1
-#define FC(x)    YYIO_FLOAT_C_RC_$1(x)
+#define TYPE     YYIO_FLOAT_RP_$1
+#define FLOOR    YYIO_floor_RP_$1
+#define MODF     YYIO_modf_RP_$1
+#define EXP2     YYIO_exp2_RP_$1
+#define EXP10    YYIO_exp10_RP_$1
+#define FABS     YYIO_fabs_RP_$1
+#define FREXP2   YYIO_frexp2_RP_$1
+#define FREXP10  YYIO_frexp10_RP_$1
+#define FC(x)    YYIO_FLOAT_C_RP_$1(x)
 
 #line
-{% if j_search(V, "^D") %}
+{% if j_search(V.1, "^D") %}
 #if defined(__GNUC__) && __GNUC__ < 15 && !defined(__clang__)
 // Workaround for GNU bug around decimal floating point numbers.
 // Fixed in GCC 15: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674
@@ -139,7 +139,7 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 	static const int a_max_precision =
 // if the precision is missing and FLT_RADIX is a power of 2,
 // then the precision is sufficient for an exact representation of the value
-			YYIO_FLOAT_MANT_DIG_RC_$1 / 4 + ((YYIO_FLOAT_MANT_DIG_RC_$1 % 4) != 0);
+			YYIO_FLOAT_MANT_DIG_RP_$1 / 4 + ((YYIO_FLOAT_MANT_DIG_RP_$1 % 4) != 0);
 
 	int err = 0;
 
@@ -151,7 +151,7 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 		val = FABS(val);
 	}
 
-	const char spec0lower = tolower( (unsigned char)spec0 );
+	const char spec0lower = YYIO_tolower(spec0);
 	const bool is_lower_spec = spec0lower == spec0;
 
 	// take INF and NAN out of the way
@@ -179,7 +179,7 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 	// The printed exponent is one less, cause of the initial digit!
 	int exponent = 0;
 
-	precision = yio_precision_get_default(precision0, spec0lower == 'a' ? a_max_precision : 6);
+	precision = precision0 < 0 ? (spec0lower == 'a' ? a_max_precision : 6) : precision0;
 
 	// Rounding with 'e' specifier is shared with 'g' in case it get's chosen
 	int exponent10 = 0;
@@ -227,7 +227,7 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 		val = FREXP10(val, &exponent);
 	} else if (speclower == 'a') {
 		// rounding makes no sense, when precision is maximum available
-		if (precision0 != 0) {
+		if (precision0 >= 0) {
 			int exponent_tmp = 0;
 			(void)FREXP2(val, &exponent_tmp);
 			if (precision > INT_MAX / 4) {
@@ -250,12 +250,12 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 	  return YIO_ERROR_FMT_INVALID;
 	}
 
+	const bool dec = speclower != 'a';
+	const char *const to_digit_str = YYIO_digit_to_hexs(is_lower_spec);
+
 	// at this point, val should be after frexp
 	assert(0 <= val);
 	assert(val < 1);
-
-	const bool dec = speclower != 'a';
-	const char *const to_digit_str = YYIO_digit_to_hexs(is_lower_spec);
 
 	// Convert number before the dot
 	if (speclower == 'f') {

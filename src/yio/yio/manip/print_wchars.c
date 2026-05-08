@@ -118,7 +118,7 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t) {
 	if (ret == 0) {
 		ret = yio_printctx_put(t, YYIO_string_data(&out), YYIO_string_len(&out));
 	}
-	YYIO_string_free(&out);
+	YYIO_string_fini(&out);
 	return ret;
 }
 
