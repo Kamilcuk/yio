@@ -96,15 +96,12 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 #define FC(x)    YYIO_FLOAT_C_RC_$1(x)
 
 #line
-{% if j_search(V.1, "^D") %}
+{% if j_search(V, "^D") %}
 #if defined(__GNUC__) && __GNUC__ < 15 && !defined(__clang__)
 // Workaround for GNU bug around decimal floating point numbers.
 // Fixed in GCC 15: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102674
 #ifndef DEC_INFINITY
 #define DEC_INFINITY  __builtin_infd64() // FIXME: this is a bit of a hack, should depend on R
-#endif
-#ifndef DEC_NAN
-#define DEC_NAN  __builtin_nand64("") // FIXME: same here
 #endif
 #define ISINF(x)  (x == DEC_INFINITY || x == -DEC_INFINITY)
 #define FPCLASSIFY(x)  (ISINF(x) ? FP_INFINITE : x != x ? FP_NAN : x == 0 ? FP_ZERO : FP_NORMAL)
