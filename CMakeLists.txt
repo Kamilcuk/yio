@@ -168,7 +168,7 @@ endfunction()
 
 ###############################################################################
 
-find_package(Python3 COMPONENTS Interpreter REQUIRED)
+find_program(PYTHON_EXE NAMES python3 python REQUIRED)
 set(JINJASCRIPT ${SRCDIR}/preprocess.py)
 set(JINJAPROJECTSRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
@@ -219,7 +219,7 @@ function(yio_jinja_finalize)
 	add_custom_command(
 		OUTPUT ${outputs}
 		COMMAND
-			"${Python3_EXECUTABLE}" "${JINJASCRIPT}"
+			"${PYTHON_EXE}" "${JINJASCRIPT}"
 			-S "${JINJAPROJECTSRC}"
 			-S "${CMAKE_CURRENT_SOURCE_DIR}/src"
 			-S "${CMAKE_CURRENT_SOURCE_DIR}/test/templated"

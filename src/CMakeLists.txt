@@ -40,7 +40,7 @@ add_custom_command(
     ${GENDIR}/yio/yio_error_genenum.h
     ${GENDIR}/yio/yio_error_genmsg.h
   COMMAND
-    ${Python3_EXECUTABLE}
+    ${PYTHON_EXE}
     ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
     ${GENDIR}/yio/yio_error_genenum.h
     ${GENDIR}/yio/yio_error_genmsg.h
