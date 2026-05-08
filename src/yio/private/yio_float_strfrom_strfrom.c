@@ -9,6 +9,7 @@
 #define _GNU_SOURCE  1
 #define __STDC_WANT_DEC_FP__ 1
 #define __STDC_WANT_IEC_60559_BFP_EXT__  1
+#define __STDC_WANT_IEC_60559_DFP_EXT__  1
 #include "yio_float_strfrom_strfrom.h"
 #include "private.h"
 #include "yio_float.h"

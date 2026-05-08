@@ -63,6 +63,11 @@ static void test_engine_golden_{{R.name}}(void) {
             YIO_TESTEXPR(err >= 0, "naive engine failed for {{R.name}}");
             if (err == 0) {
                 const char *buf = YYIO_string_c_str(&res);
+                YIO_TESTEXPR(buf != NULL, "YYIO_string_c_str failed for {{R.name}}");
+                if (!buf) {
+                    YYIO_string_fini(&res);
+                    continue;
+                }
                 const bool match = strcmp(test_eq, buf) == 0;
                 
                 bool acceptable = match;

@@ -284,8 +284,8 @@ weak YYIO_FLOAT$1 nextafter$2(YYIO_FLOAT$1 x, YYIO_FLOAT$1 y) {
 #error YYIO_HAS_strfrom$1 not defined
 #endif
 #if !YYIO_HAS_strfrom$1
-weak int strfrom$1(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp);
-weak int strfrom$1(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp) {
+weak int strfrom$2(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp);
+weak int strfrom$2(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp) {
 	errno = ENOSYS;
 	return -1;
 }
@@ -301,6 +301,7 @@ weak YYIO_FLOAT$1 strto$3(const char *restrict str, char **restrict pnt) {
 	return -1;
 }
 #endif
+
 
 #endif // YIO_HAS_FLOAT$1
 

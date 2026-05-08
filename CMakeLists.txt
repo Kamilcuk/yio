@@ -44,100 +44,7 @@ find_library(UNISTRING_LIB
 ###############################################################################
 
 if(YIO_DEV)
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
-
-	if(NOT CMAKE_BUILD_TYPE MATCHES "^Debug$|^Release$|^RelWithDebInfo$")
-		message(FATAL_ERROR "You mixed up CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}")
-	endif()
-
-	# Use ccache if available
-	find_program(CCACHE_COMMAND "ccache")
-	if(CCACHE_COMMAND)
-		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_COMMAND}")
-	endif()
-
-	# Create symlink from gen to GENDIR for development purpouses
-	execute_process(
-		COMMAND ${CMAKE_COMMAND} -E create_symlink ${GENDIR} ${CMAKE_CURRENT_SOURCE_DIR}/gen
-	)
-
-	# Create symlink to compile_commands.json for IDE to pick it up
-	execute_process(
-		COMMAND ${CMAKE_COMMAND} -E create_symlink
-			${CMAKE_BINARY_DIR}/compile_commands.json
-			${CMAKE_CURRENT_SOURCE_DIR}/compile_commands.json
-	)
-
-	yio_debug_variables(
-		BUILD_TESTING
-		YIO_BUILD_TESTING
-		CMAKE_TOOLCHAIN_FILE
-		CMAKE_CROSSCOMPILING
-		CMAKE_CROSSCOMPILING_EMULATOR
-		CMAKE_BINARY_DIR
-		CMAKE_CURRENT_BINARY_DIR
-		CMAKE_SOURCE_DIR
-		CMAKE_CURRENT_SOURCE_DIR
-		CMAKE_BUILD_TYPE
-		CMAKE_BUILD_TYPE_UPPER
-		CMAKE_SYSTEM_NAME
-		CMAKE_SYSTEM_PROCESSOR
-		CMAKE_C_COMPILER
-		CMAKE_C_COMPILER_ID
-		CMAKE_C_COMPILER_VERSION
-		CMAKE_C_FLAGS
-		CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE_UPPER}
-		CMAKE_EXE_LINKER_FLAGS
-		CMAKE_EXE_LINKER_FLAGS_${CMAKE_BUILD_TYPE_UPPER}
-		CMAKE_GENERATOR
-		CMAKE_VERBOSE_MAKEFILE
-		CMAKE_EXPORT_COMPILE_COMMANDS
-		CCACHE_COMMAND
-		UNISTRING_LIB
-		DIRECTORY:COMPILE_OPTIONS
-		DIRECTORY:COMPILE_DEFINITIONS
-		DIRECTORY:LINK_OPTIONS
-	)
-	if(0)
-		yio_debug_variables(
-			CMAKE_INCLUDE_PATH
-			CMAKE_LIBRARY_PATH
-			CMAKE_PROGRAM_PATH
-			CMAKE_IGNORE_PATH
-			CMAKE_SYSTEM_PREFIX_PATH
-			CMAKE_LIBRARY_ARCHITECTURE
-			CMAKE_LIBRARY_PATH
-			CMAKE_FIND_ROOT_PATH
-			CMAKE_SYSROOT
-			CMAKE_IGNORE_PATH
-			CMAKE_FIND_ROOT_PATH_MODE_PROGRAM
-			CMAKE_FIND_ROOT_PATH_MODE_LIBRARY
-			CMAKE_FIND_ROOT_PATH_MODE_INCLUDE
-			CMAKE_FIND_ROOT_PATH_MODE_PACKAGE
-			CMAKE_FIND_APPBUNDLE
-			CMAKE_FIND_FRAMEWORK
-			CMAKE_FIND_LIBRARY_CUSTOM_LIB_SUFFIX
-			CMAKE_FIND_ROOT_PATH
-			CMAKE_FIND_ROOT_PATH_BOTH
-			CMAKE_FIND_ROOT_PATH_MODE_LIBRARY
-			CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH
-			CMAKE_FIND_USE_CMAKE_PATH
-			CMAKE_FIND_USE_CMAKE_SYSTEM_PATH
-			CMAKE_FIND_USE_PACKAGE_ROOT_PATH
-			CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH
-			CMAKE_FRAMEWORK_PATH
-			CMAKE_LIBRARY_ARCHITECTURE
-			CMAKE_LIBRARY_PATH
-			CMAKE_PREFIX_PATH
-			CMAKE_STAGING_PREFIX
-			CMAKE_SYSROOT
-			CMAKE_SYSTEM_FRAMEWORK_PATH
-			CMAKE_SYSTEM_LIBRARY_PATH
-			CMAKE_SYSTEM_PREFIX_PATH
-		)
-	endif()
+	include(yio_dev)
 endif(YIO_DEV)
 
 ###############################################################################
@@ -268,10 +175,12 @@ include(src/cpack.cmake)
 yio_config_gen_check_include_file("unistd.h" YYIO_HAS_UNISTD_H)
 # User configuration
 include(src/configuration.cmake)
-# Environment checks
-include(src/environment_checks.cmake)
+# Environment setup (types, definitions)
+include(src/environment_setup.cmake)
 
 add_subdirectory(./third_party EXCLUDE_FROM_ALL)
+# Environment checks (functions, headers)
+include(src/environment_checks.cmake)
 add_subdirectory(src)
 if(((YIO_BUILD_TESTING AND BUILD_TESTING) OR YIO_DEV) AND NOT YIO_SDCC)
 	include(CTest)

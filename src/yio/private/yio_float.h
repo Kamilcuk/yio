@@ -14,6 +14,7 @@ extern "C" {
 #endif
 
 #include "../yio_config.h"
+#include <stddef.h>
 #include <float.h>
 #include <math.h>
 
@@ -130,6 +131,14 @@ YYIO_FLOAT$1 YYIO_exp10$1(YYIO_FLOAT$1 x) {
 #endif
 
 #define YYIO_strto$1  strto{{v.strto}}
+
+#if YYIO_HAS_strfrom$1
+extern int strfrom{{v.math}}(char *restrict str, size_t n, const char *restrict format, YYIO_FLOAT$1 fp);
+#endif
+
+#if YYIO_HAS_strto$1
+extern YYIO_FLOAT$1 strto{{v.strto}}(const char *restrict str, char **restrict pnt);
+#endif
 
 #endif
 {% endcall %}

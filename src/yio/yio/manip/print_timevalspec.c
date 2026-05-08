@@ -10,7 +10,7 @@
 #include "private.h"
 #include "yio/private/yio_string.h"
 #include <time.h>
-#if YYIO_HAS_UNISTD_H
+#if YYIO_HAS_timespec || YYIO_HAS_timeval
 #include <sys/time.h>
 #endif
 
