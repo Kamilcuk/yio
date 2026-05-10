@@ -16,6 +16,10 @@ extern "C" {
 #include <stdio.h>
 #include <stdarg.h>
 
+#ifndef YYIO_HAS_FILE
+#error YYIO_HAS_FILE is not defined
+#endif
+
 /* Exported Print Symbols --------------------------------------------------- */
 
 /**
@@ -47,8 +51,10 @@ int yio_vprintf(const yio_printdata_t *__null_terminated data, const char *__nul
  * Similar to fprintf() call.
  * @see yio_vbprintf
  */
+#if YYIO_HAS_FILE
 YYIO_nn(1, 2, 4) YYIO_access_r(1) YYIO_access_r(2) YYIO_access_r(3) YYIO_access_r(4)
 int yio_vfprintf(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
+#endif
 /**
  * Similar to snprintf() call.
  * @see yio_vbprintf
@@ -103,8 +109,10 @@ YYIO_nn(1, 2)
 int YYIO_yio_bprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 YYIO_nn(1)
 int YYIO_yio_printf(const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+#if YYIO_HAS_FILE
 YYIO_nn(1, 2)
 int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+#endif
 YYIO_nn(1, 3) YYIO_access_w(1)
 int YYIO_yio_snprintf(char *__sized_by(size) dest, size_t size, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #if YIO_ENABLE_MALLOC
@@ -129,7 +137,9 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, cons
  */
 #define yio_bprintf(cb, arg, ...)     YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #define yio_printf(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#if YYIO_HAS_FILE
 #define yio_fprintf(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#endif
 #define yio_snprintf(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #if YIO_ENABLE_MALLOC
 #define yio_asprintf(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
@@ -149,7 +159,9 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, cons
  */
 #define yio_bstream(cb, arg, ...)    YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #define yio_stream(...)              YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#if YYIO_HAS_FILE
 #define yio_fstream(file, ...)       YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#endif
 #define yio_snstream(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #if YIO_ENABLE_MALLOC
 #define yio_asstream(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))

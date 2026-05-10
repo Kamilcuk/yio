@@ -24,7 +24,7 @@ extern "C" {
 #include <sys/time.h>
 #endif
 
-#if YYIO_HAS_timespec
+#if YYIO_HAS_timespec || !defined(__SDCC)
 #include <time.h>
 int YYIO_print_timespec(yio_printctx_t *t);
 #define YYIO_PRINT_GENERIC_TIMESPEC() \
@@ -33,7 +33,7 @@ int YYIO_print_timespec(yio_printctx_t *t);
 #define YYIO_PRINT_GENERIC_TIMESPEC()
 #endif
 
-#if YYIO_HAS_timeval
+#if YYIO_HAS_timeval || !defined(__SDCC)
 int YYIO_print_timeval(yio_printctx_t *t);
 #define YYIO_PRINT_GENERIC_TIMEVAL() \
 		YYIO_OVERLOAD_TYPE_FUNC(struct timeval, YYIO_print_timeval)

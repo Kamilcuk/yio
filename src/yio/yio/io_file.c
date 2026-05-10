@@ -8,6 +8,12 @@
  */
 #include "private.h"
 
+#ifndef YYIO_HAS_FILE
+#error YYIO_HAS_FILE is not defined
+#endif
+
+#if YYIO_HAS_FILE
+
 static inline YYIO_access_r(2, 3) YYIO_wur YYIO_nn()
 size_t YYIO_fwrite(FILE *file, const char* str, size_t size) {
 	return fwrite(str, 1, size, file);
@@ -32,4 +38,6 @@ int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *data, const char *fmt, .
 int yio_vfprintf(FILE *file, const yio_printdata_t *data, const char *fmt, va_list *va) {
 	return yio_vbprintf(YYIO_yio_vfprintf_cb, file, data, fmt, va);
 }
+
+#endif // YYIO_HAS_FILE
 

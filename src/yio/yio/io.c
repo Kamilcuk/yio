@@ -7,6 +7,11 @@
  */
 #include "private.h"
 #include <limits.h>
+
+#ifndef YYIO_HAS_FILE
+#error YYIO_HAS_FILE is not defined
+#endif
+
 #include <string.h>
 #include <stdint.h>
 #include <assert.h>
@@ -78,8 +83,11 @@ int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
 	return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
 #elif YIO_OUTPUT_BACKEND_FD
 	return yio_vdprintf(1, data, fmt, va);
-#else
+#elif YYIO_HAS_FILE
 	return yio_vfprintf(stdout, data, fmt, va);
+#else
+	(void)data; (void)fmt; (void)va;
+	return YIO_ERROR_EIO;
 #endif
 }
 

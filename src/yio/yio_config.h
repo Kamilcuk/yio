@@ -54,11 +54,14 @@ extern "C" {
 #endif
 
 #ifndef YYIO_HAS_UNISTD_H
-#error YYIO_HAS_UNISTD_H
+#error YYIO_HAS_UNISTD_H not defined
+#endif
+
+#ifndef YYIO_HAS_FILE
+#error YYIO_HAS_FILE is not defined
 #endif
 
 #include "ptrcheck.h"
-#include "sdcc_portability.h"
 
 /* Backend selection logic -------------------------------------------------- */
 
@@ -85,6 +88,10 @@ extern "C" {
 
 #if YIO_OUTPUT_BACKEND_FD && !YYIO_HAS_UNISTD_H
 #error "You can't use FD output backend without unistd.h"
+#endif
+
+#if YIO_OUTPUT_BACKEND_STDOUT && !YYIO_HAS_FILE
+#error "You can't use STDOUT output backend without FILE support"
 #endif
 
 /**
@@ -173,6 +180,14 @@ extern "C" {
 #define YYIO_IF_1(...)      __VA_ARGS__
 #define YYIO_IF_0(...)
 #define YYIO_IF(x, ...)     YYIO_XCONCAT(YYIO_IF_, x)(__VA_ARGS__)
+
+#ifdef __SDCC
+#define YYIO_REENTRANT __reentrant
+#define YYIO_HAS_SYS_TIME_H 0
+#else
+#define YYIO_REENTRANT
+#define YYIO_HAS_SYS_TIME_H 1
+#endif
 
 /**
  * @}

@@ -6,6 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
+#ifndef __SDCC
 #define _POSIX_C_SOURCE  1
 #include "private.h"
 #include "yio/private/yio_string.h"
@@ -120,3 +121,5 @@ int YYIO_print_timeval(yio_printctx_t *t) {
 	return YYIO_print_timespec_val(t, (long long)ts.tv_sec, (long long)ts.tv_usec, 6);
 }
 #endif // YYIO_HAS_timeval
+
+#endif // __SDCC

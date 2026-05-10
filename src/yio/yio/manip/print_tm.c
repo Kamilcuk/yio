@@ -14,6 +14,7 @@
 #if (YYIO_HAS_timespec || YYIO_HAS_timeval) && YYIO_HAS_SYS_TIME_H
 #include <sys/time.h>
 #endif
+#ifndef __SDCC
 
 // https://fmt.dev/latest/syntax.html#chrono-format-specifications
 // chrono_format_spec ::=  [[fill]align][width]["." precision][chrono_specs]
@@ -123,12 +124,10 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	return err;
 }
 
-#ifndef __SDCC
 int YYIO_print_tm(yio_printctx_t *t) {
 	const struct tm tm = yio_printctx_va_arg(t, struct tm);
 	return YYIO_print_time_strftime(t, &tm);
 }
-#endif
 
 int YYIO_print_tm_pointer(yio_printctx_t *t) {
 	const struct tm *tm = yio_printctx_va_arg(t, struct tm*);
@@ -149,3 +148,6 @@ int YYIO_print_gmtime(yio_printctx_t *t) {
 	if (tm == NULL) return YYIO_ERROR(YIO_ERROR_GMTIME, "gmtime returned NULL");
 	return YYIO_print_time_strftime(t, tm);
 }
+
+
+#endif

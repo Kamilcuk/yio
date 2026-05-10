@@ -39,19 +39,6 @@ extern "C" {
 #include "print_int.h"
 #include "print_repr.h"
 
-#ifdef __SDCC
-#define YYIO_PRINT_GENERIC_TIME() \
-		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
-		YYIO_PRINT_GENERIC_TIMESPEC() \
-		YYIO_PRINT_GENERIC_TIMEVAL()
-#else
-#define YYIO_PRINT_GENERIC_TIME() \
-		YYIO_OVERLOAD_TYPE_FUNC(struct tm, YYIO_print_tm) \
-		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer) \
-		YYIO_PRINT_GENERIC_TIMESPEC() \
-		YYIO_PRINT_GENERIC_TIMEVAL()
-#endif
-
 #ifndef YIO_HAS_UCHAR_H
 #error YIO_HAS_UCHAR_H
 #endif
@@ -127,7 +114,9 @@ namespace yyio_cpp {
 	YYIO_PRINT_FUNC_GENERIC_WCHARS()
 	YYIO_PRINT_FUNC_GENERIC_UCHARS()
 	YYIO_PRINT_FUNC_GENERIC_FLOATS()
-	YYIO_PRINT_GENERIC_TIME()
+	YYIO_PRINT_GENERIC_TIMESPEC()
+	YYIO_PRINT_GENERIC_TIMEVAL()
+	YYIO_PRINT_GENERIC_TM()
 	YYIO_PRINT_STDFIX()
 	YYIO_PRINT_COMPLEX()
 	YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
@@ -147,8 +136,15 @@ namespace yyio_cpp {
 #define YYIO_PRINT_FUNC_GENERIC(arg, ...) \
 		yyio_cpp::yyio_print_func_generic_cpp(arg)
 #else
+#ifdef __SDCC
+// In sdcc _Generic("string", char[7]:1) matches.
+// To decay a string into a pointer, ternary expression can be used.
+#define YYIO_DECAY(arg) 1?(arg):(arg)
+#else
+#define YYIO_DECAY(arg) (arg)
+#endif
 #define YYIO_PRINT_FUNC_GENERIC(arg, ...) \
-		_Generic((arg), \
+		_Generic(YYIO_DECAY(arg), \
 			YYIO_PRINT_FUNC_GENERIC_SLOTS() \
 			YYIO_PRINT_SCHAR() \
 			YYIO_PRINT_UCHAR() \
@@ -158,7 +154,9 @@ namespace yyio_cpp {
 			YYIO_PRINT_FUNC_GENERIC_WCHARS() \
 			YYIO_PRINT_FUNC_GENERIC_UCHARS() \
 			YYIO_PRINT_FUNC_GENERIC_FLOATS() \
-			YYIO_PRINT_GENERIC_TIME() \
+			YYIO_PRINT_GENERIC_TIMESPEC() \
+			YYIO_PRINT_GENERIC_TIMEVAL() \
+			YYIO_PRINT_GENERIC_TM() \
 			YYIO_PRINT_STDFIX() \
 			YYIO_PRINT_COMPLEX() \
 			YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
