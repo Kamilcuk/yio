@@ -192,7 +192,7 @@ arm2:
 	$(MAKE) test PRESET=$@
 
 HELP +=~ sdcc - does not work
-sdcc:
+sdcc ds390 stm8:
 	$(MAKE) test PRESET=$@
 
 HELP +=~ coverage

@@ -218,8 +218,9 @@ static const struct YYIO_astrfroms$1_s  YYIO_astrfroms$1[] = {
 #error YYIO_has_float_astrfrom_printf$1
 #endif
 #if YYIO_has_float_astrfrom_printf$1
-		T(YYIO_float_astrfrom_printf$1)
+		T(YYIO_float_astrfrom_printf$1),
 #endif
+		{ 0, NULL }
 #undef T
 };
 

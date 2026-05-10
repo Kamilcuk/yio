@@ -13,9 +13,14 @@ os.chdir(Path(__file__).resolve().parent.parent)
 
 parser = argparse.ArgumentParser(description="Run or build a docker target from the Dockerfile.")
 parser.add_argument("-m", "--multiple", action="store_true", help="Run multiple targets sequentially.")
+parser.add_argument("-p", "--platform", help="The platform for docker build/run (e.g. linux/arm64).")
+parser.add_argument("--arm", action="store_true", help="Shortcut for --platform linux/arm64.")
 parser.add_argument("target", nargs="?", help="The docker target to build or run.")
 parser.add_argument("command", nargs=argparse.REMAINDER, help="The command to run inside the container.")
 args = parser.parse_args()
+
+if args.arm:
+    args.platform = "linux/arm64"
 
 if not args.target:
     print("Error: target is required.\n", file=sys.stderr)
@@ -29,6 +34,7 @@ if not args.target:
     sys.exit(1)
 
 def run_target(target, command):
+    platform_arg = f"--platform {args.platform}" if args.platform else ""
     if command and command[0] == "--":
         command = command[1:]
     if command == ["sh"]:
@@ -37,11 +43,11 @@ def run_target(target, command):
         command = ["sh", "-c", "hash bash 2>/dev/null && exec bash -l || exec sh -l"]
     if command:
         cmd = f"""
-            docker run -ti --rm -w $PWD -v $PWD:$PWD -u $(id -u):$(id -g) "$(TERM=dumb docker build --target {target} -q .)" {" ".join(shlex.quote(x) for x in command)}
+            docker run --network host -ti --rm -w $PWD -v $PWD:$PWD -u $(id -u):$(id -g) {platform_arg} "$(TERM=dumb docker build --network host {platform_arg} --target {target} -q .)" {" ".join(shlex.quote(x) for x in command)}
             """
     else:
         cmd = f"""
-            TERM=dumb docker build --network=host --target {target} .
+            TERM=dumb docker build --network=host {platform_arg} --target {target} .
             """
     print(f"+ {cmd.strip()}", file=sys.stderr)
     subprocess.run(cmd, shell=True, check=True)

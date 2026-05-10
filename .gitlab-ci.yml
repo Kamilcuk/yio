@@ -27,6 +27,13 @@ docker_target_tests:
     matrix:
       - TARGET: ["gcc", "clang", "arm", "alpine", "icc", "lto", "valgrind", "nomalloc_nognu"]
 
+gcc_arm64_test:
+  extends: .buildah_test
+  variables:
+    TARGET: "gcc"
+  tags:
+    - saas-linux-small-arm64
+
 lint_test:
   script:
     - pacman -Sy --noconfirm cpplint clang
