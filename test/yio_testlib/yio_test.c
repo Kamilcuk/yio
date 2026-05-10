@@ -16,6 +16,14 @@ static void init() {
 }
 #endif
 
+#ifdef YYIO_HAS_LIBDFP
+extern int register_printf_dfp(void);
+__attribute__((constructor))
+static void init_libdfp(void) {
+	register_printf_dfp();
+}
+#endif
+
 #ifdef __SDCC
 static volatile __xdata __at(0xffff) unsigned char SIM_CONTROL;
 static void exit_test(int code) {

@@ -54,28 +54,7 @@ yio_config_gen_check_c_source_compiles(
 #########################################################################
 # handle and detect _floats
 
-# the list of _floats
-set(_floats
-	#type            mathsuffix suffix    strtosuffix
-	"float"          "f"        "f"       "f"
-	"double"         ""         "d"       "d"
-	"long double"    "l"        "l"       "ld"
-
-	"_Float16"       "f16"      "f16"     "f16"
-	"_Float32"       "f32"      "f32"     "f32"
-	"_Float64"       "f64"      "f64"     "f64"
-	"_Float128"      "f128"     "f128"    "f128"
-	"_Float32x"      "f32x"     "f32x"    "f32x"
-	"_Float64x"      "f64x"     "f64x"    "f64x"
-	"_Float128x"     "f128x"    "f128x"   "f128x"
-
-	"_Decimal32"     "d32"      "d32"     "d32"
-	"_Decimal64"     "d64"      "d64"     "d64"
-	"_Decimal128"    "d128"     "d128"    "d128"
-	"_Decimal32x"    "d32x"     "d32x"    "d32x"
-	"_Decimal64x"    "d64x"     "d64x"    "d64x"
-	"_Decimal128x"   "d128x"    "d128x"   "d128x"
-)
+include(src/environment_floats.cmake)
 
 # If two types are the same, set YIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
 function(exclude_same type1 type2 suffix)

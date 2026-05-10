@@ -1,22 +1,7 @@
-# environment_checks.cmake
+# environment_checks_types.cmake
 
-# This script checks all that is needed from the environment
-# Ie. all possible needed functions
-# Posix compliance
-# Available strfrom* functions
-# Available headers
-# And all the rest
-
-include(src/environment_setup.cmake)
-
-if(TARGET dfp)
-	list(APPEND CMAKE_REQUIRED_LIBRARIES
-		dfp
-	)
-endif()
-
-#########################################################################
-# some generic checks
+# This script checks for available types and language features.
+# It should be included before third_party libraries.
 
 if(YYIO_HAS_UNISTD_H)
 	list(APPEND CMAKE_EXTRA_INCLUDE_FILES
@@ -36,12 +21,8 @@ else()
 	yio_config_gen_add_value(YYIO_HAS_MONETARY_H 0)
 endif()
 
-yio_config_gen_check_symbol_exists(asprintf "stdio.h" YYIO_HAS_asprintf LANGUAGE C)
-
 yio_config_gen_check_type_exists("struct timespec" YYIO_HAS_timespec LANGUAGE C)
 yio_config_gen_check_type_exists("struct timeval" YYIO_HAS_timeval LANGUAGE C)
-
-yio_config_gen_check_symbol_exists(strnlen "string.h" YYIO_HAS_strnlen LANGUAGE C)
 
 if(YIO_SDCC)
 	yio_config_gen_check_type_exists(FILE YYIO_HAS_FILE LANGUAGE C)
@@ -50,14 +31,6 @@ else()
 endif()
 
 yio_config_gen_check_include_file("wchar.h"  YIO_HAS_WCHAR_H)
-if(YIO_HAS_WCHAR_H)
-	yio_config_gen_check_symbol_exists(wcwidth "wchar.h" YYIO_HAS_wcwidth LANGUAGE C)
-	yio_config_gen_check_symbol_exists(wcsnrtombs "wchar.h" YYIO_HAS_wcsnrtombs LANGUAGE C)
-else()
-	yio_config_gen_add_value(YYIO_HAS_wcwidth 0)
-	yio_config_gen_add_value(YYIO_HAS_wcsnrtombs 0)
-endif()
-
 yio_config_gen_check_include_file("uchar.h"  YIO_HAS_UCHAR_H)
 
 # Check if signed char is unique (vs char).
@@ -123,36 +96,6 @@ yio_config_gen_check_C_source_compiles(
 	YYIO_HAS_UNIQUE_CONSTPOINTER
 )
 
-#########################################################################
-# handle and detect _floats (function checks)
-
-foreach(ii IN LISTS _floats)
-	foreach_count_items(ii foreachstatevar
-		type mathsuffix suffix strtosuffix
-	)
-	if(ii)
-		continue()
-	endif()
-
-	if(YIO_HAS_FLOAT${suffix})
-		foreach(func IN ITEMS exp2 exp10 floor fabs log10 log2 frexp modf pow nextafter)
-			check_symbol_exists_bool(${func}${mathsuffix} "math.h" YYIO_HAS_${func}${suffix})
-			yio_config_gen_add(YYIO_HAS_${func}${suffix})
-		endforeach()
-		if(TARGET dfp AND suffix MATCHES "^d")
-			# If we link with libdfp, these functions MUST exist.
-			yio_config_gen_add_value(YYIO_HAS_strfrom${suffix} 1)
-			yio_config_gen_add_value(YYIO_HAS_strto${suffix} 1)
-		else()
-			check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  YYIO_HAS_strfrom${suffix})
-			check_symbol_exists_bool(strto${strtosuffix} "stdlib.h"  YYIO_HAS_strto${suffix})
-			foreach(ii IN ITEMS strfrom strto)
-				yio_config_gen_add(YYIO_HAS_${ii}${suffix})
-			endforeach()
-		endif()
-	endif()
-endforeach()
-
 yio_config_gen_check_c_source_compiles([=[
 float _Imaginary fi = 1;
 double _Imaginary di = 2;
@@ -168,37 +111,7 @@ yio_config_gen_check_c_source_compiles([=[
 int main() {}
 ]=] YYIO_HAS_COMPLEX)
 
-if(NOT DEFINED YYIO_MUSL_BROKEN_EXP10)
-	if(NOT CMAKE_CROSSCOMPILING AND YYIO_HAS_exp10l AND YYIO_HAS_FLOAT_H)
-		set(_o  ${CMAKE_CURRENT_BINARY_DIR}/checkexp10)
-		file(MAKE_DIRECTORY ${_o})
-		file(WRITE ${_o}/checkexp10.c [=[
-#include <math.h>
-int main() {
-	return powl(10.0, -4933) == 0;
-}
-]=]
-		)
-		try_run(
-			runres compileres
-			${_o} ${_o}/checkexp10.c
-			LINK_LIBRARIES m
-		)
-		if(compileres AND runres EQUAL 1)
-			set(YYIO_MUSL_BROKEN_EXP10 1 CACHE INTERNAL "")
-		endif()
-	endif()
-endif()
-if(NOT DEFINED YYIO_MUSL_BROKEN_EXP10)
-	set(YYIO_MUSL_BROKEN_EXP10 0 CACHE INTERNAL "")
-endif()
-yio_config_gen_add(YYIO_MUSL_BROKEN_EXP10)
-
-#########################################################################
-# handle and detect stdfix
-
 # Detect stdfix support.
-# Clang requires -ffixed-point flag to enable stdfix types.
 yio_config_gen_check_type_exists(_Fract YYIO_HAS_STDFIX_TYPES BUILTIN_TYPES_ONLY LANGUAGE C)
 
 set(_stdfix_types
@@ -227,9 +140,3 @@ else()
 		yio_config_gen_add(YYIO_HAS_STDFIX_${suffix} 0)
 	endforeach()
 endif()
-
-#########################################################################
-
-yio_config_gen_fini()
-
-#########################################################################

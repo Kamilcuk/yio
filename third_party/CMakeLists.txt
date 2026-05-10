@@ -55,8 +55,13 @@ if(YIO_HAS_ANY_DECIMAL_FLOAT)
 
     if(dfp_LIBRARY)
         set(dfp_FOUND TRUE)
+        find_path(dfp_INCLUDE_DIR NAMES dfp.h)
+        message(STATUS "Found libdfp include dir: ${dfp_INCLUDE_DIR}")
         add_library(dfp INTERFACE)
         target_link_libraries(dfp INTERFACE ${dfp_LIBRARY})
+        if(dfp_INCLUDE_DIR)
+            target_include_directories(dfp INTERFACE ${dfp_INCLUDE_DIR})
+        endif()
         message(STATUS "Found system libdfp at ${dfp_LIBRARY}")
     endif()
 

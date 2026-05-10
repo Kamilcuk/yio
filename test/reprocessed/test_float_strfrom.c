@@ -109,7 +109,7 @@ static void YYIO_run_tests_print_float_naive$1(void) {
 			0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, // 0..10
 	};
 
-	for (size_t iastrfrom = 0; iastrfrom < ARRAY_SIZE(YYIO_astrfroms$1); ++iastrfrom) {
+	for (size_t iastrfrom = 0; YYIO_astrfroms$1[iastrfrom].astrfrom != NULL; ++iastrfrom) {
 		for (size_t ispec = 0; ispec < ARRAY_SIZE(specs); ++ispec) {
 			for (size_t ival = 12; ival < ARRAY_SIZE(YYIO_test_floatlist$1); ++ival) {
 				for (size_t iprec = 0; iprec < ARRAY_SIZE(precisions); ++iprec) {

@@ -5,7 +5,7 @@ set(yio_config_gen_content)
 string(APPEND yio_config_gen_content [=[
 /**
  * @file yio_config_gen.h
- * This file was automatically generated from environment_checks.cmake
+ * This file was automatically generated from environment_checks_*.cmake
  */
 /**
  * @addtogroup config
