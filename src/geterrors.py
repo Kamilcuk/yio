@@ -25,14 +25,13 @@ class Err:
         )
 
 
-def get_all_errors_from_sources() -> List[Err]:
+def get_all_errors_from_sources(paths: List[Path]) -> List[Err]:
     # Match YYIO_ERROR(ENUM, "message")
     rereplace = re.compile(
         r'YYIO_ERROR\s*\(\s*([A-Z0-9_]+)\s*,\s*("[^"]*")\s*\)',
     )
-    src_dir = Path(__file__).parent
     errors: Set[Err] = set()
-    for path in src_dir.glob("**/*.[ch]"):
+    for path in paths:
         try:
             content = path.read_text()
             matches = rereplace.findall(content)
@@ -55,40 +54,43 @@ def prepare_sources(errors: List[Err]):
     return (enumout, msgout)
 
 
-def write_to_argv_on_change(idx, str_content):
-    if len(sys.argv) <= idx:
-        print(str_content)
-        return
-    file_path = Path(sys.argv[idx])
-    save_if_changed(str_content, file_path)
+def write_to_file_on_change(file_path, str_content):
+    save_if_changed(str_content, Path(file_path))
 
 
 def main():
     parser = argparse.ArgumentParser(
         description="""
     A small script that will extract all calls to YYIO_ERROR within all source files
-    in current source directory, and from these calls it will generate two files:
-    .c and .h file given as first and second arguments with enum-ish definition
+    passed as arguments, and from these calls it will generate two files:
+    .c and .h file given as --enum and --msg arguments with enum-ish definition
     and array of strings definition.
     It is used as part of CMake scripts to generate error messages.
     """
     )
     parser.add_argument("-v", "--verbose", action="store_true")
     parser.add_argument(
-        "file1",
+        "--enum",
+        required=True,
         help="output the integers for enum",
     )
     parser.add_argument(
-        "file2",
+        "--msg",
+        required=True,
         help="output the strings of errors",
+    )
+    parser.add_argument(
+        "sources",
+        nargs="+",
+        help="source files to scan for errors",
     )
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
     #
-    errors = get_all_errors_from_sources()
+    errors = get_all_errors_from_sources([Path(s) for s in args.sources])
     enumout, msgout = prepare_sources(errors)
-    write_to_argv_on_change(1, enumout)
-    write_to_argv_on_change(2, msgout)
+    write_to_file_on_change(args.enum, enumout)
+    write_to_file_on_change(args.msg, msgout)
 
 
 if __name__ == "__main__":

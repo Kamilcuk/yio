@@ -42,8 +42,9 @@ add_custom_command(
   COMMAND
     ${PYTHON_EXE}
     ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
-    ${GENDIR}/yio/yio_error_genenum.h
-    ${GENDIR}/yio/yio_error_genmsg.h
+    --enum ${GENDIR}/yio/yio_error_genenum.h
+    --msg ${GENDIR}/yio/yio_error_genmsg.h
+    ${error_srcs}
   COMMENT "Generate errors list from source files"
   DEPENDS
     ${CMAKE_CURRENT_SOURCE_DIR}/geterrors.py
