@@ -32,6 +32,7 @@ find_library(DFP
 target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio_compat
 )
+target_compile_definitions(${PROJECT_NAME} INTERFACE EXIT_SKIP=77)
 if(DFP)
   target_link_libraries(${PROJECT_NAME} INTERFACE
 		${DFP}

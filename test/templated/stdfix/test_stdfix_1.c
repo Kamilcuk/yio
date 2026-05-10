@@ -12,7 +12,7 @@
 #include <stdio.h>
 int main() {
 	#if !YYIO_HAS_STDFIX_TYPES
-	return 77;
+	return EXIT_SKIP;
 	#else
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line

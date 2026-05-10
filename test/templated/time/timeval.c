@@ -39,6 +39,6 @@ int main() {
 	YIO_TEST_EQ("-0:00:01.000000", "{}", tn);
 	return 0;
 #else
-	return 77;
+	return EXIT_SKIP;
 #endif
 }

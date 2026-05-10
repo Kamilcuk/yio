@@ -8,5 +8,5 @@
 // #include "yio_test_decimals.c"
 int main() {
   _Static_assert(FLT_RADIX == 2, "FLT_RADIX must be 2");
-  return 77;
+  return EXIT_SKIP;
 }

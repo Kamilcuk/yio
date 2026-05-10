@@ -35,6 +35,6 @@ int main(void) {
 
 	return 0;
 #else
-	return 77;
+	return EXIT_SKIP;
 #endif
 }

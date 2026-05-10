@@ -48,7 +48,7 @@ If a test cannot run because a feature is missing, return **77**. This allows `c
     // ... tests ...
     return 0;
 #else
-    return 77;
+    return EXIT_SKIP;
 #endif
 ```
 

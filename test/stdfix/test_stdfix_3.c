@@ -33,7 +33,7 @@ static int hex_dot_hex_to_int(char *str) {
 #include <stdio.h>
 int main() {
 	#if !YYIO_HAS_STDFIX_TYPES
-	return 77;
+	return EXIT_SKIP;
 	#else
 	char buf[128];
 	int ret;

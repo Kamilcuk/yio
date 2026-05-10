@@ -159,7 +159,7 @@ int main(void) {
 
 #else
     fprintf(stderr, "decimal is disabled\n");
-    return 77;
+    return EXIT_SKIP;
 #endif
 
     return 0;
