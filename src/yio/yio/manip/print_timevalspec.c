@@ -10,7 +10,7 @@
 #include "private.h"
 #include "yio/private/yio_string.h"
 #include <time.h>
-#if YYIO_HAS_timespec || YYIO_HAS_timeval
+#if (YYIO_HAS_timespec || YYIO_HAS_timeval) && YYIO_HAS_SYS_TIME_H
 #include <sys/time.h>
 #endif
 

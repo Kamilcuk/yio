@@ -74,16 +74,20 @@ add_custom_target(
 subdirlist(dirs ${CMAKE_CURRENT_SOURCE_DIR})
 # Omit cmake_example, it's for cmake project installation testing
 list(FILTER dirs EXCLUDE REGEX "cmake_example")
+
+if(YIO_SDCC)
+	add_subdirectory(sdcc)
+	return()
+endif()
+
 # testlib has our small testing library
 add_subdirectory(yio_testlib)
 list(FILTER dirs EXCLUDE REGEX "yio_testlib")
 list(FILTER dirs EXCLUDE REGEX "sstest")
+list(FILTER dirs EXCLUDE REGEX "sdcc")
 
-if(NOT YIO_SDCC)
-	add_subdirectory(sstest EXCLUDE_FROM_ALL)
-else()
-	list(FILTER dirs EXCLUDE REGEX "^cpp$")
-endif()
+add_subdirectory(sstest EXCLUDE_FROM_ALL)
+add_subdirectory(sdcc)
 
 foreach(dir IN ITEMS "." ${dirs})
 	# If the directory is not current directory and it contains CMakeLists.txt file
