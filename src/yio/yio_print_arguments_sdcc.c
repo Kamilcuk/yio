@@ -11,7 +11,7 @@
 
 #ifdef __SDCC
 
-yio_printdata_t __xdata YYIO_sdcc_args[YIO_SDCC_MAX_ARGS];
+yio_printdata_t YYIO_XDATA YYIO_sdcc_args[YIO_SDCC_MAX_ARGS];
 
 {% from "yio/yio_print_arguments_sdcc.h" import j_dec_YYIO_sdcc_args_init %}
 {{ j_dec_YYIO_sdcc_args_init() }} {

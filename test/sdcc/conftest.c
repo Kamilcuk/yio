@@ -4,7 +4,13 @@
 #include <stdlib.h>
 
 #ifdef __SDCC
-static volatile __xdata __at(0xffff) unsigned char SIM_CONTROL;
+#if defined(__SDCC_mcs51) || defined(__SDCC_ds390) || defined(__SDCC_ds400)
+static volatile YYIO_XDATA YYIO_AT(0xffff) unsigned char SIM_CONTROL;
+static volatile YYIO_XDATA YYIO_AT(0x00fe) unsigned char EXIT_CODE;
+#else
+static volatile unsigned char SIM_CONTROL;
+static volatile unsigned char EXIT_CODE;
+#endif
 
 void exit_test(int code) {
 	if (code) {
@@ -12,6 +18,7 @@ void exit_test(int code) {
 	} else {
 		puts("SUCCESS");
 	}
+	EXIT_CODE = (unsigned char)code;
 	abort();
 }
 
@@ -22,7 +29,7 @@ static void putchar_in(char c) {
 
 static unsigned counter = 0;
 int putchar(int c) {
-	if (counter > 200) {
+	if (counter > 1000) {
 		char *str = "\nFOREVER ERROR\n";
 		while (*str) {
 			putchar_in(*str++);
@@ -35,18 +42,23 @@ int putchar(int c) {
 	return c;
 }
 
+void yyio_break(void) {
+	__asm
+	nop
+	__endasm;
+}
+
 void abort(void) {
 	SIM_CONTROL = 0x73;
 	SIM_CONTROL = 0x00;
-	__asm
-	.db 0x45 ; Illegal opcode/Breakpoint in some simulators
-	__endasm;
+	yyio_break();
 	while (1);
 }
 
 int libtest_main();
 #undef main
 int main() {
+	puts("START");
 	exit_test(libtest_main());
 	return 0;
 }

@@ -7,6 +7,8 @@ This document summarizes the support for fixed-point arithmetic types in various
 | Compiler | Version | Target | Options | `_Fract` | `_Accum` | `_Sat` | `_Generic` Uniqueness |
 |----------|---------|--------|---------|----------|----------|--------|-----------------------|
 | `arm-none-eabi-gcc` | 15.2.1 | ARM | (default) | Yes | Yes | Yes | Yes (including `_Sat`) |
+| `avr-gcc` | 14.3.0 | AVR | (default) | Yes | Yes | Yes | Yes (including `_Sat`) |
+| `riscv64-none-elf-gcc` | 14.3.0 | RISC-V | (default) | No [1] | No [1] | No [1] | N/A |
 | `clang` | 21.1.8 | x86_64 | `-ffixed-point` | Yes | Yes | Yes | Yes (including `_Sat`) |
 | `gcc` | 13.3.0 | x86_64 | (default) | No [1] | No [1] | No [1] | N/A |
 | `sdcc` | 4.5.0 | mcs51/stm8 | (default) | No [2] | No [2] | No [2] | N/A |
@@ -16,7 +18,7 @@ This document summarizes the support for fixed-point arithmetic types in various
 
 ## Type Variants Support
 
-### `arm-none-eabi-gcc`
+### `arm-none-eabi-gcc` and `avr-gcc`
 - **Base types:** `short`, `(normal)`, `long`, `long long`.
 - **Signedness:** `signed`, `unsigned`.
 - **Saturation:** `_Sat` supported for all combinations.

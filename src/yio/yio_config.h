@@ -182,10 +182,23 @@ extern "C" {
 #define YYIO_IF(x, ...)     YYIO_XCONCAT(YYIO_IF_, x)(__VA_ARGS__)
 
 #ifdef __SDCC
+#if defined(__SDCC_mcs51) || defined(__SDCC_ds390) || defined(__SDCC_ds400)
 #define YYIO_REENTRANT __reentrant
+#define YYIO_XDATA     __xdata
+#define YYIO_CODE      __code
+#define YYIO_AT(addr)  __at(addr)
+#else
+#define YYIO_REENTRANT
+#define YYIO_XDATA
+#define YYIO_CODE
+#define YYIO_AT(addr)
+#endif
 #define YYIO_HAS_SYS_TIME_H 0
 #else
 #define YYIO_REENTRANT
+#define YYIO_XDATA
+#define YYIO_CODE
+#define YYIO_AT(addr)
 #define YYIO_HAS_SYS_TIME_H 1
 #endif
 

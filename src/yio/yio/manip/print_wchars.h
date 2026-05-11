@@ -37,8 +37,7 @@ int YYIO_print_constwcharpnt(yio_printctx_t *t);
 
 
 #define YYIO_PRINT_FUNC_GENERIC_WCHARS() \
-		YYIO_OVERLOAD_TYPE_FUNC(wchar_t *, YYIO_print_constwcharpnt) \
-		YYIO_OVERLOAD_TYPE_FUNC(const wchar_t *, YYIO_print_constwcharpnt)
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(wchar_t, YYIO_print_constwcharpnt)
 
 #ifndef YYIO_HAS_UNIQUE_WCHAR_T
 #error YYIO_HAS_UNIQUE_WCHAR_T is not defiend
