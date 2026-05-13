@@ -7,6 +7,7 @@ Checks: >
   -altera-*,
   -hicpp-*,
   -bugprone-easily-swappable-parameters,
+  -readability-magic-numbers,
   -cert-dcl37-c,
   -cert-dcl51-cpp,
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,

@@ -255,6 +255,16 @@ static inline int yio_printctx_init_or_number(yio_printctx_t *t, int val) {
 	return YYIO_printctx_init_in(t);
 }
 
+static inline int yio_printctx_err_skip(yio_printctx_t *t, int err, unsigned count) {
+#if YIO_ENABLE_DYNAMIC_PFMT
+	if (err == YIO_ERROR_SKIPPING) {
+		// This requires sub-skipping, where the child function also is skipping.
+		t->skip += count;
+	}
+#endif
+	return err;
+}
+
 /**
  * Write size count of bytes from ptr to output stream.
  * @param t
@@ -283,6 +293,16 @@ static inline
 struct yio_printfmt_s *yio_printctx_get_fmt(yio_printctx_t *t) {
 	return &t->pf;
 }
+
+/**
+ * Internal callback called from
+ * @see yio_printctx_print
+ * @param t
+ * @param data
+ * @return
+ */
+YYIO_wur YYIO_nn(1, 2, 4)
+int YYIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, va_list *va);
 
 /**
  * Internal callback called from

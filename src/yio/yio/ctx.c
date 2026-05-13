@@ -253,14 +253,20 @@ int yio_printctx_next(yio_printctx_t *t) {
 	return (*t->ifunc)(t);
 }
 
-int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, ...) {
-	va_list va;
-	va_start(va, fmt);
-	const int ret = yio_vbprintf(t->out, t->outarg, data, fmt, &va);
-	va_end(va);
+int YYIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, va_list *va) {
+	const int ret = yio_vbprintf(t->out, t->outarg, data, fmt, va);
 	if (ret < 0) return ret;
 	t->writtencnt += ret;
 	return 0;
+}
+
+
+int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	const int ret = YYIO_printctx_vprint_in(t, data, fmt, &va);
+	va_end(va);
+	return ret;
 }
 
 /* printformat --------------------------------------------------- */

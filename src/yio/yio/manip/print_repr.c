@@ -204,15 +204,7 @@ int YYIO_print_repr_$1(yio_printctx_t *t) {
 	int val = yio_printctx_va_arg(t, int);
 	(void)val;
 	int err = yio_printctx_init(t);
-	if (err) {
-#if YIO_ENABLE_DYNAMIC_PFMT
-		if (err == YIO_ERROR_SKIPPING) {
-			// This requires sub-skipping, where the child function also is skipping.
-			t->skip++;
-		}
-#endif
-		return err;
-	}
+	if (err) return yio_printctx_err_skip(t, err, 1);
 	YYIO_string str;
 	YYIO_string_init(&str);
 	const yio_printdata_t data[] = {*t->ifunc++, 0};
