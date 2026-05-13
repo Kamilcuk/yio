@@ -65,6 +65,38 @@ endfunction()
 
 #####################################################################
 
+set_from_env(TESTPROGRAM)
+if(DEFINED TESTPROGRAM AND NOT TESTPROGRAM STREQUAL "")
+  if(TESTPROGRAM MATCHES "main[ \t\r\n]*\\(")
+    set(source "
+#include <stdio.h>
+#include <stdlib.h>
+#include <float.h>
+#include <yio_test.h>
+${TESTPROGRAM}
+")
+  else()
+    set(source "
+#include <stdio.h>
+#include <stdlib.h>
+#include <float.h>
+#include <yio_test.h>
+int main() {
+  ${TESTPROGRAM}
+  return 0;
+}")
+  endif()
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c "${source}")
+  message(STATUS "COMPILING:
+${source}")
+  add_executable(yio_testprogram EXCLUDE_FROM_ALL ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c)
+  target_link_libraries(yio_testprogram PRIVATE yio_testlib)
+  if(TARGET dfp)
+    target_link_libraries(yio_testprogram PRIVATE dfp)
+  endif()
+  add_test(NAME yio_testprogram COMMAND yio_testprogram)
+endif()
+
 add_custom_target(
 	yio_build_tests
 	COMMENT "Yio build all tests"
@@ -153,36 +185,4 @@ if(UNIX)
 endif()
 
 ###############################################################################
-
-set_from_env(TESTPROGRAM)
-if(DEFINED TESTPROGRAM AND NOT TESTPROGRAM STREQUAL "")
-  if(TESTPROGRAM MATCHES "main[ \t\r\n]*\\(")
-    set(source "
-#include <stdio.h>
-#include <stdlib.h>
-#include <float.h>
-#include <yio_test.h>
-${TESTPROGRAM}
-")
-  else()
-    set(source "
-#include <stdio.h>
-#include <stdlib.h>
-#include <float.h>
-#include <yio_test.h>
-int main() {
-  ${TESTPROGRAM}
-  return 0;
-}")
-  endif()
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c "${source}")
-  message(STATUS "COMPILING:
-${source}")
-  add_executable(yio_testprogram EXCLUDE_FROM_ALL ${CMAKE_CURRENT_BINARY_DIR}/yio_testprogram.c)
-  target_link_libraries(yio_testprogram PRIVATE yio_testlib)
-  if(TARGET dfp)
-    target_link_libraries(yio_testprogram PRIVATE dfp)
-  endif()
-  add_test(NAME yio_testprogram COMMAND yio_testprogram)
-endif()
 

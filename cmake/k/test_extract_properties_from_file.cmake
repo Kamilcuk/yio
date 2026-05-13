@@ -24,7 +24,7 @@ function(test_extract_properties_from_file exename testname file)
   endif()
 
   set(testprops SKIP_RETURN_CODE PASS_REGULAR_EXPRESSION FAIL_REGULAR_EXPRESSION SKIP_REGULAR_EXPRESSION WILL_FAIL
-                TIMEOUT
+                TIMEOUT EXPECTED_EXIT_CODE
   )
   set(testprops_append LABELS)
   set(exeprops C_STANDARD C_STANDARD_REQUIRED C_EXTENSIONS)
@@ -50,6 +50,7 @@ function(test_extract_properties_from_file exename testname file)
 	string(LENGTH "${prop}" proplen)
 	string(SUBSTRING "${line}" "${proplen}" -1 line)
 	string(REGEX REPLACE "^[ \t]" "" line "${line}")
+	string(STRIP "${line}" line)
     if(NOT prop IN_LIST allprops)
       continue()
     endif()
@@ -61,7 +62,6 @@ function(test_extract_properties_from_file exename testname file)
       continue()
     endif()
     if(prop IN_LIST testprops)
-      string(REGEX REPLACE ";" "\n" P_${prop} "${P_${prop}}")
       set_property(TEST ${testname} PROPERTY "${prop}" "${P_${prop}}")
     elseif(prop IN_LIST testprops_append)
       set_property(

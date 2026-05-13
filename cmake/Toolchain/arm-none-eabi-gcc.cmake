@@ -55,12 +55,3 @@ find_program(CMAKE_C_COMPILER    arm-none-eabi-gcc)
 find_program(CMAKE_CXX_COMPILER  arm-none-eabi-g++)
 
 include(${CMAKE_CURRENT_LIST_DIR}/crosscompiling.cmake)
-
-# Change this part
-find_program(QEMU_EXECUTABLE qemu-system-arm)
-
-if(NOT CMAKE_CROSSCOMPILING_EMULATOR)
-    get_filename_component(CMAKE_CROSSCOMPILING_EMULATOR
-      ${KCMAKELIB_SCRIPTS_DIR}/cmake_crosscompiling_emulator_arm_none_gdb.sh
-      ABSOLUTE)
-endif()

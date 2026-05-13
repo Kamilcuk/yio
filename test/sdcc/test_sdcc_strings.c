@@ -8,9 +8,9 @@ int libtest_main(void) {
 
 	YIO_TEST_EQ("abc", "{}", p);
 	YIO_TEST_EQ("def", "{}", cp);
-	YIO_TEST_EQ("ghi", "{}", (char *)arr);
-	YIO_TEST_EQ("jkl", "{}", (const char *)carr);
-	YIO_TEST_EQ("xyz", "{}", (char *)"xyz");
+	YIO_TEST_EQ("ghi", "{}", &arr[0]);
+	YIO_TEST_EQ("jkl", "{}", &carr[0]);
+	YIO_TEST_EQ("xyz", "{}", "xyz");
 
 	return 0;
 }

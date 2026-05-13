@@ -12,6 +12,19 @@
 extern "C" {
 #endif
 
+#include "../ctx.h"
+#include "../../yio_config.h"
+#include "print_float.h"
+#include "print_wchars.h"
+#include "print_tm.h"
+#include "print_timevalspec.h"
+#include "print_stdfix.h"
+#include "print_complex.h"
+#include "print_pfmt.h"
+#include "print_mon.h"
+#include "print_int.h"
+#include "print_repr.h"
+
 /**
  * @def YYIO_COUNTER
  * Internal preprocessor counter for adding types into _Generic.
@@ -26,18 +39,33 @@ extern "C" {
 #define YYIO_PRINT_FUNC_GENERIC_SLOTS() /**/
 
 
-#include "../ctx.h"
-#include "../../yio_config.h"
-#include "print_float.h"
-#include "print_wchars.h"
-#include "print_tm.h"
-#include "print_timevalspec.h"
-#include "print_stdfix.h"
-#include "print_complex.h"
-#include "print_pfmt.h"
-#include "print_mon.h"
-#include "print_int.h"
-#include "print_repr.h"
+#ifndef YYIO_HAS_UNIQUE_CONSTPOINTER
+#error YYIO_HAS_UNIQUE_CONSTPOINTER is not defined
+#endif
+
+#ifdef __cplusplus
+#define YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC) \
+	inline yio_printdata_t yyio_print_func_generic_cpp(TYPE) { return (yio_printdata_t)(FUNC); }
+#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(BASETYPE, FUNC) \
+	YYIO_OVERLOAD_TYPE_FUNC(BASETYPE *, FUNC) \
+	YYIO_OVERLOAD_TYPE_FUNC(const BASETYPE *, FUNC)
+#else // __cplusplus
+#define YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC)  TYPE: FUNC,
+#if defined(__SDCC_mcs51) || defined(__SDCC_ds390) || defined(__SDCC_ds400)
+#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(BASETYPE, FUNC) \
+		TYPE __xdata *: FUNC, \
+		TYPE __code *: FUNC, \
+		TYPE __pdata *: FUNC, \
+		TYPE __idata *: FUNC, \
+		TYPE __data *: FUNC,
+#elif defined(__SDCC_stm8)
+#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(BASETYPE, FUNC) BASETYPE *: FUNC,
+#else // __SDCC
+#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(BASETYPE, FUNC) \
+	BASETYPE *: FUNC, \
+	YYIO_IF(YYIO_HAS_UNIQUE_CONSTPOINTER, const BASETYPE *: FUNC,)
+#endif // __SDCC
+#endif // __cplusplus
 
 #ifndef YIO_HAS_UCHAR_H
 #error YIO_HAS_UCHAR_H
@@ -47,10 +75,8 @@ extern "C" {
 int YYIO_print_constchar16pnt(yio_printctx_t *t);
 int YYIO_print_constchar32pnt(yio_printctx_t *t);
 #define YYIO_PRINT_FUNC_GENERIC_UCHARS() \
-		YYIO_OVERLOAD_TYPE_FUNC(char16_t*, YYIO_print_constchar16pnt) \
-		YYIO_OVERLOAD_TYPE_FUNC(const char16_t*, YYIO_print_constchar16pnt) \
-		YYIO_OVERLOAD_TYPE_FUNC(char32_t*, YYIO_print_constchar32pnt) \
-		YYIO_OVERLOAD_TYPE_FUNC(const char32_t*, YYIO_print_constchar32pnt)
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(char16_t, YYIO_print_constchar16pnt) \
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(char32_t, YYIO_print_constchar32pnt)
 #else
 #define YYIO_PRINT_FUNC_GENERIC_UCHARS()
 #endif
@@ -80,28 +106,6 @@ int YYIO_print_count(yio_printctx_t *t);
 #define YYIO_PRINT_FUNC_GENERIC_COUNT() \
 		YYIO_OVERLOAD_TYPE_FUNC(int *, YYIO_print_count)
 
-#ifndef YYIO_HAS_UNIQUE_CONSTPOINTER
-#error YYIO_HAS_UNIQUE_CONSTPOINTER is not defined
-#endif
-#ifdef __cplusplus
-#define YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC) \
-	inline yio_printdata_t yyio_print_func_generic_cpp(TYPE) { return (yio_printdata_t)(FUNC); }
-#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(TYPE, FUNC) \
-	YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC) \
-	YYIO_OVERLOAD_TYPE_FUNC(const TYPE, FUNC)
-#else
-#define YYIO_OVERLOAD_TYPE_FUNC(TYPE, FUNC) \
-	TYPE: FUNC,
-#if YYIO_HAS_UNIQUE_CONSTPOINTER
-#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(TYPE, FUNC) \
-	TYPE: FUNC, \
-	const TYPE: FUNC,
-#else
-#define YYIO_OVERLOAD_POINTER_TYPE_FUNC(TYPE, FUNC) \
-	TYPE: FUNC,
-#endif
-#endif
-
 #ifdef __cplusplus
 extern "C++" {
 namespace yyio_cpp {
@@ -122,8 +126,8 @@ namespace yyio_cpp {
 	YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE()
 	YYIO_OVERLOAD_TYPE_FUNC(bool, YYIO_print_bool)
 	YYIO_OVERLOAD_TYPE_FUNC(char, YYIO_print_char)
-	YYIO_OVERLOAD_POINTER_TYPE_FUNC(char*, YYIO_print_constcharpnt)
-	YYIO_OVERLOAD_POINTER_TYPE_FUNC(void*, YYIO_print_voidp)
+	YYIO_OVERLOAD_POINTER_TYPE_FUNC(char, YYIO_print_constcharpnt)
+	YYIO_OVERLOAD_POINTER_TYPE_FUNC(void, YYIO_print_voidp)
 }
 }
 #endif
@@ -160,12 +164,13 @@ namespace yyio_cpp {
 			YYIO_PRINT_STDFIX() \
 			YYIO_PRINT_COMPLEX() \
 			YYIO_PRINT_FUNC_GENERIC_WCHARS_SECOND_STAGE() \
-			YYIO_OVERLOAD_POINTER_TYPE_FUNC(char*, YYIO_print_constcharpnt) \
-			YYIO_OVERLOAD_POINTER_TYPE_FUNC(void*, YYIO_print_voidp) \
+			YYIO_OVERLOAD_POINTER_TYPE_FUNC(char, YYIO_print_constcharpnt) \
+			YYIO_OVERLOAD_POINTER_TYPE_FUNC(void, YYIO_print_voidp) \
 			bool: YYIO_print_bool, \
 			char: YYIO_print_char \
 		)
 #endif
+
 
 /**
  * @def YIO_ADD_TYPE_INC

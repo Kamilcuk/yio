@@ -95,6 +95,8 @@
       "name": "sdcc",
       "inherits": "default",
       "cacheVariables": {
+        "CMAKE_CROSSCOMPILING_EMULATOR": "${sourceDir}/scripts/simulator-sdcc",
+        "YIO_BITINT_MAXWIDTH": "0",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/cmake/yio_sdcc_toolchain.cmake",
         "CMAKE_C_FLAGS": " --model-large --stack-auto --less-pedantic -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return --nogcse",
         "CMAKE_C_STANDARD": "23",
@@ -178,14 +180,17 @@
       "name": "stm8",
       "inherits": "sdcc",
       "cacheVariables": {
-        "CMAKE_C_FLAGS": "-mstm8 --model-large --stack-auto --less-pedantic -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return --nogcse"
+        "CMAKE_C_FLAGS": "-mstm8 --model-large --stack-auto --less-pedantic -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return --nogcse",
+        "CMAKE_CROSSCOMPILING_EMULATOR": "${sourceDir}/scripts/simulator-sdcc;--stm8"
       }
     },
     {
       "name": "ds390",
       "inherits": "sdcc",
       "cacheVariables": {
-        "CMAKE_C_FLAGS": "-mds390 --model-flat24 --stack-auto --less-pedantic -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return --nogcse"
+        "YIO_MAX_ARGS": "5",
+        "CMAKE_C_FLAGS": "-mds390 --model-flat24 --stack-auto --less-pedantic -DNDEBUG -Dstatic_assert=_Static_assert --opt-code-size --peep-return --nogcse -Wl,--code-size,0x100000 -Wl,--xram-size,0x100000",
+        "CMAKE_EXE_LINKER_FLAGS": ""
       }
     },
     {

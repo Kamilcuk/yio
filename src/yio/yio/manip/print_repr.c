@@ -205,10 +205,12 @@ int YYIO_print_repr_$1(yio_printctx_t *t) {
 	(void)val;
 	int err = yio_printctx_init(t);
 	if (err) {
+#if YIO_ENABLE_DYNAMIC_PFMT
 		if (err == YIO_ERROR_SKIPPING) {
 			// This requires sub-skipping, where the child function also is skipping.
 			t->skip++;
 		}
+#endif
 		return err;
 	}
 	YYIO_string str;

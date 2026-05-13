@@ -27,7 +27,11 @@ extern "C" {
  * outputs (such as small integers, pointers, or short labels) and typical padding
  * requirements without immediate reallocation or excessive tiny writes.
  */
+#ifdef __SDCC
+#define YYIO_INIT_CAPACITY  2
+#else
 #define YYIO_INIT_CAPACITY  32
+#endif
 
 /**
  * @def YYIO_GOLDEN_INCREASE

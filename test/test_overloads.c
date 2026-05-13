@@ -243,11 +243,13 @@ int main() {
 
 	/* Wchars and Uchars - use strings as yio supports them via _Generic */
 	YIO_TEST_EQ("A", "{}", L"A");
+#if __linux__
 #if defined(MY_HAS_UCHAR_H) || defined(__STDC_UTF_16__) || defined(__clang__) || defined(__GNUC__)
 	YIO_TEST_EQ("A", "{}", u"A");
 #endif
 #if defined(MY_HAS_UCHAR_H) || defined(__STDC_UTF_32__) || defined(__clang__) || defined(__GNUC__)
 	YIO_TEST_EQ("A", "{}", U"A");
+#endif
 #endif
 
 

@@ -88,8 +88,10 @@ struct YYIO_printctx_s {
 	unsigned int writtencnt;
 	/// Description of print formatting.
 	struct yio_printfmt_s pf;
+#if YIO_ENABLE_DYNAMIC_PFMT
 	/// How many arguments to skip when outputting current argument.
 	unsigned char skip;
+#endif
 };
 
 /* functions ------------------------------------------------------------------------- */
@@ -212,10 +214,12 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
 static const uint16_t YYIO_PRECISION_MAX = UINT16_MAX - 1;
 
 YYIO_wur YYIO_nn() static inline int YYIO_printctx_init_in(yio_printctx_t *t) {
+#if YIO_ENABLE_DYNAMIC_PFMT
 	if (t->skip) {
 		t->skip--;
 		return YYIO_ERROR(YIO_ERROR_SKIPPING, "error part of skipping arguments when iterating over them");
 	}
+#endif
 	return t->fmt ? YYIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt) : 0;
 }
 

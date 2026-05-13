@@ -1,0 +1,529 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import logging
+import os
+import re
+import shlex
+import signal
+import subprocess
+import sys
+from collections.abc import Generator
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import TYPE_CHECKING, ClassVar, TypeVar
+
+if TYPE_CHECKING:
+    from types import FrameType
+
+
+logger = logging.getLogger(Path(__file__).stem)
+
+
+@dataclass
+class SimulatorState:
+    symbols: dict[int, str]
+    p: subprocess.Popen[str]
+    started: bool = False
+    exit_code: int | None = None
+    recorded_lines: list[str] = field(default_factory=list)
+    readline: Generator[str, None, None] = field(init=False)
+
+    def __post_init__(self):
+        self.readline = self._readline()
+
+    def _readline(self) -> Generator[str, None, None]:
+        """Generator that yields lines from p.stdout and records them."""
+        assert self.p.stdout
+        for line in self.p.stdout:
+            logger.debug(f"Output: {repr(line)}")
+            self.recorded_lines.append(line)
+            yield line
+
+    def get_symbol(self, address: int) -> str:
+        """Return symbol name for address or 'UNKNOWN'."""
+        return self.symbols.get(address, "UNKNOWN")
+
+    def print(self, cmd: str) -> None:
+        """Send command to debugger with logger and immediate flush."""
+        logger.debug(f"Input: {cmd}")
+        assert self.p.stdin
+        print(cmd, file=self.p.stdin, flush=True)
+
+
+def compilelist(*input: str) -> list[re.Pattern]:
+    return [re.compile(x) for x in input]
+
+
+@dataclass
+class DebuggerCallback:
+    patterns: ClassVar[list[re.Pattern[str]]] = []
+
+    def action(self, match: re.Match[str], state: SimulatorState) -> bool:
+        return True
+
+
+@dataclass
+class IgnoreCallback(DebuggerCallback):
+    patterns = [
+        re.compile(r"^b 0x[0-9a-fA-F]+"),
+        re.compile(r"^run"),
+        re.compile(r"^exit"),
+        re.compile(r"Breakpoint \d+ at 0x[0-9a-fA-F]+"),
+        re.compile(r"Simulation started, PC=0x[0-9a-fA-F]+"),
+    ]
+
+
+@dataclass
+class BreakpointCallback:
+    address: int
+
+    def action(self, state: SimulatorState) -> bool:
+        return True
+
+
+@dataclass
+class CrashCallback(DebuggerCallback):
+    patterns = compilelist(
+        r"Stack overflow.*",
+        r"Erroneous instruction.*",
+    )
+
+    def action(self, match: re.Match[str], state: SimulatorState) -> bool:
+        crash_msg = match.group(0).strip()
+        print(crash_msg)  # Ensure the crash line itself is printed
+        try:
+            with signal_timeout(1):
+                for line in state.readline:
+                    print(line, end="", flush=True)
+        except (TimeoutError, StopIteration):
+            pass
+        raise RuntimeError("Simulator crashed")
+
+
+@dataclass
+class BreakpointDispatcher(DebuggerCallback):
+    patterns = compilelist(
+        r"Stop at (?P<code>0x[0-9a-fA-F]+): \((?P<reason>.*)\) (?P<description>.*)",
+        r"Stop at (?P<code>0x[0-9a-fA-F]+):",
+        r"^(0x[0-9a-fA-F]+)\s+[F? ]{2}\s+.*",
+    )
+    handlers: list[BreakpointCallback] = field(default_factory=list)
+    _handler_map: dict[int, BreakpointCallback] = field(init=False, default_factory=dict)
+
+    def __post_init__(self) -> None:
+        self._handler_map = {h.address: h for h in self.handlers}
+
+    def action(self, match: re.Match[str], state: SimulatorState) -> bool:
+        addr_str = match.group(1)
+        addr = int(addr_str, 16)
+        line = match.string.strip()
+
+        if handler := self._handler_map.get(addr):
+            symbol = state.get_symbol(addr)
+            logger.info(f"Stop at {symbol} ({hex(addr)})")
+
+            # Swallow debugger status lines until 'F 0x...'
+            while True:
+                line = next(state.readline)
+                logger.info(f"Output (breakpoint detail): {repr(line)}")
+                if line.strip().startswith("F 0x"):
+                    break
+
+            return handler.action(state)
+
+        if line.startswith("Stop at"):
+            if "(104) Breakpoint" not in line:
+                raise RuntimeError(f"Simulator stopped with error: {line}")
+            logger.warning(f"Unexpected breakpoint at {addr_str}: {line}")
+
+        return True  # Swallow disassembly or unexpected breakpoint
+
+
+@dataclass
+class MainBreakpoint(BreakpointCallback):
+    hit_count: int = 0
+
+    def action(self, state: SimulatorState) -> bool:
+        if self.hit_count > 0:
+            raise RuntimeError("Process restarted (multiple main entry)")
+        logger.info("main() entered")
+        self.hit_count += 1
+        state.print("run")
+        return True
+
+
+@dataclass
+class AbortBreakpoint(BreakpointCallback):
+    def action(self, state: SimulatorState) -> bool:
+        logger.info("Abort hit (_abort)")
+        if state.exit_code is None:
+            state.exit_code = 1
+        state.print("exit")
+        return True
+
+
+@dataclass
+class UserBreakpoint(BreakpointCallback):
+    commands: str
+
+    def action(self, state: SimulatorState) -> bool:
+        symbol = state.get_symbol(self.address)
+        logger.info(f"Breakpoint hit at {symbol} ({hex(self.address)})")
+        for cmd_str in self.commands.split(";"):
+            if cmd_str.strip():
+                state.print(cmd_str.strip())
+        state.print("run")
+        return True
+
+
+T = TypeVar("T")
+
+
+def did_add(s: set[T], x: T) -> bool:
+    """Add to a set and return true if it was added"""
+    return len(s) == (s.add(x) or len(s))
+
+
+PREAMBLE_PATTERNS = [
+    re.compile(r"uCsim, Copyright.*"),
+    re.compile(r"uCsim comes with ABSOLUTELY NO WARRANTY.*"),
+    re.compile(r"This is free software, and you are welcome to redistribute it.*"),
+    re.compile(r"under certain conditions; type `show c' for details\..*"),
+]
+
+
+@dataclass
+class PreambleCallback(DebuggerCallback):
+    patterns = [PREAMBLE_PATTERNS[0]]
+    done: bool = False
+
+    def action(self, match: re.Match[str], state: SimulatorState) -> bool:
+        assert not self.done, "Preamble received twice. something is wrong"
+        self.done = True
+        for pattern in PREAMBLE_PATTERNS[1:]:
+            line = next(state.readline)
+            assert pattern.match(line.strip()), (
+                f"Preamble mismatch. Expected pattern: {pattern.pattern}, got: {line.strip()}"
+            )
+        logger.info("Preamble finished")
+        return True
+
+
+START_MARKER = "START"
+
+
+@dataclass
+class StartCallback(DebuggerCallback):
+    patterns = [re.compile(rf"{START_MARKER}")]
+
+    def action(self, match: re.Match[str], state: SimulatorState) -> bool:
+        if state.started:
+            raise RuntimeError(
+                f"Multiple {START_MARKER} markers detected. This most probably means that the program has went out of memory and triggered a restart"
+            )
+        logger.info("Simulation started (marker found)")
+        state.started = True
+        return True
+
+
+@dataclass
+class ExitCallback(DebuggerCallback):
+    patterns = [re.compile(r"EXIT:\s+(\d+)")]
+
+    def action(self, match: re.Match[str], state: SimulatorState) -> bool:
+        if state.exit_code is not None:
+            raise RuntimeError(
+                "Multiple EXIT markers detected. This would be most probably cause by flaky regex matching the EXIT marker and most probably can be improved. Or the firmware has exited TWICE, which is an error."
+            )
+        state.exit_code = int(match.group(1))
+        logger.info(f"Simulation finished with exit code {state.exit_code}")
+        return True
+
+
+def timeout_handler(_signum: int, _frame: FrameType | None) -> None:
+    raise TimeoutError("Simulation timed out")
+
+
+@contextmanager
+def signal_timeout(seconds: int) -> Generator[None, None, None]:
+    """Context manager for setting a signal-based alarm timeout."""
+    old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(seconds)
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, old_handler)
+
+
+def parse_map_file(map_path: Path) -> dict[str, int]:
+    """Parse SDCC .map file to extract symbol addresses."""
+    assert map_path.exists(), f"Map file {map_path} not found."
+    symbols = {}
+    for line in map_path.read_text().splitlines():
+        if match := re.search(r"^\S*\s*([0-9a-fA-F]{8})\s+(\w+)", line):
+            symbols[match.group(2)] = int(match.group(1), 16)
+    assert "_main" in symbols
+    assert len(symbols) > 10, f"Not enough symbols found in {map_path}"
+    return symbols
+
+
+def handle_callbacks(
+    line: str,
+    state: SimulatorState,
+    callbacks: list[DebuggerCallback],
+) -> bool:
+    """Check line against all callbacks and execute the first match."""
+    line_strip = line.strip()
+    for cb in callbacks:
+        for p in cb.patterns:
+            if match := p.match(line_strip):
+                return cb.action(match, state)
+    return False
+
+
+def selftest() -> None:
+    """Run self-tests on the parser logic."""
+    sample_lines = [
+        "uCsim, Copyright (C) 1997 Daniel Drotos.",
+        "uCsim comes with ABSOLUTELY NO WARRANTY; for details type `show w'.",
+        "This is free software, and you are welcome to redistribute it",
+        "under certain conditions; type `show c' for details.",
+        "b 0x601",
+        "run",
+        'Breakpoint 1 at 0x000601 (cond="")',
+        "Simulation started, PC=0x000000",
+        "",
+        "Stop at 0x000601: (104) Breakpoint",
+        "     R0 R1 R2 R3 R4 R5 R6 R7",
+        "     00 00 00 00 00 00 00 00",
+        "0x0601 F? 90 c6 ee MOV    DPTR,#0xc6ee",
+        "F 0x000601",
+        "run",
+        "START",
+        "Hello World",
+        "Stop at 0x0004c5: (104) Breakpoint",
+        "     R0 R1 R2 R3 R4 R5 R6 R7",
+        "     00 00 00 00 53 ef c6 80",
+        "0x04c5 F? ae 82    MOV    R6,0x82 <DPL>",
+        "F 0x0004c5",
+        "run",
+        "EXIT: 0",
+    ]
+
+    class FakeProc:
+        def __init__(self, lines):
+            self.stdout = iter(lines)
+            self.stdin = open(os.devnull, "w")
+
+    state = SimulatorState(
+        {0x601: "_main", 0x47C: "_abort", 0x4C5: "_putchar"},
+        FakeProc(sample_lines),  # type: ignore
+    )
+
+    bp_handlers = [
+        MainBreakpoint(0x601),
+        AbortBreakpoint(0x47C),
+        UserBreakpoint(0x4C5, "run"),
+    ]
+    callbacks = [
+        PreambleCallback(),
+        ExitCallback(),
+        CrashCallback(),
+        BreakpointDispatcher(handlers=bp_handlers),
+        StartCallback(),
+        IgnoreCallback(),
+    ]
+
+    output = []
+    for line in state.readline:
+        if not handle_callbacks(line, state, callbacks):
+            if state.started and line.strip():
+                output.append(line.strip())
+
+    assert state.started
+    assert state.exit_code == 0
+    assert output == ["Hello World"]
+
+    # --- Test Crash Detection ---
+    crash_scenarios = [
+        "Stack overflow, PC=0x0",
+        "Erroneous instruction: ...",
+        "Stop at 0x005d22: (108) F 0x005d22",
+    ]
+
+    for crash_line in crash_scenarios:
+        state = SimulatorState(
+            {0x601: "_main", 0x47C: "_abort", 0x4C5: "_putchar"},
+            FakeProc([crash_line]),  # type: ignore
+        )
+        try:
+            for line in state.readline:
+                handle_callbacks(line, state, callbacks)
+            assert False, f"Crash not detected for: {crash_line}"
+        except RuntimeError as e:
+            logger.info(f"Caught expected crash: {e}")
+
+    print("Selftest passed.")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="SDCC s51 simulator wrapper with breakpoint support"
+    )
+    parser.add_argument("ihx", nargs="?", help="Input IHX file")
+    parser.add_argument("--selftest", action="store_true", help="Run internal self-tests")
+    parser.add_argument("-v", "--verbose", action="count", default=0, help="Increase verbosity")
+    parser.add_argument("-t", "--timeout", type=int, default=5, help="Timeout (default: 5)")
+    parser.add_argument("--type")
+    parser.add_argument("--ds390", action="store_true")
+    parser.add_argument("--stm8", action="store_true")
+    parser.add_argument(
+        "-b",
+        "--breakpoint",
+        action="append",
+        default=[],
+        help="Add a breakpoint. Can be specified multiple times. Can be a symbol name or a hex address.",
+    )
+    parser.add_argument(
+        "-c",
+        "--commands",
+        action="append",
+        default=[],
+        help="Semicolon-separated commands to run at corresponding breakpoint.",
+    )
+    args = parser.parse_args()
+
+    logging.basicConfig(
+        level=max(logging.DEBUG, logging.WARNING - (args.verbose * 10)),
+        format="%(levelname)s:%(name)s:%(message)s",
+    )
+
+    if args.selftest:
+        selftest()
+        return 0
+
+    # resolve simulator type
+    if args.ds390:
+        assert args.type is None
+        args.type = "ds390"
+    if args.stm8:
+        assert args.type is None
+        args.type = "stm8"
+    if not args.type:
+        args.type = "51"
+
+    ihx_path = Path(args.ihx)
+    assert ihx_path.exists(), f"File {ihx_path} not found."
+
+    # Resolve symbols from .map file
+    mapfile = ihx_path.with_suffix(".map")
+    symbols = parse_map_file(mapfile)
+
+    bp_handlers: list[BreakpointCallback] = [
+        MainBreakpoint(symbols["_main"]),
+        AbortBreakpoint(symbols["_abort"]),
+    ]
+    addresses = set(symbols.values())
+    for bp_arg, cmd in zip(args.breakpoint, args.commands, strict=True):
+        try:
+            addr = int(bp_arg, 16)
+            assert addr in addresses, f"Address {hex(addr)} not found in symbols of {mapfile}"
+        except ValueError:
+            symbol = "_" + bp_arg
+            addr = symbols.get(symbol)
+            assert addr is not None, (
+                f"Symbol {symbol} not found in {mapfile}. "
+                "Most probably the function name you have given is not available in the source code. "
+                "Watch out - this script implicitly adds a leading _ etc."
+            )
+        bp_handlers.append(UserBreakpoint(addr, cmd))
+
+    # Use unique prompt with newline for easier line-by-line processing
+    prompt_str = "##UC_SIM_DEBUG##\n"
+    cmd = [
+        f"ucsim_{args.type}",
+        "-q",
+        "-p",
+        prompt_str,
+    ]
+    if args.type == "stm8":
+        cmd.extend(["-I", "if=rom[0x5800]"])
+    else:
+        cmd.extend(["-I", "if=xram[0xffff]"])
+    cmd.append(str(ihx_path))
+    logger.info(f"Running: {shlex.join(cmd).replace('\n', '\\n')}")
+
+    callbacks: list[DebuggerCallback] = [
+        PreambleCallback(),
+        ExitCallback(),
+        CrashCallback(),
+        BreakpointDispatcher(handlers=bp_handlers),
+        StartCallback(),
+        IgnoreCallback(),
+    ]
+
+    # --- Execution ---
+
+    try:
+        with signal_timeout(args.timeout):
+            state = SimulatorState(
+                {v: k for k, v in symbols.items()},
+                subprocess.Popen(
+                    cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    errors="replace",
+                    bufsize=1,  # Line buffered
+                ),
+            )
+            with state.p:
+                # Set all breakpoints
+                for handler in bp_handlers:
+                    state.print(f"b {hex(handler.address)}")
+                state.print("run")
+
+                for line in state.readline:
+                    # 1. Skip Prompt
+                    if line == prompt_str:
+                        continue
+                    # 2. Handle Callbacks
+                    if handle_callbacks(line, state, callbacks):
+                        if state.exit_code is not None:
+                            break
+                        continue
+                    # 3. Application Output
+                    if state.started:
+                        print(line, end="", flush=True)
+                    if state.exit_code is not None:
+                        break
+                state.p.terminate()
+
+    except TimeoutError:
+        logger.error(f"Simulation timed out after {args.timeout}s")
+        return 124
+    except RuntimeError as e:
+        logger.error(str(e))
+        return 1
+    if not state.started:
+        logger.error(
+            f"Test did not output {START_MARKER}. This might have happened that the simulation did not use proper conftest.c library that ouptuts the marker on the beginning of execution before main. Or any other error. Full simulator output:"
+        )
+        for line in state.recorded_lines:
+            sys.stderr.write(f"  {line}")
+        return 1
+    assert state.exit_code is not None, (
+        "Simulation finished but exit code was not captured. "
+        "This might happen if the program crashed, hung, or if the EXIT: marker was not printed. "
+        "Check your firmware and ensure it calls exit() which should print 'EXIT: <code-number>' via conftest.c"
+    )
+    return state.exit_code
+
+
+if __name__ == "__main__":
+    sys.exit(main())

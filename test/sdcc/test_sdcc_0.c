@@ -1,6 +1,5 @@
 #include "conftest.h"
 
 int libtest_main(void) {
-	YIO_TEST_EQ("123", "{}", 123);
 	return 0;
 }

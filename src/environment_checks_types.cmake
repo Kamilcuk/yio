@@ -104,10 +104,9 @@ int main() {}
 ]=] YYIO_HAS_IMAGINARY)
 
 yio_config_gen_check_c_source_compiles([=[
-#include <complex.h>
-#if defined __STDC_NO_COMPLEX__ || ! defined __STDC_IEC_559_COMPLEX__
-#error
-#endif
+float _Complex fi = 1;
+double _Complex di = 2;
+long double _Complex li = 3;
 int main() {}
 ]=] YYIO_HAS_COMPLEX)
 

@@ -26,9 +26,7 @@ void exit_test(int code);
 
 #define YIO_TESTEXPR(e, ...)     do { \
 	if (!(e)) { \
-		printf("ERROR: %s:%s:%d: ", __FILE__, __func__, __LINE__); \
-		__VA_OPT__(printf(__VA_ARGS__);) \
-		printf("\n"); \
+		puts("ASSERT FAIL\n"); \
 		abort(); \
 	} \
 } while(0)
@@ -88,10 +86,19 @@ struct testparam {
 		} \
 	} while (0)
 
+#if defined(__SDCC)
+#define YIO_TEST_BUF_ATTR YYIO_XDATA
+#define YIO_TEST_BUF_AT YYIO_AT(0x1000)
+#else
+#define YIO_TEST_BUF_ATTR
+#define YIO_TEST_BUF_AT
+#endif
+
+extern YIO_TEST_BUF_ATTR YIO_TEST_BUF_AT char yyio_test_buf[32];
+
 #define YIO_TEST(shouldbe, fmt, ...)  do { \
-		char buf[128]; \
-		const int err = yio_snprintf(buf, sizeof(buf), fmt, ## __VA_ARGS__); \
-		in_YIO_TEST(shouldbe, fmt, buf, err); \
+		const int err = yio_snprintf(yyio_test_buf, sizeof(yyio_test_buf), fmt, ## __VA_ARGS__); \
+		in_YIO_TEST(shouldbe, fmt, yyio_test_buf, err); \
 	} while(0)
 
 
