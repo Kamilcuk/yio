@@ -14,7 +14,7 @@ extern "C" {
 
 // NOLINE
 #include "yio/ctx_types.h"
-
+#ifdef __SDCC
 #define YIO_SDCC_ARGS_AT YYIO_AT(0x1100)
 extern YYIO_XDATA YIO_SDCC_ARGS_AT yio_printdata_t YYIO_sdcc_args[{{ j_MAX_ARGS }}];
 
@@ -23,14 +23,16 @@ extern YYIO_XDATA YIO_SDCC_ARGS_AT yio_printdata_t YYIO_sdcc_args[{{ j_MAX_ARGS 
 #line
 #define YYIO_print_arguments_$1(funcgen, fmt{{j_yio_print_arguments_args(I)}}) \
 	( \
-{%- for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %} \
-		YYIO_sdcc_args[{{loop.index0}}] = (yio_printdata_t)YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}), \
-{%- endfor %} \
+{% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
+		YYIO_sdcc_args[{{loop.index0}}] = YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}), \
+{% endfor %}
 		YYIO_sdcc_args[{{I - 1}}] = 0, \
 		YYIO_sdcc_args \
 	), fmt \
 {{ j_yio_macros_args(I) }}	/* */
 {% endcall %}{% endfor %}
+
+#endif // __SDCC
 
 #ifdef __cplusplus
 }

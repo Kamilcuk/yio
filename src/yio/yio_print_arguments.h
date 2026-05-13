@@ -96,10 +96,9 @@
  * @param I Argument to apply the transformation on
  */
 #}
-{% macro j_yio_macros_funcs(I, include_last_comma=1) -%}
+{% macro j_yio_macros_funcs(I) -%}
 	{% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
-		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}){% if include_last_comma or not loop.last %}, \
-{% endif %}
+		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}), \
 	{% endfor %}
 {%- endmacro %}
 {#

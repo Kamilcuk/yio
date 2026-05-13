@@ -66,12 +66,13 @@
       }
     },
     {
-      "name": "icc",
-      "displayName": "Intel C Compiler",
-      "description": "Build with Intel C Compiler",
+      "name": "icx",
+      "displayName": "Intel oneAPI C Compiler",
+      "description": "Build with Intel oneAPI C Compiler (icx)",
       "inherits": "default",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "icc",
+        "CMAKE_C_COMPILER": "icx",
+        "CMAKE_C_FLAGS": "-fp-model=precise",
         "YIO_HAS_FLOATf64x": "0"
       }
     },

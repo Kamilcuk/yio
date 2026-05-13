@@ -2,7 +2,7 @@ include(CheckCCompilerFlag)
 
 # Standard development flags for GCC/Clang.
 # These are applied as a batch to avoid excessive feature checks.
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|IntelLLVM")
 	set(dev_flags
 		-ggdb3
 		-O

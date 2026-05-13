@@ -25,7 +25,7 @@ docker_target_tests:
   extends: .buildah_test
   parallel:
     matrix:
-      - TARGET: ["gcc", "clang", "arm", "alpine", "icc", "lto", "valgrind", "nomalloc_nognu"]
+      - TARGET: ["gcc", "clang", "arm", "alpine", "icx", "lto", "valgrind", "nomalloc_nognu"]
 
 gcc_arm64_test:
   extends: .buildah_test

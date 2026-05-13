@@ -59,8 +59,8 @@ COPY . .
 RUN --mount=type=cache,target=_build \
     make test
 
-# --- ICC Target (Intel oneAPI) ---
-FROM intel/oneapi-compiler-dpcpp-cpp:latest AS icc
+# --- ICX Target (Intel oneAPI) ---
+FROM docker.io/intel/oneapi:2026.0.0-devel-ubuntu24.04 AS icx
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
@@ -68,11 +68,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 \
     python3-jinja2 \
     libunistring-dev \
+    libdfp-dev \
+    locales \
+    && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+    && echo "pl_PL.UTF-8 UTF-8" >> /etc/locale.gen \
+    && echo "unm_US.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /yio
 COPY . .
 RUN --mount=type=cache,target=_build \
-    . /opt/intel/oneapi/setvars.sh && make test PRESET=icc
+    make test PRESET=icx
 
 # --- SDCC Target ---
 FROM base AS sdcc-sh

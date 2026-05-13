@@ -6,18 +6,28 @@ import sys
 import shlex
 import re
 import os
+import shutil
 from pathlib import Path
 
 # Change directory to project root
 os.chdir(Path(__file__).resolve().parent.parent)
 
 parser = argparse.ArgumentParser(description="Run or build a docker target from the Dockerfile.")
-parser.add_argument("-m", "--multiple", action="store_true", help="Run multiple targets sequentially.")
-parser.add_argument("-p", "--platform", help="The platform for docker build/run (e.g. linux/arm64).")
+parser.add_argument(
+    "-m", "--multiple", action="store_true", help="Run multiple targets sequentially."
+)
+parser.add_argument(
+    "-p", "--platform", help="The platform for docker build/run (e.g. linux/arm64)."
+)
 parser.add_argument("--arm", action="store_true", help="Shortcut for --platform linux/arm64.")
 parser.add_argument("target", nargs="?", help="The docker target to build or run.")
-parser.add_argument("command", nargs=argparse.REMAINDER, help="The command to run inside the container.")
+parser.add_argument(
+    "command", nargs=argparse.REMAINDER, help="The command to run inside the container."
+)
 args = parser.parse_args()
+
+# Detect container engine
+docker = shutil.which("podman") or shutil.which("docker") or "docker"
 
 if args.arm:
     args.platform = "linux/arm64"
@@ -27,11 +37,13 @@ if not args.target:
     parser.print_help()
     print("\nAvailable targets:", file=sys.stderr)
     if Path("Dockerfile").exists():
-        with open("Dockerfile", "r") as f:
-            targets = re.findall(r"^FROM\s+.*\s+AS\s+([\w-]+)", f.read(), re.MULTILINE)
-            for t in sorted(set(targets)):
-                print(f"  - {t}", file=sys.stderr)
+        targets = re.findall(
+            r"^FROM\s+.*\s+AS\s+([\w-]+)", Path("Dockerfile").read_text(), re.MULTILINE
+        )
+        for t in sorted(set(targets)):
+            print(f"  - {t}", file=sys.stderr)
     sys.exit(1)
+
 
 def run_target(target, command):
     platform_arg = f"--platform {args.platform}" if args.platform else ""
@@ -43,14 +55,15 @@ def run_target(target, command):
         command = ["sh", "-c", "hash bash 2>/dev/null && exec bash -l || exec sh -l"]
     if command:
         cmd = f"""
-            docker run --network host -ti --rm -w $PWD -v $PWD:$PWD -u $(id -u):$(id -g) {platform_arg} "$(TERM=dumb docker build --network host {platform_arg} --target {target} -q .)" {" ".join(shlex.quote(x) for x in command)}
+             {docker} run --network host -ti --rm -w $PWD -v $PWD:$PWD -u $(id -u):$(id -g) {platform_arg} "$(TERM=dumb {docker} build --network host {platform_arg} --target {target} -q .)" {" ".join(shlex.quote(x) for x in command)}
             """
     else:
         cmd = f"""
-            TERM=dumb docker build --network=host {platform_arg} --target {target} .
+            TERM=dumb {docker} build --network=host {platform_arg} --target {target} .
             """
     print(f"+ {cmd.strip()}", file=sys.stderr)
     subprocess.run(cmd, shell=True, check=True)
+
 
 if args.multiple:
     targets = [args.target] + args.command
