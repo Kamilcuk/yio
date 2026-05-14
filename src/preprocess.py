@@ -10,7 +10,9 @@ tracking (via .depfile), and concurrent execution.
 import argparse
 import concurrent.futures
 import logging
+import os
 import re
+import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
@@ -334,7 +336,33 @@ def save_if_changed(output: str, outfilename: Path) -> bool:
     if outfilename.exists() and outfilename.read_text() == output:
         return False
     outfilename.parent.mkdir(parents=True, exist_ok=True)
-    outfilename.write_text(output)
+
+    # Write to temporary file in the same directory to ensure atomic move
+    with tempfile.NamedTemporaryFile(
+        dir=outfilename.parent,
+        prefix=f".{outfilename.name}.tmp",
+        delete=False,
+        mode="w",
+    ) as tmp:
+        tmp_path = tmp.name
+        try:
+            tmp.write(output)
+            tmp.flush()
+            os.fsync(tmp.fileno())
+            tmp.close()
+
+            # Mark as read-only if supported by the filesystem
+            try:
+                mode = os.stat(tmp_path).st_mode
+                os.chmod(tmp_path, mode & ~0o222)
+            except OSError:
+                pass
+
+            os.replace(tmp_path, outfilename)
+            tmp_path = None
+        finally:
+            if tmp_path and os.path.exists(tmp_path):
+                os.unlink(tmp_path)
     return True
 
 
@@ -422,16 +450,15 @@ def main():
             all_dependencies[out_file] = deps
 
     if args.depfile:
-        dep_path = Path(args.depfile)
-        dep_path.parent.mkdir(parents=True, exist_ok=True)
-        with dep_path.open("w") as f:
-            for out_file, deps in sorted(all_dependencies.items()):
-                deps_str = " ".join(
-                    sorted([str(Path(d).resolve()).replace(" ", "\\ ") for d in deps])
-                )
-                f.write(
-                    f"{Path(out_file).resolve().as_posix().replace(' ', '\\ ')}: {deps_str}\n"
-                )
+        dep_lines = []
+        for out_file, deps in sorted(all_dependencies.items()):
+            deps_str = " ".join(
+                sorted([str(Path(d).resolve()).replace(" ", "\\ ") for d in deps])
+            )
+            dep_lines.append(
+                f"{Path(out_file).resolve().as_posix().replace(' ', '\\ ')}: {deps_str}"
+            )
+        save_if_changed("\n".join(dep_lines) + "\n", Path(args.depfile))
 
 
 if __name__ == "__main__":

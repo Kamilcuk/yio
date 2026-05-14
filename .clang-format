@@ -1,10 +1,13 @@
 ---
 Language: Cpp
 BasedOnStyle: LLVM
-ColumnLimit: 120
+AlignEscapedNewlines: DontAlign
+ColumnLimit: 100
 AllowShortIfStatementsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
 AllowShortBlocksOnASingleLine: true
 InsertBraces: true
 BinPackArguments: false
+BinPackParameters: false
+AlignAfterOpenBracket: BlockIndent
 ...

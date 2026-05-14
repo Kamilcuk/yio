@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #if __linux__ && __GLIBC__ && __GNUC__
 #define SSTEST_USE_BACKTRACE  1
 #endif
@@ -15,23 +16,19 @@
 #include <execinfo.h>
 #include <signal.h>
 #include <unistd.h>
+#include <dlfcn.h>
+#include <sys/wait.h>
 #endif
 
 #ifndef SSTEST_USE_COLORS
 #define SSTEST_USE_COLORS  1
 #endif
 
-#if SSTEST_USE_COLORS
-#define GREEN   "\33[32m"
-#define RED     "\33[91m"
-#define YELLOW  "\33[93m"
-#define RESET   "\33[0m"
-#else
-#define GREEN   ""
-#define RED     ""
-#define YELLOW  ""
-#define RESET   ""
-#endif
+static const char *const GREEN  = SSTEST_USE_COLORS ? "\33[32m" : "";
+static const char *const RED    = SSTEST_USE_COLORS ? "\33[91m" : "";
+static const char *const YELLOW = SSTEST_USE_COLORS ? "\33[93m" : "";
+static const char *const CYAN   = SSTEST_USE_COLORS ? "\33[36m" : "";
+static const char *const RESET  = SSTEST_USE_COLORS ? "\33[0m" : "";
 
 #define PUT_1(x)       fputs(x, stderr)
 #define PUT_2(x, ...)  PUT_1(x); PUT_1(__VA_ARGS__)
@@ -48,114 +45,6 @@
 
 /// Keep track of how many failures we had.
 static unsigned int failures = 0;
-
-#if SSTEST_USE_BACKTRACE
-
-static inline char **print_stacktrace(void) {
-	void *array[50];
-	const size_t size = backtrace(array, sizeof(array) / sizeof(*array));
-	char **ss = backtrace_symbols(array, size);
-	if (ss == NULL) return NULL;
-	for (size_t i = 0; i < size; ++i) {
-		const char *pos = ss[i];
-		PUT(pos, "\n");
-		//
-		// Parse. hopefully as rubust as possible.
-		const char *const exe = pos;
-		pos = strchr(pos, '(');
-		if (pos == NULL) continue;
-		const int exelen = pos - exe;
-		pos++;
-		const bool hasfunc = pos[0] != '+';
-		const char *const func = hasfunc ? pos : NULL;
-		if (hasfunc) {
-			pos = strchr(pos, '+');
-			if (pos == NULL) continue;
-		}
-		const int funclen = hasfunc ? pos - func : 0;
-		const char *const addr = pos;
-		if (addr[0] != '+') continue;
-		if (addr[1] != '0') continue;
-		if (addr[2] != 'x') continue;
-		pos = strchr(pos, ')');
-		if (pos == NULL) continue;
-		const int addrlen = pos - addr;
-		if (strspn(&addr[3], "0123456789abcdefABCDEF") + 3 != (size_t)addrlen) continue;
-		// We can't have no ampersand, cause shell quoting.
-		if (memchr(exe, '\'', pos - exe) != NULL) continue;
-		//
-		// Run shell to print backtrace
-		char cmd[4096];
-		int len = 0;
-		if (funclen != 0 && func != NULL) {
-			len = snprintf(cmd, sizeof(cmd),
-					"set -- '%.*s' '%.*s' '%.*s';"
-					"addr2line -Cfipe >&2 "
-					"\"$(debuginfod-find debuginfo \"$1\" 2>/dev/null||echo \"$1\")\" "
-					"$(($2+0x$(nm -D \"$1\"|awk -v r=\" $3\" '$0~r{print $1;exit}')))"
-					,
-					exelen, exe,
-					addrlen, addr,
-					funclen, func);
-		} else {
-			len = snprintf(cmd, sizeof(cmd),
-					"set -- '%.*s';"
-					"addr2line -Cfipe >&2 "
-					"\"$(debuginfod-find debuginfo \"$1\" 2>/dev/null||echo \"$1\")\" "
-					"'%.*s'"
-					,
-					exelen, exe,
-					addrlen, addr);
-		}
-		if ((size_t)len >= sizeof(cmd) - 1) continue;
-		PUT("  ^-> ");
-		fflush(stderr);
-		const int res = system(cmd);
-		(void)res;
-	}
-	fflush(stderr);
-	return ss;
-}
-
-/// The sighandler for printing stacktrace.
-static void sighandler(int sig) {
-	signal(SIGSEGV, SIG_DFL);
-	signal(SIGABRT, SIG_DFL);
-	fflush(stdout);
-	fprintf(stderr, RED"SSTEST: Error: received signal %d:%s"RESET"\n", sig, strsignal(sig));
-	print_stacktrace();
-}
-
-/// For testing, by deafult, disable buffering and register our printers.
-__attribute__((__constructor__)) static void disable_buffering(void) {
-	setvbuf(stdout, 0, _IOLBF, 0);
-	setvbuf(stderr, 0, _IOLBF, 0);
-	signal(SIGSEGV, sighandler);
-	signal(SIGABRT, sighandler);
-}
-
-
-#else // SSTEST_USE_BACKTRACE
-
-static inline void *print_stacktrace(void) { return NULL; }
-
-#endif // SSTEST_USE_BACKTRACE
-
-/// The atexit callback.
-static void sstest_atexit(void) {
-	printf("SSTEST: "RED"Failing!"RESET" Number of failures: %u\n", failures);
-	_Exit(EXIT_FAILURE);
-}
-
-/// Increment failures, and register on exit handler.
-static inline void sstest_inc_failures(void) {
-	failures++;
-	static bool failurer_registered = false;
-	if (failurer_registered == false) {
-		failurer_registered = true;
-		atexit(sstest_atexit);
-	}
-}
 
 /// Determine if we are verbose.
 static inline bool isverbose(void) {
@@ -174,6 +63,143 @@ static const char *hfile(const char *str) {
 	}
 #endif
 	return str;
+}
+
+#if SSTEST_USE_BACKTRACE && defined(__linux__)
+
+static inline void print_source_context(const char *filename, int line_num) {
+	FILE *f = fopen(filename, "r");
+	if (f == NULL) return;
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t read;
+	int current_line = 0;
+	while ((read = getline(&line, &len, f)) != -1) {
+		current_line++;
+		if (current_line >= line_num - 1 && current_line <= line_num + 1) {
+			const bool is_target = (current_line == line_num);
+			const char *color = is_target ? RED : "";
+			const char *reset = is_target ? RESET : "";
+			fprintf(stderr, "%s      %s %4d | %s%s", color, is_target ? "->" : "  ", current_line, line, reset);
+		}
+		if (current_line > line_num + 1) break;
+	}
+	free(line);
+	fclose(f);
+}
+
+static inline void run_addr2line(const char *exe, uintptr_t address) {
+	int pipefd[2];
+	if (pipe(pipefd) == -1) return;
+
+	pid_t pid = fork();
+	if (pid == 0) {
+		close(pipefd[0]);
+		if (dup2(pipefd[1], STDOUT_FILENO) != -1) {
+			close(pipefd[1]);
+			char addr_str[32];
+			snprintf(addr_str, sizeof(addr_str), "0x%lx", address);
+			execlp("addr2line", "addr2line", "-Cfi", "-e", exe, addr_str, (char *)NULL);
+		} else {
+			close(pipefd[1]);
+		}
+		_exit(1);
+	}
+	close(pipefd[1]);
+
+	FILE *f = fdopen(pipefd[0], "r");
+	if (f) {
+		char fbuf[1024];
+		char lbuf[1024];
+		while (fgets(fbuf, sizeof(fbuf), f) && fgets(lbuf, sizeof(lbuf), f)) {
+			fbuf[strcspn(fbuf, "\n")] = '\0';
+			lbuf[strcspn(lbuf, "\n")] = '\0';
+			if (strcmp(lbuf, "??:0") == 0 || strcmp(lbuf, "??:?") == 0) continue;
+
+			char *colon = strrchr(lbuf, ':');
+			if (colon) {
+				*colon = '\0';
+				int line_num = atoi(colon + 1);
+				fprintf(stderr, "    File %s\"%s\"%s, line %s%s%s, in %s%s()%s\n",
+					GREEN, hfile(lbuf), RESET, GREEN, colon + 1, RESET, GREEN, fbuf, RESET);
+				print_source_context(lbuf, line_num);
+			}
+		}
+		fclose(f);
+	} else {
+		close(pipefd[0]);
+	}
+	waitpid(pid, NULL, 0);
+}
+
+static inline char **print_stacktrace(void) {
+	void *array[50];
+	const size_t size = backtrace(array, sizeof(array) / sizeof(*array));
+	char **ss = backtrace_symbols(array, size);
+	if (ss == NULL) return NULL;
+
+	for (size_t i = 0; i < size; ++i) {
+		Dl_info info;
+		void *addr = array[i];
+		if (i > 0) addr = (void *)((uintptr_t)addr - 1);
+
+		if (dladdr(addr, &info) && info.dli_fname) {
+			// Skip frames from sstest itself
+			if (info.dli_sname && (
+				strcmp(info.dli_sname, "print_stacktrace") == 0 ||
+				strcmp(info.dli_sname, "sstest_post") == 0 ||
+				strcmp(info.dli_sname, "sighandler") == 0)) {
+				continue;
+			}
+			fprintf(stderr, "  %s^-> %s%s\n", CYAN, ss[i], RESET);
+			uintptr_t offset = (uintptr_t)addr - (uintptr_t)info.dli_fbase;
+			run_addr2line(info.dli_fname, offset);
+		} else {
+			fprintf(stderr, "  %s^-> %s%s\n", CYAN, ss[i], RESET);
+		}
+	}
+	fflush(stderr);
+	return ss;
+}
+
+/// The sighandler for printing stacktrace.
+static void sighandler(int sig) {
+	signal(SIGSEGV, SIG_DFL);
+	signal(SIGABRT, SIG_DFL);
+	fflush(stdout);
+	fprintf(stderr, "%sSSTEST: Error: received signal %d:%s%s\n", RED, sig, strsignal(sig), RESET);
+	free(print_stacktrace());
+}
+
+/// For testing, by deafult, disable buffering and register our printers.
+__attribute__((__constructor__)) static void disable_buffering(void) {
+	setvbuf(stdout, 0, _IOLBF, 0);
+	setvbuf(stderr, 0, _IOLBF, 0);
+	signal(SIGSEGV, sighandler);
+	signal(SIGABRT, sighandler);
+}
+
+
+#else // SSTEST_USE_BACKTRACE && __linux__
+
+static inline void *print_stacktrace(void) { return NULL; }
+
+#endif // SSTEST_USE_BACKTRACE && __linux__
+
+/// The atexit callback.
+static void sstest_atexit(void) {
+	printf("SSTEST: %sFailing!%s Number of failures: %u\n", RED, RESET, failures);
+	_Exit(EXIT_FAILURE);
+}
+
+/// Increment failures, and register on exit handler.
+static inline void sstest_inc_failures(void) {
+	failures++;
+	static bool failurer_registered = false;
+	if (failurer_registered == false) {
+		failurer_registered = true;
+		atexit(sstest_atexit);
+	}
 }
 
 /// Handle null, safety.
@@ -199,17 +225,17 @@ bool sstest_post(const struct sstest_pos *p, bool result, const char *fmt, ...) 
 	if (result) {
 		if (!p->quiet) {
 			print_prefix(p);
-			PUT(GREEN "OK: ", hnull(p->expr), RESET "\n");
+			PUT(GREEN, "OK: ", hnull(p->expr), RESET, "\n");
 			fflush(stderr);
 		}
 	} else {
 		print_prefix(p);
 		if (p->warn) {
-			PUT(YELLOW "WARN");
+			PUT(YELLOW, "WARN");
 		} else if (p->fail) {
-			PUT(RED "FATAL ERROR");
+			PUT(RED, "FATAL ERROR");
 		} else {
-			PUT(RED "ERROR");
+			PUT(RED, "ERROR");
 		}
 		PUT(": ", hnull(p->expr));
 		if (strlen(fmt) != 0 && (strlen(fmt) > 1 || fmt[0] != '\377')) {
@@ -223,7 +249,7 @@ bool sstest_post(const struct sstest_pos *p, bool result, const char *fmt, ...) 
 				PUT("\n");
 			}
 		} else {
-			PUT(RESET "\n");
+			PUT(RESET, "\n");
 		}
 		if (!p->warn) {
 			sstest_inc_failures();

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.5)
 project(yio_test LANGUAGES C)
 
 add_subdirectory(../../../ EXCLUDE_FROM_ALL yio)
