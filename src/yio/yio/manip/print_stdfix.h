@@ -25,18 +25,19 @@ int YYIO_print_$3(yio_printctx_t *t);
 {% endcall %}#line
 
 #ifndef __cplusplus
-#define YYIO_PRINT_STDFIX() \
-		{% call j_FOREACHAPPLY(j_STDFIX) %}
-		YYIO_IF(YYIO_HAS_STDFIX_$3, YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_$3)) \
-		{% endcall %}
+#define YYIO_PRINT_STDFIX(X, XALIAS) \
+		{% call j_FOREACHAPPLY(j_STDFIX) %} \
+		YYIO_IF(YYIO_HAS_STDFIX_$3, X($2, YYIO_print_$3)) \
+		{% endcall %} \
 		/**/
 #else
-#define YYIO_PRINT_STDFIX()
+#define YYIO_PRINT_STDFIX(X, XALIAS)
 #endif
 
 #else // YYIO_HAS_STDFIX_TYPES
-#define YYIO_PRINT_STDFIX()
+#define YYIO_PRINT_STDFIX(X, XALIAS)
 #endif // YYIO_HAS_STDFIX_TYPES
+
 
 #ifdef __cplusplus
 }

@@ -15,11 +15,12 @@
 #undef YYIO_COUNTER
 #define YYIO_COUNTER {{ i + 1 }}
 #undef YYIO_PRINT_FUNC_GENERIC_SLOTS
-#define YYIO_PRINT_FUNC_GENERIC_SLOTS()  \
+#define YYIO_PRINT_FUNC_GENERIC_SLOTS(X)  \
 	{% for j in range(0, i + 1) %}
-	YYIO_OVERLOAD_TYPE_FUNC(YYIO_TYPE_{{ j }}, YYIO_TYPE_FUNC_{{ j }}) \
+	X(YYIO_TYPE_{{ j }}, YYIO_TYPE_FUNC_{{ j }}) \
 	{% endfor %}
 	/* */
+
 {% endfor %}
 #line
 #else

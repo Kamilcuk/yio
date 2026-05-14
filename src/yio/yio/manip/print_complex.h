@@ -30,9 +30,9 @@ extern "C" {
 int YYIO_print_complex_$1(yio_printctx_t *t);
 {% endcall %}
 #ifndef __cplusplus
-#define YYIO_PRINT_COMPLEX_COMPLEX() \
+#define YYIO_PRINT_COMPLEX_COMPLEX(X, XALIAS) \
 		{% call j_FOREACHAPPLY(j_complex_types) %} \
-		YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_complex_$1) \
+		X($2, YYIO_print_complex_$1) \
 		{% endcall %} \
 		/**/
 
@@ -42,26 +42,27 @@ int YYIO_print_complex_$1(yio_printctx_t *t);
 #line
 int YYIO_print_imaginary_$1(yio_printctx_t *t);
 {% endcall %}
-#define YYIO_PRINT_COMPLEX_IMAGINARY() \
+#define YYIO_PRINT_COMPLEX_IMAGINARY(X, XALIAS) \
 		{% call j_FOREACHAPPLY(j_imaginary_types) %} \
-		YYIO_OVERLOAD_TYPE_FUNC($2, YYIO_print_imaginary_$1) \
+		X($2, YYIO_print_imaginary_$1) \
 		{% endcall %} \
 		/**/
 
 #else
-#define YYIO_PRINT_COMPLEX_IMAGINARY()
+#define YYIO_PRINT_COMPLEX_IMAGINARY(X, XALIAS)
 #endif
 
-#define YYIO_PRINT_COMPLEX() \
-		YYIO_PRINT_COMPLEX_COMPLEX() \
-		YYIO_PRINT_COMPLEX_IMAGINARY()
+#define YYIO_PRINT_COMPLEX(X, XALIAS) \
+		YYIO_PRINT_COMPLEX_COMPLEX(X, XALIAS) \
+		YYIO_PRINT_COMPLEX_IMAGINARY(X, XALIAS)
 #else
-#define YYIO_PRINT_COMPLEX()
+#define YYIO_PRINT_COMPLEX(X, XALIAS)
 #endif
 
 #else
-#define YYIO_PRINT_COMPLEX()
+#define YYIO_PRINT_COMPLEX(X, XALIAS)
 #endif
+
 
 #ifdef __cplusplus
 }

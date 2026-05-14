@@ -16,7 +16,7 @@ extern "C" {
 #include <time.h>
 
 #ifdef __SDCC
-#define YYIO_PRINT_GENERIC_TM()
+#define YYIO_PRINT_GENERIC_TM(X, XALIAS)
 #else
 
 int YYIO_print_tm(yio_printctx_t *t);
@@ -37,9 +37,9 @@ int YYIO_print_gmtime(yio_printctx_t *t);
  */
 #define yio_gmtime(v)     yio_callback(YYIO_print_gmtime, (time_t)(v))
 
-#define YYIO_PRINT_GENERIC_TM() \
-		YYIO_OVERLOAD_TYPE_FUNC(struct tm, YYIO_print_tm) \
-		YYIO_OVERLOAD_POINTER_TYPE_FUNC(struct tm*, YYIO_print_tm_pointer)
+#define YYIO_PRINT_GENERIC_TM(X, XALIAS) \
+		X(struct tm, YYIO_print_tm) \
+		YYIO_OVERLOAD_POINTER_TYPE_FUNC(X, XALIAS, struct tm, YYIO_print_tm_pointer)
 
 #endif //__SDCC
 

@@ -256,6 +256,8 @@ static inline int yio_printctx_init_or_number(yio_printctx_t *t, int val) {
 }
 
 static inline int yio_printctx_err_skip(yio_printctx_t *t, int err, unsigned count) {
+	(void)t;
+	(void)count;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	if (err == YIO_ERROR_SKIPPING) {
 		// This requires sub-skipping, where the child function also is skipping.

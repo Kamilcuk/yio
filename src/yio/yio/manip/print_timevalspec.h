@@ -27,19 +27,20 @@ extern "C" {
 #if YYIO_HAS_timespec || !defined(__SDCC)
 #include <time.h>
 int YYIO_print_timespec(yio_printctx_t *t);
-#define YYIO_PRINT_GENERIC_TIMESPEC() \
-		YYIO_OVERLOAD_TYPE_FUNC(struct timespec, YYIO_print_timespec)
+#define YYIO_PRINT_GENERIC_TIMESPEC(X, XALIAS) \
+		X(struct timespec, YYIO_print_timespec)
 #else
-#define YYIO_PRINT_GENERIC_TIMESPEC()
+#define YYIO_PRINT_GENERIC_TIMESPEC(X, XALIAS)
 #endif
 
 #if YYIO_HAS_timeval || !defined(__SDCC)
 int YYIO_print_timeval(yio_printctx_t *t);
-#define YYIO_PRINT_GENERIC_TIMEVAL() \
-		YYIO_OVERLOAD_TYPE_FUNC(struct timeval, YYIO_print_timeval)
+#define YYIO_PRINT_GENERIC_TIMEVAL(X, XALIAS) \
+		X(struct timeval, YYIO_print_timeval)
 #else // YYIO_HAS_timeval
-#define YYIO_PRINT_GENERIC_TIMEVAL()
+#define YYIO_PRINT_GENERIC_TIMEVAL(X, XALIAS)
 #endif // YYIO_HAS_timeval
+
 
 #ifdef __cplusplus
 }
