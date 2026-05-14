@@ -9,11 +9,11 @@
 #include "private.h"
 #include "print_stdfix.h"
 
-#ifndef YYIO_FIX_CLANG_STDFIX
-#error YYIO_FIX_CLANG_STDFIX is not defined
+#ifndef YIO_FIX_CLANG_STDFIX
+#error YIO_FIX_CLANG_STDFIX is not defined
 #endif
 
-#if YYIO_HAS_STDFIX_TYPES
+#if YIO_HAS_STDFIX_TYPES
 
 #include "../../private/yio_stdfix.h"
 #include "../../private/yio_stdfix_strfrom.h"
@@ -21,11 +21,11 @@
 
 {% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
-#ifdef YYIO_STDFIX_$3
-int YYIO_print_$3(yio_printctx_t *t) {
-#if YYIO_FIX_CLANG_STDFIX
-	/* Clang x86_64 ABI bug. See YYIO_FIX_CLANG_STDFIX in configuration.cmake. */
-	YYIO_STDFIX_$3 v;
+#ifdef YIO_STDFIX_$3
+int YIO_print_$3(yio_printctx_t *t) {
+#if YIO_FIX_CLANG_STDFIX
+	/* Clang x86_64 ABI bug. See YIO_FIX_CLANG_STDFIX in configuration.cmake. */
+	YIO_STDFIX_$3 v;
 	_Static_assert(sizeof(v) <= 8, "stdfix type too large for workaround");
 	if (sizeof(v) <= 4) {
 		int v_tmp = yio_printctx_va_arg(t, int);
@@ -35,23 +35,23 @@ int YYIO_print_$3(yio_printctx_t *t) {
 		memcpy(&v, &v_tmp, sizeof(v));
 	}
 #else
-	const YYIO_STDFIX_$3 v = yio_printctx_va_arg(t, YYIO_STDFIX_$3);
+	const YIO_STDFIX_$3 v = yio_printctx_va_arg(t, YIO_STDFIX_$3);
 #endif
 	int err = yio_printctx_init(t);
 	if (err) return err;
 	struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	YYIO_string res = {0};
-	err = YYIO_strfrom$1(&res, pf, v);
+	YIO_string res = {0};
+	err = YIO_strfrom$1(&res, pf, v);
 	if (err) return err;
-	const char *const result = YYIO_string_data(&res);
-	const size_t length = YYIO_string_len(&res);
+	const char *const result = YIO_string_data(&res);
+	const size_t length = YIO_string_len(&res);
 	const bool negative = result[0] == '-';
 	err = yio_printctx_put_number(t, result + negative, length - negative, !negative);
-	YYIO_string_fini(&res);
+	YIO_string_fini(&res);
 	return err;
 }
 #endif
 {% endcall %}
 
-#endif // YYIO_HAS_STDFIX_TYPES
+#endif // YIO_HAS_STDFIX_TYPES
 

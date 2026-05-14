@@ -19,7 +19,7 @@ int main() {
     }
     free(str);
 
-    // Test a very large single string to ensure we jump past YYIO_INIT_CAPACITY correctly
+    // Test a very large single string to ensure we jump past YIO_INIT_CAPACITY correctly
     char *large_src = malloc(1025);
     memset(large_src, 'A', 1024);
     large_src[1024] = '\0';

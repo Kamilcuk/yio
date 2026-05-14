@@ -32,15 +32,15 @@
 
 #if YIO_HAS_FLOAT$1
 
-struct YYIO_test_floatlist$1_s {
+struct YIO_test_floatlist$1_s {
 	const char *valstr;
-	YYIO_FLOAT$1 val;
+	YIO_FLOAT$1 val;
 };
 
-static const struct YYIO_test_floatlist$1_s YYIO_test_floatlist$1[] = {
+static const struct YIO_test_floatlist$1_s YIO_test_floatlist$1[] = {
 
 		// start from 12 to remove them
-#define YYIO_floatlist_exotics_cnt  12
+#define YIO_floatlist_exotics_cnt  12
 #define M(x)  { #x, x }, { "-"#x, -x }
 		M(INFINITY),
 		M(NAN),
@@ -50,7 +50,7 @@ static const struct YYIO_test_floatlist$1_s YYIO_test_floatlist$1[] = {
 		M($3_MAX),
 #undef M
 
-#define M(x) { #x, YYIO_FLOAT_C$1(x) }, { "-"#x, YYIO_FLOAT_C$1(-x) }
+#define M(x) { #x, YIO_FLOAT_C$1(x) }, { "-"#x, YIO_FLOAT_C$1(-x) }
 		M(0.0),
 		M(123.456),
 		M(0.4583577231),
@@ -195,30 +195,30 @@ static const struct YYIO_test_floatlist$1_s YYIO_test_floatlist$1[] = {
 
 };
 
-struct YYIO_astrfroms$1_s {
-	int (*astrfrom)(YYIO_string *res, int precision0, char type, YYIO_FLOAT$1 val);
+struct YIO_astrfroms$1_s {
+	int (*astrfrom)(YIO_string *res, int precision0, char type, YIO_FLOAT$1 val);
 	const char *astrfrom_str;
 };
 
-static const struct YYIO_astrfroms$1_s  YYIO_astrfroms$1[] = {
-#define T(a)  { (int (*)(YYIO_string *, int, char, YYIO_FLOAT$1))(void*)a, #a, }
-#ifndef YYIO_has_float_astrfrom_strfrom$1
-#error YYIO_has_float_astrfrom_strfrom$1
+static const struct YIO_astrfroms$1_s  YIO_astrfroms$1[] = {
+#define T(a)  { (int (*)(YIO_string *, int, char, YIO_FLOAT$1))(void*)a, #a, }
+#ifndef YIO_has_float_astrfrom_strfrom$1
+#error YIO_has_float_astrfrom_strfrom$1
 #endif
-#if YYIO_has_float_astrfrom_strfrom$1
-		T(YYIO_float_astrfrom_strfrom$1),
+#if YIO_has_float_astrfrom_strfrom$1
+		T(YIO_float_astrfrom_strfrom$1),
 #endif
-#ifndef YYIO_has_float_astrfrom_naive$1
-#error YYIO_has_float_astrfrom_naive$1
+#ifndef YIO_has_float_astrfrom_naive$1
+#error YIO_has_float_astrfrom_naive$1
 #endif
-#if YYIO_has_float_astrfrom_naive$1
-		T(YYIO_float_astrfrom_naive$1),
+#if YIO_has_float_astrfrom_naive$1
+		T(YIO_float_astrfrom_naive$1),
 #endif
-#ifndef YYIO_has_float_astrfrom_printf$1
-#error YYIO_has_float_astrfrom_printf$1
+#ifndef YIO_has_float_astrfrom_printf$1
+#error YIO_has_float_astrfrom_printf$1
 #endif
-#if YYIO_has_float_astrfrom_printf$1
-		T(YYIO_float_astrfrom_printf$1),
+#if YIO_has_float_astrfrom_printf$1
+		T(YIO_float_astrfrom_printf$1),
 #endif
 		{ 0, NULL }
 #undef T

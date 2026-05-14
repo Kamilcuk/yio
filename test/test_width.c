@@ -2,8 +2,8 @@
 #include <yio_test.h>
 #include <locale.h>
 
-#ifndef YYIO_HAS_UNISTRING
-#error YYIO_HAS_UNISTRING
+#ifndef YIO_HAS_UNISTRING
+#error YIO_HAS_UNISTRING
 #endif
 
 int main() {
@@ -17,7 +17,7 @@ int main() {
                 }
         }
 
-#if YYIO_HAS_UNISTRING && YIO_ENABLE_MALLOC
+#if YIO_HAS_UNISTRING && YIO_ENABLE_MALLOC
         // This needs unistring support from u8_width
         char *str = NULL;
         int err = yio_asprintf(&str, "{:5s}", "Ω");

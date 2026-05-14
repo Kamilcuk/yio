@@ -22,21 +22,21 @@ bool is_print_ascii(char tcc) {
 }
 
 struct ss_s {
-	YYIO_string *str;
+	YIO_string *str;
 };
 
 static inline
 int ss_out(struct ss_s *t, char cc) {
-	return YYIO_string_putc(t->str, cc);
+	return YIO_string_putc(t->str, cc);
 }
 
-#define xdigits YYIO_digit_to_hex
+#define xdigits YIO_digit_to_hex
 static const unsigned char four = 0xfU;
 
 static inline
 int ascii_encode_hex(struct ss_s *ss, char cc, char next) {
 	static_assert(CHAR_BIT == 8, "Really? TODO");
-	const bool nextdigit = YYIO_isxdigit(next);
+	const bool nextdigit = YIO_isxdigit(next);
 	int err;
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
@@ -59,7 +59,7 @@ int ascii_encode_hex(struct ss_s *ss, char cc, char next) {
 static inline
 int ascii_encode_oct(struct ss_s *ss, char cc, char next) {
 	static const unsigned char three = 0x7U;
-	const bool nextdigit = YYIO_isdigit(next);
+	const bool nextdigit = YIO_isdigit(next);
 	int err;
 	for (const unsigned char *bb = (const unsigned char *)&cc, *bbend = bb + sizeof(cc);
 			bb != bbend; ++bb) {
@@ -109,7 +109,7 @@ int ascii_encode_caret(struct ss_s *ss, char cc, char next) {
 static inline
 int ascii_encode_u(struct ss_s *ss, char cc, char next) {
 	int err;
-	const bool nextdigit = YYIO_isxdigit(next);
+	const bool nextdigit = YIO_isxdigit(next);
 	err = ss_out(ss, '\\');
 	if (err) return err;
 	err = ss_out(ss, 'u');
@@ -128,7 +128,7 @@ int ascii_encode_u(struct ss_s *ss, char cc, char next) {
 static inline
 int ascii_encode_U(struct ss_s *ss, char cc, char next) {
 	int err;
-	const bool nextdigit = YYIO_isxdigit(next);
+	const bool nextdigit = YIO_isxdigit(next);
 	err = ss_out(ss, '\\');
 	if (err) return err;
 	err = ss_out(ss, 'U');
@@ -167,7 +167,7 @@ char ascii_encode_get_esc(char prev, char cc) {
 }
 
 static inline
-int ascii_encode_do(YYIO_string *out, int (*encoder)(struct ss_s *ss, char cc, char next) YYIO_REENTRANT,
+int ascii_encode_do(YIO_string *out, int (*encoder)(struct ss_s *ss, char cc, char next) YIO_REENTRANT,
 										const char *str, size_t str_len, bool use_esc) {
 	int err;
 	struct ss_s ss_mem = {out}, *ss = &ss_mem;
@@ -200,19 +200,19 @@ static int print_repr_$1_in(void *arg, const char *ptr, size_t count) {
 	const bool use_esc = {{ 0 if V.1 == "caret" else 1 }};
 	return ascii_encode_do(arg, ascii_encode_$1, ptr, count, use_esc);
 }
-int YYIO_print_repr_$1(yio_printctx_t *t) {
+int YIO_print_repr_$1(yio_printctx_t *t) {
 	int val = yio_printctx_va_arg(t, int);
 	(void)val;
 	int err = yio_printctx_init(t);
 	if (err) return yio_printctx_err_skip(t, err, 1);
-	YYIO_string str;
-	YYIO_string_init(&str);
+	YIO_string str;
+	YIO_string_init(&str);
 	const yio_printdata_t data[] = {*t->ifunc++, 0};
 	err = yio_vbprintf(print_repr_$1_in, &str, data, 0, t->va);
 	if (err < 0) goto EXIT;
-	err = yio_printctx_put(t, YYIO_string_data(&str), YYIO_string_len(&str));
+	err = yio_printctx_put(t, YIO_string_data(&str), YIO_string_len(&str));
 EXIT:
-	YYIO_string_fini(&str);
+	YIO_string_fini(&str);
 	return err;
 }
 {% endcall %}

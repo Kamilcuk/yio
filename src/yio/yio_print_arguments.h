@@ -6,23 +6,23 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_PRINT_ARGUMENTS_H_
-#define YYIO_YIO_YIO_PRINT_ARGUMENTS_H_
+#ifndef YIO_YIO_YIO_PRINT_ARGUMENTS_H_
+#define YIO_YIO_YIO_PRINT_ARGUMENTS_H_
 
 /**
  * Re-evaulate the arguments
  */
-#define YYIO_ESC(...)  __VA_ARGS__
+#define YIO_ESC(...)  __VA_ARGS__
 
 /**
  * Only first argument
  */
-#define YYIO_FIRST(_1, ...)  _1
+#define YIO_FIRST(_1, ...)  _1
 
 /**
  * Just 61 commas if you're wondering.
  */
-#define YYIO_61COMMAS  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+#define YIO_61COMMAS  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
 /**
  * Print the arguments using a custom callback function.
@@ -31,50 +31,50 @@
  * @param callback The callback to call.
  * @param ... Additional arguments to call.
  */
-#define yio_callback(callback, ...)  ((callback, ##__VA_ARGS__),YYIO_61COMMAS)
+#define yio_callback(callback, ...)  ((callback, ##__VA_ARGS__),YIO_61COMMAS)
 
 /**
- * @def YYIO_IFBA62A(expr, then, else)
+ * @def YIO_IFBA62A(expr, then, else)
  * If braces and 62 or more arguments in @c expr then @c then else @c else
  */
-#define YYIO_IFBA62A_0(then, else)   else
-#define YYIO_IFBA62A_62(then, else)  then
-#define YYIO_IFBA62A_N({{j_seqdashcomma(1, 63)}}, N, ...) \
-		YYIO_IFBA62A_##N
-#define YYIO_IFBA62A_IN(expr) \
-		YYIO_IFBA62A_N(expr, 62, {{j_seqcomma(1, 63, "0")}})
-#define YYIO_IFBA62A(expr, then, else)  \
-		YYIO_IFBA62A_IN(YYIO_ESC expr)(then, else)
+#define YIO_IFBA62A_0(then, else)   else
+#define YIO_IFBA62A_62(then, else)  then
+#define YIO_IFBA62A_N({{j_seqdashcomma(1, 63)}}, N, ...) \
+		YIO_IFBA62A_##N
+#define YIO_IFBA62A_IN(expr) \
+		YIO_IFBA62A_N(expr, 62, {{j_seqcomma(1, 63, "0")}})
+#define YIO_IFBA62A(expr, then, else)  \
+		YIO_IFBA62A_IN(YIO_ESC expr)(then, else)
 
 /**
- * @def YYIO_SECONDX
+ * @def YIO_SECONDX
  * Expand, expand and extract second argument.
  */
-#define YYIO_SECONDX_IN(_2)         _2
-#define YYIO_SECONDX(_1, _2, ...)   YYIO_SECONDX_IN(_2)
+#define YIO_SECONDX_IN(_2)         _2
+#define YIO_SECONDX(_1, _2, ...)   YIO_SECONDX_IN(_2)
 
 /**
- * @def YYIO_PRECOMMAIGNORE1
+ * @def YIO_PRECOMMAIGNORE1
  * Forward the arguments with a leading comma and ignore first argument.
  */
-#define YYIO_PRECOMMAIGNORE1_0(...)
-#define YYIO_PRECOMMAIGNORE1_2(_1, ...)  ,__VA_ARGS__
-#define YYIO_PRECOMMAIGNORE1_N({{j_seqdashcomma(j_MAX_ARGS)}}, N, ...) \
-		YYIO_PRECOMMAIGNORE1_##N
-#define YYIO_PRECOMMAIGNORE1(...)  \
-		YYIO_PRECOMMAIGNORE1_N(__VA_ARGS__, {{j_seqcomma(j_MAX_ARGS, 1, "2")}},0,0)(__VA_ARGS__)
+#define YIO_PRECOMMAIGNORE1_0(...)
+#define YIO_PRECOMMAIGNORE1_2(_1, ...)  ,__VA_ARGS__
+#define YIO_PRECOMMAIGNORE1_N({{j_seqdashcomma(j_MAX_ARGS)}}, N, ...) \
+		YIO_PRECOMMAIGNORE1_##N
+#define YIO_PRECOMMAIGNORE1(...)  \
+		YIO_PRECOMMAIGNORE1_N(__VA_ARGS__, {{j_seqcomma(j_MAX_ARGS, 1, "2")}},0,0)(__VA_ARGS__)
 
 /**
- * @def YYIO_FORWARD_XFROMSECOND
+ * @def YIO_FORWARD_XFROMSECOND
  * Force at least one expansion
  */
-#define YYIO_FORWARD_XFROMSECOND(_1, ...)  YYIO_PRECOMMAIGNORE1(__VA_ARGS__)
+#define YIO_FORWARD_XFROMSECOND(_1, ...)  YIO_PRECOMMAIGNORE1(__VA_ARGS__)
 
 /**
- * @def YYIO_PRECOMMAFIRST
+ * @def YIO_PRECOMMAFIRST
  * Get the first argument with a leading comma.
  */
-#define YYIO_PRECOMMAFIRST(a, ...)  ,a
+#define YIO_PRECOMMAFIRST(a, ...)  ,a
 
 
 {#
@@ -98,7 +98,7 @@
 #}
 {% macro j_yio_macros_funcs(I) -%}
 	{% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
-		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}), \
+		YIO_IFBA62A_IN(YIO_ESC {{A}})(YIO_SECONDX, funcgen)({{A}}, YIO_FIRST YIO_FIRST {{A}}), \
 	{% endfor %}
 {%- endmacro %}
 {#
@@ -119,16 +119,16 @@
  * to release builds.
  *
  * Transform one argument from the list of PRINT_ARGUMENTS arguments into
- * arguments passed to YYIO_printf() function. Each argument if has more then 62 braces,
- * then @c YYIO_FORWARD_XFROMSECOND first argument is removed and rest is passed.
- * Otherwise @c YYIO_PRECOMMAFIRST a leading command is added so this doesn't need a comma.
+ * arguments passed to YIO_printf() function. Each argument if has more then 62 braces,
+ * then @c YIO_FORWARD_XFROMSECOND first argument is removed and rest is passed.
+ * Otherwise @c YIO_PRECOMMAFIRST a leading command is added so this doesn't need a comma.
  *
  * @param I The count of arguments passed to function.
  */
 #}
 {% macro j_yio_macros_args(I) %}
 	{% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
-		YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_FORWARD_XFROMSECOND, YYIO_PRECOMMAFIRST)({{A}}, YYIO_ESC YYIO_FIRST {{A}}) \
+		YIO_IFBA62A_IN(YIO_ESC {{A}})(YIO_FORWARD_XFROMSECOND, YIO_PRECOMMAFIRST)({{A}}, YIO_ESC YIO_FIRST {{A}}) \
 	{% endfor %}
 {% endmacro %}
 #line
@@ -147,9 +147,9 @@
 
 
 /**
- * @def YYIO_print_arguments_N()
+ * @def YIO_print_arguments_N()
  * Initial overload of argument over number of arguments.
  */
-#define YYIO_print_arguments_N({{j_seqdashcomma(j_MAX_ARGS)}}, N, ...)  \
-		YYIO_print_arguments_##N
-#endif // YYIO_YIO_YIO_PRINT_ARGUMENTS_H_
+#define YIO_print_arguments_N({{j_seqdashcomma(j_MAX_ARGS)}}, N, ...)  \
+		YIO_print_arguments_##N
+#endif // YIO_YIO_YIO_PRINT_ARGUMENTS_H_

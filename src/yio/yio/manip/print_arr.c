@@ -9,7 +9,7 @@
 #include "private.h"
 #include <string.h>
 
-static inline int YYIO_yio_arr_print(yio_printctx_t *t, const struct YYIO_yio_arr_s *arr) {
+static inline int YIO_yio_arr_print(yio_printctx_t *t, const struct YIO_yio_arr_s *arr) {
   const char *const sep = arr->sep != NULL ? arr->sep : ", ";
   const size_t seplen = strlen(sep);
   const char *ptr = (const char *)arr->arr;
@@ -28,9 +28,9 @@ static inline int YYIO_yio_arr_print(yio_printctx_t *t, const struct YYIO_yio_ar
   return 0;
 }
 
-int YYIO_yio_arr(yio_printctx_t *t) {
-  const struct YYIO_yio_arr_s *const arr = yio_printctx_va_arg(t, const struct YYIO_yio_arr_s *);
+int YIO_yio_arr(yio_printctx_t *t) {
+  const struct YIO_yio_arr_s *const arr = yio_printctx_va_arg(t, const struct YIO_yio_arr_s *);
   int err = yio_printctx_init(t);
   if (err) { return err; }
-  return YYIO_yio_arr_print(t, arr);
+  return YIO_yio_arr_print(t, arr);
 }

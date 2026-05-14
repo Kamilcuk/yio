@@ -11,21 +11,21 @@
 #include <stdint.h>
 
 #if YIO_HAS_LLONG
-#define YYIO_print_in(t, arg)\
+#define YIO_print_in(t, arg)\
 	_Generic(arg \
-					,unsigned int: YYIO_print_uint_in \
-					,unsigned long: YYIO_print_ulong_in \
-					,unsigned long long: YYIO_print_ullong_in \
+					,unsigned int: YIO_print_uint_in \
+					,unsigned long: YIO_print_ulong_in \
+					,unsigned long long: YIO_print_ullong_in \
 	)(t, arg, 0)
 #else
-#define YYIO_print_in(t, arg)\
+#define YIO_print_in(t, arg)\
 	_Generic(arg \
-					,unsigned int: YYIO_print_uint_in \
-					,unsigned long: YYIO_print_ulong_in \
+					,unsigned int: YIO_print_uint_in \
+					,unsigned long: YIO_print_ulong_in \
 	)(t, arg, 0)
 #endif
 
-int YYIO_print_voidp(yio_printctx_t *t) {
+int YIO_print_voidp(yio_printctx_t *t) {
 	const void *val = yio_printctx_va_arg(t, void *);
 	int err = yio_printctx_init(t);
 	if (err) return err;
@@ -48,7 +48,7 @@ int YYIO_print_voidp(yio_printctx_t *t) {
 	if (err) return err;
 	const T var = (T)val;
 	t->pf.type = 'x'; // setup integer printing as x.
-	return YYIO_print_in(t, var);
+	return YIO_print_in(t, var);
 }
 
 

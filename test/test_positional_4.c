@@ -1,12 +1,12 @@
 #include <yio.h>
 #include <yio_test.h>
 
-#ifndef YYIO_HAS_timeval
-#error YYIO_HAS_timeval is not defined
+#ifndef YIO_HAS_timeval
+#error YIO_HAS_timeval is not defined
 #endif
 
 int main(void) {
-#if YYIO_HAS_timeval
+#if YIO_HAS_timeval
 	struct timeval tv1 = { .tv_sec = 3600 + 120 + 3, .tv_usec = 123456 }; // 01:02:03.123456
 	struct timeval tv2 = { .tv_sec = 0, .tv_usec = 987654 };             // 00:00:00.987654
 

@@ -17,7 +17,7 @@
 #include <langinfo.h>
 #endif
 
-int YYIO_print_bool(yio_printctx_t *t) {
+int YIO_print_bool(yio_printctx_t *t) {
 	const bool value = yio_printctx_va_arg(t, int);
 	int err = yio_printctx_init_or_number(t, value);
 	if (err) return err;

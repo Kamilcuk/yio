@@ -3,7 +3,7 @@
 #include <time.h>
 
 int main(void) {
-#if YYIO_HAS_timeval
+#if YIO_HAS_timeval
 	const struct tm t = {
 		.tm_year = 112,
 		.tm_mon  = 9,

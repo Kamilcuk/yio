@@ -80,4 +80,4 @@ Most of the codebase is generated from templates in `src/yio/yio/`. When editing
 - `yio_callback`: Custom callback registration.
 - `yio_*`: Public internal functions and custom modifier symbols.
 - `YIO_*`: Public macros, configuration, and constants.
-- `YYIO_*`: Private library symbols.
+- `YIO_*`: Private library symbols.

@@ -7,7 +7,7 @@
  * @brief
  */
 #include <yio/yio_config.h>
-#if YYIO_HAS_strfromf
+#if YIO_HAS_strfromf
 #ifdef YIO_FLOAT_BACKEND
 #undef YIO_FLOAT_BACKEND
 #endif
@@ -17,8 +17,8 @@
 #include "test_print_float_on_strto.c"
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
-#ifndef YYIO_PRINT_FLOAT$1
-#error YYIO_PRINT_FLOAT$1
+#ifndef YIO_PRINT_FLOAT$1
+#error YIO_PRINT_FLOAT$1
 #endif
 #if defined __GNUC__ && ! defined __clang__ && ! defined __INTEL_COMPILER
 #endif

@@ -30,7 +30,7 @@ static const struct {
 
 {% for R in j_FLOATREPRS %}
 #line
-#ifdef YYIO_FLOAT_RP_{{R.name}}
+#ifdef YIO_FLOAT_RP_{{R.name}}
 
 static void test_engine_golden_{{R.name}}(void) {
     for (size_t i = 0; i < sizeof(testparams)/sizeof(testparams[0]); ++i) {
@@ -51,21 +51,21 @@ static void test_engine_golden_{{R.name}}(void) {
             test_eq = eq_buf;
         }
 
-        YYIO_FLOAT_RP_{{R.name}} val = (YYIO_FLOAT_RP_{{R.name}})testparams[i].val;
+        YIO_FLOAT_RP_{{R.name}} val = (YIO_FLOAT_RP_{{R.name}})testparams[i].val;
         int prec = testparams[i].precision + 1;
         char spec = testparams[i].spec;
         
-        YYIO_string res;
-        YYIO_string_init(&res);
+        YIO_string res;
+        YIO_string_init(&res);
         
-        if (YYIO_has_float_astrfrom_naive_{{R.name}}) {
-            int err = YYIO_float_astrfrom_naive_{{R.name}}(&res, prec, spec, val);
+        if (YIO_has_float_astrfrom_naive_{{R.name}}) {
+            int err = YIO_float_astrfrom_naive_{{R.name}}(&res, prec, spec, val);
             YIO_TESTEXPR(err >= 0, "naive engine failed for {{R.name}}");
             if (err == 0) {
-                const char *buf = YYIO_string_c_str(&res);
-                YIO_TESTEXPR(buf != NULL, "YYIO_string_c_str failed for {{R.name}}");
+                const char *buf = YIO_string_c_str(&res);
+                YIO_TESTEXPR(buf != NULL, "YIO_string_c_str failed for {{R.name}}");
                 if (!buf) {
-                    YYIO_string_fini(&res);
+                    YIO_string_fini(&res);
                     continue;
                 }
                 const bool match = strcmp(test_eq, buf) == 0;
@@ -97,7 +97,7 @@ static void test_engine_golden_{{R.name}}(void) {
             }
         }
         
-        YYIO_string_fini(&res);
+        YIO_string_fini(&res);
     }
 }
 
@@ -106,7 +106,7 @@ static void test_engine_golden_{{R.name}}(void) {
 
 int main(void) {
 {% for R in j_FLOATREPRS %}
-#ifdef YYIO_FLOAT_RP_{{R.name}}
+#ifdef YIO_FLOAT_RP_{{R.name}}
     test_engine_golden_{{R.name}}();
 #endif
 {% endfor %}

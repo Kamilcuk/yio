@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_PRIVATE_PRIVATE_H_
-#define YYIO_YIO_PRIVATE_PRIVATE_H_
+#ifndef YIO_YIO_PRIVATE_PRIVATE_H_
+#define YIO_YIO_PRIVATE_PRIVATE_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -19,4 +19,4 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_PRIVATE_PRIVATE_H_
+#endif // YIO_YIO_PRIVATE_PRIVATE_H_

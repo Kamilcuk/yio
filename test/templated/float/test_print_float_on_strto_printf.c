@@ -16,8 +16,8 @@
 {% call j_FOREACHAPPLY(["f", "d", "l"]) %}
 #line
 
-#ifndef YYIO_PRINT_FLOAT$1
-#error  YYIO_PRINT_FLOAT$1
+#ifndef YIO_PRINT_FLOAT$1
+#error  YIO_PRINT_FLOAT$1
 #endif
 #if defined __GNUC__ && ! defined __clang__ && ! defined __INTEL_COMPILER
 #endif

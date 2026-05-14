@@ -1,6 +1,6 @@
 
-#ifndef YYIO_YIO_TEST_H_
-#define YYIO_YIO_TEST_H_
+#ifndef YIO_YIO_TEST_H_
+#define YIO_YIO_TEST_H_
 
 #include <yio.h>
 #ifndef YIO_HAS_WCHAR_H
@@ -14,10 +14,10 @@
 #if YIO_HAS_UCHAR_H
 #endif
 #include <ctype.h>
-#ifndef YYIO_HAS_UNISTRING
+#ifndef YIO_HAS_UNISTRING
 #error
 #endif
-#if YYIO_HAS_UNISTRING
+#if YIO_HAS_UNISTRING
 #include <unistr.h>
 #include <unistdio.h>
 #endif
@@ -30,7 +30,7 @@
 #define YIO_TESTEXPR             SSTEST
 #define YIO_TESTEXPR_NOFAIL      SSTEST_WARN
 #define YIO_TESTEXPR_ASSERT      SSTEST_ASSERT
-#define YYIO_test_is_in_valgrind sstest_is_in_valgrind
+#define YIO_test_is_in_valgrind sstest_is_in_valgrind
 
 #if defined(YIO_HAS_TINY_REGEX_C) && YIO_HAS_TINY_REGEX_C
 #include <re.h> // tiny-regex-c
@@ -41,21 +41,21 @@ static int re_match(const char *pat, const char *str, int *len) {
 }
 #endif
 
-#define YYIO_test_compare_printformat_in(pf1, pf2, X) \
+#define YIO_test_compare_printformat_in(pf1, pf2, X) \
 		YIO_TESTEXPR(pf1.X == pf2.X, "'%s' %d(%c) %d(%c)", \
 				str, pf1.X, isprint((unsigned)pf1.X)?pf1.X:'?', pf2.X, isprint((unsigned)pf2.X)?pf2.X:'?')
 
 
-#define YYIO_test_compare_printformat(pf1, pf2) \
+#define YIO_test_compare_printformat(pf1, pf2) \
 		( \
-		YYIO_test_compare_printformat_in(pf1, pf2, width) && \
-		YYIO_test_compare_printformat_in(pf1, pf2, precision) && \
-		YYIO_test_compare_printformat_in(pf1, pf2, fill) && \
-		YYIO_test_compare_printformat_in(pf1, pf2, align) && \
-		YYIO_test_compare_printformat_in(pf1, pf2, sign) && \
-		YYIO_test_compare_printformat_in(pf1, pf2, grouping) && \
-		YYIO_test_compare_printformat_in(pf1, pf2, type) && \
-		YYIO_test_compare_printformat_in(pf1, pf2, hash) && \
+		YIO_test_compare_printformat_in(pf1, pf2, width) && \
+		YIO_test_compare_printformat_in(pf1, pf2, precision) && \
+		YIO_test_compare_printformat_in(pf1, pf2, fill) && \
+		YIO_test_compare_printformat_in(pf1, pf2, align) && \
+		YIO_test_compare_printformat_in(pf1, pf2, sign) && \
+		YIO_test_compare_printformat_in(pf1, pf2, grouping) && \
+		YIO_test_compare_printformat_in(pf1, pf2, type) && \
+		YIO_test_compare_printformat_in(pf1, pf2, hash) && \
 		YIO_TESTEXPR(memcmp(&pf, &shouldbe, sizeof(pf)) == 0, "%s", str) \
 		)
 
@@ -66,9 +66,9 @@ static int re_match(const char *pat, const char *str, int *len) {
 #define STRING(a)   #a
 #define XSTRING(a)  STRING(a)
 
-struct YYIO_string;
-bool YYIO_test_string_float_equal(struct YYIO_string *ref, struct YYIO_string *res, char spec);
-bool YYIO_test_float_equal(const char *ref, const char *res, char spec);
+struct YIO_string;
+bool YIO_test_string_float_equal(struct YIO_string *ref, struct YIO_string *res, char spec);
+bool YIO_test_float_equal(const char *ref, const char *res, char spec);
 bool yio_test_hexf_eq(const char *s1, const char *s2);
 
 struct testparam {
@@ -140,4 +140,4 @@ struct testparam {
 
 /* ------------------------------------------------------------------------- */
 
-#endif // YYIO_YIO_TEST_H_
+#endif // YIO_YIO_TEST_H_

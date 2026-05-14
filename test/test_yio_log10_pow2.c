@@ -1,4 +1,4 @@
-#define YYIO_PRIVATE
+#define YIO_PRIVATE
 #include <yio/yio_private.h>
 
 #include <stdint.h>
@@ -10,7 +10,7 @@ static const unsigned res[] = {1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6
 int main() {
   for (size_t i = 0; i < sizeof(res) / sizeof(*res); ++i) {
     const size_t width = i + 1;
-    const size_t calculated = YYIO_LOG10_POW2(width);
+    const size_t calculated = YIO_LOG10_POW2(width);
     if (calculated != res[i]) {
       fprintf(stderr, "width=%zu calculated=%zu expected=%u\n", width, calculated, res[i]);
       return 1;

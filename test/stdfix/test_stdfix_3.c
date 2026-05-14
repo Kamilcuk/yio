@@ -9,8 +9,8 @@
 #include <yio.h>
 #include <yio_test.h>
 
-#ifndef YYIO_HAS_STDFIX_TYPES
-#error YYIO_HAS_STDFIX_TYPES is not defined
+#ifndef YIO_HAS_STDFIX_TYPES
+#error YIO_HAS_STDFIX_TYPES is not defined
 #endif
 
 #ifdef fract
@@ -32,7 +32,7 @@ static int hex_dot_hex_to_int(char *str) {
 
 #include <stdio.h>
 int main() {
-	#if !YYIO_HAS_STDFIX_TYPES
+	#if !YIO_HAS_STDFIX_TYPES
 	return EXIT_SKIP;
 	#else
 	char buf[128];

@@ -25,7 +25,7 @@
 #endif
 #if YIO_USE_STRFROM_PRINTF
 static inline
-void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
+void YIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 		int precision0, char spec, const char *restrict pri, size_t prisize) {
 	(void)fmtsize;
 	char *fmtpnt = fmt;
@@ -47,39 +47,39 @@ void YYIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#if YYIO_has_float_astrfrom_printf_$1
+#if YIO_has_float_astrfrom_printf_$1
 
 #define FMT_SIZE_$1 ( \
 		\
 		sizeof("%") - 1 + \
 		sizeof(".") - 1 + \
-		YYIO_INT_STRLEN_BOUND() + \
-		sizeof(YYIO_FLOAT_PRI_RP_$1) - 1 + \
+		YIO_INT_STRLEN_BOUND() + \
+		sizeof(YIO_FLOAT_PRI_RP_$1) - 1 + \
 		sizeof(char) + \
 		1 \
 )
 
 static inline
-void YYIO_create_format_string_$1(char *restrict fmt, int precision0, char spec) {
-	YYIO_create_format_string_generic(fmt, FMT_SIZE_$1,
-			precision0, spec, YYIO_FLOAT_PRI_RP_$1, sizeof(YYIO_FLOAT_PRI_RP_$1) - 1);
+void YIO_create_format_string_$1(char *restrict fmt, int precision0, char spec) {
+	YIO_create_format_string_generic(fmt, FMT_SIZE_$1,
+			precision0, spec, YIO_FLOAT_PRI_RP_$1, sizeof(YIO_FLOAT_PRI_RP_$1) - 1);
 }
 
-int YYIO_float_astrfrom_printf_$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT_RP_$1 val) {
+int YIO_float_astrfrom_printf_$1(YIO_string *v, int precision0, char spec, YIO_FLOAT_RP_$1 val) {
 	char fmt[FMT_SIZE_$1];
-	YYIO_create_format_string_$1(fmt, precision0, spec);
-	assert(YYIO_string_capacity(v) < INT_MAX);
-	const int len = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, (YYIO_FLOAT_PRINTF_TYPE_RP_$1)val);
+	YIO_create_format_string_$1(fmt, precision0, spec);
+	assert(YIO_string_capacity(v) < INT_MAX);
+	const int len = snprintf(YIO_string_data(v), YIO_string_capacity(v), fmt, (YIO_FLOAT_PRINTF_TYPE_RP_$1)val);
 	assert(len >= 0);
-	if ((size_t)len >= YYIO_string_capacity(v)) {
-		int err = YYIO_string_reserve(v, len + 1);
+	if ((size_t)len >= YIO_string_capacity(v)) {
+		int err = YIO_string_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = snprintf(YYIO_string_data(v), YYIO_string_capacity(v), fmt, (YYIO_FLOAT_PRINTF_TYPE_RP_$1)val);
+		const int len2 = snprintf(YIO_string_data(v), YIO_string_capacity(v), fmt, (YIO_FLOAT_PRINTF_TYPE_RP_$1)val);
 		(void)len2;
 		assert(len2 >= 0);
 		assert(len2 == len);
 	}
-	YYIO_string_set_used(v, len);
+	YIO_string_set_used(v, len);
 	return 0;
 }
 

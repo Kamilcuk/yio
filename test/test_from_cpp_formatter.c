@@ -44,7 +44,7 @@ int main() {
 	YIO_TEST_FAIL("{:{}f}", pi, -10);      // throws: width is negative
 #endif
 										   //
-#if YYIO_HAS_UNISTRING
+#if YIO_HAS_UNISTRING
 	YIO_TEST_EQ(".🐱..", "{:.^5s}",   "🐱");
 	YIO_TEST_EQ("🐱🐱",  "{:.8s}",    "🐱🐱🐱");
 	YIO_TEST_EQ("🐱🐱.", "{:.<5.8s}", "🐱🐱🐱");

@@ -7,13 +7,13 @@
 #include <yio_test.h>
 #include <string.h>
 
-struct YYIO_inttests_s {
+struct YIO_inttests_s {
 	const char *fmt;
 	int arg;
 	const char *output;
 };
 
-static const struct YYIO_inttests_s YYIO_inttests[] = {
+static const struct YIO_inttests_s YIO_inttests[] = {
 		{ "A{}", 5, "A5", },
 		{ "A{:}", 5, "A5", },
 
@@ -172,37 +172,37 @@ static const struct YYIO_inttests_s YYIO_inttests[] = {
 
 };
 
-#define YYIO_inttest_DECL(suffix, type) \
+#define YIO_inttest_DECL(suffix, type) \
 \
 static inline \
-int YYIO_inttest_ ## suffix(void) { \
+int YIO_inttest_ ## suffix(void) { \
 	int err = 0; \
 	char buf[256]; \
-	for (size_t i = 0; i < sizeof(YYIO_inttests)/sizeof(YYIO_inttests[0]); ++i) { \
+	for (size_t i = 0; i < sizeof(YIO_inttests)/sizeof(YIO_inttests[0]); ++i) { \
  \
-	 	 if ((type)-1 > 0 && YYIO_inttests[i].arg < 0) continue; \
+	 	 if ((type)-1 > 0 && YIO_inttests[i].arg < 0) continue; \
 						\
 		memset(buf, 0, sizeof(buf)); \
 		if (1) { \
 			fprintf(stderr, "Testing yio_printf(\"%""s""\", %d) -> %d\"%""s""\"\n", \
-					YYIO_inttests[i].fmt, YYIO_inttests[i].arg, \
-					(int)strlen(YYIO_inttests[i].output), YYIO_inttests[i].output); \
+					YIO_inttests[i].fmt, YIO_inttests[i].arg, \
+					(int)strlen(YIO_inttests[i].output), YIO_inttests[i].output); \
 		} \
  \
-		const int ret = yio_snprintf(buf, sizeof(buf), YYIO_inttests[i].fmt, (type)YYIO_inttests[i].arg); \
+		const int ret = yio_snprintf(buf, sizeof(buf), YIO_inttests[i].fmt, (type)YIO_inttests[i].arg); \
  \
 		if (ret < 0) { \
 			fprintf(stderr, "%s:%d: %d: printf(\"%""s""\", %d) -> %d\n", \
 					__FILE__, __LINE__, (int)i, \
-					YYIO_inttests[i].fmt, YYIO_inttests[i].arg, ret); \
+					YIO_inttests[i].fmt, YIO_inttests[i].arg, ret); \
 			err = i + 1; \
 		} \
-		if (strcmp(buf, YYIO_inttests[i].output) != 0) { \
+		if (strcmp(buf, YIO_inttests[i].output) != 0) { \
 			fprintf(stderr, "%s:%d: %d: printf(\"%""s""\", %d) -> %d\"%""s""\" should be %d\"%""s""\"\n", \
 					__FILE__, __LINE__, (int)i, \
-					YYIO_inttests[i].fmt, YYIO_inttests[i].arg, \
+					YIO_inttests[i].fmt, YIO_inttests[i].arg, \
 					(int)strlen(buf), buf, \
-					(int)strlen(YYIO_inttests[i].output), YYIO_inttests[i].output); \
+					(int)strlen(YIO_inttests[i].output), YIO_inttests[i].output); \
 			err = i + 1; \
 		} \
  \
@@ -210,28 +210,28 @@ int YYIO_inttest_ ## suffix(void) { \
 	return err; \
 }
 
-YYIO_inttest_DECL(short, short)
-YYIO_inttest_DECL(ushort, unsigned short)
-YYIO_inttest_DECL(int, int)
-YYIO_inttest_DECL(uint, unsigned int)
-YYIO_inttest_DECL(long, long)
-YYIO_inttest_DECL(ulong, unsigned long)
-YYIO_inttest_DECL(llong, long long)
-YYIO_inttest_DECL(ullong, unsigned long long)
+YIO_inttest_DECL(short, short)
+YIO_inttest_DECL(ushort, unsigned short)
+YIO_inttest_DECL(int, int)
+YIO_inttest_DECL(uint, unsigned int)
+YIO_inttest_DECL(long, long)
+YIO_inttest_DECL(ulong, unsigned long)
+YIO_inttest_DECL(llong, long long)
+YIO_inttest_DECL(ullong, unsigned long long)
 
-#define YYIO_inttest_DO(suffix) \
-		err = YYIO_inttest_ ## suffix(); \
+#define YIO_inttest_DO(suffix) \
+		err = YIO_inttest_ ## suffix(); \
 		if (err) return err;
 
 int main() {
 	int err = 0;
-	YYIO_inttest_DO(int);
-	YYIO_inttest_DO(uint);
-	YYIO_inttest_DO(short);
-	YYIO_inttest_DO(ushort);
-	YYIO_inttest_DO(long);
-	YYIO_inttest_DO(ulong);
-	YYIO_inttest_DO(llong);
-	YYIO_inttest_DO(ullong);
+	YIO_inttest_DO(int);
+	YIO_inttest_DO(uint);
+	YIO_inttest_DO(short);
+	YIO_inttest_DO(ushort);
+	YIO_inttest_DO(long);
+	YIO_inttest_DO(ulong);
+	YIO_inttest_DO(llong);
+	YIO_inttest_DO(ullong);
 	return 0;
 }

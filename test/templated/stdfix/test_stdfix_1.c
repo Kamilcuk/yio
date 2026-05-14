@@ -11,12 +11,12 @@
 
 #include <stdio.h>
 int main() {
-	#if !YYIO_HAS_STDFIX_TYPES
+	#if !YIO_HAS_STDFIX_TYPES
 	return EXIT_SKIP;
 	#else
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
-#ifdef YYIO_STDFIX_$3
+#ifdef YIO_STDFIX_$3
 	{
 		const $2 a = 0.125;
 		yio_fprintf(stderr, "{}\n", "$2");

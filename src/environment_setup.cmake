@@ -14,10 +14,10 @@ include(k/foreach_count_items)
 include(k/check_type_exists_bool)
 include(k/check_symbol_exists_bool)
 
-if(YYIO_ENVIRONMENT_SETUP_DONE)
+if(YIO_ENVIRONMENT_SETUP_DONE)
 	return()
 endif()
-set(YYIO_ENVIRONMENT_SETUP_DONE 1)
+set(YIO_ENVIRONMENT_SETUP_DONE 1)
 
 cmake_push_check_state(RESET)
 
@@ -48,7 +48,7 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
 
 yio_config_gen_check_c_source_compiles(
 	"int main() { __int128 x; return 0; }"
-	YYIO_HAS_INT128
+	YIO_HAS_INT128
 )
 
 #########################################################################
@@ -60,9 +60,9 @@ include(src/environment_floats.cmake)
 function(exclude_same type1 type2 suffix)
 	check_c_source_compiles(
 		"int main() { _Generic((${type1})0, ${type1}: 0, ${type2}: 0); }"
-		YYIO_samecompiles_FLOAT${suffix}
+		YIO_samecompiles_FLOAT${suffix}
 	)
-	if(NOT YYIO_samecompiles_FLOAT${suffix})
+	if(NOT YIO_samecompiles_FLOAT${suffix})
 		# cmake-lint: disable=C0103
 		set(YIO_HAS_FLOAT${suffix} 0 CACHE INTERNAL "")
 	endif()
@@ -90,7 +90,7 @@ foreach(ii IN LISTS _floats)
 	yio_config_gen_add(YIO_HAS_FLOAT${suffix})
 	if(YIO_HAS_FLOAT${suffix})
 		list(APPEND YIO_FLOAT_SUFFIXES ${suffix})
-		yio_config_gen_add_value(YYIO_FLOAT${suffix} ${type})
+		yio_config_gen_add_value(YIO_FLOAT${suffix} ${type})
 	endif()
 endforeach()
 set(YIO_FLOAT_SUFFIXES "${YIO_FLOAT_SUFFIXES}" CACHE INTERNAL "")

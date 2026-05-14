@@ -11,13 +11,13 @@
 #include "private.h"
 #include "yio/private/yio_string.h"
 #include <time.h>
-#if (YYIO_HAS_timespec || YYIO_HAS_timeval) && YYIO_HAS_SYS_TIME_H
+#if (YIO_HAS_timespec || YIO_HAS_timeval) && YIO_HAS_SYS_TIME_H
 #include <sys/time.h>
 #endif
 
-#if YYIO_HAS_timespec || YYIO_HAS_timeval
+#if YIO_HAS_timespec || YIO_HAS_timeval
 static inline
-int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, int precision_default) {
+int YIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, int precision_default) {
 	struct yio_printfmt_s *const pf = &t->pf;
 	const char type = pf->type;
 	const int precision = (int)yio_precision_get_default(pf->precision, (size_t)precision_default);
@@ -36,8 +36,8 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 	const unsigned long long abs_sec = is_neg ? (unsigned long long)-(sec + (nsec != 0)) : (unsigned long long)sec;
 	const unsigned long long abs_nsec = is_neg ? (nsec == 0 ? 0 : (unsigned long long)(max_nsec - nsec)) : (unsigned long long)nsec;
 
-	YYIO_string res;
-	YYIO_string_init(&res);
+	YIO_string res;
+	YIO_string_init(&res);
 
 	int err = 0;
 	unsigned long long fraction = abs_nsec;
@@ -50,19 +50,19 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 	}
 
 	if (is_neg) {
-		err = YYIO_string_putc(&res, '-');
+		err = YIO_string_putc(&res, '-');
 		if (err) goto end;
 	}
 
 	const bool dot_added = precision > 0 || pf->hash;
 	if (type == 'f' || type == 'g') {
-		err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){0}, abs_sec);
+		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){0}, abs_sec);
 		if (err) goto end;
 		if (dot_added) {
-			err = YYIO_string_putc(&res, '.');
+			err = YIO_string_putc(&res, '.');
 			if (err) goto end;
 			if (precision > 0) {
-				err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
+				err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
 				if (err) goto end;
 			}
 		}
@@ -70,21 +70,21 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 		const unsigned long long h = abs_sec / 3600;
 		const unsigned long long m = (abs_sec % 3600) / 60;
 		const unsigned long long s = abs_sec % 60;
-		err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){0}, h);
+		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){0}, h);
 		if (err) goto end;
-		err = YYIO_string_putc(&res, ':');
+		err = YIO_string_putc(&res, ':');
 		if (err) goto end;
-		err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, m);
+		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, m);
 		if (err) goto end;
-		err = YYIO_string_putc(&res, ':');
+		err = YIO_string_putc(&res, ':');
 		if (err) goto end;
-		err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, s);
+		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, s);
 		if (err) goto end;
 		if (dot_added) {
-			err = YYIO_string_putc(&res, '.');
+			err = YIO_string_putc(&res, '.');
 			if (err) goto end;
 			if (precision > 0) {
-				err = YYIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
+				err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
 				if (err) goto end;
 			}
 		}
@@ -94,32 +94,32 @@ int YYIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, in
 	}
 
 	if ((type == 'g' || (type == '\0' && pf->hash)) && dot_added) {
-		YYIO_string_remove_trailing_zeros_and_dot(&res);
+		YIO_string_remove_trailing_zeros_and_dot(&res);
 	}
-	err = yio_printctx_put(t, YYIO_string_data(&res), YYIO_string_len(&res));
+	err = yio_printctx_put(t, YIO_string_data(&res), YIO_string_len(&res));
 
 end:
-	YYIO_string_fini(&res);
+	YIO_string_fini(&res);
 	return err;
 }
 #endif
 
-#if YYIO_HAS_timespec
-int YYIO_print_timespec(yio_printctx_t *t) {
+#if YIO_HAS_timespec
+int YIO_print_timespec(yio_printctx_t *t) {
 	const struct timespec ts = yio_printctx_va_arg(t, struct timespec);
 	int err = yio_printctx_init(t);
 	if (err) return err;
-	return YYIO_print_timespec_val(t, (long long)ts.tv_sec, (long long)ts.tv_nsec, 9);
+	return YIO_print_timespec_val(t, (long long)ts.tv_sec, (long long)ts.tv_nsec, 9);
 }
-#endif // YYIO_HAS_timespec
+#endif // YIO_HAS_timespec
 
-#if YYIO_HAS_timeval
-int YYIO_print_timeval(yio_printctx_t *t) {
+#if YIO_HAS_timeval
+int YIO_print_timeval(yio_printctx_t *t) {
 	const struct timeval ts = yio_printctx_va_arg(t, struct timeval);
 	int err = yio_printctx_init(t);
 	if (err) return err;
-	return YYIO_print_timespec_val(t, (long long)ts.tv_sec, (long long)ts.tv_usec, 6);
+	return YIO_print_timespec_val(t, (long long)ts.tv_sec, (long long)ts.tv_usec, 6);
 }
-#endif // YYIO_HAS_timeval
+#endif // YIO_HAS_timeval
 
 #endif // __SDCC

@@ -8,7 +8,7 @@
  */
 #include "private.h"
 
-int YYIO_print_count(yio_printctx_t *t) {
+int YIO_print_count(yio_printctx_t *t) {
 	int *arg = yio_printctx_va_arg(t, int *);
 	int err = yio_printctx_init(t);
 	if (err) return err;

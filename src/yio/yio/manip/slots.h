@@ -7,23 +7,23 @@
  * @brief
  */
 
-#ifndef YYIO_COUNTER
-#error YYIO_COUNTER not defined.
+#ifndef YIO_COUNTER
+#error YIO_COUNTER not defined.
 {% for i in range(0, j_MAX_CUSTOM_SLOTS) %}
 #line
-#elif YYIO_COUNTER == {{ i }}
-#undef YYIO_COUNTER
-#define YYIO_COUNTER {{ i + 1 }}
-#undef YYIO_PRINT_FUNC_GENERIC_SLOTS
-#define YYIO_PRINT_FUNC_GENERIC_SLOTS(X)  \
+#elif YIO_COUNTER == {{ i }}
+#undef YIO_COUNTER
+#define YIO_COUNTER {{ i + 1 }}
+#undef YIO_PRINT_FUNC_GENERIC_SLOTS
+#define YIO_PRINT_FUNC_GENERIC_SLOTS(X, XALIAS)  \
 	{% for j in range(0, i + 1) %}
-	X(YYIO_TYPE_{{ j }}, YYIO_TYPE_FUNC_{{ j }}) \
+	X(YIO_TYPE_{{ j }}, YIO_TYPE_FUNC_{{ j }}) \
 	{% endfor %}
 	/* */
 
 {% endfor %}
 #line
 #else
-#error YYIO_COUNTER is greater than {{ j_MAX_CUSTOM_SLOTS }}.
+#error YIO_COUNTER is greater than {{ j_MAX_CUSTOM_SLOTS }}.
 #endif
 

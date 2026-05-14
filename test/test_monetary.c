@@ -1,10 +1,10 @@
 #include <yio_test.h>
 
 int main() {
-#ifndef YYIO_HAS_MONETARY_H
+#ifndef YIO_HAS_MONETARY_H
 #error
 #endif
-#if YYIO_HAS_MONETARY_H
+#if YIO_HAS_MONETARY_H
 	YIO_TEST("123.41", "{:%n}", yio_mon(123.41));
 	YIO_TEST("123.41", "{:%i}", yio_mon(123.41));
 	YIO_TEST(

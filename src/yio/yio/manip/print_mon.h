@@ -6,26 +6,26 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_MANIP_PRINT_MON_H_
-#define YYIO_YIO_YIO_MANIP_PRINT_MON_H_
+#ifndef YIO_YIO_YIO_MANIP_PRINT_MON_H_
+#define YIO_YIO_YIO_MANIP_PRINT_MON_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "../ctx.h"
 
-#ifndef YYIO_HAS_MONETARY_H
+#ifndef YIO_HAS_MONETARY_H
 #error
 #endif
-#if YYIO_HAS_MONETARY_H
+#if YIO_HAS_MONETARY_H
 
-int YYIO_print_mon(yio_printctx_t *t);
+int YIO_print_mon(yio_printctx_t *t);
 
-#define yio_mon(doublev)  yio_callback(YYIO_print_mon, _Generic((doublev), double: (doublev)))
+#define yio_mon(doublev)  yio_callback(YIO_print_mon, _Generic((doublev), double: (doublev)))
 
 #endif
 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_MANIP_PRINT_MON_H_
+#endif // YIO_YIO_YIO_MANIP_PRINT_MON_H_

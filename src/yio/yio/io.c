@@ -8,8 +8,8 @@
 #include "private.h"
 #include <limits.h>
 
-#ifndef YYIO_HAS_FILE
-#error YYIO_HAS_FILE is not defined
+#ifndef YIO_HAS_FILE
+#error YIO_HAS_FILE is not defined
 #endif
 
 #include <string.h>
@@ -21,9 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* YYIO_yio_*printf ------------------------------------------------------------------------ */
+/* YIO_yio_*printf ------------------------------------------------------------------------ */
 
-int YYIO_yio_bprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_bprintf(YIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vbprintf(out, arg, data, fmt, &va);
@@ -31,7 +31,7 @@ int YYIO_yio_bprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data
 	return ret;
 }
 
-int YYIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vprintf(data, fmt, &va);
@@ -39,7 +39,7 @@ int YYIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...) {
 	return ret;
 }
 
-int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vsprintf(dest, size, data, fmt, &va);
@@ -49,14 +49,14 @@ int YYIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, cons
 
 /* Callbacks and contexts ----------------------------------------------------- */
 
-struct YYIO_yio_vsprintf_ctx_s {
+struct YIO_yio_vsprintf_ctx_s {
 	char *dest;
 	size_t size;
 };
 
 static
-int YYIO_yio_vsprintf_cb(void *arg, const char *ptr, size_t size) {
-	struct YYIO_yio_vsprintf_ctx_s *c = arg;
+int YIO_yio_vsprintf_cb(void *arg, const char *ptr, size_t size) {
+	struct YIO_yio_vsprintf_ctx_s *c = arg;
 	if (c->size == 0) {
 		return 0;
 	}
@@ -83,7 +83,7 @@ int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
 	return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
 #elif YIO_OUTPUT_BACKEND_FD
 	return yio_vdprintf(1, data, fmt, va);
-#elif YYIO_HAS_FILE
+#elif YIO_HAS_FILE
 	return yio_vfprintf(stdout, data, fmt, va);
 #else
 	(void)data; (void)fmt; (void)va;
@@ -92,10 +92,10 @@ int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
 }
 
 int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, va_list *va) { // NOLINT(readability-non-const-parameter)
-	struct YYIO_yio_vsprintf_ctx_s ctx;
+	struct YIO_yio_vsprintf_ctx_s ctx;
 	ctx.dest = dest;
 	ctx.size = size;
-	const int ret = yio_vbprintf(YYIO_yio_vsprintf_cb, &ctx, data, fmt, va);
+	const int ret = yio_vbprintf(YIO_yio_vsprintf_cb, &ctx, data, fmt, va);
 	if (size > 0) {
 		ctx.dest[0] = '\0';
 	}
@@ -106,7 +106,7 @@ int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const cha
 
 #if YIO_ENABLE_MALLOC
 
-int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vasprintf(strp, data, fmt, &va);
@@ -114,7 +114,7 @@ int YYIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt,
 	return ret;
 }
 
-int YYIO_yio_append(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_append(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vappend(strp, data, fmt, &va);
@@ -122,20 +122,20 @@ int YYIO_yio_append(char **strp, const yio_printdata_t *data, const char *fmt, .
 	return ret;
 }
 
-struct YYIO_yio_vappend_ctx_s {
+struct YIO_yio_vappend_ctx_s {
 	char *str;
 	size_t size;
 	size_t capacity;
 };
 
 static
-int YYIO_yio_vappend_cb(void *arg, const char *ptr, size_t size) {
-	struct YYIO_yio_vappend_ctx_s *p = arg;
+int YIO_yio_vappend_cb(void *arg, const char *ptr, size_t size) {
+	struct YIO_yio_vappend_ctx_s *p = arg;
 	const size_t count = p->size + size + 1;
 	assert(count < SIZE_MAX / sizeof(*p->str));
 	if (count > p->capacity) {
-		size_t new_cap = YYIO_GOLDEN_INCREASE(p->capacity);
-		if (new_cap < YYIO_INIT_CAPACITY) new_cap = YYIO_INIT_CAPACITY;
+		size_t new_cap = YIO_GOLDEN_INCREASE(p->capacity);
+		if (new_cap < YIO_INIT_CAPACITY) new_cap = YIO_INIT_CAPACITY;
 		if (new_cap < count) new_cap = count;
 		void * const pnt = realloc(p->str, sizeof(*p->str) * new_cap);
 		if (pnt == NULL) {
@@ -155,11 +155,11 @@ int YYIO_yio_vappend_cb(void *arg, const char *ptr, size_t size) {
 }
 
 int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
-	struct YYIO_yio_vappend_ctx_s ctx;
+	struct YIO_yio_vappend_ctx_s ctx;
 	ctx.str = *strp;
 	ctx.size = 0;
 	ctx.capacity = (*strp != NULL) ? strlen(*strp) : 0;
-	const int ret =  yio_vbprintf(YYIO_yio_vappend_cb, &ctx, data, fmt, va);
+	const int ret =  yio_vbprintf(YIO_yio_vappend_cb, &ctx, data, fmt, va);
 	if (ret < 0) {
 		free(ctx.str);
 		ctx.str = NULL;
@@ -176,11 +176,11 @@ int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_
 }
 
 int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
-	struct YYIO_yio_vappend_ctx_s ctx;
+	struct YIO_yio_vappend_ctx_s ctx;
 	ctx.str = *strp;
 	ctx.size = (*strp != NULL) ? strlen(*strp) : 0;
 	ctx.capacity = ctx.size;
-	const int ret =  yio_vbprintf(YYIO_yio_vappend_cb, &ctx, data, fmt, va);
+	const int ret =  yio_vbprintf(YIO_yio_vappend_cb, &ctx, data, fmt, va);
 	if (ret < 0) {
 		free(ctx.str);
 		ctx.str = NULL;

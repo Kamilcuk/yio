@@ -11,7 +11,7 @@
 #include <string.h>
 
 int main() {
-#if YYIO_HAS_timespec
+#if YIO_HAS_timespec
 	struct timespec t = {
 		.tv_sec = 1234567,
 		.tv_nsec = 123456789,

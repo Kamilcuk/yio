@@ -21,14 +21,14 @@ class Err:
 
     def __post_init__(self):
         assert self.enum.startswith("YIO_ERROR_"), (
-            f"{self.enum}: Argument to YYIO_ERROR does not start with YIO_ERROR"
+            f"{self.enum}: Argument to YIO_ERROR does not start with YIO_ERROR"
         )
 
 
 def get_all_errors_from_sources(paths: List[Path]) -> List[Err]:
-    # Match YYIO_ERROR(ENUM, "message")
+    # Match YIO_ERROR(ENUM, "message")
     rereplace = re.compile(
-        r'YYIO_ERROR\s*\(\s*([A-Z0-9_]+)\s*,\s*("[^"]*")\s*\)',
+        r'YIO_ERROR\s*\(\s*([A-Z0-9_]+)\s*,\s*("[^"]*")\s*\)',
     )
     errors: Set[Err] = set()
     for path in paths:
@@ -61,7 +61,7 @@ def write_to_file_on_change(file_path, str_content):
 def main():
     parser = argparse.ArgumentParser(
         description="""
-    A small script that will extract all calls to YYIO_ERROR within all source files
+    A small script that will extract all calls to YIO_ERROR within all source files
     passed as arguments, and from these calls it will generate two files:
     .c and .h file given as --enum and --msg arguments with enum-ish definition
     and array of strings definition.

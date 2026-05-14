@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_IO_H_
-#define YYIO_YIO_YIO_IO_H_
+#ifndef YIO_YIO_YIO_IO_H_
+#define YIO_YIO_YIO_IO_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,8 +16,8 @@ extern "C" {
 #include <stdio.h>
 #include <stdarg.h>
 
-#ifndef YYIO_HAS_FILE
-#error YYIO_HAS_FILE is not defined
+#ifndef YIO_HAS_FILE
+#error YIO_HAS_FILE is not defined
 #endif
 
 /* Exported Print Symbols --------------------------------------------------- */
@@ -39,27 +39,27 @@ extern "C" {
  * @param va Pointer to the va_list containing the arguments to be formatted.
  * @return Number of characters written or a negative value on error (see yio_error.h).
  */
-YYIO_nn(1, 3, 5)
-int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
+YIO_nn(1, 3, 5)
+int yio_vbprintf(YIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Similar to printf() call.
  * @see yio_vbprintf
  */
-YYIO_nn(1, 3)
+YIO_nn(1, 3)
 int yio_vprintf(const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Similar to fprintf() call.
  * @see yio_vbprintf
  */
-#if YYIO_HAS_FILE
-YYIO_nn(1, 2, 4) YYIO_access_r(1) YYIO_access_r(2) YYIO_access_r(3) YYIO_access_r(4)
+#if YIO_HAS_FILE
+YIO_nn(1, 2, 4) YIO_access_r(1) YIO_access_r(2) YIO_access_r(3) YIO_access_r(4)
 int yio_vfprintf(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 #endif
 /**
  * Similar to snprintf() call.
  * @see yio_vbprintf
  */
-YYIO_nn(1, 3, 5) YYIO_access_w(1) YYIO_access_r(3) YYIO_access_r(4) YYIO_access_r(5)
+YIO_nn(1, 3, 5) YIO_access_w(1) YIO_access_r(3) YIO_access_r(4) YIO_access_r(5)
 int yio_vsprintf(char *__sized_by(size) dest, size_t size, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 #if YIO_ENABLE_MALLOC
 /**
@@ -67,7 +67,7 @@ int yio_vsprintf(char *__sized_by(size) dest, size_t size, const yio_printdata_t
  * If *strp is non-NULL, it will reuse the storage, assuming the allocated
  * size is exactly strlen(*strp).
  */
-YYIO_nn(1, 2, 4)
+YIO_nn(1, 2, 4)
 int yio_vasprintf(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * Appends the formatted string to the existing string storage.
@@ -85,45 +85,45 @@ int yio_vasprintf(char **__single strp, const yio_printdata_t *__null_terminated
  *         IMPORTANT: In case of memory error (realloc failure), the original
  *         pointer *strp is freed and set to NULL to prevent leaks.
  */
-YYIO_nn(1, 2, 4)
+YIO_nn(1, 2, 4)
 int yio_vappend(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 #endif // YIO_ENABLE_MALLOC
 /**
  * Output to the file descriptor. Similar to POSIX dprintf() call.
  * @see yio_vbprintf
  */
-YYIO_nn(2, 4)
+YIO_nn(2, 4)
 int yio_vdprintf(int fd, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, va_list *va);
 /**
  * @}
  */
 
 /**
- * @defgroup YYIO_printf YYIO_printf
+ * @defgroup YIO_printf YIO_printf
  * @ingroup yio
  * @brief Printing macro callbacks.
  * @see yio_vbprintf
  * @{
  */
-YYIO_nn(1, 2)
-int YYIO_yio_bprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
-YYIO_nn(1)
-int YYIO_yio_printf(const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
-#if YYIO_HAS_FILE
-YYIO_nn(1, 2)
-int YYIO_yio_fprintf(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+YIO_nn(1, 2)
+int YIO_yio_bprintf(YIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+YIO_nn(1)
+int YIO_yio_printf(const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+#if YIO_HAS_FILE
+YIO_nn(1, 2)
+int YIO_yio_fprintf(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #endif
-YYIO_nn(1, 3) YYIO_access_w(1)
-int YYIO_yio_snprintf(char *__sized_by(size) dest, size_t size, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+YIO_nn(1, 3) YIO_access_w(1)
+int YIO_yio_snprintf(char *__sized_by(size) dest, size_t size, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #if YIO_ENABLE_MALLOC
-YYIO_nn(1, 2)
-int YYIO_yio_asprintf(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
-YYIO_nn(1, 2)
-int YYIO_yio_append(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+YIO_nn(1, 2)
+int YIO_yio_asprintf(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+YIO_nn(1, 2)
+int YIO_yio_append(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #endif
 
-YYIO_nn(2)
-int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
+YIO_nn(2)
+int YIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 /**
  * @}
  */
@@ -135,17 +135,17 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, cons
  * @see yio_vbprintf
  * @{
  */
-#define yio_bprintf(cb, arg, ...)     YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#define yio_printf(...)               YYIO_yio_printf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#if YYIO_HAS_FILE
-#define yio_fprintf(file, ...)        YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_bprintf(cb, arg, ...)     YIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_printf(...)               YIO_yio_printf(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#if YIO_HAS_FILE
+#define yio_fprintf(file, ...)        YIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #endif
-#define yio_snprintf(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_snprintf(dest, size, ...)  YIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #if YIO_ENABLE_MALLOC
-#define yio_asprintf(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
-#define yio_append(strp, ...)         YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_asprintf(strp, ...)       YIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_append(strp, ...)         YIO_yio_append(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 #endif
-#define yio_dprintf(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_dprintf(fd, ...)          YIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 /**
  * @}
  */
@@ -157,18 +157,18 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, cons
  * @see yio_vbprintf
  * @{
  */
-#define yio_bstream(cb, arg, ...)    YYIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_stream(...)              YYIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#if YYIO_HAS_FILE
-#define yio_fstream(file, ...)       YYIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_bstream(cb, arg, ...)    YIO_yio_bprintf(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_stream(...)              YIO_yio_printf(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#if YIO_HAS_FILE
+#define yio_fstream(file, ...)       YIO_yio_fprintf(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #endif
-#define yio_snstream(dest, size, ...)  YYIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_snstream(dest, size, ...)  YIO_yio_snprintf(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #if YIO_ENABLE_MALLOC
-#define yio_asstream(strp, ...)       YYIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
-#define yio_appendstream(strp, ...)   YYIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_asstream(strp, ...)       YIO_yio_asprintf(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_appendstream(strp, ...)   YIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 #endif
 
-#define yio_dprint(fd, ...)          YYIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_dprint(fd, ...)          YIO_yio_dprintf(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
 /**
  * @}
  */
@@ -179,7 +179,7 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, cons
  *
  * Create argument list for yio_stream functions
  * If an argument doesn't has 62 commas, then the function for it is chosen
- *    using _Generic expression with @c YYIO_PRINT_FUNC_GENERIC.
+ *    using _Generic expression with @c YIO_PRINT_FUNC_GENERIC.
  * If an argument does has 62 commas, then the first argument that should be inside braces is extracted
  *   and the first argument from inside the braces is the function to handle the arguments.
  * The arguments are appended to the end of the function.
@@ -187,16 +187,16 @@ int YYIO_yio_dprintf(int fd, const yio_printdata_t *__null_terminated data, cons
  * For example a call like:
  *    yio_stream(1, yio_callback(function, 2, 3));
  * Is expanded to:
- *    yio_stream((const YYIO_func_t[]){ _Generic((1), int: YYIO_print_int), function, NULL }, 1, 2, 3);
+ *    yio_stream((const YIO_func_t[]){ _Generic((1), int: YIO_print_int), function, NULL }, 1, 2, 3);
  *
  * The first argument is an array of functions to handle arguments, delimitered with NULL.
  * The rest of the arguments are unchanged and appended to ellipsis argument.
  */
 #define YIO_PRINT_ARGUMENTS(...)  \
-		YYIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MAX_ARGS, 0)}})( \
-				YYIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
+		YIO_print_arguments_N(__VA_ARGS__, {{j_seqcomma(j_MAX_ARGS, 0)}})( \
+				YIO_PRINT_FUNC_GENERIC, __VA_ARGS__)
 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_IO_H_
+#endif // YIO_YIO_YIO_IO_H_

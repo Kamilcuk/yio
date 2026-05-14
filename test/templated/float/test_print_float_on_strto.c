@@ -62,13 +62,13 @@ static const struct formats_s formats[] = {
 
 #if YIO_HAS_FLOAT$1
 
-#define TYPE$1   YYIO_FLOAT$1
-#define STRTO$1  YYIO_strto$1
-#define PRI$1    YYIO_FLOAT_PRI$1
+#define TYPE$1   YIO_FLOAT$1
+#define STRTO$1  YIO_strto$1
+#define PRI$1    YIO_FLOAT_PRI$1
 
 static inline
-YYIO_FLOAT$1 YYIO_diff$1(YYIO_FLOAT$1 in, YYIO_FLOAT$1 out) {
-	//static YYIO_FLOAT$1 very_close = YYIO_FLOAT_C$1(1e-6);
+YIO_FLOAT$1 YIO_diff$1(YIO_FLOAT$1 in, YIO_FLOAT$1 out) {
+	//static YIO_FLOAT$1 very_close = YIO_FLOAT_C$1(1e-6);
 
 	if (isnan(in)) {
 		return isnan(out) ? 0 : 1;
@@ -81,21 +81,21 @@ YYIO_FLOAT$1 YYIO_diff$1(YYIO_FLOAT$1 in, YYIO_FLOAT$1 out) {
 	}
 	if (isinf(out)) {
 		// the conversion function resulted in INF from MAX value, it's fine
-		if (YYIO_fabs$1(in) >= YYIO_FLOAT_MAX$1) return YYIO_FLOAT_EPSILON$1;
+		if (YIO_fabs$1(in) >= YIO_FLOAT_MAX$1) return YIO_FLOAT_EPSILON$1;
 		return 1;
 	}
 	if (in == out) {
 		return 0;
 	}
 
-	const YYIO_FLOAT$1 greater = in < out ? out : in;
-	const YYIO_FLOAT$1 smaller = in < out ? in : out;
+	const YIO_FLOAT$1 greater = in < out ? out : in;
+	const YIO_FLOAT$1 smaller = in < out ? in : out;
 	// epsilong was converted to zero, (or zero to zero), that's fine
-	if (YYIO_fabs$1(greater) <= YYIO_FLOAT_EPSILON$1) return YYIO_FLOAT_EPSILON$1;
-	const YYIO_FLOAT$1 diff1 = (greater - smaller) / greater;
+	if (YIO_fabs$1(greater) <= YIO_FLOAT_EPSILON$1) return YIO_FLOAT_EPSILON$1;
+	const YIO_FLOAT$1 diff1 = (greater - smaller) / greater;
 	assert(!isnan(diff1));
 	assert(!isinf(diff1));
-	const YYIO_FLOAT$1 diff = YYIO_fabs$1(diff1);
+	const YIO_FLOAT$1 diff = YIO_fabs$1(diff1);
 	assert(0 <= diff);
 	assert(diff <= 1);
 	return diff;
@@ -131,16 +131,16 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 	const TYPE$1 res = STRTO$1(str, &endp);
 	const int errnostrto = errno;
 
-	const TYPE$1 diff = YYIO_diff$1(in, res);
+	const TYPE$1 diff = YIO_diff$1(in, res);
 
 	if (verbose) {
 		printf(VERBOSEARGS(PRI$1));
 	}
 
 	int failed = 0;
-	if (errnostrto == ERANGE && (res == YYIO_FLOAT_HUGE_VAL$1 || res == -YYIO_FLOAT_HUGE_VAL$1)) {
+	if (errnostrto == ERANGE && (res == YIO_FLOAT_HUGE_VAL$1 || res == -YIO_FLOAT_HUGE_VAL$1)) {
 		// Only allowed when converting the max values.
-		if (!(YYIO_fabs$1(in) >= YYIO_FLOAT_MAX$1 && strstr(instr, "_MAX"))) {
+		if (!(YIO_fabs$1(in) >= YIO_FLOAT_MAX$1 && strstr(instr, "_MAX"))) {
 			failed |= YIO_TESTEXPR_ASSERT(errnostrto == 0, "overflow %s,%s %d %s", format, instr, errnostrto, strerror(errnostrto));
 		}
 	} else if ((strstr(instr, "_MIN") || strstr(instr, "_EPSILON")) && strstr(format, "f")) {
@@ -170,13 +170,13 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 
 static void test_floats_$1(void) {
 	size_t start = 0;
-#if defined(__INTEL_COMPILER) && YYIO_PRINT_FLOATd == YYIO_print_float_customd
+#if defined(__INTEL_COMPILER) && YIO_PRINT_FLOATd == YIO_print_float_customd
 	// icc bug: double d = 1e-307; d *= 0.1; assert(d == 1e-308); - fails
-	start = YYIO_floatlist_exotics_cnt;
+	start = YIO_floatlist_exotics_cnt;
 #endif
-	for(size_t i = start; i < sizeof(YYIO_test_floatlist$1)/sizeof(*YYIO_test_floatlist$1); ++i) {
-		const char *const instr = YYIO_test_floatlist$1[i].valstr;
-		const TYPE$1 in = YYIO_test_floatlist$1[i].val;
+	for(size_t i = start; i < sizeof(YIO_test_floatlist$1)/sizeof(*YIO_test_floatlist$1); ++i) {
+		const char *const instr = YIO_test_floatlist$1[i].valstr;
+		const TYPE$1 in = YIO_test_floatlist$1[i].val;
 		for(size_t j = 0; j < sizeof(formats)/sizeof(*formats); ++j) {
 			const char * const format = formats[j].format;
 			const double diffatmost = formats[j].diffatmost;
@@ -205,7 +205,7 @@ int main() {
 #endif
 
 	test_floats_f();
-	if (!YYIO_test_is_in_valgrind()) test_floats_l();
+	if (!YIO_test_is_in_valgrind()) test_floats_l();
 	test_floats_d();
 
 	return 0;

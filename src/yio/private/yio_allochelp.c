@@ -15,48 +15,48 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#ifndef YYIO_HAS_MONETARY_H
+#ifndef YIO_HAS_MONETARY_H
 #error
 #endif
-#if YYIO_HAS_MONETARY_H
+#if YIO_HAS_MONETARY_H
 #include <monetary.h>
 #endif
 
 static const size_t MAXSIZE = 4096U;
 
-int YYIO_astrftime_nonzero(YYIO_string *res, const char *fmt, const struct tm *tm) {
+int YIO_astrftime_nonzero(YIO_string *res, const char *fmt, const struct tm *tm) {
 #ifdef __SDCC
 	(void)res; (void)fmt; (void)tm;
 	return YIO_ERROR_ENOSYS;
 #else
 	while (1) {
-		const size_t bufsize = YYIO_string_capacity(res);
+		const size_t bufsize = YIO_string_capacity(res);
 		errno = 0;
-		size_t count = strftime(YYIO_string_data(res), bufsize, fmt, tm);
-		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, YYIO_string_capacity(res));
+		size_t count = strftime(YIO_string_data(res), bufsize, fmt, tm);
+		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, YIO_string_capacity(res));
 		if (count != (size_t)0) {
-			YYIO_string_set_used(res, count);
+			YIO_string_set_used(res, count);
 			break;
 		}
 		// MUSL set's EINVAL when buffer is too small
 		if (errno != 0 && errno != EINVAL) {
-			return YYIO_ERROR(YIO_ERROR_STRFTIME, "strftime returned -1 and errno is set");
+			return YIO_ERROR(YIO_ERROR_STRFTIME, "strftime returned -1 and errno is set");
 		}
 		if (bufsize > MAXSIZE) {
-			return YYIO_ERROR(YIO_ERROR_STRFTIME_TOOBIG, "strftime needed more than 4096 bytes to write");
+			return YIO_ERROR(YIO_ERROR_STRFTIME_TOOBIG, "strftime needed more than 4096 bytes to write");
 		}
-		int err = YYIO_string_reserve_more(res, 0);
+		int err = YIO_string_reserve_more(res, 0);
 		if (err) return err;
 	}
 	return 0;
 #endif
 }
 
-#if YYIO_HAS_MONETARY_H
-int YYIO_astrfmon(YYIO_string *res, const char *fmt, struct YYIO_astrfmon_arg arg) {
+#if YIO_HAS_MONETARY_H
+int YIO_astrfmon(YIO_string *res, const char *fmt, struct YIO_astrfmon_arg arg) {
 	while (1) {
-		char *const buf = YYIO_string_data(res);
-		const size_t bufsize = YYIO_string_capacity(res);
+		char *const buf = YIO_string_data(res);
+		const size_t bufsize = YIO_string_capacity(res);
 		errno = 0;
 		const ssize_t count =
 #if YIO_HAS_FLOATl
@@ -70,21 +70,21 @@ int YYIO_astrfmon(YYIO_string *res, const char *fmt, struct YYIO_astrfmon_arg ar
 				//dbgln("%d %d %d %s", (int)count, (int)bufsize, errno, strerror(errno));
 				// GLIBC returns -1 and set's errno to 0
 				// https://sourceware.org/bugzilla/show_bug.cgi?id=29090
-				return YYIO_ERROR(YIO_ERROR_STRFMON, "strfmon returned -1 and errno is set and it's not E2BIG");
+				return YIO_ERROR(YIO_ERROR_STRFMON, "strfmon returned -1 and errno is set and it's not E2BIG");
 			}
 		} else {
 			// We explicitly wait for less characters than buffer size.
 			// Musl does that.
 			if (count < (ssize_t)bufsize) {
 				//dbgln("%d %d %d %s", (int)count, (int)bufsize, errno, strerror(errno));
-				YYIO_string_set_used(res, count);
+				YIO_string_set_used(res, count);
 				break;
 			}
 		}
 		if (bufsize > MAXSIZE) {
-			return YYIO_ERROR(YIO_ERROR_STRFMON_TOOBIG, "strfmon needed more than 4096 bytes to write");
+			return YIO_ERROR(YIO_ERROR_STRFMON_TOOBIG, "strfmon needed more than 4096 bytes to write");
 		}
-		int err = YYIO_string_reserve_more(res, 0);
+		int err = YIO_string_reserve_more(res, 0);
 		if (err) return err;
 	}
 	return 0;

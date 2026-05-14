@@ -104,10 +104,10 @@
         "YIO_ENABLE_DIGIT_GROUPING": "0",
         "YIO_MAX_ARGS": "10",
         "YIO_ENABLE_MALLOC": "0",
-        "YYIO_HAS_LLONG": "0",
-        "YYIO_HAS_INT128": "0",
+        "YIO_HAS_LLONG": "0",
+        "YIO_HAS_INT128": "0",
         "YIO_USE_STRFROM_PRINTF": "0",
-        "YYIO_HAS_UNISTD_H": "0",
+        "YIO_HAS_UNISTD_H": "0",
         "YIO_HAS_FLOATf": "0",
         "YIO_HAS_FLOATd": "0",
         "YIO_HAS_FLOATl": "0",
@@ -168,13 +168,13 @@
         "CMAKE_C_COMPILER": "cproc",
         "CMAKE_C_COMPILER_ID": "cproc",
         "YIO_HAS_FLOATl": "0",
-        "YYIO_HAS_timespec": "0",
-        "YYIO_HAS_timeval": "0",
-        "YYIO_HAS_MONETARY_H": "0",
+        "YIO_HAS_timespec": "0",
+        "YIO_HAS_timeval": "0",
+        "YIO_HAS_MONETARY_H": "0",
         "YIO_HAS_WCHAR_H": "0",
         "YIO_HAS_UCHAR_H": "0",
         "UNISTRING_LIB": "0",
-        "YYIO_HAS_UNISTRING": "0"
+        "YIO_HAS_UNISTRING": "0"
       }
     },
     {

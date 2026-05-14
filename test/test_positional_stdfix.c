@@ -1,8 +1,8 @@
 #include <yio.h>
 #include <yio_test.h>
 
-#ifndef YYIO_HAS_STDFIX_TYPES
-#error YYIO_HAS_STDFIX_TYPES is not defined
+#ifndef YIO_HAS_STDFIX_TYPES
+#error YIO_HAS_STDFIX_TYPES is not defined
 #endif
 
 #ifdef fract
@@ -10,7 +10,7 @@
 #endif
 
 int main(void) {
-#if YYIO_HAS_STDFIX_TYPES
+#if YIO_HAS_STDFIX_TYPES
 	_Fract f1 = 0.5r;
 	_Accum a1 = 1.5k;
 	_Fract f2 = 0.25r;

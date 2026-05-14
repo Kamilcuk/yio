@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_PRIVATE_YIO_STRING_H_
-#define YYIO_YIO_PRIVATE_YIO_STRING_H_
+#ifndef YIO_YIO_PRIVATE_YIO_STRING_H_
+#define YIO_YIO_PRIVATE_YIO_STRING_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -25,48 +25,48 @@ extern "C" {
 #error YIO_ENABLE_MALLOC is not defined
 #endif
 
-#define YYIO_MAX(a, b)  ((a) > (b) ? (a) : (b))
+#define YIO_MAX(a, b)  ((a) > (b) ? (a) : (b))
 /// Rounds up 's' to the nearest multiple of 'a'. Works for any 'a' > 0.
-#define YYIO_ALIGN_UP(s, a) (((s) + (a) - 1) / (a) * (a))
+#define YIO_ALIGN_UP(s, a) (((s) + (a) - 1) / (a) * (a))
 
 #ifdef __SIZEOF_SIZE_T__
-#define YYIO_SIZEOF_SIZE_T  __SIZEOF_SIZE_T__
+#define YIO_SIZEOF_SIZE_T  __SIZEOF_SIZE_T__
 #else
-#define YYIO_SIZEOF_SIZE_T  SIZE_MAX / CHAR_BIT
+#define YIO_SIZEOF_SIZE_T  SIZE_MAX / CHAR_BIT
 #endif
 
 #if YIO_ENABLE_MALLOC
-#define YYIO_SSO_MIN_SIZE    YYIO_MAX(YIO_SSO_BUFFER_SIZE, YYIO_SIZEOF_SIZE_T * 2)
+#define YIO_SSO_MIN_SIZE    YIO_MAX(YIO_SSO_BUFFER_SIZE, YIO_SIZEOF_SIZE_T * 2)
 #else
-#define YYIO_SSO_MIN_SIZE    YIO_SSO_BUFFER_SIZE
+#define YIO_SSO_MIN_SIZE    YIO_SSO_BUFFER_SIZE
 #endif
 
 /// Round up SSO buffer to size_t to convert potential compiler padding
 /// into usable capacity for the string.
-#define YYIO_SSO_SIZE        YYIO_ALIGN_UP(YYIO_SSO_MIN_SIZE, YYIO_SIZEOF_SIZE_T)
+#define YIO_SSO_SIZE        YIO_ALIGN_UP(YIO_SSO_MIN_SIZE, YIO_SIZEOF_SIZE_T)
 
 typedef
 #if YIO_ENABLE_MALLOC
 	size_t
-#elif YYIO_SSO_SIZE <= UINT8_MAX
+#elif YIO_SSO_SIZE <= UINT8_MAX
 	uint8_t
-#elif YYIO_SSO_SIZE <= UINT16_MAX
+#elif YIO_SSO_SIZE <= UINT16_MAX
 	uint16_t
-#elif YYIO_SSO_SIZE <= UINT32_MAX
+#elif YIO_SSO_SIZE <= UINT32_MAX
 	uint32_t
-#elif YYIO_SSO_SIZE <= UINT64_MAX
+#elif YIO_SSO_SIZE <= UINT64_MAX
 	uint64_t
 #else
-#error too big YYIO_SSO_SIZE
+#error too big YIO_SSO_SIZE
 #endif
-	YYIO_string_size_t;
+	YIO_string_size_t;
 
 /// Represents a string with SSO and dynamic allocation.
-typedef struct YYIO_string {
+typedef struct YIO_string {
 	///  Bit 0: dynamic_flag (1=Heap, 0=SSO)
 	///  Heap: Bits 1-63: Capacity (Heap)
 	///  SSO: Bits 1-63: SSO_len
-	YYIO_string_size_t info;
+	YIO_string_size_t info;
 	union {
 #if YIO_ENABLE_MALLOC
 		struct {
@@ -74,16 +74,16 @@ typedef struct YYIO_string {
 			char * __sized_by(info >> 1) ptr;   /* Used only in Heap mode */
 		} h;
 #endif
-		char buf[YYIO_SSO_SIZE];
+		char buf[YIO_SSO_SIZE];
 	};
-} YYIO_string;
+} YIO_string;
 
 /// Initializes the string object.
-YYIO_access_w(1) static inline void YYIO_string_init(YYIO_string *t) {
+YIO_access_w(1) static inline void YIO_string_init(YIO_string *t) {
 	t->info = 0;
 }
 
-YYIO_wur static inline bool YYIO_string_is_dynamic(const YYIO_string *t) {
+YIO_wur static inline bool YIO_string_is_dynamic(const YIO_string *t) {
 	#if YIO_ENABLE_MALLOC
 	return t->info & 1;
 	#else
@@ -92,36 +92,36 @@ YYIO_wur static inline bool YYIO_string_is_dynamic(const YYIO_string *t) {
 	#endif
 }
 
-YYIO_wur static inline size_t YYIO_string_len(const YYIO_string *t) {
+YIO_wur static inline size_t YIO_string_len(const YIO_string *t) {
 	#if YIO_ENABLE_MALLOC
-	return YYIO_string_is_dynamic(t) ? t->h.len : (t->info >> 1);
+	return YIO_string_is_dynamic(t) ? t->h.len : (t->info >> 1);
 	#else
 	return t->info;
 	#endif
 }
 
-YYIO_wur static inline char * __indexable YYIO_string_data(YYIO_string *t) {
+YIO_wur static inline char * __indexable YIO_string_data(YIO_string *t) {
 	#if YIO_ENABLE_MALLOC
-	return YYIO_string_is_dynamic(t) ? t->h.ptr : t->buf;
+	return YIO_string_is_dynamic(t) ? t->h.ptr : t->buf;
 	#else
 	return t->buf;
 	#endif
 }
 
-YYIO_wur static inline size_t YYIO_string_capacity(const YYIO_string *t) {
+YIO_wur static inline size_t YIO_string_capacity(const YIO_string *t) {
 	#if YIO_ENABLE_MALLOC
-	return YYIO_string_is_dynamic(t) ? (t->info >> 1) : sizeof(t->buf);
+	return YIO_string_is_dynamic(t) ? (t->info >> 1) : sizeof(t->buf);
 	#else
 	return sizeof(t->buf);
 	#endif
 }
 
 /// Set the count of used bytes in container.
-static inline YYIO_nn()
-void YYIO_string_set_used(YYIO_string *t, size_t newused) {
-	assert(newused <= YYIO_string_capacity(t));
+static inline YIO_nn()
+void YIO_string_set_used(YIO_string *t, size_t newused) {
+	assert(newused <= YIO_string_capacity(t));
 	#if YIO_ENABLE_MALLOC
-	if (YYIO_string_is_dynamic(t)) {
+	if (YIO_string_is_dynamic(t)) {
 		t->h.len = newused;
 	} else {
 		t->info = (newused << 1);
@@ -132,15 +132,15 @@ void YYIO_string_set_used(YYIO_string *t, size_t newused) {
 }
 
 /// Clears the string.
-static inline void YYIO_string_clear(YYIO_string *t) {
-	YYIO_string_set_used(t, 0);
+static inline void YIO_string_clear(YIO_string *t) {
+	YIO_string_set_used(t, 0);
 }
 
 /// Free the string object, freeing any dynamic memory.
-static inline YYIO_access_rw(1)
-void YYIO_string_fini(YYIO_string *t) {
+static inline YIO_access_rw(1)
+void YIO_string_fini(YIO_string *t) {
 #if YIO_ENABLE_MALLOC
-	if (YYIO_string_is_dynamic(t)) {
+	if (YIO_string_is_dynamic(t)) {
 		free(t->h.ptr);
 	}
 #else
@@ -149,121 +149,121 @@ void YYIO_string_fini(YYIO_string *t) {
 }
 
 /// Return the left free memory size
-static inline YYIO_wur YYIO_nn()
-size_t YYIO_string_free_size(const YYIO_string *t) {
-	return YYIO_string_capacity(t) - YYIO_string_len(t);
+static inline YIO_wur YIO_nn()
+size_t YIO_string_free_size(const YIO_string *t) {
+	return YIO_string_capacity(t) - YIO_string_len(t);
 }
 
 #if YIO_ENABLE_MALLOC
 /// Allocate that much memory.
 /// Note: @c newsize has to be greater than current capacity.
-YYIO_wur YYIO_nn() int YYIO_string_reserve(YYIO_string *t, size_t newsize);
+YIO_wur YIO_nn() int YIO_string_reserve(YIO_string *t, size_t newsize);
 /// Allocate more memory.
-int YYIO_string_reserve_more(YYIO_string *t, size_t min_add);
+int YIO_string_reserve_more(YIO_string *t, size_t min_add);
 #else
-static int YYIO_string_reserve(YYIO_string *t, size_t newsize) {
+static int YIO_string_reserve(YIO_string *t, size_t newsize) {
 	(void)t; (void)newsize; return YIO_ERROR_ENOMEM;
 }
-static int YYIO_string_reserve_more(YYIO_string *t, size_t min_add) {
+static int YIO_string_reserve_more(YIO_string *t, size_t min_add) {
 	(void)t; (void)min_add; return YIO_ERROR_ENOMEM;
 }
 #endif
 
 /// Add a character
-static inline int YYIO_string_putc(YYIO_string *t, char c) {
-	if (YYIO_string_free_size(t) == 0) {
-		const int err = YYIO_string_reserve_more(t, 1);
+static inline int YIO_string_putc(YIO_string *t, char c) {
+	if (YIO_string_free_size(t) == 0) {
+		const int err = YIO_string_reserve_more(t, 1);
 		if (err) return err;
 	}
-	const size_t len = YYIO_string_len(t);
-	YYIO_string_data(t)[len] = c;
-	YYIO_string_set_used(t, len + 1);
+	const size_t len = YIO_string_len(t);
+	YIO_string_data(t)[len] = c;
+	YIO_string_set_used(t, len + 1);
 	return 0;
 }
 
 /// Ensures the string is null-terminated and returns the pointer.
-static inline char *YYIO_string_c_str(YYIO_string *t) {
-	const size_t len = YYIO_string_len(t);
-	if (len == 0 || YYIO_string_data(t)[len - 1] != '\0') {
-		if (YYIO_string_putc(t, '\0') != 0) return NULL;
+static inline char *YIO_string_c_str(YIO_string *t) {
+	const size_t len = YIO_string_len(t);
+	if (len == 0 || YIO_string_data(t)[len - 1] != '\0') {
+		if (YIO_string_putc(t, '\0') != 0) return NULL;
 	}
-	return YYIO_string_data(t);
+	return YIO_string_data(t);
 }
 
 /// Add memory
-YYIO_wur YYIO_nn() YYIO_access_rw(1) YYIO_access_r(2, 3)
-int YYIO_string_putsn(YYIO_string *t, const char * __sized_by(size) ptr, size_t size);
+YIO_wur YIO_nn() YIO_access_rw(1) YIO_access_r(2, 3)
+int YIO_string_putsn(YIO_string *t, const char * __sized_by(size) ptr, size_t size);
 
-static int YYIO_string_yprintf_cb(void *ptr, const char * __sized_by(count) data, size_t count) {
-	YYIO_string *o = (YYIO_string *)ptr;
-	return YYIO_string_putsn(o, data, count);
+static int YIO_string_yprintf_cb(void *ptr, const char * __sized_by(count) data, size_t count) {
+	YIO_string *o = (YIO_string *)ptr;
+	return YIO_string_putsn(o, data, count);
 }
 
-int YYIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
-int YYIO_print_ulong_in(yio_printctx_t *t, unsigned long arg, bool is_negative);
-#if YYIO_HAS_LLONG
-int YYIO_print_ullong_in(yio_printctx_t *t, unsigned long long arg, bool is_negative);
+int YIO_print_uint_in(yio_printctx_t *t, unsigned int arg, bool is_negative);
+int YIO_print_ulong_in(yio_printctx_t *t, unsigned long arg, bool is_negative);
+#if YIO_HAS_LLONG
+int YIO_print_ullong_in(yio_printctx_t *t, unsigned long long arg, bool is_negative);
 #endif
-#if YYIO_HAS_INT128
-int YYIO_print_uint128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_negative);
-#endif
-
-static inline int YYIO_string_print_u_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned int v) {
-    yio_printctx_t ctx = {0};
-  	ctx.pf = pf;
-  	ctx.out = YYIO_string_yprintf_cb;
-  	ctx.outarg = o;
-    return YYIO_print_uint_in(&ctx, v, false);
-}
-static inline int YYIO_string_print_ul_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long v) {
-    yio_printctx_t ctx = {0};
-  	ctx.pf = pf;
-  	ctx.out = YYIO_string_yprintf_cb;
-  	ctx.outarg = o;
-    return YYIO_print_ulong_in(&ctx, v, false);
-}
-#if YYIO_HAS_LLONG
-static inline int YYIO_string_print_ull_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned long long v) {
-    yio_printctx_t ctx = {0};
-  	ctx.pf = pf;
-  	ctx.out = YYIO_string_yprintf_cb;
-  	ctx.outarg = o;
-    return YYIO_print_ullong_in(&ctx, v, false);
-}
-#endif
-#if YYIO_HAS_INT128
-static inline int YYIO_string_print_u128_in(YYIO_string *o, struct yio_printfmt_s pf, unsigned __int128 v) {
-    yio_printctx_t ctx = {0};
-  	ctx.pf = pf;
-  	ctx.out = YYIO_string_yprintf_cb;
-  	ctx.outarg = o;
-    return YYIO_print_uint128_in(&ctx, v, false);
-}
+#if YIO_HAS_INT128
+int YIO_print_uint128_in(yio_printctx_t *t, unsigned __int128 arg, bool is_negative);
 #endif
 
-static inline int YYIO_string_print_int(YYIO_string *o, struct yio_printfmt_s pf, int val) {
+static inline int YIO_string_print_u_in(YIO_string *o, struct yio_printfmt_s pf, unsigned int v) {
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YIO_string_yprintf_cb;
+  	ctx.outarg = o;
+    return YIO_print_uint_in(&ctx, v, false);
+}
+static inline int YIO_string_print_ul_in(YIO_string *o, struct yio_printfmt_s pf, unsigned long v) {
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YIO_string_yprintf_cb;
+  	ctx.outarg = o;
+    return YIO_print_ulong_in(&ctx, v, false);
+}
+#if YIO_HAS_LLONG
+static inline int YIO_string_print_ull_in(YIO_string *o, struct yio_printfmt_s pf, unsigned long long v) {
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YIO_string_yprintf_cb;
+  	ctx.outarg = o;
+    return YIO_print_ullong_in(&ctx, v, false);
+}
+#endif
+#if YIO_HAS_INT128
+static inline int YIO_string_print_u128_in(YIO_string *o, struct yio_printfmt_s pf, unsigned __int128 v) {
+    yio_printctx_t ctx = {0};
+  	ctx.pf = pf;
+  	ctx.out = YIO_string_yprintf_cb;
+  	ctx.outarg = o;
+    return YIO_print_uint128_in(&ctx, v, false);
+}
+#endif
+
+static inline int YIO_string_print_int(YIO_string *o, struct yio_printfmt_s pf, int val) {
   yio_printctx_t ctx = {0};
   ctx.pf = pf;
-  ctx.out = YYIO_string_yprintf_cb;
+  ctx.out = YIO_string_yprintf_cb;
   ctx.outarg = o;
 	const bool is_neg = val < 0;
 	const unsigned abs_val = is_neg ? -(unsigned)val : (unsigned)val;
-	return YYIO_print_uint_in(&ctx, abs_val, is_neg);
+	return YIO_print_uint_in(&ctx, abs_val, is_neg);
 }
 
 /**
- * Compare two YYIO_string objects for equality.
+ * Compare two YIO_string objects for equality.
  * @param a First string.
  * @param b Second string.
  * @return true if strings have the same length and identical content, false otherwise.
  */
-static inline bool YYIO_string_equal(const YYIO_string *a, const YYIO_string *b) {
-    const size_t len_a = YYIO_string_len(a);
-    const size_t len_b = YYIO_string_len(b);
+static inline bool YIO_string_equal(const YIO_string *a, const YIO_string *b) {
+    const size_t len_a = YIO_string_len(a);
+    const size_t len_b = YIO_string_len(b);
     if (len_a != len_b) return false;
     if (len_a == 0) return true;
-    /* We need to cast away const because YYIO_string_data currently takes a non-const pointer */
-    return memcmp(YYIO_string_data((YYIO_string *)a), YYIO_string_data((YYIO_string *)b), len_a) == 0;
+    /* We need to cast away const because YIO_string_data currently takes a non-const pointer */
+    return memcmp(YIO_string_data((YIO_string *)a), YIO_string_data((YIO_string *)b), len_a) == 0;
 }
 
 /**
@@ -272,11 +272,11 @@ static inline bool YYIO_string_equal(const YYIO_string *a, const YYIO_string *b)
  * @param t The string to modify.
  * @return true if the decimal point was removed.
  */
-static inline bool YYIO_string_remove_trailing_zeros_and_dot(YYIO_string *t) {
+static inline bool YIO_string_remove_trailing_zeros_and_dot(YIO_string *t) {
 	bool dot_removed = false;
-	const size_t len = YYIO_string_len(t);
+	const size_t len = YIO_string_len(t);
 	if (len == 0) return false;
-	char * const data = YYIO_string_data(t);
+	char * const data = YIO_string_data(t);
 	// Ensure there is a dot. If not, this function should not be called.
 	assert(memchr(data, '.', len) != NULL);
 	char *p = data + len - 1;
@@ -288,11 +288,11 @@ static inline bool YYIO_string_remove_trailing_zeros_and_dot(YYIO_string *t) {
 	} else {
 		++p;
 	}
-	YYIO_string_set_used(t, (size_t)(p - data));
+	YIO_string_set_used(t, (size_t)(p - data));
 	return dot_removed;
 }
 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_PRIVATE_YIO_STRING_H_
+#endif // YIO_YIO_PRIVATE_YIO_STRING_H_

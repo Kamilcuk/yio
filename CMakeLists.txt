@@ -53,7 +53,7 @@ function(yio_cdt_parser tgt)
 	add_library(${tgt} EXCLUDE_FROM_ALL ${ARGN})
 	target_compile_definitions(${tgt} PRIVATE
 		__CDT_PARSER__=1
-		YYIO_CDT_PARSER=1
+		YIO_CDT_PARSER=1
 		YIO_HAS_FLOATf32=0
 		YIO_HAS_FLOATf64=0
 		YIO_HAS_FLOATf32x=0
@@ -172,7 +172,7 @@ include(src/yio_config_gen.cmake)
 include(src/cpack.cmake)
 # Pre checks
 # unistd is used in configuration and environmental checks
-yio_config_gen_check_include_file("unistd.h" YYIO_HAS_UNISTD_H)
+yio_config_gen_check_include_file("unistd.h" YIO_HAS_UNISTD_H)
 # User configuration
 include(src/configuration.cmake)
 # Environment setup (types, definitions)

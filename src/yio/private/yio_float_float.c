@@ -18,21 +18,21 @@
 
 {% for R in j_FLOATREPRS %}
 #line
-#ifdef YYIO_FLOAT_RP_{{R.name}}
+#ifdef YIO_FLOAT_RP_{{R.name}}
 
-#ifndef YYIO_MUSL_BROKEN_EXP10
-#error  YYIO_MUSL_BROKEN_EXP10
+#ifndef YIO_MUSL_BROKEN_EXP10
+#error  YIO_MUSL_BROKEN_EXP10
 #endif
 
-#define TYPE     YYIO_FLOAT_RP_{{R.name}}
-#define FLOOR    YYIO_floor_RP_{{R.name}}
-#define LOG10    YYIO_log10_RP_{{R.name}}
-#define FABS     YYIO_fabs_RP_{{R.name}}
-#define EXP10    YYIO_exp10_RP_{{R.name}}
-#define NEXTAFTER YYIO_nextafter_RP_{{R.name}}
-#define FC(x)    YYIO_FLOAT_C_RP_{{R.name}}(x)
+#define TYPE     YIO_FLOAT_RP_{{R.name}}
+#define FLOOR    YIO_floor_RP_{{R.name}}
+#define LOG10    YIO_log10_RP_{{R.name}}
+#define FABS     YIO_fabs_RP_{{R.name}}
+#define EXP10    YIO_exp10_RP_{{R.name}}
+#define NEXTAFTER YIO_nextafter_RP_{{R.name}}
+#define FC(x)    YIO_FLOAT_C_RP_{{R.name}}(x)
 
-TYPE YYIO_frexp10_RP_{{R.name}}_IMPL(TYPE val, int *exp) {
+TYPE YIO_frexp10_RP_{{R.name}}_IMPL(TYPE val, int *exp) {
 	if (val == FC(0.0)) {
 		*exp = 0;
 		return val;
@@ -43,7 +43,7 @@ TYPE YYIO_frexp10_RP_{{R.name}}_IMPL(TYPE val, int *exp) {
 	*exp = tmp;
 	TYPE ex = EXP10( (TYPE)-( (long long)tmp ) );
 	const TYPE minval = FC(0.1);
-#if YYIO_MUSL_BROKEN_EXP10
+#if YIO_MUSL_BROKEN_EXP10
 	// Musl incorrectly implements exp10 for big numbers.
 	if (ex == 0 && tmp > 10) {
 		ex = minval;

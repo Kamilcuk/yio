@@ -11,10 +11,10 @@
 #include "yio/yio_error.h"
 #include "ctx.h"
 #include "private.h"
-#ifndef YYIO_HAS_UNISTRING
+#ifndef YIO_HAS_UNISTRING
 #error
 #endif
-#if YYIO_HAS_UNISTRING
+#if YIO_HAS_UNISTRING
 #include <uniwidth.h>
 #endif
 #include <assert.h>
@@ -37,58 +37,58 @@
 
 /* ------------------------------------------------------------------------- */
 
-static const char YYIO_ALIGN_LEFT = '<';
-static const char YYIO_ALIGN_RIGHT = '>';
-static const char YYIO_ALIGN_PADSIGN = '=';
-static const char YYIO_ALIGN_CENTER = '^';
+static const char YIO_ALIGN_LEFT = '<';
+static const char YIO_ALIGN_RIGHT = '>';
+static const char YIO_ALIGN_PADSIGN = '=';
+static const char YIO_ALIGN_CENTER = '^';
 
-static const char YYIO_SIGN_ALWAYS = '+';
-//static const char YYIO_SIGN_NEGATIVE = '-';
-static const char YYIO_SIGN_ALWAYSSPACE = ' ';
+static const char YIO_SIGN_ALWAYS = '+';
+//static const char YIO_SIGN_NEGATIVE = '-';
+static const char YIO_SIGN_ALWAYSSPACE = ' ';
 
 static inline
-int YYIO_digit_to_number(char d) {
-	assert(YYIO_isdigit(d));
+int YIO_digit_to_number(char d) {
+	assert(YIO_isdigit(d));
 	return d - '0';
 }
 
-unsigned int YYIO_printctx_strtou_noerr(const char **fmtpnt) {
+unsigned int YIO_printctx_strtou_noerr(const char **fmtpnt) {
 	const char *fmt = *fmtpnt;
-	assert(YYIO_isdigit(fmt[0]));
+	assert(YIO_isdigit(fmt[0]));
 	unsigned int num = 0;
 	do {
 		assert(num < UINT_MAX / 10);
 		num *= 10;
-		const int c = YYIO_digit_to_number(fmt[0]);
+		const int c = YIO_digit_to_number(fmt[0]);
 		assert(num < UINT_MAX - c);
 		num += c;
 		++fmt;
-	} while (YYIO_isdigit(fmt[0]));
+	} while (YIO_isdigit(fmt[0]));
 	*fmtpnt = fmt;
 	return num;
 }
 
 #if YIO_ENABLE_DYNAMIC_PFMT
 static inline
-int YYIO_printctx_take_dynamic_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
+int YIO_printctx_take_dynamic_param(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
 	// Parse {[0-9]+} formatting string if present.
 	assert(fmt[0] == '{');
 	fmt++;
 	int err = 0;
-	YYIO_skipper skipper = {0};
-	if (YYIO_isdigit(fmt[0])) {
-		const unsigned count = YYIO_printctx_strtou_noerr(&fmt);
-		err = YYIO_skipper_do(&skipper, t, count);
+	YIO_skipper skipper = {0};
+	if (YIO_isdigit(fmt[0])) {
+		const unsigned count = YIO_printctx_strtou_noerr(&fmt);
+		err = YIO_skipper_do(&skipper, t, count);
 		if (err) goto EXIT;
 	}
 	if (fmt++[0] != '}') {
-		err = YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_RIGHT_BRACE, "missing '}' when parsing dynamic width or precision specifier");
+		err = YIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_RIGHT_BRACE, "missing '}' when parsing dynamic width or precision specifier");
 		goto EXIT;
 	}
 	*endptr = fmt;
 	//
 	if (t->ifunc == NULL || *t->ifunc == NULL) {
-		err = YYIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_ARG, "no argument for dynamic width or precision");
+		err = YIO_ERROR(YIO_ERROR_DYNAMIC_MISSING_ARG, "no argument for dynamic width or precision");
 		goto EXIT;
 	}
 	// Create a context that will just be used to work with va_arg - nothing else.
@@ -100,21 +100,21 @@ int YYIO_printctx_take_dynamic_param(yio_printctx_t *t, const char *fmt, const c
 	// The returned precision value is returned in precision field.
 	*res = tmp_ctx.pf.precision;
 EXIT:
-	YYIO_skipper_end(&skipper, t);
+	YIO_skipper_end(&skipper, t);
 	return err;
 }
 #endif // YIO_ENABLE_DYNAMIC_PFMT
 
-int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
+int YIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **endptr, uint16_t *res) {
 	(void)t;
 #if YIO_ENABLE_DYNAMIC_PFMT
 	if (fmt[0] == '{') {
-		return YYIO_printctx_take_dynamic_param(t, fmt, endptr, res);
+		return YIO_printctx_take_dynamic_param(t, fmt, endptr, res);
 	}
 #endif // YIO_ENABLE_DYNAMIC_PFMT
-	if (YYIO_isdigit(fmt[0])) {
-		const unsigned int num = YYIO_printctx_strtou_noerr(&fmt);
-		*res = (num > YYIO_PRECISION_MAX ? YYIO_PRECISION_MAX : num) + 1;
+	if (YIO_isdigit(fmt[0])) {
+		const unsigned int num = YIO_printctx_strtou_noerr(&fmt);
+		*res = (num > YIO_PRECISION_MAX ? YIO_PRECISION_MAX : num) + 1;
 		*endptr = fmt;
 	} else {
 		// do nothing
@@ -123,7 +123,7 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *fmt, const char **e
 	return 0;
 }
 
-int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
+int YIO_pfmt_parse(struct YIO_printctx_s *t, struct yio_printfmt_s *pf,
 		const char *fmt, const char **endptr) {
 	/*
 	https://fmt.dev/latest/syntax.html#format-specification-mini-language
@@ -138,10 +138,10 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 	 */
 
 	// fill and align must be first
-	if (fmt[0] != '\0' && YYIO_ANYEQ(fmt[1], '<', '>', '=', '^')) {
+	if (fmt[0] != '\0' && YIO_ANYEQ(fmt[1], '<', '>', '=', '^')) {
 		pf->fill = fmt++[0];
 		pf->align = fmt++[0];
-	} else if (YYIO_ANYEQ(fmt[0], '<', '>', '=', '^')) {
+	} else if (YIO_ANYEQ(fmt[0], '<', '>', '=', '^')) {
 		pf->align = fmt++[0];
 	}
 
@@ -153,7 +153,7 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 		case '}':
 			goto EXIT;
 		case '\0':
-			ret = YYIO_ERROR(YIO_ERROR_MISSING_RIGHT_BRACE, "missing '}' when parsing common format specification");
+			ret = YIO_ERROR(YIO_ERROR_MISSING_RIGHT_BRACE, "missing '}' when parsing common format specification");
 			goto EXIT;
 		case '+':
 		case '-':
@@ -181,7 +181,7 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 		#if YIO_ENABLE_DYNAMIC_PFMT
 		case '{':
 			--fmt;
-			ret = YYIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
+			ret = YIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
 			if (ret) goto EXIT;
 			break;
 		#endif
@@ -195,11 +195,11 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 		case '.':
 			{
 				const char *endparamptr;
-				ret = YYIO_printctx_stdintparam(t, fmt, &endparamptr, &pf->precision);
+				ret = YIO_printctx_stdintparam(t, fmt, &endparamptr, &pf->precision);
 				if (ret) goto EXIT;
 				// If there is a dot, there must be precision.
 				if (endparamptr == fmt) {
-					ret = YYIO_ERROR(YIO_ERROR_MISSING_PRECISION, "Format specifier missing precision");
+					ret = YIO_ERROR(YIO_ERROR_MISSING_PRECISION, "Format specifier missing precision");
 					goto EXIT;
 				}
 				fmt = endparamptr;
@@ -221,7 +221,7 @@ int YYIO_pfmt_parse(struct YYIO_printctx_s *t, struct yio_printfmt_s *pf,
 			pf->type = ch;
 			break;
 		default:
-			ret = YYIO_ERROR(YIO_ERROR_FMT_UNKNOWN, "Invalid character in standard format specification");
+			ret = YIO_ERROR(YIO_ERROR_FMT_UNKNOWN, "Invalid character in standard format specification");
 			goto EXIT;
 		}
 	}
@@ -248,12 +248,12 @@ int yio_printctx_next(yio_printctx_t *t) {
 	assert(*t->ifunc != NULL);
 	++t->ifunc;
 	if (*t->ifunc == NULL) {
-		return YYIO_ERROR(YIO_ERROR_NO_NEXT, "formatting modifier is not followed by an argument");
+		return YIO_ERROR(YIO_ERROR_NO_NEXT, "formatting modifier is not followed by an argument");
 	}
 	return (*t->ifunc)(t);
 }
 
-int YYIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, va_list *va) {
+int YIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, va_list *va) {
 	const int ret = yio_vbprintf(t->out, t->outarg, data, fmt, va);
 	if (ret < 0) return ret;
 	t->writtencnt += ret;
@@ -261,22 +261,22 @@ int YYIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, cons
 }
 
 
-int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int ret = YYIO_printctx_vprint_in(t, data, fmt, &va);
+	const int ret = YIO_printctx_vprint_in(t, data, fmt, &va);
 	va_end(va);
 	return ret;
 }
 
 /* printformat --------------------------------------------------- */
 
-#ifndef YYIO_HAS_wcwidth
+#ifndef YIO_HAS_wcwidth
 #error
 #endif
 #if YIO_HAS_WCHAR_H
 /// Get display width of multibyte string by using wide characters.
-static size_t YYIO_mbwidth(const char *str, size_t str_len) {
+static size_t YIO_mbwidth(const char *str, size_t str_len) {
 	mbstate_t st = {0};
   const char *p = str;
   size_t rem = str_len;
@@ -296,7 +296,7 @@ static size_t YYIO_mbwidth(const char *str, size_t str_len) {
       // null
       ++p; --rem;
     } else {
-#if YYIO_HAS_wcwidth || defined(wcwidth)
+#if YIO_HAS_wcwidth || defined(wcwidth)
       int w = wcwidth(wc);
       total += (w > 0) ? w : (w < 0 ? 1 : 0);
 #else
@@ -311,15 +311,15 @@ static size_t YYIO_mbwidth(const char *str, size_t str_len) {
 }
 #endif
 
-#ifndef YYIO_HAS_UNISTRING
+#ifndef YIO_HAS_UNISTRING
 #error
 #endif
 /// Get display width of a string.
-static inline size_t YYIO_width(const char *str, size_t str_len) {
-#if YYIO_HAS_UNISTRING
+static inline size_t YIO_width(const char *str, size_t str_len) {
+#if YIO_HAS_UNISTRING
 	return u8_width((const uint8_t*)str, str_len, locale_charset());
 #elif YIO_HAS_WCHAR_H
-	return YYIO_mbwidth(str, str_len);
+	return YIO_mbwidth(str, str_len);
 #else
 	(void)str;
 	return str_len;
@@ -327,9 +327,9 @@ static inline size_t YYIO_width(const char *str, size_t str_len) {
 }
 
 static inline
-int YYIO_printctx_pad_write(yio_printctx_t *t, char fill, size_t count) {
+int YIO_printctx_pad_write(yio_printctx_t *t, char fill, size_t count) {
 	if (count == 0) return 0;
-	char buf[YYIO_INIT_CAPACITY];
+	char buf[YIO_INIT_CAPACITY];
 	memset(buf, fill, count < sizeof(buf) ? count : sizeof(buf));
 	while (count > 0) {
 		const size_t chunk = count < sizeof(buf) ? count : sizeof(buf);
@@ -340,13 +340,13 @@ int YYIO_printctx_pad_write(yio_printctx_t *t, char fill, size_t count) {
 	return 0;
 }
 
-typedef struct YYIO_printformat_t {
+typedef struct YIO_printformat_t {
 	yio_printctx_t *t;
 	size_t str_len;
 	size_t alllen;
 	bool is_number;
 	bool is_positive;
-} YYIO_printformat_t;
+} YIO_printformat_t;
 
 /**
  * Construct print formatting options.
@@ -364,16 +364,16 @@ typedef struct YYIO_printformat_t {
  * @return
  */
 static inline
-void YYIO_printformat_init(YYIO_printformat_t *pf, yio_printctx_t *t,
+void YIO_printformat_init(YIO_printformat_t *pf, yio_printctx_t *t,
 		const char *str, size_t str_len, bool is_number, bool is_positive) {
 	pf->t = t;
-	pf->str_len = (is_number ? str_len : YYIO_width(str, str_len));
+	pf->str_len = (is_number ? str_len : YIO_width(str, str_len));
 	pf->is_number = is_number;
 	pf->is_positive = is_positive;
 }
 
 static inline
-int YYIO_printformat_prefix__print_sign_hash(yio_printctx_t *t,
+int YIO_printformat_prefix__print_sign_hash(yio_printctx_t *t,
 		const struct yio_printfmt_s *f,
 		bool has_sign, bool has_hash, bool is_positive) {
 	if (has_sign) {
@@ -390,7 +390,7 @@ int YYIO_printformat_prefix__print_sign_hash(yio_printctx_t *t,
 }
 
 static inline
-int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
+int YIO_printformat_prefix(YIO_printformat_t *pf) {
 	yio_printctx_t * const t = pf->t;
 	struct yio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
@@ -399,35 +399,35 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 	const size_t len = pf->str_len;
 
 	const bool has_hash = is_number && f->hash &&
-					YYIO_ANYEQ(f->type, 'x', 'X', 'o', 'O', 'b', 'B');
-	const bool has_sign = is_number && (f->sign == YYIO_SIGN_ALWAYS ||
-					f->sign == YYIO_SIGN_ALWAYSSPACE || is_positive == false);
+					YIO_ANYEQ(f->type, 'x', 'X', 'o', 'O', 'b', 'B');
+	const bool has_sign = is_number && (f->sign == YIO_SIGN_ALWAYS ||
+					f->sign == YIO_SIGN_ALWAYSSPACE || is_positive == false);
 	const size_t alllen = len + (2U * has_hash) + has_sign;
 	*alllen0 = alllen;
 	const size_t width = yio_width_get_default(f->width, 0);
 
 	if (f->align == '\0') {
 		// The default for numbers is right, otherwise it's left.
-		f->align = pf->is_number ? YYIO_ALIGN_RIGHT : YYIO_ALIGN_LEFT;
+		f->align = pf->is_number ? YIO_ALIGN_RIGHT : YIO_ALIGN_LEFT;
 	}
 
-	if (f->align == YYIO_ALIGN_PADSIGN) {
-		const int err = YYIO_printformat_prefix__print_sign_hash(t, f,
+	if (f->align == YIO_ALIGN_PADSIGN) {
+		const int err = YIO_printformat_prefix__print_sign_hash(t, f,
 				has_sign, has_hash, is_positive);
 		if (err) return err;
 	}
 
-	if ((f->align == YYIO_ALIGN_PADSIGN ||
-			f->align == YYIO_ALIGN_RIGHT ||
-			f->align == YYIO_ALIGN_CENTER) && width > alllen) {
+	if ((f->align == YIO_ALIGN_PADSIGN ||
+			f->align == YIO_ALIGN_RIGHT ||
+			f->align == YIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = width - alllen;
-		const size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 : tmp;
-		const int err = YYIO_printctx_pad_write(t, f->fill ? f->fill : ' ', diff);
+		const size_t diff = f->align == YIO_ALIGN_CENTER ? tmp / 2 : tmp;
+		const int err = YIO_printctx_pad_write(t, f->fill ? f->fill : ' ', diff);
 		if (err) return err;
 	}
 
-	if (f->align != YYIO_ALIGN_PADSIGN) {
-		const int err = YYIO_printformat_prefix__print_sign_hash(t, f,
+	if (f->align != YIO_ALIGN_PADSIGN) {
+		const int err = YIO_printformat_prefix__print_sign_hash(t, f,
 				has_sign, has_hash, is_positive);
 		if (err) return err;
 	}
@@ -436,15 +436,15 @@ int YYIO_printformat_prefix(YYIO_printformat_t *pf) {
 }
 
 static inline
-int YYIO_printformat_suffix(YYIO_printformat_t *pf) {
+int YIO_printformat_suffix(YIO_printformat_t *pf) {
 	yio_printctx_t * const t = pf->t;
 	struct yio_printfmt_s * const f = &pf->t->pf;
 	const size_t alllen = pf->alllen;
 	const size_t width = yio_width_get_default(f->width, 0);
-	if ((f->align == YYIO_ALIGN_LEFT || f->align == YYIO_ALIGN_CENTER) && width > alllen) {
+	if ((f->align == YIO_ALIGN_LEFT || f->align == YIO_ALIGN_CENTER) && width > alllen) {
 		const size_t tmp = (width - alllen);
-		const size_t diff = f->align == YYIO_ALIGN_CENTER ? tmp / 2 + (tmp % 2) : tmp;
-		return YYIO_printctx_pad_write(t, f->fill ? f->fill : ' ', diff);
+		const size_t diff = f->align == YIO_ALIGN_CENTER ? tmp / 2 + (tmp % 2) : tmp;
+		return YIO_printctx_pad_write(t, f->fill ? f->fill : ' ', diff);
 	}
 	return 0;
 }
@@ -472,7 +472,7 @@ const char *get_group(yio_printctx_t *t) {
 	}
 #endif
 	//dbgln("HERE %c", (int)t->pf.type);
-	return YYIO_ANYEQ(t->pf.type, 'b', 'B', 'x', 'X') ? GROUP4 : GROUP3;
+	return YIO_ANYEQ(t->pf.type, 'b', 'B', 'x', 'X') ? GROUP4 : GROUP3;
 }
 
 struct numsep {
@@ -531,7 +531,7 @@ int print_dot(yio_printctx_t *t) {
 
 #if YIO_ENABLE_DIGIT_GROUPING
 static inline
-int YYIO_print_format_generic_number_grouping(yio_printctx_t *t, const char str[], size_t str_len) {
+int YIO_print_format_generic_number_grouping(yio_printctx_t *t, const char str[], size_t str_len) {
 	const char *num = str;
 	const char *const dotorend = str_dot_or_end(str, str_len);
 	size_t numlen = dotorend - str;
@@ -625,32 +625,32 @@ NUMSEP_END:
 #endif
 
 static inline
-int YYIO_printformat_print(YYIO_printformat_t *pf, const char str[], size_t str_len) {
+int YIO_printformat_print(YIO_printformat_t *pf, const char str[], size_t str_len) {
 	yio_printctx_t * const t = pf->t;
 #if YIO_ENABLE_DIGIT_GROUPING
 	struct yio_printfmt_s * const f = &pf->t->pf;
 	const bool is_number = pf->is_number;
 	if (is_number == true && f->grouping != '\0') {
-		return YYIO_print_format_generic_number_grouping(t, str, str_len);
+		return YIO_print_format_generic_number_grouping(t, str, str_len);
 	}
 #endif
 	return yio_printctx_raw_write(t, str, str_len);
 }
 
 static inline
-void YYIO_printformat_assert_valid(const struct yio_printfmt_s *pf) {
+void YIO_printformat_assert_valid(const struct yio_printfmt_s *pf) {
 	(void)pf;
-	assert(YYIO_ANYEQ(pf->align, 0, '<', '>', '=', '^'));
-	assert(YYIO_ANYEQ(pf->sign, 0, '+', '-', ' '));
-	assert(!YYIO_ANYEQ(pf->fill, '{', '}'));
+	assert(YIO_ANYEQ(pf->align, 0, '<', '>', '=', '^'));
+	assert(YIO_ANYEQ(pf->sign, 0, '+', '-', ' '));
+	assert(!YIO_ANYEQ(pf->fill, '{', '}'));
 #if YIO_ENABLE_DIGIT_GROUPING
-	assert(YYIO_ANYEQ(pf->grouping, 0, '_', ',', 'L'));
+	assert(YIO_ANYEQ(pf->grouping, 0, '_', ',', 'L'));
 #endif
 }
 
 /* ------------------------------------------------------------------------- */
 
-int YYIO_printformat_generic(yio_printctx_t *t,
+int YIO_printformat_generic(yio_printctx_t *t,
 		const char *str, size_t str_len, bool is_number, bool is_positive) {
 	// Detect inf/nan
 	const bool is_infnan = is_number && str_len >= 3 && (
@@ -667,13 +667,13 @@ int YYIO_printformat_generic(yio_printctx_t *t,
 		}
 	}
 	//
-	YYIO_printformat_assert_valid(&t->pf);
-	YYIO_printformat_t pf;
-	YYIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
-	int err = YYIO_printformat_prefix(&pf);
+	YIO_printformat_assert_valid(&t->pf);
+	YIO_printformat_t pf;
+	YIO_printformat_init(&pf, t, str, str_len, is_number, is_positive);
+	int err = YIO_printformat_prefix(&pf);
 	if (err) return err;
-	err = YYIO_printformat_print(&pf, str, str_len);
+	err = YIO_printformat_print(&pf, str, str_len);
 	if (err) return err;
-	return YYIO_printformat_suffix(&pf);
+	return YIO_printformat_suffix(&pf);
 }
 

@@ -12,9 +12,9 @@
 
 /**
  * A static list of error messages
- * that correspond to enumeration in enum YYIO_errors_e
+ * that correspond to enumeration in enum YIO_errors_e
  */
-static const char *const YYIO_error_messages[] = {
+static const char *const YIO_error_messages[] = {
 {% from "yio/yio_error.h" import j_ERRORS %}
 {% for v, k in j_ERRORS %} #line
 	"{{ k }}",  // {{ v }}
@@ -25,18 +25,18 @@ static const char *const YYIO_error_messages[] = {
 static const char unknown_error[] = "unknown error";
 
 const char *yio_strerror(int error) {
-	static_assert(sizeof(YYIO_error_messages)/sizeof(YYIO_error_messages[0]) > 1, "");
-	static_assert(sizeof(YYIO_error_messages)/sizeof(YYIO_error_messages[0]) < 100, "");
-	static_assert(sizeof(YYIO_error_messages)/sizeof(YYIO_error_messages[0]) ==
-			YYIO_ERROR_STOP - YYIO_ERROR_START - 1, "");
+	static_assert(sizeof(YIO_error_messages)/sizeof(YIO_error_messages[0]) > 1, "");
+	static_assert(sizeof(YIO_error_messages)/sizeof(YIO_error_messages[0]) < 100, "");
+	static_assert(sizeof(YIO_error_messages)/sizeof(YIO_error_messages[0]) ==
+			YIO_ERROR_STOP - YIO_ERROR_START - 1, "");
 
-	static_assert(YYIO_ERROR_START < YYIO_ERROR_STOP, "");
-	if (!(YYIO_ERROR_START < error && error < YYIO_ERROR_STOP)) {
+	static_assert(YIO_ERROR_START < YIO_ERROR_STOP, "");
+	if (!(YIO_ERROR_START < error && error < YIO_ERROR_STOP)) {
 		return unknown_error;
 	}
-	error -= (YYIO_ERROR_START + 1);
+	error -= (YIO_ERROR_START + 1);
 	assert(0 <= error);
-	assert(error < (int)(sizeof(YYIO_error_messages)/sizeof(YYIO_error_messages[0])));
-	return YYIO_error_messages[error];
+	assert(error < (int)(sizeof(YIO_error_messages)/sizeof(YIO_error_messages[0])));
+	return YIO_error_messages[error];
 }
 

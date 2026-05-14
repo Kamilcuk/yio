@@ -8,7 +8,7 @@
  */
 #include "yio_config.h"
 // {#+
-#ifdef YYIO_CDT_PARSER
+#ifdef YIO_CDT_PARSER
 #include <yio/yio_print_arguments.h>
 #include <yio/yio_error.h>
 #include <yio/yio_version.h>

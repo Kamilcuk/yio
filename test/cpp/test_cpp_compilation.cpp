@@ -75,7 +75,7 @@ int main() {
     assert(err >= 0);
     assert(count == 15);
     
-#if YYIO_HAS_INT128
+#if YIO_HAS_INT128
     __int128 i128 = 1234567890123456789;
     i128 *= 1000000;
     err = yio_printf("Int128: {}\n", i128);

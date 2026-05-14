@@ -10,10 +10,10 @@ YIO_TEST_BUF_ATTR YIO_TEST_BUF_AT char yyio_test_buf[32];
 #include <ds80c390.h>
 #endif
 #if defined(__SDCC_mcs51) || defined(__SDCC_ds390) || defined(__SDCC_ds400)
-static volatile YYIO_XDATA YYIO_AT(0xffff) unsigned char SIM_CONTROL;
-static volatile YYIO_XDATA YYIO_AT(0x00fe) unsigned char EXIT_CODE;
+static volatile YIO_XDATA YIO_AT(0xffff) unsigned char SIM_CONTROL;
+static volatile YIO_XDATA YIO_AT(0x00fe) unsigned char EXIT_CODE;
 #elif defined(__SDCC_stm8)
-static volatile YYIO_AT(0x5800) unsigned char SIM_CONTROL;
+static volatile YIO_AT(0x5800) unsigned char SIM_CONTROL;
 static volatile unsigned char EXIT_CODE;
 #else
 static volatile unsigned char SIM_CONTROL;

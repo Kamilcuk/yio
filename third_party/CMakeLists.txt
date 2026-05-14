@@ -28,7 +28,7 @@ if(NOT YIO_SDCC)
         "${CMAKE_CURRENT_SOURCE_DIR}/ryu"
       )
 
-      if(YYIO_HAS_INT128)
+      if(YIO_HAS_INT128)
         target_sources(yio_ryu PRIVATE ./ryu/ryu/generic_128.c)
       endif()
       if(CMAKE_C_COMPILER_ID STREQUAL "GNU")

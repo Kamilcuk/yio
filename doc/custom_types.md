@@ -81,12 +81,12 @@ int main() {
 ```
 
 #### How it works:
-The `YIO_ADD_TYPE_INC()` header (typically `slots.h`) uses preprocessor logic to incrementally redefine the `YYIO_PRINT_FUNC_GENERIC_SLOTS` macro. 
+The `YIO_ADD_TYPE_INC()` header (typically `slots.h`) uses preprocessor logic to incrementally redefine the `YIO_PRINT_FUNC_GENERIC_SLOTS` macro. 
 
 Each inclusion:
-1.  **Increments** an internal counter (`YYIO_COUNTER`).
+1.  **Increments** an internal counter (`YIO_COUNTER`).
 2.  **Appends** your new type mapping (e.g., `struct my_type: my_type_printer`) to the list of types handled by the core `_Generic` dispatcher.
-3.  **Redefines** `YYIO_PRINT_FUNC_GENERIC_SLOTS` to contain all types registered so far.
+3.  **Redefines** `YIO_PRINT_FUNC_GENERIC_SLOTS` to contain all types registered so far.
 
 This effectively "stitches" your user-defined types into the library's type-detection logic at compile time, allowing `yio_printf` to recognize them as if they were built-in types. The maximum number of available slots is defined by `YIO_MAX_CUSTOM_SLOTS` in CMake (default: 100).
 

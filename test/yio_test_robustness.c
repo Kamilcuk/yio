@@ -89,29 +89,29 @@ static void test_type_edges(void) {
 /* 6. SSO and Dynamic Transition */
 #if YIO_ENABLE_MALLOC
 static void test_sso_transition(void) {
-    YYIO_string s = {0};
+    YIO_string s = {0};
 
     /* SSO mode */
-    YIO_TESTEXPR(YYIO_string_putsn(&s, "Small", strlen("Small")) == 0);
-    YIO_TESTEXPR(!YYIO_string_is_dynamic(&s));
-    YIO_TESTEXPR(YYIO_string_len(&s) == 5);
+    YIO_TESTEXPR(YIO_string_putsn(&s, "Small", strlen("Small")) == 0);
+    YIO_TESTEXPR(!YIO_string_is_dynamic(&s));
+    YIO_TESTEXPR(YIO_string_len(&s) == 5);
     /* Need null terminator for strcmp */
-    YIO_TESTEXPR(YYIO_string_putc(&s, '\0') == 0);
-    YIO_TESTEXPR(strcmp(YYIO_string_data(&s), "Small") == 0);
-    YYIO_string_set_used(&s, 5); /* Reset length back to 5 */
+    YIO_TESTEXPR(YIO_string_putc(&s, '\0') == 0);
+    YIO_TESTEXPR(strcmp(YIO_string_data(&s), "Small") == 0);
+    YIO_string_set_used(&s, 5); /* Reset length back to 5 */
 
     /* Fill SSO to the limit (16 on 64-bit, 12 on 32-bit) */
-    while (YYIO_string_len(&s) < YYIO_string_capacity(&s)) {
-        YIO_TESTEXPR(YYIO_string_putc(&s, 'A') == 0);
+    while (YIO_string_len(&s) < YIO_string_capacity(&s)) {
+        YIO_TESTEXPR(YIO_string_putc(&s, 'A') == 0);
     }
-    YIO_TESTEXPR(!YYIO_string_is_dynamic(&s));
+    YIO_TESTEXPR(!YIO_string_is_dynamic(&s));
 
     /* Transition to dynamic */
-    YIO_TESTEXPR(YYIO_string_putc(&s, 'B') == 0);
-    YIO_TESTEXPR(YYIO_string_is_dynamic(&s));
-    YIO_TESTEXPR(YYIO_string_data(&s)[YYIO_string_len(&s)-1] == 'B');
+    YIO_TESTEXPR(YIO_string_putc(&s, 'B') == 0);
+    YIO_TESTEXPR(YIO_string_is_dynamic(&s));
+    YIO_TESTEXPR(YIO_string_data(&s)[YIO_string_len(&s)-1] == 'B');
 
-    YYIO_string_fini(&s);
+    YIO_string_fini(&s);
 }
 #endif
 

@@ -7,14 +7,14 @@
 
 #include <stdio.h>
 int main() {
-	#if !YYIO_HAS_STDFIX_TYPES
+	#if !YIO_HAS_STDFIX_TYPES
 	return EXIT_SKIP;
 	#else
 	{% call(V) j_FOREACHAPPLY(j_STDFIX) %}
 #line
-#ifdef YYIO_STDFIX_$3
+#ifdef YIO_STDFIX_$3
 	{
-		const $2 max = YYIO_$3_MAX;
+		const $2 max = YIO_$3_MAX;
 		
 		yio_fprintf(stderr, "Testing type: $2 ($3)\n");
 

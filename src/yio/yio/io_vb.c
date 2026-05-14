@@ -15,13 +15,13 @@
 /* yio_vbprintf helpers ------------------------------------------------------ */
 
 static inline
-int YYIO_yio_vbprintf_iterate_until_format_callback(yio_printctx_t *t, const char *begin, const char *end) {
+int YIO_yio_vbprintf_iterate_until_format_callback(yio_printctx_t *t, const char *begin, const char *end) {
 	//fprintf(stderr, "PO:out=`%.*s`\n", (int)(end - begin), begin);
 	return yio_printctx_raw_write(t, begin, (size_t)(end - begin));
 }
 
-static inline YYIO_nn(1, 2, 3)
-int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *__single t, const char *__null_terminated fmt, const char *__bidi_indexable *__single endptr) {
+static inline YIO_nn(1, 2, 3)
+int YIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *__single t, const char *__null_terminated fmt, const char *__bidi_indexable *__single endptr) {
 	assert(fmt != NULL);
 	const char *pos = fmt;
 	while (fmt[0] != '\0') {
@@ -34,7 +34,7 @@ int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *__single t, const ch
 			if (fmt != pos) {
 				// If we are at start, we can flush already known characters,
 				// and continue one after.
-				const int err = YYIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt + 1);
+				const int err = YIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt + 1);
 				if (err) return err;
 				pos = fmt + 2;
 				fmt = pos;
@@ -46,14 +46,14 @@ int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *__single t, const ch
 			continue;
 		}
 		if (fmt[0] == '}') {
-			return YYIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
+			return YIO_ERROR(YIO_ERROR_SINGLE_RIGHT_BRACE, "single '}' found ousidef of format specifier");
 		}
 		// {} or {:stuff} found
 		break;
 	}
 	if (fmt != pos) {
 		// Flush skipped characters up until now.
-		const int err = YYIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt);
+		const int err = YIO_yio_vbprintf_iterate_until_format_callback(t, pos, fmt);
 		if (err) return err;
 	}
 	//
@@ -64,13 +64,13 @@ int YYIO_yio_vbgeneric_iterate_until_format(yio_printctx_t *__single t, const ch
 /* yio_vbprintf ----------------------------------------------------------- */
 
 static inline
-int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
+int YIO_yio_vbprintf_in(yio_printctx_t *t) {
 	if (t->fmt == NULL) {
 		if (t->ifunc == NULL) {
 			return 0;
 		}
 		for (; *t->ifunc != NULL; ++t->ifunc) {
-			t->pf = YYIO_printfmt_zero;
+			t->pf = YIO_printfmt_zero;
 			const int ifuncret = (*t->ifunc)(t);
 			if (ifuncret) {
 				return ifuncret;
@@ -80,20 +80,20 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 	}
 	int err = 0;
 #if YIO_ENABLE_DYNAMIC_PFMT
-	YYIO_skipper skipper = {0};
+	YIO_skipper skipper = {0};
 #endif
 	while (1) {
-		err = YYIO_yio_vbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
+		err = YIO_yio_vbgeneric_iterate_until_format(t, t->fmt, &t->fmt);
 		if (err) return err;
 		if (t->fmt[0] == '\0') break;
 		assert(t->fmt[0] == '{');
 		t->fmt++;
 		//
-		t->pf = YYIO_printfmt_zero;
+		t->pf = YIO_printfmt_zero;
 #if YIO_ENABLE_DYNAMIC_PFMT
-		if (YYIO_isdigit(t->fmt[0])) {
-			const unsigned count = YYIO_printctx_strtou_noerr(&t->fmt);
-			err = YYIO_skipper_do(&skipper, t, count);
+		if (YIO_isdigit(t->fmt[0])) {
+			const unsigned count = YIO_printctx_strtou_noerr(&t->fmt);
+			err = YIO_skipper_do(&skipper, t, count);
 			if (err) goto EXIT;
 		}
 #endif
@@ -110,15 +110,15 @@ int YYIO_yio_vbprintf_in(yio_printctx_t *t) {
 		}
 		err = (*t->ifunc++)(t);
 		if (err) goto EXIT;
-		YYIO_skipper_end(&skipper, t);
+		YIO_skipper_end(&skipper, t);
 	}
 	return 0;
 EXIT:
-	YYIO_skipper_end(&skipper, t);
+	YIO_skipper_end(&skipper, t);
 	return err;
 }
 
-int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, va_list *va) {
+int yio_vbprintf(YIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, va_list *va) {
 	assert(out != NULL);
 	assert(data != NULL);
 	assert(va != NULL);
@@ -135,7 +135,7 @@ int yio_vbprintf(YYIO_printcb_t *out, void *arg, const yio_printdata_t *data, co
 	ctx.startifunc = data;
 #endif
 	yio_printctx_t * const t = &ctx;
-	const int err = YYIO_yio_vbprintf_in(t);
+	const int err = YIO_yio_vbprintf_in(t);
 #if YIO_ENABLE_DYNAMIC_PFMT
 	va_end(startva);
 #endif

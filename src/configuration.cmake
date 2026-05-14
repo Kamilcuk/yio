@@ -118,7 +118,7 @@ making it much easier to debug template-related issues in development.
 ]=])
 set(YIO_GENERATE_LINE_DIRECTIVES 0 CACHE BOOL "${YIO_GENERATE_LINE_DIRECTIVES_COMMENT}")
 
-set(YYIO_FIX_CLANG_STDFIX_COMMENT [=[
+set(YIO_FIX_CLANG_STDFIX_COMMENT [=[
 Enable workaround for Clang fixed-point variadic argument bug.
 On x86_64, Clang incorrectly extracts fixed-point types from the stack overflow
 area instead of the general-purpose register area where they are passed.
@@ -126,8 +126,8 @@ This fix forces extraction as integer types followed by a bit-cast.
 See: https://github.com/llvm/llvm-project/issues/196279
 ]=])
 if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-	set(YYIO_FIX_CLANG_STDFIX 1 CACHE BOOL "${YYIO_FIX_CLANG_STDFIX_COMMENT}")
+	set(YIO_FIX_CLANG_STDFIX 1 CACHE BOOL "${YIO_FIX_CLANG_STDFIX_COMMENT}")
 else()
-	set(YYIO_FIX_CLANG_STDFIX 0 CACHE BOOL "${YYIO_FIX_CLANG_STDFIX_COMMENT}")
+	set(YIO_FIX_CLANG_STDFIX 0 CACHE BOOL "${YIO_FIX_CLANG_STDFIX_COMMENT}")
 endif()
-yio_config_gen_add_value(YYIO_FIX_CLANG_STDFIX "${YYIO_FIX_CLANG_STDFIX}")
+yio_config_gen_add_value(YIO_FIX_CLANG_STDFIX "${YIO_FIX_CLANG_STDFIX}")

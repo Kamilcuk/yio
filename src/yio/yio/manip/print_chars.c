@@ -8,8 +8,8 @@
 #include "private.h"
 #include <string.h>
 
-static size_t YYIO_strnlen(const char *str, size_t maxlen) {
-#if YYIO_HAS_strnlen && !defined(__SDCC)
+static size_t YIO_strnlen(const char *str, size_t maxlen) {
+#if YIO_HAS_strnlen && !defined(__SDCC)
 	return strnlen(str, maxlen);
 #else
 	const char *str0 = str;
@@ -20,7 +20,7 @@ static size_t YYIO_strnlen(const char *str, size_t maxlen) {
 #endif
 }
 
-int YYIO_print_char(yio_printctx_t *t) {
+int YIO_print_char(yio_printctx_t *t) {
 #if UINT_MAX >= UCHAR_MAX
 	typedef int promoted_char;
 #else
@@ -40,14 +40,14 @@ int YYIO_print_char(yio_printctx_t *t) {
 		case 'o':
 		case 'x':
 		case 'X':
-			return YYIO_print_uint_in(t, arg, false);
+			return YIO_print_uint_in(t, arg, false);
 		default:
 			return YIO_ERROR_INVALID_TYPE;
 	}
 	return YIO_ERROR_INVALID_TYPE;
 }
 
-int YYIO_print_constcharpnt(yio_printctx_t *t) {
+int YIO_print_constcharpnt(yio_printctx_t *t) {
 	const char *const str1 = yio_printctx_va_arg(t, const char *);
 	const int err = yio_printctx_init(t);
 	if (err) return err;
@@ -57,7 +57,7 @@ int YYIO_print_constcharpnt(yio_printctx_t *t) {
 		return YIO_ERROR_INVALID_TYPE;
 	}
 	const size_t precision = yio_precision_get_default(pf->precision, SIZE_MAX);
-	const size_t len = precision != SIZE_MAX ? YYIO_strnlen(str, precision) : strlen(str);
+	const size_t len = precision != SIZE_MAX ? YIO_strnlen(str, precision) : strlen(str);
 	return yio_printctx_put(t, str, len);
 }
 

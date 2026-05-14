@@ -11,7 +11,7 @@ set(reprs B16 B32 B64 B80 B128 D32 D64 D128)
 foreach(bb IN LISTS backends)
 	foreach(rr IN LISTS reprs)
 		target_link_options(correct_function_is_chosen PRIVATE
-			-Wl,--wrap=YYIO_float_astrfrom_${bb}_${rr}
+			-Wl,--wrap=YIO_float_astrfrom_${bb}_${rr}
 		)
 	endforeach()
 endforeach()

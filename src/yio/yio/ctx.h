@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_CTX_H_
-#define YYIO_YIO_YIO_CTX_H_
+#ifndef YIO_YIO_YIO_CTX_H_
+#define YIO_YIO_YIO_CTX_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -52,7 +52,7 @@ struct yio_printfmt_s {
 	bool hash;
 };
 
-static const struct yio_printfmt_s YYIO_printfmt_zero = {0};
+static const struct yio_printfmt_s YIO_printfmt_zero = {0};
 
 /// Get the width, falling back to a default if unset (0).
 static inline size_t yio_width_get_default(uint16_t width, size_t default_val) {
@@ -67,7 +67,7 @@ static inline size_t yio_precision_get_default(uint16_t precision, size_t defaul
 /**
  * The structure that allows for printing context manipulation.
  */
-struct YYIO_printctx_s {
+struct YIO_printctx_s {
 	/// Current iterator in the format string.
 	const char * __null_terminated fmt;
 	/// va_list of current argument.
@@ -81,7 +81,7 @@ struct YYIO_printctx_s {
 	const yio_printdata_t * __null_terminated startifunc;
 #endif
 	/// The outputting function.
-	YYIO_printcb_t * __single out;
+	YIO_printcb_t * __single out;
 	/// User argument for outputting functions.
 	void * __single outarg;
 	/// The count of characters written.
@@ -101,9 +101,9 @@ typedef struct {
 	const yio_printdata_t __null_terminated *saveifunc;
 	va_list *saveva;
 	va_list va;
-} YYIO_skipper;
+} YIO_skipper;
 
-static int YYIO_skip_do_in(YYIO_skipper *s, yio_printctx_t *t, unsigned char count) {
+static int YIO_skip_do_in(YIO_skipper *s, yio_printctx_t *t, unsigned char count) {
 	// Setup
 	assert(s->saveifunc == NULL);
 	s->saveva = t->va;
@@ -122,7 +122,7 @@ static int YYIO_skip_do_in(YYIO_skipper *s, yio_printctx_t *t, unsigned char cou
 	t->fmt = savefmt;
 	return 0;
 }
-static bool YYIO_skip_end_in(YYIO_skipper *s, yio_printctx_t *t) {
+static bool YIO_skip_end_in(YIO_skipper *s, yio_printctx_t *t) {
 	if (s->saveifunc) {
 		t->ifunc = s->saveifunc;
 		t->va = s->saveva;
@@ -131,11 +131,11 @@ static bool YYIO_skip_end_in(YYIO_skipper *s, yio_printctx_t *t) {
   }
 	return false;
 }
-#define YYIO_skipper_do(s, t, count)  (va_copy((s)->va, *(t)->startva), YYIO_skip_do_in(s, t, count))
-#define YYIO_skipper_end(s, t) do { if (YYIO_skip_end_in(s, t)) va_end((s)->va); } while(0)
+#define YIO_skipper_do(s, t, count)  (va_copy((s)->va, *(t)->startva), YIO_skip_do_in(s, t, count))
+#define YIO_skipper_end(s, t) do { if (YIO_skip_end_in(s, t)) va_end((s)->va); } while(0)
 #else
-#define YYIO_skipper_setup(s, t, count) /* */
-#define YYIO_skipper_end(s, t) /* */
+#define YIO_skipper_setup(s, t, count) /* */
+#define YIO_skipper_end(s, t) /* */
 #endif
 
 /**
@@ -144,12 +144,12 @@ static bool YYIO_skip_end_in(YYIO_skipper *s, yio_printctx_t *t) {
  * @param ptr
  * @return The converted number.
  */
-unsigned int YYIO_printctx_strtou_noerr(const char **ptr);
+unsigned int YIO_printctx_strtou_noerr(const char **ptr);
 
 /**
  * Parse the width or precision param, that can be either a number of a positional parameter.
  */
-int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *ptr, const char **endptr, uint16_t *res);
+int YIO_printctx_stdintparam(yio_printctx_t *t, const char *ptr, const char **endptr, uint16_t *res);
 
 /**
  * Parse python formatting string.
@@ -159,8 +159,8 @@ int YYIO_printctx_stdintparam(yio_printctx_t *t, const char *ptr, const char **e
  * @param endptr Will be set to the last character parsed in fmt
  * @return 0 on success, otherwise error
  */
-YYIO_wur YYIO_nn()
-int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
+YIO_wur YIO_nn()
+int YIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
 		const char *fmt, const char **endptr);
 
 /* printctx ---------------------------------------------------- */
@@ -170,7 +170,7 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
  * Gets the next argument from variadic arguments stack. The argument has type @c type.
  * The type argument undergoes implicit conversion when calling a variadic function,
  * so char, short is converted to int, float is converted to double.
- * If it errors on you, that means that @c type is not a promoted type, see YYIO_IS_PROMOTED_TYPE
+ * If it errors on you, that means that @c type is not a promoted type, see YIO_IS_PROMOTED_TYPE
  * @def yio_printctx_va_arg(printctx, type)
  * @param printctx Printing context, pointer to yio_printctx_t
  * @param type Type of argument passed to va_list.
@@ -211,16 +211,16 @@ int YYIO_pfmt_parse(yio_printctx_t *c, struct yio_printfmt_s *pf,
 		)
 #endif
 
-static const uint16_t YYIO_PRECISION_MAX = UINT16_MAX - 1;
+static const uint16_t YIO_PRECISION_MAX = UINT16_MAX - 1;
 
-YYIO_wur YYIO_nn() static inline int YYIO_printctx_init_in(yio_printctx_t *t) {
+YIO_wur YIO_nn() static inline int YIO_printctx_init_in(yio_printctx_t *t) {
 #if YIO_ENABLE_DYNAMIC_PFMT
 	if (t->skip) {
 		t->skip--;
-		return YYIO_ERROR(YIO_ERROR_SKIPPING, "error part of skipping arguments when iterating over them");
+		return YIO_ERROR(YIO_ERROR_SKIPPING, "error part of skipping arguments when iterating over them");
 	}
 #endif
-	return t->fmt ? YYIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt) : 0;
+	return t->fmt ? YIO_pfmt_parse(t, &t->pf, t->fmt, &t->fmt) : 0;
 }
 
 /**
@@ -233,26 +233,26 @@ YYIO_wur YYIO_nn() static inline int YYIO_printctx_init_in(yio_printctx_t *t) {
  * @param t
  * @return 0 on succes, otherwise error.
  */
-YYIO_wur YYIO_nn() static inline int yio_printctx_init(yio_printctx_t *t) {
+YIO_wur YIO_nn() static inline int yio_printctx_init(yio_printctx_t *t) {
 	if (t->out == NULL) {
-		return YYIO_ERROR(YIO_ERROR_DYNAMIC_NOT_NUMBER, "dynamic width or precision must be an integer");
+		return YIO_ERROR(YIO_ERROR_DYNAMIC_NOT_NUMBER, "dynamic width or precision must be an integer");
 	}
-	return YYIO_printctx_init_in(t);
+	return YIO_printctx_init_in(t);
 }
 
 /**
  * Similar to @c yio_printctx_init, but if @c t->out is NULL, it will store @c val
- * in @c t->pf.precision (mapped as val+1) and return @c YYIO_PRINTCTX_INIT_OR_NUMBER_MAGIC.
+ * in @c t->pf.precision (mapped as val+1) and return @c YIO_PRINTCTX_INIT_OR_NUMBER_MAGIC.
  */
 static inline int yio_printctx_init_or_number(yio_printctx_t *t, int val) {
 	if (t->out == NULL) {
 		if (val < 0) {
-			return YYIO_ERROR(YIO_ERROR_DYNAMIC_NEGATIVE, "dynamic width or precision cannot be negative");
+			return YIO_ERROR(YIO_ERROR_DYNAMIC_NEGATIVE, "dynamic width or precision cannot be negative");
 		}
-		t->pf.precision = (uint16_t)(val >= (int)YYIO_PRECISION_MAX ? YYIO_PRECISION_MAX : (uint16_t)val) + 1;
-		return YYIO_ERROR(YIO_ERROR_GOT_DYNAMIC_VALUE, "dynamic parameter consumed");
+		t->pf.precision = (uint16_t)(val >= (int)YIO_PRECISION_MAX ? YIO_PRECISION_MAX : (uint16_t)val) + 1;
+		return YIO_ERROR(YIO_ERROR_GOT_DYNAMIC_VALUE, "dynamic parameter consumed");
 	}
-	return YYIO_printctx_init_in(t);
+	return YIO_printctx_init_in(t);
 }
 
 static inline int yio_printctx_err_skip(yio_printctx_t *t, int err, unsigned count) {
@@ -274,7 +274,7 @@ static inline int yio_printctx_err_skip(yio_printctx_t *t, int err, unsigned cou
  * @param size
  * @return 0 on success, otherwise error.
  */
-YYIO_wur YYIO_nn() YYIO_access_r(2, 3)
+YIO_wur YIO_nn() YIO_access_r(2, 3)
 int yio_printctx_raw_write(yio_printctx_t *t, const char *ptr, size_t size);
 
 /**
@@ -283,7 +283,7 @@ int yio_printctx_raw_write(yio_printctx_t *t, const char *ptr, size_t size);
  * @param t
  * @return The return value of the next formatting function.
  */
-YYIO_wur YYIO_nn()
+YIO_wur YIO_nn()
 int yio_printctx_next(yio_printctx_t *t);
 
 /**
@@ -303,8 +303,8 @@ struct yio_printfmt_s *yio_printctx_get_fmt(yio_printctx_t *t) {
  * @param data
  * @return
  */
-YYIO_wur YYIO_nn(1, 2, 4)
-int YYIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, va_list *va);
+YIO_wur YIO_nn(1, 2, 4)
+int YIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, va_list *va);
 
 /**
  * Internal callback called from
@@ -313,8 +313,8 @@ int YYIO_printctx_vprint_in(yio_printctx_t *t, const yio_printdata_t *data, cons
  * @param data
  * @return
  */
-YYIO_wur YYIO_nn(1, 2)
-int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, ...);
+YIO_wur YIO_nn(1, 2)
+int YIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const char *fmt, ...);
 
 /**
  * Use it to print data from inside a printing context.
@@ -323,7 +323,7 @@ int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const
  * @return int 0 on success, otherwise error
  */
 #define yio_printctx_printf(printctx, ...)  \
-		YYIO_printctx_print_in(printctx, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+		YIO_printctx_print_in(printctx, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
 
 /**
  * Generic formatter to output stuff formatted according to python standard format specification.
@@ -334,27 +334,27 @@ int YYIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const
  * @param is_positive If @c str is a number, is it a positive or negative number?
  * @return 0 on success, otherwise error.
  */
-YYIO_wur YYIO_nn()
-int YYIO_printformat_generic(yio_printctx_t *t,
+YIO_wur YIO_nn()
+int YIO_printformat_generic(yio_printctx_t *t,
 		const char *str, size_t str_len, bool is_number, bool is_positive);
 
 /**
  * From printing context output a string
- * @see YYIO_printformat_generic
+ * @see YIO_printformat_generic
  */
-YYIO_wur YYIO_nn() static inline
+YIO_wur YIO_nn() static inline
 int yio_printctx_put(yio_printctx_t *t, const char *str, size_t str_len) {
-	return YYIO_printformat_generic(t, str, str_len, false, false);
+	return YIO_printformat_generic(t, str, str_len, false, false);
 }
 
 /**
  * From printing context output a number.
  * The @c str argument has to consist of only digits.
- * @see YYIO_printformat_generic
+ * @see YIO_printformat_generic
  */
-YYIO_wur YYIO_nn() static inline
+YIO_wur YIO_nn() static inline
 int yio_printctx_put_number(yio_printctx_t *t, const char *str, size_t str_len, bool is_positive) {
-	return YYIO_printformat_generic(t, str, str_len, true, is_positive);
+	return YIO_printformat_generic(t, str, str_len, true, is_positive);
 }
 
 
@@ -365,4 +365,4 @@ int yio_printctx_put_number(yio_printctx_t *t, const char *str, size_t str_len, 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_CTX_H_
+#endif // YIO_YIO_YIO_CTX_H_

@@ -11,7 +11,7 @@
 #include "yio/private/yio_allochelp.h"
 #include <assert.h>
 #include <time.h>
-#if (YYIO_HAS_timespec || YYIO_HAS_timeval) && YYIO_HAS_SYS_TIME_H
+#if (YIO_HAS_timespec || YIO_HAS_timeval) && YIO_HAS_SYS_TIME_H
 #include <sys/time.h>
 #endif
 #ifndef __SDCC
@@ -22,7 +22,7 @@
 // conversion_spec    ::=  "%" [modifier] chrono_type
 // literal_char       ::=  <a character other than '{', '}' or '%'>
 static inline
-int YYIO_print_time_parse_format(yio_printctx_t *t, const char **beginptr, const char **endptr) {
+int YIO_print_time_parse_format(yio_printctx_t *t, const char **beginptr, const char **endptr) {
 	const char *fmt = t->fmt;
 	const char *chrono_specs = fmt;
 	struct yio_printfmt_s *const pf = &t->pf;
@@ -30,25 +30,25 @@ int YYIO_print_time_parse_format(yio_printctx_t *t, const char **beginptr, const
 	if (fmt != NULL) {
 		if (fmt[0] != '\0') {
 			// guess [[fill]align]
-			if (YYIO_ANYEQ(fmt[1], '<', '>', '=', '^')) {
+			if (YIO_ANYEQ(fmt[1], '<', '>', '=', '^')) {
 				pf->fill = fmt++[0];
 				pf->align = fmt++[0];
-			} else if (YYIO_ANYEQ(fmt[0], '<', '>', '=', '^')) {
+			} else if (YIO_ANYEQ(fmt[0], '<', '>', '=', '^')) {
 				pf->align = fmt++[0];
 			}
 		}
 		if (fmt[0] != '\0') {
 			// guess width
-			const int err = YYIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
+			const int err = YIO_printctx_stdintparam(t, fmt, &fmt, &pf->width);
 			if (err) return err;
 		}
 		if (fmt[0] == '.') {
 			// guess precision
 			fmt++;
 			if (fmt[0] == '\0') {
-				return YYIO_ERROR(YIO_ERROR_TIME_MISSING_PRECISION, "Missing precision when parsing time format specifier");
+				return YIO_ERROR(YIO_ERROR_TIME_MISSING_PRECISION, "Missing precision when parsing time format specifier");
 			}
-			const int err = YYIO_printctx_stdintparam(t, fmt, &fmt, &pf->precision);
+			const int err = YIO_printctx_stdintparam(t, fmt, &fmt, &pf->precision);
 			if (err) return err;
 		}
 		// chrono_specs preserve as-is
@@ -57,7 +57,7 @@ int YYIO_print_time_parse_format(yio_printctx_t *t, const char **beginptr, const
 			fmt++;
 		}
 		if (fmt[0] != '}') {
-			return YYIO_ERROR(YIO_ERROR_TIME_MISSING_RIGHT_BRACE, "Missing '}' when parsing time format specifier");
+			return YIO_ERROR(YIO_ERROR_TIME_MISSING_RIGHT_BRACE, "Missing '}' when parsing time format specifier");
 		}
 	}
 	*beginptr = chrono_specs;
@@ -66,11 +66,11 @@ int YYIO_print_time_parse_format(yio_printctx_t *t, const char **beginptr, const
 }
 
 static inline
-int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
+int YIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	//
 	const char *fmtbegin = NULL;
 	const char *fmtend = NULL;
-	int err = YYIO_print_time_parse_format(t, &fmtbegin, &fmtend);
+	int err = YIO_print_time_parse_format(t, &fmtbegin, &fmtend);
 	if (err) return err;
 	// Advance global fmt.
 	if (t->fmt) {
@@ -85,8 +85,8 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 
 	// Extract the format string.
 	// Add additional space.
-	YYIO_string fmtbut;
-	YYIO_string_init(&fmtbut);
+	YIO_string fmtbut;
+	YIO_string_init(&fmtbut);
 	const char *const emptyformat = "%c ";
 	const char *format = NULL;
 	if (realfmtlen == 0) {
@@ -95,9 +95,9 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	} else {
 		// Add additional space.
 		const ptrdiff_t fmtlen = realfmtlen + 2;
-		err = YYIO_string_reserve(&fmtbut, fmtlen);
+		err = YIO_string_reserve(&fmtbut, fmtlen);
 		if (err) return err;
-		char *data = YYIO_string_data(&fmtbut);
+		char *data = YIO_string_data(&fmtbut);
 		memcpy(data, fmtbegin, realfmtlen);
 		data[fmtlen - 2] = ' ';
 		data[fmtlen - 1] = '\0';
@@ -107,46 +107,46 @@ int YYIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	assert(strlen(format) >= 1);
 	assert(format[strlen(format) - 1] == ' ');
 	//
-	YYIO_string res;
-	YYIO_string_init(&res);
-	err = YYIO_astrftime_nonzero(&res, format, tm);
-	YYIO_string_fini(&fmtbut);
+	YIO_string res;
+	YIO_string_init(&res);
+	err = YIO_astrftime_nonzero(&res, format, tm);
+	YIO_string_fini(&fmtbut);
 	if (err == 0) {
-		assert(YYIO_string_len(&res) > 1);
-		const size_t reslen = YYIO_string_len(&res) - 1;
+		assert(YIO_string_len(&res) > 1);
+		const size_t reslen = YIO_string_len(&res) - 1;
 		const struct yio_printfmt_s *const pf = &t->pf;
 		const size_t toprint = pf->precision == 0 ? reslen :
 			reslen < yio_precision_get_default(pf->precision, 0) ? reslen :
 			yio_precision_get_default(pf->precision, 0);
-		err = yio_printctx_put(t, YYIO_string_data(&res), toprint);
+		err = yio_printctx_put(t, YIO_string_data(&res), toprint);
 	}
-	YYIO_string_fini(&res);
+	YIO_string_fini(&res);
 	return err;
 }
 
-int YYIO_print_tm(yio_printctx_t *t) {
+int YIO_print_tm(yio_printctx_t *t) {
 	const struct tm tm = yio_printctx_va_arg(t, struct tm);
-	return YYIO_print_time_strftime(t, &tm);
+	return YIO_print_time_strftime(t, &tm);
 }
 
-int YYIO_print_tm_pointer(yio_printctx_t *t) {
+int YIO_print_tm_pointer(yio_printctx_t *t) {
 	const struct tm *tm = yio_printctx_va_arg(t, struct tm*);
 	if (tm == NULL) return YIO_ERROR_INVALID_TYPE;
-	return YYIO_print_time_strftime(t, tm);
+	return YIO_print_time_strftime(t, tm);
 }
 
-int YYIO_print_localtime(yio_printctx_t *t) {
+int YIO_print_localtime(yio_printctx_t *t) {
 	time_t arg = yio_printctx_va_arg(t, time_t);
 	struct tm *tm = localtime(&arg);
-	if (tm == NULL) return YYIO_ERROR(YIO_ERROR_LOCALTIME, "localtime returned NULL");
-	return YYIO_print_time_strftime(t, tm);
+	if (tm == NULL) return YIO_ERROR(YIO_ERROR_LOCALTIME, "localtime returned NULL");
+	return YIO_print_time_strftime(t, tm);
 }
 
-int YYIO_print_gmtime(yio_printctx_t *t) {
+int YIO_print_gmtime(yio_printctx_t *t) {
 	time_t arg = yio_printctx_va_arg(t, time_t);
 	struct tm *tm = gmtime(&arg);
-	if (tm == NULL) return YYIO_ERROR(YIO_ERROR_GMTIME, "gmtime returned NULL");
-	return YYIO_print_time_strftime(t, tm);
+	if (tm == NULL) return YIO_ERROR(YIO_ERROR_GMTIME, "gmtime returned NULL");
+	return YIO_print_time_strftime(t, tm);
 }
 
 

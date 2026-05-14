@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_CTX_TYPES_H_
-#define YYIO_YIO_YIO_CTX_TYPES_H_
+#ifndef YIO_YIO_YIO_CTX_TYPES_H_
+#define YIO_YIO_YIO_CTX_TYPES_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -18,7 +18,7 @@ extern "C" {
 /**
  * Print context.
  */
-typedef struct YYIO_printctx_s yio_printctx_t;
+typedef struct YIO_printctx_s yio_printctx_t;
 
 /**
  * The type representing a callback that will write output data to the user specified place.
@@ -27,8 +27,8 @@ typedef struct YYIO_printctx_s yio_printctx_t;
  * @param count Count of characters to print
  * @return 0 on success, otherwise error
  */
-typedef int (YYIO_printcb_t)(void *arg, const char * __sized_by(count) data, size_t count)
-		YYIO_wur YYIO_nn(2) YYIO_access_r(2, 3) YYIO_REENTRANT;
+typedef int (YIO_printcb_t)(void *arg, const char * __sized_by(count) data, size_t count)
+		YIO_wur YIO_nn(2) YIO_access_r(2, 3) YIO_REENTRANT;
 
 /**
  * The type of callback functions, but abstractly, this represents
@@ -44,9 +44,9 @@ typedef int (YYIO_printcb_t)(void *arg, const char * __sized_by(count) data, siz
  * @param t Printing context.
  * @return 0 on success, otherwise error.
  */
-typedef int (*yio_printdata_t)(yio_printctx_t * __single t) YYIO_REENTRANT;
+typedef int (*yio_printdata_t)(yio_printctx_t * __single t) YIO_REENTRANT;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_CTX_TYPES_H_
+#endif // YIO_YIO_YIO_CTX_TYPES_H_

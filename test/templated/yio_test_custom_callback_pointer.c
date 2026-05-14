@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 static int (* const f_vpnt)(char **strp, const yio_printdata_t *, const char *fmt, va_list *va) = yio_vasprintf;
-static int (* const f_pnt)(const yio_printdata_t *, const char *fmt, ...) = YYIO_yio_printf;
+static int (* const f_pnt)(const yio_printdata_t *, const char *fmt, ...) = YIO_yio_printf;
 
 static void _dbgln(const char file[], int line, const char func[], const yio_printdata_t *data, const char *fmt, ...) {
 	yio_printf("{}:{}:{}: ", file, line, func);

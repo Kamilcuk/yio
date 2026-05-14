@@ -27,7 +27,7 @@ Internal development relies on standardized macros to handle repetitive logic:
 
 Error codes and their corresponding descriptive strings are managed centrally via `src/geterrors.py`.
 
-- **Mechanism:** The script parses the source for `YYIO_ERROR(ENUM, DESC)` calls.
+- **Mechanism:** The script parses the source for `YIO_ERROR(ENUM, DESC)` calls.
 - **Artifacts:** Generates `yio_error_genenum.h` and `yio_error_genmsg.h`.
 - **Workflow:** To add an error, use the macro in code; the build system automatically updates the public header and the `yio_strerror` mapping.
 

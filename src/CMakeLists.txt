@@ -229,7 +229,7 @@ function(yio_add_library name)
 		SOVERSION "${YIO_PROJECT_SOVERSION}"
 	)
 	target_compile_definitions(${name} PRIVATE
-		YYIO_PRIVATE=1
+		YIO_PRIVATE=1
 	)
 	target_include_directories(${name} PUBLIC
 		$<BUILD_INTERFACE:${GENDIR}>
@@ -295,7 +295,7 @@ endif()
 if(TARGET dfp)
   # Avoid export issues for system libraries by using target_link_options or properties, or link to INTERFACE
   target_link_libraries(yio PUBLIC $<BUILD_INTERFACE:dfp>)
-  target_compile_definitions(yio PUBLIC YYIO_HAS_LIBDFP=1)
+  target_compile_definitions(yio PUBLIC YIO_HAS_LIBDFP=1)
 endif()
 if(NOT CMAKE_C_COMPILER_ID STREQUAL "SDCC")
 file_glob_srcs_relative_to_srcdir(GLOB _auto_compat_srcs yio/compatlib)

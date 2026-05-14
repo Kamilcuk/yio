@@ -53,21 +53,21 @@ _Static_assert(FLT_RADIX == 2, "FLT_RADIX must be 2");
 #define ASSERTMSG(...)  ((void)0)
 #endif
 
-static const char *YYIO_NAN = "NAN";
-static const char *YYIO_nan = "nan";
-static const char *YYIO_nans(bool lower) { return lower ? YYIO_nan : YYIO_NAN; }
-static const char *YYIO_INF = "INF";
-static const char *YYIO_inf = "inf";
-static const char *YYIO_infs(bool lower) { return lower ? YYIO_inf : YYIO_INF; }
+static const char *YIO_NAN = "NAN";
+static const char *YIO_nan = "nan";
+static const char *YIO_nans(bool lower) { return lower ? YIO_nan : YIO_NAN; }
+static const char *YIO_INF = "INF";
+static const char *YIO_inf = "inf";
+static const char *YIO_infs(bool lower) { return lower ? YIO_inf : YIO_INF; }
 
 static inline
-int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
+int YIO_print_scientific_suffix(YIO_string *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
 	int err = 0;
 	const bool print_scientific_suffix = speclower == 'e' || speclower == 'a';
 	if (print_scientific_suffix) {
 	  assert(strchr("eEaA", spec) != NULL);
 	  const char letter = (char)(dec ? spec : is_lower_spec ? 'p' : 'P');
-	  err = YYIO_string_putc(v, letter);
+	  err = YIO_string_putc(v, letter);
 	  if (err) return err;
 	  const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
 	  struct yio_printfmt_s fmt = {
@@ -76,24 +76,24 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 	    .align = '=',
 	    .sign = '+',
 	  };
-	  err = YYIO_string_print_int(v, fmt, adjusted_exponent);
+	  err = YIO_string_print_int(v, fmt, adjusted_exponent);
 	}
 	return err;
 }
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#ifdef YYIO_FLOAT_RP_$1
+#ifdef YIO_FLOAT_RP_$1
 
-#define TYPE     YYIO_FLOAT_RP_$1
-#define FLOOR    YYIO_floor_RP_$1
-#define MODF     YYIO_modf_RP_$1
-#define EXP2     YYIO_exp2_RP_$1
-#define EXP10    YYIO_exp10_RP_$1
-#define FABS     YYIO_fabs_RP_$1
-#define FREXP2   YYIO_frexp2_RP_$1
-#define FREXP10  YYIO_frexp10_RP_$1
-#define FC(x)    YYIO_FLOAT_C_RP_$1(x)
+#define TYPE     YIO_FLOAT_RP_$1
+#define FLOOR    YIO_floor_RP_$1
+#define MODF     YIO_modf_RP_$1
+#define EXP2     YIO_exp2_RP_$1
+#define EXP10    YIO_exp10_RP_$1
+#define FABS     YIO_fabs_RP_$1
+#define FREXP2   YIO_frexp2_RP_$1
+#define FREXP10  YIO_frexp10_RP_$1
+#define FC(x)    YIO_FLOAT_C_RP_$1(x)
 
 #line
 {% if j_search(V.1, "^D") %}
@@ -116,7 +116,7 @@ int YYIO_print_scientific_suffix(YYIO_string *v, char speclower, char spec, bool
 #line
 
 static inline
-int get_next_digit_$1(YYIO_string *v, TYPE *val,
+int get_next_digit_$1(YIO_string *v, TYPE *val,
 		bool dec, const char *to_digit_str, bool is_last) {
 	TYPE digit_fp;
 	*val = MODF(*val * (dec ? FC(10.0) : FC(16.0)), &digit_fp);
@@ -130,38 +130,38 @@ int get_next_digit_$1(YYIO_string *v, TYPE *val,
 		return YIO_ERROR_ENOSYS;
 	}
 	const char c = to_digit_str[digit];
-	const int err = YYIO_string_putc(v, c);
+	const int err = YIO_string_putc(v, c);
 	if (err != 0) return err;
 	return 0;
 }
 
-int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYPE val) {
+int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE val) {
 	static const int a_max_precision =
 // if the precision is missing and FLT_RADIX is a power of 2,
 // then the precision is sufficient for an exact representation of the value
-			YYIO_FLOAT_MANT_DIG_RP_$1 / 4 + ((YYIO_FLOAT_MANT_DIG_RP_$1 % 4) != 0);
+			YIO_FLOAT_MANT_DIG_RP_$1 / 4 + ((YIO_FLOAT_MANT_DIG_RP_$1 % 4) != 0);
 
 	int err = 0;
 
 	// take minus out of the way
 	const bool negative = signbit(val);
 	if (negative) {
-		err = YYIO_string_putc(v, '-');
+		err = YIO_string_putc(v, '-');
 		if (err) return err;
 		val = FABS(val);
 	}
 
-	const char spec0lower = YYIO_tolower(spec0);
+	const char spec0lower = YIO_tolower(spec0);
 	const bool is_lower_spec = spec0lower == spec0;
 
 	// take INF and NAN out of the way
 	const int val_class = FPCLASSIFY(val);
 	const char *const nan_or_inf_str =
-		val_class == FP_NAN ? YYIO_nans(is_lower_spec) :
-		val_class == FP_INFINITE ? YYIO_infs(is_lower_spec) :
+		val_class == FP_NAN ? YIO_nans(is_lower_spec) :
+		val_class == FP_INFINITE ? YIO_infs(is_lower_spec) :
 		NULL;
 	if (nan_or_inf_str != NULL) {
-		return YYIO_string_putsn(v, nan_or_inf_str, 3);
+		return YIO_string_putsn(v, nan_or_inf_str, 3);
 	}
 
 	// All the happy rest.
@@ -251,7 +251,7 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 	}
 
 	const bool dec = speclower != 'a';
-	const char *const to_digit_str = YYIO_digit_to_hexs(is_lower_spec);
+	const char *const to_digit_str = YIO_digit_to_hexs(is_lower_spec);
 
 	// at this point, val should be after frexp
 	assert(0 <= val);
@@ -260,7 +260,7 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 	// Convert number before the dot
 	if (speclower == 'f') {
 		if (exponent <= 0) {
-			err = YYIO_string_putc(v, '0');
+			err = YIO_string_putc(v, '0');
 			if (err) return err;
 		} else {
 			assert(exponent > 0);
@@ -271,19 +271,19 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 		}
 	} else if (speclower == 'e') {
 		if (val_is_zero) {
-			err = YYIO_string_putc(v, '0');
+			err = YIO_string_putc(v, '0');
 			if (err) return err;
 		} else {
 			err = get_next_digit_$1(v, &val, dec, to_digit_str, precision == 0);
 			if (err) return err;
 		}
 	} else if (speclower == 'a') {
-		err = YYIO_string_putc(v, '0');
+		err = YIO_string_putc(v, '0');
 		if (err) return err;
-		err = YYIO_string_putc(v, is_lower_spec ? 'x': 'X');
+		err = YIO_string_putc(v, is_lower_spec ? 'x': 'X');
 		if (err) return err;
 		if (val_is_zero) {
-			err = YYIO_string_putc(v, '0');
+			err = YIO_string_putc(v, '0');
 			if (err) return err;
 		} else {
 			// print first number
@@ -293,13 +293,13 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 	}
 
 	if (precision) {
-		err = YYIO_string_putc(v, '.');
+		err = YIO_string_putc(v, '.');
 		if (err) return err;
 		int zeros = (speclower == 'f' && exponent < 0) ? -exponent : 0;
 		while (precision--) {
 			if (zeros) {
 				--zeros;
-				err = YYIO_string_putc(v, '0');
+				err = YIO_string_putc(v, '0');
 				if (err) return err;
 			} else {
 				err = get_next_digit_$1(v, &val, dec, to_digit_str, precision == 0);
@@ -307,11 +307,11 @@ int YYIO_float_astrfrom_naive_$1(YYIO_string *v, int precision0, char spec0, TYP
 			}
 		}
 		if (spec0lower == 'g' || spec0lower == 'a') {
-			YYIO_string_remove_trailing_zeros_and_dot(v);
+			YIO_string_remove_trailing_zeros_and_dot(v);
 		}
 	}
 
-	err = YYIO_print_scientific_suffix(v, speclower, spec, is_lower_spec, dec, val_is_zero, exponent);
+	err = YIO_print_scientific_suffix(v, speclower, spec, is_lower_spec, dec, val_is_zero, exponent);
 	if (err) return err;
 
 	return 0;

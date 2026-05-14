@@ -8,5 +8,5 @@
  */
 #include "yio_print_arguments_sdcc.h"
 #ifdef __SDCC
-YYIO_XDATA YIO_SDCC_ARGS_AT yio_printdata_t YYIO_sdcc_args[{{ j_MAX_ARGS }}];
+YIO_XDATA YIO_SDCC_ARGS_AT yio_printdata_t YIO_sdcc_args[{{ j_MAX_ARGS }}];
 #endif

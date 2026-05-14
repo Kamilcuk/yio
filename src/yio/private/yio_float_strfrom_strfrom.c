@@ -27,7 +27,7 @@
 		\
 		sizeof("%") - 1 + \
 		sizeof(".") - 1 + \
-		YYIO_INT_STRLEN_BOUND() + \
+		YIO_INT_STRLEN_BOUND() + \
 		sizeof(char) + \
 		1 \
 )
@@ -35,7 +35,7 @@
 static const unsigned fmt_size = FMT_SIZE;
 
 static inline
-void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0, char spec) {
+void YIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0, char spec) {
 	char *fmtpnt = fmt;
 	*fmtpnt++ = '%';
 	if (precision0 >= 0) {
@@ -54,27 +54,27 @@ void YYIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0,
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
 #line
-#if YYIO_has_float_astrfrom_strfrom_$1
+#if YIO_has_float_astrfrom_strfrom_$1
 
-int YYIO_float_astrfrom_strfrom_$1(YYIO_string *v, int precision0, char spec, YYIO_FLOAT_RP_$1 val) {
+int YIO_float_astrfrom_strfrom_$1(YIO_string *v, int precision0, char spec, YIO_FLOAT_RP_$1 val) {
 	// create format string
 	char fmt[FMT_SIZE];
-	YYIO_float_astrfrom_strfrom_create_format_string(fmt, precision0, spec);
+	YIO_float_astrfrom_strfrom_create_format_string(fmt, precision0, spec);
 	// get length
-	assert(YYIO_string_capacity(v) < INT_MAX);
-	const int len = YYIO_strfrom_RP_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+	assert(YIO_string_capacity(v) < INT_MAX);
+	const int len = YIO_strfrom_RP_$1(YIO_string_data(v), YIO_string_capacity(v), fmt, val);
 	if (len <= 0) {
-		return YYIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned zero or negative");
+		return YIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned zero or negative");
 	}
-	if ((size_t)len >= YYIO_string_capacity(v)) {
-		const int err = YYIO_string_reserve(v, len + 1);
+	if ((size_t)len >= YIO_string_capacity(v)) {
+		const int err = YIO_string_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = YYIO_strfrom_RP_$1(YYIO_string_data(v), YYIO_string_capacity(v), fmt, val);
+		const int len2 = YIO_strfrom_RP_$1(YIO_string_data(v), YIO_string_capacity(v), fmt, val);
 		if (len2 != len) {
 			return YIO_ERROR_STRFROM;
 		}
 	}
-	YYIO_string_set_used(v, len);
+	YIO_string_set_used(v, len);
 	return 0;
 }
 

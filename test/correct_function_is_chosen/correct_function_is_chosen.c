@@ -8,7 +8,7 @@
  */
 #include <yio_test.h>
 
-#define YYIO_PRIVATE 1
+#define YIO_PRIVATE 1
 #include <yio/private/yio_float.h>
 #include <yio/private/yio_float_strfrom_naive.h>
 #include <yio/private/yio_float_strfrom_strfrom.h>
@@ -20,10 +20,10 @@
 static const char *gfunc = "";
 
 #define DEFINE_WRAP(BACKEND, REPR) \
-    int __wrap_YYIO_float_astrfrom_##BACKEND##_##REPR(YYIO_string *v, int precision, char spec, YYIO_FLOAT_RP_##REPR val); \
-    int __wrap_YYIO_float_astrfrom_##BACKEND##_##REPR(YYIO_string *v, int precision, char spec, YYIO_FLOAT_RP_##REPR val) { \
+    int __wrap_YIO_float_astrfrom_##BACKEND##_##REPR(YIO_string *v, int precision, char spec, YIO_FLOAT_RP_##REPR val); \
+    int __wrap_YIO_float_astrfrom_##BACKEND##_##REPR(YIO_string *v, int precision, char spec, YIO_FLOAT_RP_##REPR val) { \
         (void)v; (void)precision; (void)spec; (void)val; \
-        gfunc = "YYIO_float_astrfrom_" #BACKEND "_" #REPR; \
+        gfunc = "YIO_float_astrfrom_" #BACKEND "_" #REPR; \
         return 0; \
     }
 
@@ -33,36 +33,36 @@ static const char *gfunc = "";
     DEFINE_WRAP(printf, REPR) \
     DEFINE_WRAP(naive, REPR)
 
-#ifdef YYIO_FLOAT_RP_B16
+#ifdef YIO_FLOAT_RP_B16
 DEFINE_WRAPS(B16)
 #endif
-#ifdef YYIO_FLOAT_RP_B32
+#ifdef YIO_FLOAT_RP_B32
 DEFINE_WRAPS(B32)
 #endif
-#ifdef YYIO_FLOAT_RP_B64
+#ifdef YIO_FLOAT_RP_B64
 DEFINE_WRAPS(B64)
 #endif
-#ifdef YYIO_FLOAT_RP_B80
+#ifdef YIO_FLOAT_RP_B80
 DEFINE_WRAPS(B80)
 #endif
-#ifdef YYIO_FLOAT_RP_B128
+#ifdef YIO_FLOAT_RP_B128
 DEFINE_WRAPS(B128)
 #endif
-#ifdef YYIO_FLOAT_RP_D32
+#ifdef YIO_FLOAT_RP_D32
 DEFINE_WRAPS(D32)
 #endif
-#ifdef YYIO_FLOAT_RP_D64
+#ifdef YIO_FLOAT_RP_D64
 DEFINE_WRAPS(D64)
 #endif
-#ifdef YYIO_FLOAT_RP_D128
+#ifdef YIO_FLOAT_RP_D128
 DEFINE_WRAPS(D128)
 #endif
 
 #define GET_SHOULDBE(REPR) \
-	( YYIO_has_float_astrfrom_strfrom_##REPR ? "YYIO_float_astrfrom_strfrom_" #REPR : \
-	  YYIO_has_float_astrfrom_ryu_##REPR      ? "YYIO_float_astrfrom_ryu_" #REPR : \
-	  YYIO_has_float_astrfrom_printf_##REPR   ? "YYIO_float_astrfrom_printf_" #REPR : \
-	  "YYIO_float_astrfrom_naive_" #REPR )
+	( YIO_has_float_astrfrom_strfrom_##REPR ? "YIO_float_astrfrom_strfrom_" #REPR : \
+	  YIO_has_float_astrfrom_ryu_##REPR      ? "YIO_float_astrfrom_ryu_" #REPR : \
+	  YIO_has_float_astrfrom_printf_##REPR   ? "YIO_float_astrfrom_printf_" #REPR : \
+	  "YIO_float_astrfrom_naive_" #REPR )
 
 #define CHECK(SUFF, REPR) \
     do{ \
@@ -77,25 +77,25 @@ DEFINE_WRAPS(D128)
 int main() {
 #if YIO_HAS_FLOATf
 	yio_printf("{}", 1.0f);
-#if YYIO_RP_OF_f_IS_B32
+#if YIO_RP_OF_f_IS_B32
 	CHECK(f, B32);
 #endif
 #endif
 
 #if YIO_HAS_FLOATd
 	yio_printf("{}", 1.0);
-#if YYIO_RP_OF_d_IS_B64
+#if YIO_RP_OF_d_IS_B64
 	CHECK(d, B64);
 #endif
 #endif
 
 #if YIO_HAS_FLOATl
 	yio_printf("{}", 1.0l);
-#if YYIO_RP_OF_l_IS_B80
+#if YIO_RP_OF_l_IS_B80
 	CHECK(l, B80);
-#elif YYIO_RP_OF_l_IS_B128
+#elif YIO_RP_OF_l_IS_B128
 	CHECK(l, B128);
-#elif YYIO_RP_OF_l_IS_B64
+#elif YIO_RP_OF_l_IS_B64
 	CHECK(l, B64);
 #endif
 #endif

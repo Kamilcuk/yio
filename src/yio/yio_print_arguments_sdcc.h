@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
-#define YYIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
+#ifndef YIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
+#define YIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,19 +15,19 @@ extern "C" {
 // NOLINE
 #include "yio/ctx_types.h"
 #ifdef __SDCC
-#define YIO_SDCC_ARGS_AT YYIO_AT(0x1100)
-extern YYIO_XDATA YIO_SDCC_ARGS_AT yio_printdata_t YYIO_sdcc_args[{{ j_MAX_ARGS }}];
+#define YIO_SDCC_ARGS_AT YIO_AT(0x1100)
+extern YIO_XDATA YIO_SDCC_ARGS_AT yio_printdata_t YIO_sdcc_args[{{ j_MAX_ARGS }}];
 
 {% from "yio/yio_print_arguments.h" import j_yio_print_arguments_args, j_yio_macros_args, j_yio_macros_funcs %}
 {% for I in j_one_to_n(1, j_MAX_ARGS) %}{% call j_APPLY(I) %}
 #line
-#define YYIO_print_arguments_$1(funcgen, fmt{{j_yio_print_arguments_args(I)}}) \
+#define YIO_print_arguments_$1(funcgen, fmt{{j_yio_print_arguments_args(I)}}) \
 	( \
 {% for J in j_one_to_n(2, I) %}{% set A = "_"+J|string %}
-		YYIO_sdcc_args[{{loop.index0}}] = YYIO_IFBA62A_IN(YYIO_ESC {{A}})(YYIO_SECONDX, funcgen)({{A}}, YYIO_FIRST YYIO_FIRST {{A}}), \
+		YIO_sdcc_args[{{loop.index0}}] = YIO_IFBA62A_IN(YIO_ESC {{A}})(YIO_SECONDX, funcgen)({{A}}, YIO_FIRST YIO_FIRST {{A}}), \
 {% endfor %}
-		YYIO_sdcc_args[{{I - 1}}] = 0, \
-		YYIO_sdcc_args \
+		YIO_sdcc_args[{{I - 1}}] = 0, \
+		YIO_sdcc_args \
 	), fmt \
 {{ j_yio_macros_args(I) }}	/* */
 {% endcall %}{% endfor %}
@@ -37,4 +37,4 @@ extern YYIO_XDATA YIO_SDCC_ARGS_AT yio_printdata_t YYIO_sdcc_args[{{ j_MAX_ARGS 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_
+#endif // YIO_YIO_YIO_PRINT_ARGUMENTS_SDCC_H_

@@ -11,7 +11,7 @@
 #include <string.h>
 
 int main() {
-#if YYIO_HAS_timeval
+#if YIO_HAS_timeval
 	struct timeval t = {
 		.tv_sec = 1234567,
 		.tv_usec = 123456,

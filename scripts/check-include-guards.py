@@ -3,9 +3,9 @@
 Check and fix include guards and C++ 'extern "C"' wrappers in Yio headers.
 
 Convention:
-1. Include guards must be #ifndef YYIO_PATH_TO_FILE_H_ / #define YYIO_PATH_TO_FILE_H_
+1. Include guards must be #ifndef YIO_PATH_TO_FILE_H_ / #define YIO_PATH_TO_FILE_H_
 2. Headers with linkable symbols must have:
-   #define YYIO_GUARD_
+   #define YIO_GUARD_
    #ifdef __cplusplus
    extern "C" {
    #endif
@@ -15,7 +15,7 @@ Convention:
    #ifdef __cplusplus
    }
    #endif
-   #endif // YYIO_GUARD_
+   #endif // YIO_GUARD_
 3. No empty lines between #define and extern "C" start.
 4. No empty lines between extern "C" end and final #endif.
 5. Exactly one empty line between wrappers and content.
@@ -40,7 +40,7 @@ def get_expected_guard(path: Path) -> str:
     guard = "_".join(parts)
     if not guard.endswith("_"):
         guard += "_"
-    return f"YYIO_{guard}"
+    return f"YIO_{guard}"
 
 def is_include_only(content: str) -> bool:
     clean = re.sub(r'/\*.*?\*/', '', content, flags=re.DOTALL)
@@ -125,7 +125,7 @@ def check_file(path: Path, inplace: bool, conly: bool):
         
         current_guard = ifndef_match.group(1)
         if current_guard != guard:
-            raise RuntimeError(f"Incorrect guard name. Guards must match the relative path to the file (YYIO_PATH_TO_FILE_H_).\n  Expected: {guard}\n  Present : {current_guard}")
+            raise RuntimeError(f"Incorrect guard name. Guards must match the relative path to the file (YIO_PATH_TO_FILE_H_).\n  Expected: {guard}\n  Present : {current_guard}")
         
         endif_matches = list(re.finditer(r'^#endif.*$', content, re.MULTILINE))
         last_endif = endif_matches[-1]

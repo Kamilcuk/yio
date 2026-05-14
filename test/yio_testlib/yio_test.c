@@ -16,7 +16,7 @@ static void init() {
 }
 #endif
 
-#ifdef YYIO_HAS_LIBDFP
+#ifdef YIO_HAS_LIBDFP
 extern int register_printf_dfp(void);
 __attribute__((constructor))
 static void init_libdfp(void) {
@@ -31,7 +31,7 @@ static int yyio_hexdigit(int c) {
 	return -1;
 }
 
-bool YYIO_test_float_equal(const char *ref, const char *res, char spec) {
+bool YIO_test_float_equal(const char *ref, const char *res, char spec) {
 	bool match = strcmp(ref, res) == 0;
 	if (!match && (spec == 'a' || spec == 'A')) {
 		match = yio_test_hexf_eq(ref, res);
@@ -39,10 +39,10 @@ bool YYIO_test_float_equal(const char *ref, const char *res, char spec) {
 	return match;
 }
 
-bool YYIO_test_string_float_equal(struct YYIO_string *ref, struct YYIO_string *res, char spec) {
-	bool match = YYIO_string_equal(ref, res);
+bool YIO_test_string_float_equal(struct YIO_string *ref, struct YIO_string *res, char spec) {
+	bool match = YIO_string_equal(ref, res);
 	if (!match && (spec == 'a' || spec == 'A')) {
-		match = yio_test_hexf_eq(YYIO_string_c_str(ref), YYIO_string_c_str(res));
+		match = yio_test_hexf_eq(YIO_string_c_str(ref), YIO_string_c_str(res));
 	}
 	return match;
 }

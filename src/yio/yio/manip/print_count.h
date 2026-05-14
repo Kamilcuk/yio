@@ -5,23 +5,23 @@
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
  */
-#ifndef YYIO_YIO_YIO_MANIP_PRINT_COUNT_H_
-#define YYIO_YIO_YIO_MANIP_PRINT_COUNT_H_
+#ifndef YIO_YIO_YIO_MANIP_PRINT_COUNT_H_
+#define YIO_YIO_YIO_MANIP_PRINT_COUNT_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include "../ctx_types.h"
 
-int YYIO_print_count(yio_printctx_t *t);
+int YIO_print_count(yio_printctx_t *t);
 
 #ifdef __cplusplus
-#define yio_count(v)  yio_callback(YYIO_print_count, (v))
+#define yio_count(v)  yio_callback(YIO_print_count, (v))
 #else
-#define yio_count(v)  yio_callback(YYIO_print_count, _Generic((v),int *:(v)))
+#define yio_count(v)  yio_callback(YIO_print_count, _Generic((v),int *:(v)))
 #endif
 
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_MANIP_PRINT_COUNT_H_
+#endif // YIO_YIO_YIO_MANIP_PRINT_COUNT_H_

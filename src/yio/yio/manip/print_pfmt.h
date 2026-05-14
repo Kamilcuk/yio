@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#ifndef YYIO_YIO_YIO_MANIP_PRINT_PFMT_H_
-#define YYIO_YIO_YIO_MANIP_PRINT_PFMT_H_
+#ifndef YIO_YIO_YIO_MANIP_PRINT_PFMT_H_
+#define YIO_YIO_YIO_MANIP_PRINT_PFMT_H_
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -21,7 +21,7 @@ extern "C" {
  * @{
  **/
 
-int YYIO_print_pfmt(yio_printctx_t *t);
+int YIO_print_pfmt(yio_printctx_t *t);
 
 /**
  * @def yio_pfmt(...)
@@ -29,12 +29,12 @@ int YYIO_print_pfmt(yio_printctx_t *t);
  * @param ... Followed by optional up to two int values.
  * @brief Format output by reading python format string.
  */
-#define YYIO_yppfmt_0(fmt)               (_Generic((fmt),const char*:(fmt),char*:(fmt)))
-#define YYIO_yppfmt_1(fmt, spec)         YYIO_yppfmt_0(fmt), _Generic((spec),int:(spec))
-#define YYIO_yppfmt_2(fmt, spec, spec2)  YYIO_yppfmt_0(fmt), _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
-#define YYIO_yppfmt_N(_0,_1,_2,N,...)  YYIO_yppfmt_##N
+#define YIO_yppfmt_0(fmt)               (_Generic((fmt),const char*:(fmt),char*:(fmt)))
+#define YIO_yppfmt_1(fmt, spec)         YIO_yppfmt_0(fmt), _Generic((spec),int:(spec))
+#define YIO_yppfmt_2(fmt, spec, spec2)  YIO_yppfmt_0(fmt), _Generic((spec),int:(spec)), _Generic((spec2),int:(spec2))
+#define YIO_yppfmt_N(_0,_1,_2,N,...)  YIO_yppfmt_##N
 #define yio_pfmt(...)  \
-		yio_callback(YYIO_print_pfmt, YYIO_yppfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
+		yio_callback(YIO_print_pfmt, YIO_yppfmt_N(__VA_ARGS__,2,1,0)(__VA_ARGS__))
 
 /**
  * @}
@@ -43,4 +43,4 @@ int YYIO_print_pfmt(yio_printctx_t *t);
 #ifdef __cplusplus
 }
 #endif
-#endif // YYIO_YIO_YIO_MANIP_PRINT_PFMT_H_
+#endif // YIO_YIO_YIO_MANIP_PRINT_PFMT_H_

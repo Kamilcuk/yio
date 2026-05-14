@@ -1,5 +1,5 @@
-#ifndef YYIO_TEST_SDCC_CONFTEST_H_
-#define YYIO_TEST_SDCC_CONFTEST_H_
+#ifndef YIO_TEST_SDCC_CONFTEST_H_
+#define YIO_TEST_SDCC_CONFTEST_H_
 
 #include <yio.h>
 #include <stdio.h>
@@ -32,13 +32,13 @@ void exit_test(int code);
 } while(0)
 #define YIO_TESTEXPR_NOFAIL      YIO_TESTEXPR
 #define YIO_TESTEXPR_ASSERT      YIO_TESTEXPR
-#define YYIO_test_is_in_valgrind 0
+#define YIO_test_is_in_valgrind 0
 #else
 #include <sstest.h>
 #define YIO_TESTEXPR             SSTEST
 #define YIO_TESTEXPR_NOFAIL      SSTEST_WARN
 #define YIO_TESTEXPR_ASSERT      SSTEST_ASSERT
-#define YYIO_test_is_in_valgrind sstest_is_in_valgrind
+#define YIO_test_is_in_valgrind sstest_is_in_valgrind
 #endif
 
 struct testparam {
@@ -87,8 +87,8 @@ struct testparam {
 	} while (0)
 
 #if defined(__SDCC)
-#define YIO_TEST_BUF_ATTR YYIO_XDATA
-#define YIO_TEST_BUF_AT YYIO_AT(0x1000)
+#define YIO_TEST_BUF_ATTR YIO_XDATA
+#define YIO_TEST_BUF_AT YIO_AT(0x1000)
 #else
 #define YIO_TEST_BUF_ATTR
 #define YIO_TEST_BUF_AT
@@ -105,4 +105,4 @@ extern YIO_TEST_BUF_ATTR YIO_TEST_BUF_AT char yyio_test_buf[32];
 #define YIO_TEST_FAIL(fmt, ...)     YIO_TEST(( .fail=1 ), fmt, ##__VA_ARGS__)
 #define YIO_TEST_EQ(EQ, ...)     YIO_TEST((.eq = EQ), __VA_ARGS__)
 
-#endif // YYIO_TEST_SDCC_CONFTEST_H_
+#endif // YIO_TEST_SDCC_CONFTEST_H_

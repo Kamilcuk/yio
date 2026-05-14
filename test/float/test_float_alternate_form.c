@@ -4,7 +4,7 @@
  * @author Kamil Cukrowski
  * @copyright
  * SPDX-License-Identifier: GPL-3.0-only
- * @brief Unit test for YYIO_float_apply_alternate_form
+ * @brief Unit test for YIO_float_apply_alternate_form
  */
 #include "yio_test_private.h"
 #include "yio/yio/manip/private.h"
@@ -17,20 +17,20 @@ static void test_case(const char *input, char spec, int precision, const char *e
     t.pf.precision = (uint16_t)(precision + 1);
     t.pf.hash = true;
 
-    YYIO_string o;
-    YYIO_string_init(&o);
-    int err = YYIO_string_putsn(&o, input, strlen(input));
-    YIO_TESTEXPR(err == 0, "YYIO_string_putsn failed for '%s' (spec=%c, prec=%d)", input, spec, precision);
+    YIO_string o;
+    YIO_string_init(&o);
+    int err = YIO_string_putsn(&o, input, strlen(input));
+    YIO_TESTEXPR(err == 0, "YIO_string_putsn failed for '%s' (spec=%c, prec=%d)", input, spec, precision);
 
-    err = YYIO_float_apply_alternate_form(&t, &o);
-    YIO_TESTEXPR(err == 0, "YYIO_float_apply_alternate_form failed for '%s' (spec=%c, prec=%d)", input, spec, precision);
+    err = YIO_float_apply_alternate_form(&t, &o);
+    YIO_TESTEXPR(err == 0, "YIO_float_apply_alternate_form failed for '%s' (spec=%c, prec=%d)", input, spec, precision);
 
-    const char *actual = YYIO_string_c_str(&o);
+    const char *actual = YIO_string_c_str(&o);
     YIO_TESTEXPR(actual != NULL && strcmp(actual, expected) == 0,
                  "Mismatch for '%s' (spec=%c, prec=%d): EXPECTED='%s' ACTUAL='%s'",
                  input, spec, precision, expected, actual ? actual : "(null)");
 
-    YYIO_string_fini(&o);
+    YIO_string_fini(&o);
 }
 
 int main(void) {
