@@ -33,27 +33,70 @@ foreach(ii IN LISTS _floats)
 	endif()
 
 	if(YIO_HAS_FLOAT${suffix})
-		foreach(func IN ITEMS exp2 exp10 floor fabs log10 log2 frexp modf pow nextafter)
-			check_symbol_exists_bool(${func}${mathsuffix} "math.h" YIO_HAS_${func}${suffix})
-			yio_config_gen_add(YIO_HAS_${func}${suffix})
-		endforeach()
+		# Bulk check for all functions
+		set(_src "
+#define _GNU_SOURCE
+#include <math.h>
+#include <stdlib.h>
+#include <stdio.h>
+int main() {
+	volatile ${type} f = 0, f2 = 0; volatile int i; char buf[1];
+	f = exp2${mathsuffix}(f);
+	f = exp10${mathsuffix}(f);
+	f = floor${mathsuffix}(f);
+	f = fabs${mathsuffix}(f);
+	f = log10${mathsuffix}(f);
+	f = log2${mathsuffix}(f);
+	f = frexp${mathsuffix}(f, (int*)&i);
+	f = modf${mathsuffix}(f, (${type}*)&f2);
+	f = pow${mathsuffix}(f, f2);
+	f = nextafter${mathsuffix}(f, f2);
+	strfrom${suffix}(buf, 1, \"%g\", f);
+	f = strto${strtosuffix}(\"0\", NULL);
+	return 0;
+}")
+		# Use a unique variable for bulk check to avoid caching issues between types
 		if(TARGET dfp AND suffix MATCHES "^d")
-			# If we link with libdfp, these functions should exist.
-			# We check them with the library linked.
 			cmake_push_check_state()
 			list(APPEND CMAKE_REQUIRED_LIBRARIES dfp)
-			check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  YIO_HAS_strfrom${suffix})
-			check_symbol_exists_bool(strto${strtosuffix} "stdlib.h"  YIO_HAS_strto${suffix})
+			check_c_source_compiles("${_src}" YIO_HAS_BULK_${suffix})
 			cmake_pop_check_state()
-			foreach(ii IN ITEMS strfrom strto)
-				yio_config_gen_add(YIO_HAS_${ii}${suffix})
+		else()
+			check_c_source_compiles("${_src}" YIO_HAS_BULK_${suffix})
+		endif()
+
+		if(YIO_HAS_BULK_${suffix})
+			foreach(func IN ITEMS exp2 exp10 floor fabs log10 log2 frexp modf pow nextafter strfrom strto)
+				set(YIO_HAS_${func}${suffix} 1 CACHE INTERNAL "")
+				yio_config_gen_add(YIO_HAS_${func}${suffix})
 			endforeach()
 		else()
-			check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  YIO_HAS_strfrom${suffix})
-			check_symbol_exists_bool(strto${strtosuffix} "stdlib.h"  YIO_HAS_strto${suffix})
-			foreach(ii IN ITEMS strfrom strto)
-				yio_config_gen_add(YIO_HAS_${ii}${suffix})
-			endforeach()
+			# Fallback to individual checks if bulk fails
+			check_symbol_exists_bool(pow${mathsuffix} "math.h" YIO_HAS_pow${suffix})
+			if(YIO_HAS_pow${suffix})
+				foreach(func IN ITEMS exp2 exp10 floor fabs log10 log2 frexp modf nextafter)
+					check_symbol_exists_bool(${func}${mathsuffix} "math.h" YIO_HAS_${func}${suffix})
+					yio_config_gen_add(YIO_HAS_${func}${suffix})
+				endforeach()
+				yio_config_gen_add(YIO_HAS_pow${suffix})
+				if(TARGET dfp AND suffix MATCHES "^d")
+					cmake_push_check_state()
+					list(APPEND CMAKE_REQUIRED_LIBRARIES dfp)
+					check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  YIO_HAS_strfrom${suffix})
+					check_symbol_exists_bool(strto${strtosuffix} "stdlib.h"  YIO_HAS_strto${suffix})
+					cmake_pop_check_state()
+				else()
+					check_symbol_exists_bool(strfrom${suffix}    "stdlib.h"  YIO_HAS_strfrom${suffix})
+					check_symbol_exists_bool(strto${strtosuffix} "stdlib.h"  YIO_HAS_strto${suffix})
+				endif()
+				foreach(ii IN ITEMS strfrom strto)
+					yio_config_gen_add(YIO_HAS_${ii}${suffix})
+				endforeach()
+			else()
+				foreach(func IN ITEMS exp2 exp10 floor fabs log10 log2 frexp modf pow nextafter strfrom strto)
+					yio_config_gen_add_value(YIO_HAS_${func}${suffix} 0)
+				endforeach()
+			endif()
 		endif()
 	endif()
 endforeach()

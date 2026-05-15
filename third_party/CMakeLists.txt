@@ -50,8 +50,11 @@ foreach(suffix IN ITEMS d32 d64 d128 d32x d64x d128x)
 endforeach()
 
 if(YIO_HAS_ANY_DECIMAL_FLOAT)
-    # 1. Try to find the system library first
-    find_library(dfp_LIBRARY NAMES dfp PATHS /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE} /lib/${CMAKE_LIBRARY_ARCHITECTURE} /usr/lib /lib)
+    set(EXTRA_PATHS /usr/lib /lib)
+    if(DEFINED CMAKE_LIBRARY_ARCHITECTURE AND CMAKE_LIBRARY_ARCHITECTURE)
+        list(APPEND EXTRA_PATHS "/usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}" "/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
+    endif()
+    find_library(dfp_LIBRARY NAMES dfp PATHS ${EXTRA_PATHS})
 
     if(dfp_LIBRARY)
         set(dfp_FOUND TRUE)

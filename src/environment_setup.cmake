@@ -46,10 +46,67 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
 	m
 )
 
-yio_config_gen_check_c_source_compiles(
-	"int main() { __int128 x; return 0; }"
-	YIO_HAS_INT128
-)
+# Mandatory types
+set(YIO_HAS_FLOATf 1 CACHE INTERNAL "")
+set(YIO_HAS_FLOATd 1 CACHE INTERNAL "")
+set(YIO_HAS_FLOATl 1 CACHE INTERNAL "")
+
+# Fast path for macro-based detection
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|Icx|Intel")
+	execute_process(
+		COMMAND ${CMAKE_C_COMPILER} ${CMAKE_C_FLAGS} -dM -E -
+		INPUT_FILE /dev/null
+		OUTPUT_VARIABLE _YIO_COMPILER_MACROS
+		ERROR_QUIET
+	)
+	if(_YIO_COMPILER_MACROS MATCHES "__SIZEOF_INT128__")
+		set(YIO_HAS_INT128 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__FLT16_MANT_DIG__")
+		set(YIO_HAS_FLOATf16 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__FLT32_MANT_DIG__")
+		set(YIO_HAS_FLOATf32 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__FLT64_MANT_DIG__")
+		set(YIO_HAS_FLOATf64 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__FLT128_MANT_DIG__")
+		set(YIO_HAS_FLOATf128 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__FLT32X_MANT_DIG__")
+		set(YIO_HAS_FLOATf32x 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__FLT64X_MANT_DIG__")
+		set(YIO_HAS_FLOATf64x 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__FLT128X_MANT_DIG__")
+		set(YIO_HAS_FLOATf128x 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__DEC32_MANT_DIG__")
+		set(YIO_HAS_FLOATd32 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__DEC64_MANT_DIG__")
+		set(YIO_HAS_FLOATd64 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__DEC128_MANT_DIG__")
+		set(YIO_HAS_FLOATd128 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__DEC32X_MANT_DIG__")
+		set(YIO_HAS_FLOATd32x 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__DEC64X_MANT_DIG__")
+		set(YIO_HAS_FLOATd64x 1 CACHE INTERNAL "")
+	endif()
+	if(_YIO_COMPILER_MACROS MATCHES "__DEC128X_MANT_DIG__")
+		set(YIO_HAS_FLOATd128x 1 CACHE INTERNAL "")
+	endif()
+endif()
+
+if(NOT DEFINED YIO_HAS_INT128)
+	check_type_exists_bool("__int128" YIO_HAS_INT128 BUILTIN_TYPES_ONLY LANGUAGE C)
+endif()
+yio_config_gen_add(YIO_HAS_INT128)
 
 #########################################################################
 # handle and detect _floats
@@ -94,3 +151,6 @@ foreach(ii IN LISTS _floats)
 	endif()
 endforeach()
 set(YIO_FLOAT_SUFFIXES "${YIO_FLOAT_SUFFIXES}" CACHE INTERNAL "")
+
+#########################################################################
+# handle and detect _floats
