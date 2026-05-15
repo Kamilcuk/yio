@@ -105,24 +105,23 @@ int yio_vdprintf(int fd, const yio_printdata_t *__null_terminated data, const ch
  * @see yio_vbprintf
  * @{
  */
-YIO_nn(1, 2)
+YIO_nn(1) YIO_FORMAT(4)
 int YIO_yio_bprint(YIO_printcb_t *out, void *arg, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
-YIO_nn(1)
+YIO_FORMAT(2)
 int YIO_yio_print(const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #if YIO_HAS_FILE
-YIO_nn(1, 2)
+YIO_nn(1) YIO_FORMAT(3)
 int YIO_yio_fprint(FILE *file, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #endif
-YIO_nn(1, 3) YIO_access_w(1)
+YIO_nn(1) YIO_access_w(1) YIO_FORMAT(4)
 int YIO_yio_snprint(char *__sized_by(size) dest, size_t size, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #if YIO_ENABLE_MALLOC
-YIO_nn(1, 2)
+YIO_nn(1) YIO_FORMAT(3)
 int YIO_yio_asprint(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
-YIO_nn(1, 2)
+YIO_nn(1) YIO_FORMAT(3)
 int YIO_yio_append(char **__single strp, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 #endif
 
-YIO_nn(2)
 int YIO_yio_dprint(int fd, const yio_printdata_t *__null_terminated data, const char *__null_terminated fmt, ...);
 /**
  * @}

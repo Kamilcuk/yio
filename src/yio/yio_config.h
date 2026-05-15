@@ -99,6 +99,11 @@ extern "C" {
  * @brief Macros used for compiler compatibility
  * @{
  */
+#if defined(__GNUC__) && !defined(__clang__)
+#define YIO_FORMAT(N) __attribute__((yio_format(N)))
+#else
+#define YIO_FORMAT(N)
+#endif
 #ifdef __GNUC__
 #define YIO_nn(...)          __attribute__((__nonnull__(__VA_ARGS__)))
 #define YIO_wur              __attribute__((__warn_unused_result__))
