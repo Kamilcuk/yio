@@ -19,19 +19,19 @@ extern "C" {
 #if YIO_HAS_STDFIX_TYPES
 
 #ifdef YIO_PRIVATE
-#include "yio_string.h"
+#include "yio_buf.h"
 {% call j_FOREACHAPPLY(j_STDFIX) %}
 #line
 #ifdef YIO_STDFIX_$3
 /**
  * Converts a $2 value to a string.
- * @param o YIO_string object for result
+ * @param o YIO_buf object for result
  * @param pf
  * @param val The value to convert.
  * @return 0 on success, negative on error.
  */
 YIO_wur YIO_nn()
-int YIO_strfrom$1(YIO_string *o, const struct yio_printfmt_s *pf, $2 val);
+int YIO_strfrom$1(YIO_buf *o, const struct yio_printfmt_s *pf, $2 val);
 #endif
 
 {% endcall %}

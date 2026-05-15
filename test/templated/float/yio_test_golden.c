@@ -9,7 +9,7 @@
 #include <yio_test_private.h>
 #include <yio/private/yio_float.h>
 #include <yio/private/yio_float_strfrom_naive.h>
-#include <yio/private/yio_string.h>
+#include <yio/private/yio_buf.h>
 #include <math.h>
 #include <string.h>
 
@@ -55,17 +55,17 @@ static void test_engine_golden_{{R.name}}(void) {
         int prec = testparams[i].precision + 1;
         char spec = testparams[i].spec;
         
-        YIO_string res;
-        YIO_string_init(&res);
+        YIO_buf res;
+        YIO_buf_init(&res);
         
         if (YIO_has_float_astrfrom_naive_{{R.name}}) {
             int err = YIO_float_astrfrom_naive_{{R.name}}(&res, prec, spec, val);
             YIO_TESTEXPR(err >= 0, "naive engine failed for {{R.name}}");
             if (err == 0) {
-                const char *buf = YIO_string_c_str(&res);
-                YIO_TESTEXPR(buf != NULL, "YIO_string_c_str failed for {{R.name}}");
+                const char *buf = YIO_buf_c_str(&res);
+                YIO_TESTEXPR(buf != NULL, "YIO_buf_c_str failed for {{R.name}}");
                 if (!buf) {
-                    YIO_string_fini(&res);
+                    YIO_buf_fini(&res);
                     continue;
                 }
                 const bool match = strcmp(test_eq, buf) == 0;
@@ -97,7 +97,7 @@ static void test_engine_golden_{{R.name}}(void) {
             }
         }
         
-        YIO_string_fini(&res);
+        YIO_buf_fini(&res);
     }
 }
 

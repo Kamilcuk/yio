@@ -196,12 +196,12 @@ static const struct YIO_test_floatlist$1_s YIO_test_floatlist$1[] = {
 };
 
 struct YIO_astrfroms$1_s {
-	int (*astrfrom)(YIO_string *res, int precision0, char type, YIO_FLOAT$1 val);
+	int (*astrfrom)(YIO_buf *res, int precision0, char type, YIO_FLOAT$1 val);
 	const char *astrfrom_str;
 };
 
 static const struct YIO_astrfroms$1_s  YIO_astrfroms$1[] = {
-#define T(a)  { (int (*)(YIO_string *, int, char, YIO_FLOAT$1))(void*)a, #a, }
+#define T(a)  { (int (*)(YIO_buf *, int, char, YIO_FLOAT$1))(void*)a, #a, }
 #ifndef YIO_has_float_astrfrom_strfrom$1
 #error YIO_has_float_astrfrom_strfrom$1
 #endif

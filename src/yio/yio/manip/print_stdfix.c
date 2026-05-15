@@ -40,14 +40,14 @@ int YIO_print_$3(yio_printctx_t *t) {
 	int err = yio_printctx_init(t);
 	if (err) return err;
 	struct yio_printfmt_s *pf = yio_printctx_get_fmt(t);
-	YIO_string res = {0};
+	YIO_buf res = {0};
 	err = YIO_strfrom$1(&res, pf, v);
 	if (err) return err;
-	const char *const result = YIO_string_data(&res);
-	const size_t length = YIO_string_len(&res);
+	const char *const result = YIO_buf_data(&res);
+	const size_t length = YIO_buf_len(&res);
 	const bool negative = result[0] == '-';
 	err = yio_printctx_put_number(t, result + negative, length - negative, !negative);
-	YIO_string_fini(&res);
+	YIO_buf_fini(&res);
 	return err;
 }
 #endif

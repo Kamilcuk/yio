@@ -12,7 +12,7 @@
 #endif
 #if YIO_HAS_MONETARY_H
 #include "../../private/yio_allochelp.h"
-#include "../../private/yio_string.h"
+#include "../../private/yio_buf.h"
 #include "print_mon.h"
 #include <monetary.h>
 #include <assert.h>
@@ -32,11 +32,11 @@ int YIO_print_mon(yio_printctx_t *t) {
 	if (err) return err;
 	// Prepare format string for strfmon.
 	const size_t realfmtlen = fmtend - fmtbegin;
-	YIO_string fmtbuf;
-	YIO_string_init(&fmtbuf);
-	err = YIO_string_reserve(&fmtbuf, realfmtlen + 1);
+	YIO_buf fmtbuf;
+	YIO_buf_init(&fmtbuf);
+	err = YIO_buf_reserve(&fmtbuf, realfmtlen + 1);
 	if (err) return err;
-	char *format = YIO_string_data(&fmtbuf);
+	char *format = YIO_buf_data(&fmtbuf);
 	memcpy(format, fmtbegin, realfmtlen);
 	format[realfmtlen] = '\0';
 	// Call astrfmon.
@@ -44,14 +44,14 @@ int YIO_print_mon(yio_printctx_t *t) {
 		.v.d = vv,
 		.isldbl = false,
 	};
-	YIO_string res;
-	YIO_string_init(&res);
+	YIO_buf res;
+	YIO_buf_init(&res);
 	err = YIO_astrfmon(&res, format, arg);
-	YIO_string_fini(&fmtbuf);
+	YIO_buf_fini(&fmtbuf);
 	if (err == 0) {
-		err = yio_printctx_put(t, YIO_string_data(&res), YIO_string_len(&res));
+		err = yio_printctx_put(t, YIO_buf_data(&res), YIO_buf_len(&res));
 	}
-	YIO_string_fini(&res);
+	YIO_buf_fini(&res);
 	return err;
 }
 

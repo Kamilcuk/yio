@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #include "../yio_config.h"
-#include "yio_string.h"
+#include "yio_buf.h"
 #include <stddef.h>
 #include <time.h>
 
@@ -24,13 +24,13 @@ extern "C" {
 /**
  * Dynamic strftime.
  * The call @c strftime(..., fmt, tm) *must* result in a nonzero string.
- * @param res The @c YIO_string object for storing output.
+ * @param res The @c YIO_buf object for storing output.
  * @param fmt The formatting string for strftime.
  *            It *must* result in a nonzero output from strftime.
  * @param tm The current broken down time representation.
  * @return 0 on success, otherwise error.
  */
-int YIO_astrftime_nonzero(YIO_string *res, const char *fmt, const struct tm *tm);
+int YIO_astrftime_nonzero(YIO_buf *res, const char *fmt, const struct tm *tm);
 
 #ifndef YIO_HAS_MONETARY_H
 #error
@@ -49,12 +49,12 @@ struct YIO_astrfmon_arg {
 
 /**
  * Dynamic allocation astrfmon.
- * @param res The @c YIO_string object for storing output.
+ * @param res The @c YIO_buf object for storing output.
  * @param fmt The formatting string passed to strfmon.
  * @param arg The arguments, which should match type with formatting string.
  * @return 0 on success, otherwise error.
  */
-int YIO_astrfmon(YIO_string *res, const char *fmt, struct YIO_astrfmon_arg arg);
+int YIO_astrfmon(YIO_buf *res, const char *fmt, struct YIO_astrfmon_arg arg);
 #endif
 
 #ifdef __cplusplus

@@ -58,4 +58,4 @@ The library provides several backends for float-to-string conversion, chosen aut
 4.  `naive`: Yio's internal fallback engine. Uses basic digit extraction and scaling.
 
 Availability macros: `YIO_has_float_astrfrom_<backend>_<repr>`.
-Function signature: `int YIO_float_astrfrom_<backend>_<repr>(YIO_string *v, int precision, char spec, YIO_FLOAT_RP_<repr> val)`.
+Function signature: `int YIO_float_astrfrom_<backend>_<repr>(YIO_buf *v, int precision, char spec, YIO_FLOAT_RP_<repr> val)`.

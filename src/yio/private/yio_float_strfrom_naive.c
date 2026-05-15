@@ -20,7 +20,7 @@
 #define __STDC_WANT_IEC_60559_FUNCS_EXT__  1
 #define __STDC_WANT_IEC_60559_TYPES_EXT__  1
 #include "yio_float_strfrom_naive.h"
-#include "yio_string.h"
+#include "yio_buf.h"
 #include "yio_float.h"
 #include "private.h"
 #include "../yio/manip/print_int.h"
@@ -61,13 +61,13 @@ static const char *YIO_inf = "inf";
 static const char *YIO_infs(bool lower) { return lower ? YIO_inf : YIO_INF; }
 
 static inline
-int YIO_print_scientific_suffix(YIO_string *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
+int YIO_print_scientific_suffix(YIO_buf *v, char speclower, char spec, bool is_lower_spec, bool dec, bool val_is_zero, int exponent) {
 	int err = 0;
 	const bool print_scientific_suffix = speclower == 'e' || speclower == 'a';
 	if (print_scientific_suffix) {
 	  assert(strchr("eEaA", spec) != NULL);
 	  const char letter = (char)(dec ? spec : is_lower_spec ? 'p' : 'P');
-	  err = YIO_string_putc(v, letter);
+	  err = YIO_buf_putc(v, letter);
 	  if (err) return err;
 	  const int adjusted_exponent = val_is_zero ? 0 : (exponent - 1);
 	  struct yio_printfmt_s fmt = {
@@ -76,7 +76,7 @@ int YIO_print_scientific_suffix(YIO_string *v, char speclower, char spec, bool i
 	    .align = '=',
 	    .sign = '+',
 	  };
-	  err = YIO_string_print_int(v, fmt, adjusted_exponent);
+	  err = YIO_buf_print_int(v, fmt, adjusted_exponent);
 	}
 	return err;
 }
@@ -116,7 +116,7 @@ int YIO_print_scientific_suffix(YIO_string *v, char speclower, char spec, bool i
 #line
 
 static inline
-int get_next_digit_$1(YIO_string *v, TYPE *val,
+int get_next_digit_$1(YIO_buf *v, TYPE *val,
 		bool dec, const char *to_digit_str, bool is_last) {
 	TYPE digit_fp;
 	*val = MODF(*val * (dec ? FC(10.0) : FC(16.0)), &digit_fp);
@@ -130,12 +130,12 @@ int get_next_digit_$1(YIO_string *v, TYPE *val,
 		return YIO_ERROR_ENOSYS;
 	}
 	const char c = to_digit_str[digit];
-	const int err = YIO_string_putc(v, c);
+	const int err = YIO_buf_putc(v, c);
 	if (err != 0) return err;
 	return 0;
 }
 
-int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE val) {
+int YIO_float_astrfrom_naive_$1(YIO_buf *v, int precision0, char spec0, TYPE val) {
 	static const int a_max_precision =
 // if the precision is missing and FLT_RADIX is a power of 2,
 // then the precision is sufficient for an exact representation of the value
@@ -146,7 +146,7 @@ int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE 
 	// take minus out of the way
 	const bool negative = signbit(val);
 	if (negative) {
-		err = YIO_string_putc(v, '-');
+		err = YIO_buf_putc(v, '-');
 		if (err) return err;
 		val = FABS(val);
 	}
@@ -161,7 +161,7 @@ int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE 
 		val_class == FP_INFINITE ? YIO_infs(is_lower_spec) :
 		NULL;
 	if (nan_or_inf_str != NULL) {
-		return YIO_string_putsn(v, nan_or_inf_str, 3);
+		return YIO_buf_putsn(v, nan_or_inf_str, 3);
 	}
 
 	// All the happy rest.
@@ -260,7 +260,7 @@ int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE 
 	// Convert number before the dot
 	if (speclower == 'f') {
 		if (exponent <= 0) {
-			err = YIO_string_putc(v, '0');
+			err = YIO_buf_putc(v, '0');
 			if (err) return err;
 		} else {
 			assert(exponent > 0);
@@ -271,19 +271,19 @@ int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE 
 		}
 	} else if (speclower == 'e') {
 		if (val_is_zero) {
-			err = YIO_string_putc(v, '0');
+			err = YIO_buf_putc(v, '0');
 			if (err) return err;
 		} else {
 			err = get_next_digit_$1(v, &val, dec, to_digit_str, precision == 0);
 			if (err) return err;
 		}
 	} else if (speclower == 'a') {
-		err = YIO_string_putc(v, '0');
+		err = YIO_buf_putc(v, '0');
 		if (err) return err;
-		err = YIO_string_putc(v, is_lower_spec ? 'x': 'X');
+		err = YIO_buf_putc(v, is_lower_spec ? 'x': 'X');
 		if (err) return err;
 		if (val_is_zero) {
-			err = YIO_string_putc(v, '0');
+			err = YIO_buf_putc(v, '0');
 			if (err) return err;
 		} else {
 			// print first number
@@ -293,13 +293,13 @@ int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE 
 	}
 
 	if (precision) {
-		err = YIO_string_putc(v, '.');
+		err = YIO_buf_putc(v, '.');
 		if (err) return err;
 		int zeros = (speclower == 'f' && exponent < 0) ? -exponent : 0;
 		while (precision--) {
 			if (zeros) {
 				--zeros;
-				err = YIO_string_putc(v, '0');
+				err = YIO_buf_putc(v, '0');
 				if (err) return err;
 			} else {
 				err = get_next_digit_$1(v, &val, dec, to_digit_str, precision == 0);
@@ -307,7 +307,7 @@ int YIO_float_astrfrom_naive_$1(YIO_string *v, int precision0, char spec0, TYPE 
 			}
 		}
 		if (spec0lower == 'g' || spec0lower == 'a') {
-			YIO_string_remove_trailing_zeros_and_dot(v);
+			YIO_buf_remove_trailing_zeros_and_dot(v);
 		}
 	}
 

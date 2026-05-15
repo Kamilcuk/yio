@@ -41,8 +41,8 @@ static void test_engine_parity_{{R.name}}(void) {
 #ifndef YIO_has_float_astrfrom_printf_{{R.name}}
 #error YIO_has_float_astrfrom_printf_{{R.name}} is not defined
 #endif
-    YIO_string res; YIO_string_init(&res);
-    YIO_string ref; YIO_string_init(&ref);
+    YIO_buf res; YIO_buf_init(&res);
+    YIO_buf ref; YIO_buf_init(&ref);
     
     // Test values from the test list
 #if 0
@@ -59,38 +59,38 @@ static void test_engine_parity_{{R.name}}(void) {
             int prec = testparams[j].prec;
             char spec = testparams[j].spec;
             
-            YIO_string_clear(&ref);
-            YIO_string_clear(&res);
+            YIO_buf_clear(&ref);
+            YIO_buf_clear(&res);
             
             if (YIO_has_float_astrfrom_naive_{{R.name}}) {
                 if (YIO_float_astrfrom_naive_{{R.name}}(&ref, prec, spec, val) == 0) {
                     
 #if YIO_has_float_astrfrom_strfrom_{{R.name}}
-                    YIO_string_clear(&res);
+                    YIO_buf_clear(&res);
                     if (YIO_float_astrfrom_strfrom_{{R.name}}(&res, prec, spec, val) == 0) {
                         if (!YIO_test_string_float_equal(&ref, &res, spec)) {
                             printf("Mismatch {{R.name}} strfrom: val=%g prec=%d spec=%c NAIVE=%s STRFROM=%s\n",
-                                   (double)val, prec, spec, YIO_string_c_str(&ref), YIO_string_c_str(&res));
+                                   (double)val, prec, spec, YIO_buf_c_str(&ref), YIO_buf_c_str(&res));
                         }
                     }
 #endif
 
 #if YIO_has_float_astrfrom_printf_{{R.name}}
-                    YIO_string_clear(&res);
+                    YIO_buf_clear(&res);
                     if (YIO_float_astrfrom_printf_{{R.name}}(&res, prec, spec, val) == 0) {
                         if (!YIO_test_string_float_equal(&ref, &res, spec)) {
                             printf("Mismatch {{R.name}} printf: val=%g prec=%d spec=%c NAIVE=%s PRINTF=%s\n",
-                                   (double)val, prec, spec, YIO_string_c_str(&ref), YIO_string_c_str(&res));
+                                   (double)val, prec, spec, YIO_buf_c_str(&ref), YIO_buf_c_str(&res));
                         }
                     }
 #endif
 
 #if YIO_has_float_astrfrom_ryu_{{R.name}}
-                    YIO_string_clear(&res);
+                    YIO_buf_clear(&res);
                     if (YIO_float_astrfrom_ryu_{{R.name}}(&res, prec, spec, val) == 0) {
                         if (!YIO_test_string_float_equal(&ref, &res, spec)) {
                             printf("Mismatch {{R.name}} ryu: val=%g prec=%d spec=%c NAIVE=%s RYU=%s\n",
-                                   (double)val, prec, spec, YIO_string_c_str(&ref), YIO_string_c_str(&res));
+                                   (double)val, prec, spec, YIO_buf_c_str(&ref), YIO_buf_c_str(&res));
                         }
                     }
 #endif
@@ -99,8 +99,8 @@ static void test_engine_parity_{{R.name}}(void) {
         }
     }
     
-    YIO_string_fini(&res);
-    YIO_string_fini(&ref);
+    YIO_buf_fini(&res);
+    YIO_buf_fini(&ref);
 }
 #endif
 {% endfor %}

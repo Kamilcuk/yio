@@ -14,9 +14,9 @@ extern "C" {
 
 #include "../private.h"
 #include "manip.h"
-#include "../../private/yio_string.h"
+#include "../../private/yio_buf.h"
 
-int YIO_float_apply_alternate_form(yio_printctx_t *t, YIO_string *o);
+int YIO_float_apply_alternate_form(yio_printctx_t *t, YIO_buf *o);
 
 #ifdef __cplusplus
 }

@@ -93,16 +93,20 @@ static inline void run_addr2line(const char *exe, uintptr_t address) {
 	if (pipe(pipefd) == -1) return;
 
 	pid_t pid = fork();
+	if (pid == -1) {
+		close(pipefd[0]);
+		close(pipefd[1]);
+		return;
+	}
 	if (pid == 0) {
 		close(pipefd[0]);
-		if (dup2(pipefd[1], STDOUT_FILENO) != -1) {
-			close(pipefd[1]);
-			char addr_str[32];
-			snprintf(addr_str, sizeof(addr_str), "0x%lx", address);
-			execlp("addr2line", "addr2line", "-Cfi", "-e", exe, addr_str, (char *)NULL);
-		} else {
+		if (pipefd[1] != STDOUT_FILENO) {
+			dup2(pipefd[1], STDOUT_FILENO);
 			close(pipefd[1]);
 		}
+		char addr_str[32];
+		snprintf(addr_str, sizeof(addr_str), "0x%lx", address);
+		execlp("addr2line", "addr2line", "-Cfi", "-e", exe, addr_str, (char *)NULL);
 		_exit(1);
 	}
 	close(pipefd[1]);

@@ -13,7 +13,7 @@
 #include "yio_float_strfrom_strfrom.h"
 #include "private.h"
 #include "yio_float.h"
-#include "yio_string.h"
+#include "yio_buf.h"
 #include <assert.h>
 #include <stddef.h>
 #include <limits.h>
@@ -56,25 +56,25 @@ void YIO_float_astrfrom_strfrom_create_format_string(char *fmt, int precision0, 
 #line
 #if YIO_has_float_astrfrom_strfrom_$1
 
-int YIO_float_astrfrom_strfrom_$1(YIO_string *v, int precision0, char spec, YIO_FLOAT_RP_$1 val) {
+int YIO_float_astrfrom_strfrom_$1(YIO_buf *v, int precision0, char spec, YIO_FLOAT_RP_$1 val) {
 	// create format string
 	char fmt[FMT_SIZE];
 	YIO_float_astrfrom_strfrom_create_format_string(fmt, precision0, spec);
 	// get length
-	assert(YIO_string_capacity(v) < INT_MAX);
-	const int len = YIO_strfrom_RP_$1(YIO_string_data(v), YIO_string_capacity(v), fmt, val);
+	assert(YIO_buf_capacity(v) < INT_MAX);
+	const int len = YIO_strfrom_RP_$1(YIO_buf_data(v), YIO_buf_capacity(v), fmt, val);
 	if (len <= 0) {
 		return YIO_ERROR(YIO_ERROR_STRFROM, "strfrom returned zero or negative");
 	}
-	if ((size_t)len >= YIO_string_capacity(v)) {
-		const int err = YIO_string_reserve(v, len + 1);
+	if ((size_t)len >= YIO_buf_capacity(v)) {
+		const int err = YIO_buf_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = YIO_strfrom_RP_$1(YIO_string_data(v), YIO_string_capacity(v), fmt, val);
+		const int len2 = YIO_strfrom_RP_$1(YIO_buf_data(v), YIO_buf_capacity(v), fmt, val);
 		if (len2 != len) {
 			return YIO_ERROR_STRFROM;
 		}
 	}
-	YIO_string_set_used(v, len);
+	YIO_buf_set_used(v, len);
 	return 0;
 }
 

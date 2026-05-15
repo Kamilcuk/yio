@@ -6,7 +6,7 @@
  * SPDX-License-Identifier: GPL-3.0-only
  * @brief
  */
-#include "../../private/yio_string.h"
+#include "../../private/yio_buf.h"
 #include "print_repr.h"
 #include "../ctx.h"
 #include "private.h"
@@ -22,12 +22,12 @@ bool is_print_ascii(char tcc) {
 }
 
 struct ss_s {
-	YIO_string *str;
+	YIO_buf *str;
 };
 
 static inline
 int ss_out(struct ss_s *t, char cc) {
-	return YIO_string_putc(t->str, cc);
+	return YIO_buf_putc(t->str, cc);
 }
 
 #define xdigits YIO_digit_to_hex
@@ -167,7 +167,7 @@ char ascii_encode_get_esc(char prev, char cc) {
 }
 
 static inline
-int ascii_encode_do(YIO_string *out, int (*encoder)(struct ss_s *ss, char cc, char next) YIO_REENTRANT,
+int ascii_encode_do(YIO_buf *out, int (*encoder)(struct ss_s *ss, char cc, char next) YIO_REENTRANT,
 										const char *str, size_t str_len, bool use_esc) {
 	int err;
 	struct ss_s ss_mem = {out}, *ss = &ss_mem;
@@ -205,14 +205,14 @@ int YIO_print_repr_$1(yio_printctx_t *t) {
 	(void)val;
 	int err = yio_printctx_init(t);
 	if (err) return yio_printctx_err_skip(t, err, 1);
-	YIO_string str;
-	YIO_string_init(&str);
+	YIO_buf str;
+	YIO_buf_init(&str);
 	const yio_printdata_t data[] = {*t->ifunc++, 0};
 	err = yio_vbprintf(print_repr_$1_in, &str, data, 0, t->va);
 	if (err < 0) goto EXIT;
-	err = yio_printctx_put(t, YIO_string_data(&str), YIO_string_len(&str));
+	err = yio_printctx_put(t, YIO_buf_data(&str), YIO_buf_len(&str));
 EXIT:
-	YIO_string_fini(&str);
+	YIO_buf_fini(&str);
 	return err;
 }
 {% endcall %}

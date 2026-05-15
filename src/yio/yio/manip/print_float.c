@@ -9,20 +9,20 @@
 #include "private.h"
 #include "../../private/yio_float.h"
 #include "print_float.h"
-#include "../../private/yio_string.h"
+#include "../../private/yio_buf.h"
 #include "../../private/yio_float_strfrom_printf.h"
 #include "../../private/yio_float_strfrom_strfrom.h"
 #include "../../private/yio_float_strfrom_ryu.h"
 #include "../../private/yio_float_strfrom_naive.h"
 #include <ctype.h>
 
-int YIO_float_apply_alternate_form(yio_printctx_t *t, YIO_string *o) {
+int YIO_float_apply_alternate_form(yio_printctx_t *t, YIO_buf *o) {
     const char spec = t->pf.type ? t->pf.type : 'g';
     const char speclower = YIO_tolower(spec);
     const int precision0 = (int)t->pf.precision - 1;
 
-    char *data = YIO_string_data(o);
-    size_t len = YIO_string_len(o);
+    char *data = YIO_buf_data(o);
+    size_t len = YIO_buf_len(o);
 
     if (len == 0) return 0;
     // Skip non-numeric values (NaN, Inf)
@@ -45,21 +45,21 @@ int YIO_float_apply_alternate_form(yio_printctx_t *t, YIO_string *o) {
         if (exp) {
             const size_t exp_off = (size_t)(exp - data);
             const size_t exp_len = len - exp_off;
-            const int err = YIO_string_reserve_more(o, 1);
+            const int err = YIO_buf_reserve_more(o, 1);
             if (err) return err;
-            data = YIO_string_data(o);
+            data = YIO_buf_data(o);
             exp = data + exp_off;
             memmove(exp + 1, exp, exp_len);
             *exp = '.';
             len++;
-            YIO_string_set_used(o, len);
+            YIO_buf_set_used(o, len);
             dot = data + exp_off;
             exp = data + exp_off + 1;
         } else {
-            const int err = YIO_string_putc(o, '.');
+            const int err = YIO_buf_putc(o, '.');
             if (err) return err;
             len++;
-            data = YIO_string_data(o);
+            data = YIO_buf_data(o);
             dot = data + len - 1;
         }
     }
@@ -93,17 +93,17 @@ int YIO_float_apply_alternate_form(yio_printctx_t *t, YIO_string *o) {
                 if (exp) {
                     const size_t exp_off = (size_t)(exp - data);
                     const size_t exp_len = len - exp_off;
-                    const int err = YIO_string_reserve_more(o, to_add);
+                    const int err = YIO_buf_reserve_more(o, to_add);
                     if (err) return err;
-                    data = YIO_string_data(o);
+                    data = YIO_buf_data(o);
                     exp = data + exp_off;
                     memmove(exp + to_add, exp, exp_len);
                     memset(exp, '0', to_add);
                     len += to_add;
-                    YIO_string_set_used(o, len);
+                    YIO_buf_set_used(o, len);
                 } else {
                     while (to_add--) {
-                        const int err = YIO_string_putc(o, '0');
+                        const int err = YIO_buf_putc(o, '0');
                         if (err) return err;
                     }
                 }
@@ -113,18 +113,18 @@ int YIO_float_apply_alternate_form(yio_printctx_t *t, YIO_string *o) {
     return 0;
 }
 
-static int postprocess(yio_printctx_t *t, YIO_string *o, int err) {
+static int postprocess(yio_printctx_t *t, YIO_buf *o, int err) {
     if (err) goto EXIT;
     if (t->pf.hash) {
         err = YIO_float_apply_alternate_form(t, o);
         if (err) goto EXIT;
     }
-    const char *const result = YIO_string_data(o);
-    const size_t length = YIO_string_len(o);
+    const char *const result = YIO_buf_data(o);
+    const size_t length = YIO_buf_len(o);
     const bool is_negative = (length > 0 && result[0] == '-');
     err = yio_printctx_put_number(t, result + is_negative, length - is_negative, !is_negative);
 EXIT:
-    YIO_string_fini(o);
+    YIO_buf_fini(o);
     return err;
 }
 
@@ -140,8 +140,8 @@ static int YIO_float_dispatch_{{R.name}}(yio_printctx_t *t, YIO_FLOAT_RP_{{R.nam
         return YIO_ERROR_FMT_INVALID;
     }
     const int precision = (int)t->pf.precision - 1;
-    YIO_string res;
-    YIO_string_init(&res);
+    YIO_buf res;
+    YIO_buf_init(&res);
 
 #ifndef YIO_has_float_astrfrom_strfrom_{{R.name}}
 #error YIO_has_float_astrfrom_strfrom_{{R.name}} is not defined

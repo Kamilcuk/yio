@@ -8,7 +8,7 @@
  */
 #include "yio_stdfix_strfrom.h"
 #include "private.h"
-#include "yio_string.h"
+#include "yio_buf.h"
 #include "yio_stdfix.h"
 #include "../yio/manip/print_int_private.h"
 #include <stdint.h>
@@ -19,13 +19,13 @@
 
 
 
-#define YIO_string_print_number(o, pf, v) _Generic((v), \
-    unsigned char: YIO_string_print_u_in, \
-    unsigned short: YIO_string_print_u_in, \
-    unsigned int: YIO_string_print_u_in, \
-    unsigned long: YIO_string_print_ul_in \
-    YIO_IF(YIO_HAS_LLONG, , unsigned long long: YIO_string_print_ull_in) \
-    YIO_IF(YIO_HAS_INT128, , unsigned __int128: YIO_string_print_u128_in) \
+#define YIO_buf_print_number(o, pf, v) _Generic((v), \
+    unsigned char: YIO_buf_print_u_in, \
+    unsigned short: YIO_buf_print_u_in, \
+    unsigned int: YIO_buf_print_u_in, \
+    unsigned long: YIO_buf_print_ul_in \
+    YIO_IF(YIO_HAS_LLONG, , unsigned long long: YIO_buf_print_ull_in) \
+    YIO_IF(YIO_HAS_INT128, , unsigned __int128: YIO_buf_print_u128_in) \
 )(o, pf, v)
 
 // Represents the type we will use to represnt stdfix types as an unsigned integer.
@@ -74,7 +74,7 @@ static inline yyio_next_digit_$1_t yyio_get_next_digit_$1(TYPE rem, int fbit, TY
 }
 
 static inline
-int YIO_stdfix_strfrom_int$1(YIO_string *o, const struct yio_printfmt_s *pf, char spec, bool spec_is_upper, TYPE v, unsigned ibit, unsigned fbit) {
+int YIO_stdfix_strfrom_int$1(YIO_buf *o, const struct yio_printfmt_s *pf, char spec, bool spec_is_upper, TYPE v, unsigned ibit, unsigned fbit) {
 	const int total_bits = sizeof(v) * CHAR_BIT;
 	const char *const i_to_c = YIO_digit_to_hexs(!spec_is_upper);
 	const bool is_pure_fraction = fbit >= total_bits;
@@ -82,7 +82,7 @@ int YIO_stdfix_strfrom_int$1(YIO_string *o, const struct yio_printfmt_s *pf, cha
 	int err = 0;
 	//
 	if (spec == 'x' || spec == 'u' || spec == 'd') {
-		err = YIO_string_print_number(o, ((struct yio_printfmt_s){.type=spec}), v);
+		err = YIO_buf_print_number(o, ((struct yio_printfmt_s){.type=spec}), v);
 		if (err) return err;
 	} else if (spec == 'f' || spec == 'g') {
 		// Default precision for f is 6.
@@ -133,7 +133,7 @@ int YIO_stdfix_strfrom_int$1(YIO_string *o, const struct yio_printfmt_s *pf, cha
     	if (peek.digit >= 5) integer_part++;
 		}
 		// Print the integer part using the full width of the type.
-		err = YIO_string_print_number(o, ((struct yio_printfmt_s){0}), integer_part);
+		err = YIO_buf_print_number(o, ((struct yio_printfmt_s){0}), integer_part);
     if (err) return err;
     // Calculate actual precision for 'g' (strip trailing zeros)
     int effective_precision = calc_limit;
@@ -146,7 +146,7 @@ int YIO_stdfix_strfrom_int$1(YIO_string *o, const struct yio_printfmt_s *pf, cha
     }
     // Print Decimal Point
     if (effective_precision > 0 || alternate_form) {
-        err = YIO_string_putc(o, '.');
+        err = YIO_buf_putc(o, '.');
         if (err) return err;
     }
     // Print Fractional Part
@@ -154,22 +154,22 @@ int YIO_stdfix_strfrom_int$1(YIO_string *o, const struct yio_printfmt_s *pf, cha
       // Print significant digits
       const int to_print = (effective_precision < calc_limit) ? effective_precision : calc_limit;
       for (int i = 0; i < to_print; ++i) {
-          err = YIO_string_putc(o, i_to_c[digits[i]]);
+          err = YIO_buf_putc(o, i_to_c[digits[i]]);
           if (err) return err;
       }
       // Zero-padding for 'f' only
       if (spec == 'f' && effective_precision > calc_limit) {
         for (int i = calc_limit; i < effective_precision; ++i) {
-            err = YIO_string_putc(o, '0');
+            err = YIO_buf_putc(o, '0');
             if (err) return err;
         }
       }
     }
 
 	} else if (spec == 'a') {
-		err = YIO_string_putc(o, '0');
+		err = YIO_buf_putc(o, '0');
 		if (err) return err;
-		err = YIO_string_putc(o, spec_is_upper ? 'X' : 'x');
+		err = YIO_buf_putc(o, spec_is_upper ? 'X' : 'x');
 		int exponent = 0;
 		size_t precision;
 		if (v != 0) {
@@ -205,17 +205,17 @@ int YIO_stdfix_strfrom_int$1(YIO_string *o, const struct yio_printfmt_s *pf, cha
 			const int c = v >> (total_bits - 4);
 			v <<= 4;
 			// Print the lead digit
-      err = YIO_string_putc(o, i_to_c[c]);
+      err = YIO_buf_putc(o, i_to_c[c]);
       if (err) return err;
       // Print the dot after the FIRST nibble
       if (i == 0 && (precision > 0 || alternate_form)) {
-          err = YIO_string_putc(o, '.');
+          err = YIO_buf_putc(o, '.');
           if (err) return err;
       }
 		}
-		err = YIO_string_putc(o, spec_is_upper ? 'P' : 'p');
+		err = YIO_buf_putc(o, spec_is_upper ? 'P' : 'p');
 		if (err) return err;
-		err = YIO_string_print_int(o, (struct yio_printfmt_s){.sign='+',.type='d'}, exponent);
+		err = YIO_buf_print_int(o, (struct yio_printfmt_s){.sign='+',.type='d'}, exponent);
 		if (err) return err;
 
 	} else {
@@ -247,7 +247,7 @@ int YIO_stdfix_strfrom_int$1(YIO_string *o, const struct yio_printfmt_s *pf, cha
 #error BITS is invalid and greater than 64 for [$1, $2, $3]
 #endif
 
-int YIO_strfrom$1(YIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
+int YIO_strfrom$1(YIO_buf *o, const struct yio_printfmt_s *pf, $2 val) {
 	_Static_assert(CHAR_BIT == 8, "");
 	// Dispatching each type to the same size of variable.
 	// After removing negative numbers and in twos-complement representation we do not really care.
@@ -259,7 +259,7 @@ int YIO_strfrom$1(YIO_string *o, const struct yio_printfmt_s *pf, $2 val) {
 	{% if not j_search(V.2, "unsigned") %}#line
 	if (uint_val & ((TYPE)1 << (BITS - 1))) {
 		if (spec != 'x' && spec != 'u') {
-			int err = YIO_string_putc(o, '-');
+			int err = YIO_buf_putc(o, '-');
 			if (err) return err;
 			uint_val = -uint_val;
 		}

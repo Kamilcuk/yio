@@ -9,7 +9,7 @@
 #ifndef __SDCC
 #define _POSIX_C_SOURCE  1
 #include "private.h"
-#include "yio/private/yio_string.h"
+#include "yio/private/yio_buf.h"
 #include <time.h>
 #if (YIO_HAS_timespec || YIO_HAS_timeval) && YIO_HAS_SYS_TIME_H
 #include <sys/time.h>
@@ -36,8 +36,8 @@ int YIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, int
 	const unsigned long long abs_sec = is_neg ? (unsigned long long)-(sec + (nsec != 0)) : (unsigned long long)sec;
 	const unsigned long long abs_nsec = is_neg ? (nsec == 0 ? 0 : (unsigned long long)(max_nsec - nsec)) : (unsigned long long)nsec;
 
-	YIO_string res;
-	YIO_string_init(&res);
+	YIO_buf res;
+	YIO_buf_init(&res);
 
 	int err = 0;
 	unsigned long long fraction = abs_nsec;
@@ -50,19 +50,19 @@ int YIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, int
 	}
 
 	if (is_neg) {
-		err = YIO_string_putc(&res, '-');
+		err = YIO_buf_putc(&res, '-');
 		if (err) goto end;
 	}
 
 	const bool dot_added = precision > 0 || pf->hash;
 	if (type == 'f' || type == 'g') {
-		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){0}, abs_sec);
+		err = YIO_buf_print_ull_in(&res, (struct yio_printfmt_s){0}, abs_sec);
 		if (err) goto end;
 		if (dot_added) {
-			err = YIO_string_putc(&res, '.');
+			err = YIO_buf_putc(&res, '.');
 			if (err) goto end;
 			if (precision > 0) {
-				err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
+				err = YIO_buf_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
 				if (err) goto end;
 			}
 		}
@@ -70,21 +70,21 @@ int YIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, int
 		const unsigned long long h = abs_sec / 3600;
 		const unsigned long long m = (abs_sec % 3600) / 60;
 		const unsigned long long s = abs_sec % 60;
-		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){0}, h);
+		err = YIO_buf_print_ull_in(&res, (struct yio_printfmt_s){0}, h);
 		if (err) goto end;
-		err = YIO_string_putc(&res, ':');
+		err = YIO_buf_putc(&res, ':');
 		if (err) goto end;
-		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, m);
+		err = YIO_buf_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, m);
 		if (err) goto end;
-		err = YIO_string_putc(&res, ':');
+		err = YIO_buf_putc(&res, ':');
 		if (err) goto end;
-		err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, s);
+		err = YIO_buf_print_ull_in(&res, (struct yio_printfmt_s){.width = 3, .align = '=', .fill = '0'}, s);
 		if (err) goto end;
 		if (dot_added) {
-			err = YIO_string_putc(&res, '.');
+			err = YIO_buf_putc(&res, '.');
 			if (err) goto end;
 			if (precision > 0) {
-				err = YIO_string_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
+				err = YIO_buf_print_ull_in(&res, (struct yio_printfmt_s){.width = (uint16_t)precision + 1, .align = '=', .fill = '0'}, fraction);
 				if (err) goto end;
 			}
 		}
@@ -94,12 +94,12 @@ int YIO_print_timespec_val(yio_printctx_t *t, long long sec, long long nsec, int
 	}
 
 	if ((type == 'g' || (type == '\0' && pf->hash)) && dot_added) {
-		YIO_string_remove_trailing_zeros_and_dot(&res);
+		YIO_buf_remove_trailing_zeros_and_dot(&res);
 	}
-	err = yio_printctx_put(t, YIO_string_data(&res), YIO_string_len(&res));
+	err = yio_printctx_put(t, YIO_buf_data(&res), YIO_buf_len(&res));
 
 end:
-	YIO_string_fini(&res);
+	YIO_buf_fini(&res);
 	return err;
 }
 #endif

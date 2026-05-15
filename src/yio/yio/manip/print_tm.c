@@ -85,8 +85,8 @@ int YIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 
 	// Extract the format string.
 	// Add additional space.
-	YIO_string fmtbut;
-	YIO_string_init(&fmtbut);
+	YIO_buf fmtbut;
+	YIO_buf_init(&fmtbut);
 	const char *const emptyformat = "%c ";
 	const char *format = NULL;
 	if (realfmtlen == 0) {
@@ -95,9 +95,9 @@ int YIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	} else {
 		// Add additional space.
 		const ptrdiff_t fmtlen = realfmtlen + 2;
-		err = YIO_string_reserve(&fmtbut, fmtlen);
+		err = YIO_buf_reserve(&fmtbut, fmtlen);
 		if (err) return err;
-		char *data = YIO_string_data(&fmtbut);
+		char *data = YIO_buf_data(&fmtbut);
 		memcpy(data, fmtbegin, realfmtlen);
 		data[fmtlen - 2] = ' ';
 		data[fmtlen - 1] = '\0';
@@ -107,20 +107,20 @@ int YIO_print_time_strftime(yio_printctx_t *t, const struct tm *tm) {
 	assert(strlen(format) >= 1);
 	assert(format[strlen(format) - 1] == ' ');
 	//
-	YIO_string res;
-	YIO_string_init(&res);
+	YIO_buf res;
+	YIO_buf_init(&res);
 	err = YIO_astrftime_nonzero(&res, format, tm);
-	YIO_string_fini(&fmtbut);
+	YIO_buf_fini(&fmtbut);
 	if (err == 0) {
-		assert(YIO_string_len(&res) > 1);
-		const size_t reslen = YIO_string_len(&res) - 1;
+		assert(YIO_buf_len(&res) > 1);
+		const size_t reslen = YIO_buf_len(&res) - 1;
 		const struct yio_printfmt_s *const pf = &t->pf;
 		const size_t toprint = pf->precision == 0 ? reslen :
 			reslen < yio_precision_get_default(pf->precision, 0) ? reslen :
 			yio_precision_get_default(pf->precision, 0);
-		err = yio_printctx_put(t, YIO_string_data(&res), toprint);
+		err = yio_printctx_put(t, YIO_buf_data(&res), toprint);
 	}
-	YIO_string_fini(&res);
+	YIO_buf_fini(&res);
 	return err;
 }
 

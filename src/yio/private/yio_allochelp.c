@@ -24,18 +24,18 @@
 
 static const size_t MAXSIZE = 4096U;
 
-int YIO_astrftime_nonzero(YIO_string *res, const char *fmt, const struct tm *tm) {
+int YIO_astrftime_nonzero(YIO_buf *res, const char *fmt, const struct tm *tm) {
 #ifdef __SDCC
 	(void)res; (void)fmt; (void)tm;
 	return YIO_ERROR_ENOSYS;
 #else
 	while (1) {
-		const size_t bufsize = YIO_string_capacity(res);
+		const size_t bufsize = YIO_buf_capacity(res);
 		errno = 0;
-		size_t count = strftime(YIO_string_data(res), bufsize, fmt, tm);
-		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, YIO_string_capacity(res));
+		size_t count = strftime(YIO_buf_data(res), bufsize, fmt, tm);
+		// dbgln("%zu %d %s %s %zu", count, errno, strerror(errno), fmt, YIO_buf_capacity(res));
 		if (count != (size_t)0) {
-			YIO_string_set_used(res, count);
+			YIO_buf_set_used(res, count);
 			break;
 		}
 		// MUSL set's EINVAL when buffer is too small
@@ -45,7 +45,7 @@ int YIO_astrftime_nonzero(YIO_string *res, const char *fmt, const struct tm *tm)
 		if (bufsize > MAXSIZE) {
 			return YIO_ERROR(YIO_ERROR_STRFTIME_TOOBIG, "strftime needed more than 4096 bytes to write");
 		}
-		int err = YIO_string_reserve_more(res, 0);
+		int err = YIO_buf_reserve_more(res, 0);
 		if (err) return err;
 	}
 	return 0;
@@ -53,10 +53,10 @@ int YIO_astrftime_nonzero(YIO_string *res, const char *fmt, const struct tm *tm)
 }
 
 #if YIO_HAS_MONETARY_H
-int YIO_astrfmon(YIO_string *res, const char *fmt, struct YIO_astrfmon_arg arg) {
+int YIO_astrfmon(YIO_buf *res, const char *fmt, struct YIO_astrfmon_arg arg) {
 	while (1) {
-		char *const buf = YIO_string_data(res);
-		const size_t bufsize = YIO_string_capacity(res);
+		char *const buf = YIO_buf_data(res);
+		const size_t bufsize = YIO_buf_capacity(res);
 		errno = 0;
 		const ssize_t count =
 #if YIO_HAS_FLOATl
@@ -77,14 +77,14 @@ int YIO_astrfmon(YIO_string *res, const char *fmt, struct YIO_astrfmon_arg arg) 
 			// Musl does that.
 			if (count < (ssize_t)bufsize) {
 				//dbgln("%d %d %d %s", (int)count, (int)bufsize, errno, strerror(errno));
-				YIO_string_set_used(res, count);
+				YIO_buf_set_used(res, count);
 				break;
 			}
 		}
 		if (bufsize > MAXSIZE) {
 			return YIO_ERROR(YIO_ERROR_STRFMON_TOOBIG, "strfmon needed more than 4096 bytes to write");
 		}
-		int err = YIO_string_reserve_more(res, 0);
+		int err = YIO_buf_reserve_more(res, 0);
 		if (err) return err;
 	}
 	return 0;

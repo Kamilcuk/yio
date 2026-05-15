@@ -28,21 +28,21 @@ static bool verbose = 0;
 
 static int YIO_test_print_float_naive_in$1(int precision0,
         char type, YIO_FLOAT$1 val, const char *valstr0,
-		int (*astrfrom)(YIO_string *res, int precision0, char type, YIO_FLOAT$1 val),
+		int (*astrfrom)(YIO_buf *res, int precision0, char type, YIO_FLOAT$1 val),
 		const char *astrfrom_str) {
-	YIO_string res; YIO_string_init(&res);
+	YIO_buf res; YIO_buf_init(&res);
 	int err = astrfrom(&res, precision0, type, val);
 	if (err) {
 		YIO_TESTEXPR(err == 0, "%s(%d, %c, %s, %s) failed -> %d",
 				__func__, precision0, type, valstr0, astrfrom_str, err);
-		YIO_string_fini(&res);
+		YIO_buf_fini(&res);
 		return err;
 	}
 	// zero terminate result
-	err = YIO_string_putc(&res, '\0');
-	if (err) { YIO_string_fini(&res); return err; }
+	err = YIO_buf_putc(&res, '\0');
+	if (err) { YIO_buf_fini(&res); return err; }
 
-	const char *result = YIO_string_data(&res);
+	const char *result = YIO_buf_data(&res);
 
 	char valstr[1024];
 	char format[128];
@@ -98,7 +98,7 @@ static int YIO_test_print_float_naive_in$1(int precision0,
 		}
 	}
 
-	YIO_string_fini(&res);
+	YIO_buf_fini(&res);
 	return err;
 }
 

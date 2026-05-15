@@ -20,8 +20,8 @@
 static const char *gfunc = "";
 
 #define DEFINE_WRAP(BACKEND, REPR) \
-    int __wrap_YIO_float_astrfrom_##BACKEND##_##REPR(YIO_string *v, int precision, char spec, YIO_FLOAT_RP_##REPR val); \
-    int __wrap_YIO_float_astrfrom_##BACKEND##_##REPR(YIO_string *v, int precision, char spec, YIO_FLOAT_RP_##REPR val) { \
+    int __wrap_YIO_float_astrfrom_##BACKEND##_##REPR(YIO_buf *v, int precision, char spec, YIO_FLOAT_RP_##REPR val); \
+    int __wrap_YIO_float_astrfrom_##BACKEND##_##REPR(YIO_buf *v, int precision, char spec, YIO_FLOAT_RP_##REPR val) { \
         (void)v; (void)precision; (void)spec; (void)val; \
         gfunc = "YIO_float_astrfrom_" #BACKEND "_" #REPR; \
         return 0; \

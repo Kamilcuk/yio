@@ -39,10 +39,10 @@ bool YIO_test_float_equal(const char *ref, const char *res, char spec) {
 	return match;
 }
 
-bool YIO_test_string_float_equal(struct YIO_string *ref, struct YIO_string *res, char spec) {
-	bool match = YIO_string_equal(ref, res);
+bool YIO_test_string_float_equal(struct YIO_buf *ref, struct YIO_buf *res, char spec) {
+	bool match = YIO_buf_equal(ref, res);
 	if (!match && (spec == 'a' || spec == 'A')) {
-		match = yio_test_hexf_eq(YIO_string_c_str(ref), YIO_string_c_str(res));
+		match = yio_test_hexf_eq(YIO_buf_c_str(ref), YIO_buf_c_str(res));
 	}
 	return match;
 }

@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 #include "../yio_config.h"
-#include "yio_string.h"
+#include "yio_buf.h"
 #include "yio_float.h"
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
@@ -35,7 +35,7 @@ extern "C" {
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int YIO_float_astrfrom_strfrom_$1(YIO_string *v, int precision0, char spec, YIO_FLOAT_RP_$1 val);
+int YIO_float_astrfrom_strfrom_$1(YIO_buf *v, int precision0, char spec, YIO_FLOAT_RP_$1 val);
 #else
 #  define YIO_has_float_astrfrom_strfrom_$1 0
 #endif

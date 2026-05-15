@@ -22,7 +22,7 @@ extern "C" {
 #    error  YIO_HAS_INT128
 #  endif
 
-#include "yio_string.h"
+#include "yio_buf.h"
 #include "yio_float.h"
 
 {% call(V) j_FOREACHAPPLY(j_FLOATREPRS) %}
@@ -50,7 +50,7 @@ extern "C" {
  * @param val The floating point value to convert
  * @return 0 on success, error otherwise
  */
-int YIO_float_astrfrom_ryu_$1(YIO_string *res, int precision, char spec0, YIO_FLOAT_RP_$1 val);
+int YIO_float_astrfrom_ryu_$1(YIO_buf *res, int precision, char spec0, YIO_FLOAT_RP_$1 val);
 
 #else
 #define YIO_has_float_astrfrom_ryu_$1 0

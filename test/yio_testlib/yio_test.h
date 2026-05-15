@@ -66,8 +66,8 @@ static int re_match(const char *pat, const char *str, int *len) {
 #define STRING(a)   #a
 #define XSTRING(a)  STRING(a)
 
-struct YIO_string;
-bool YIO_test_string_float_equal(struct YIO_string *ref, struct YIO_string *res, char spec);
+struct YIO_buf;
+bool YIO_test_string_float_equal(struct YIO_buf *ref, struct YIO_buf *res, char spec);
 bool YIO_test_float_equal(const char *ref, const char *res, char spec);
 bool yio_test_hexf_eq(const char *s1, const char *s2);
 

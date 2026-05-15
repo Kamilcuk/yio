@@ -9,7 +9,7 @@
 #define _GNU_SOURCE
 #include "yio_float_strfrom_printf.h"
 #include "yio_float.h"
-#include "yio_string.h"
+#include "yio_buf.h"
 #include "private.h"
 #include <assert.h>
 #include <errno.h>
@@ -65,21 +65,21 @@ void YIO_create_format_string_$1(char *restrict fmt, int precision0, char spec) 
 			precision0, spec, YIO_FLOAT_PRI_RP_$1, sizeof(YIO_FLOAT_PRI_RP_$1) - 1);
 }
 
-int YIO_float_astrfrom_printf_$1(YIO_string *v, int precision0, char spec, YIO_FLOAT_RP_$1 val) {
+int YIO_float_astrfrom_printf_$1(YIO_buf *v, int precision0, char spec, YIO_FLOAT_RP_$1 val) {
 	char fmt[FMT_SIZE_$1];
 	YIO_create_format_string_$1(fmt, precision0, spec);
-	assert(YIO_string_capacity(v) < INT_MAX);
-	const int len = snprintf(YIO_string_data(v), YIO_string_capacity(v), fmt, (YIO_FLOAT_PRINTF_TYPE_RP_$1)val);
+	assert(YIO_buf_capacity(v) < INT_MAX);
+	const int len = snprintf(YIO_buf_data(v), YIO_buf_capacity(v), fmt, (YIO_FLOAT_PRINTF_TYPE_RP_$1)val);
 	assert(len >= 0);
-	if ((size_t)len >= YIO_string_capacity(v)) {
-		int err = YIO_string_reserve(v, len + 1);
+	if ((size_t)len >= YIO_buf_capacity(v)) {
+		int err = YIO_buf_reserve(v, len + 1);
 		if (err) return err;
-		const int len2 = snprintf(YIO_string_data(v), YIO_string_capacity(v), fmt, (YIO_FLOAT_PRINTF_TYPE_RP_$1)val);
+		const int len2 = snprintf(YIO_buf_data(v), YIO_buf_capacity(v), fmt, (YIO_FLOAT_PRINTF_TYPE_RP_$1)val);
 		(void)len2;
 		assert(len2 >= 0);
 		assert(len2 == len);
 	}
-	YIO_string_set_used(v, len);
+	YIO_buf_set_used(v, len);
 	return 0;
 }
 
