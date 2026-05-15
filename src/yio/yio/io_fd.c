@@ -37,14 +37,14 @@ int YIO_yio_vdprintf_cb(void *arg, const char *ptr, size_t size) {
 	return YIO_yio_vdprintf_cb_in(arg, ptr, size);
 }
 
-int yio_vdprintf(int fd, const yio_printdata_t *data, const char *fmt, va_list *va) {
+int yio_vdprint(int fd, const yio_printdata_t *data, const char *fmt, va_list *va) {
 	return yio_vbprintf(YIO_yio_vdprintf_cb, &fd, data, fmt, va);
 }
 
-int YIO_yio_dprintf(int fd, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_dprint(int fd, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
-	const int ret = yio_vdprintf(fd, data, fmt, &va);
+	const int ret = yio_vdprint(fd, data, fmt, &va);
 	va_end(va);
 	return ret;
 }

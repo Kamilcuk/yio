@@ -39,13 +39,13 @@ static void formatted() {
 	float flt = 10.234;
 	int no = 150;
 	double dbl = 20.123456;
-	yio_printf("Character is {}\n", ch);
-	yio_printf("String is {}\n", str);
-	yio_printf("Float value is {:f}\n", flt);
-	yio_printf("Integer value is {}\n", no);
-	yio_printf("Double value is {:f}\n", dbl);
-	yio_printf("Octal value is {:o}\n", no);
-	yio_printf("Hexadecimal value is {:x}\n", no);
+	yio_print("Character is {}\n", ch);
+	yio_print("String is {}\n", str);
+	yio_print("Float value is {:f}\n", flt);
+	yio_print("Integer value is {}\n", no);
+	yio_print("Double value is {:f}\n", dbl);
+	yio_print("Octal value is {:o}\n", no);
+	yio_print("Hexadecimal value is {:x}\n", no);
 }
 
 int main() {

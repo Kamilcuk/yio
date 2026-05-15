@@ -1,7 +1,7 @@
 #include "conftest.h"
 
 int libtest_main(void) {
-    yio_printf("Exiting with 123\n");
+    yio_print("Exiting with 123\n");
     return 123;
 }
 // EXPECTED_EXIT_CODE 123

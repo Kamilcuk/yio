@@ -33,3 +33,4 @@ _tmp
 _tmp/
 /test_*
 .gemini/dist
+build/

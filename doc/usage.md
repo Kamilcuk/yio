@@ -11,7 +11,7 @@ Yio is a modern C11 formatting library that is safe, fast, and easy to use. All 
 
 int main() {
     // 1. Simple, type-safe formatting with {} for any type
-    int ret = yio_printf("Welcome! Local time: {:%Y-%m-%d %H:%M:%S}\n", 
+    int ret = yio_print("Welcome! Local time: {:%Y-%m-%d %H:%M:%S}\n", 
                          yio_localtime(time(NULL)));
     if (ret < 0) {
         fprintf(stderr, "Yio Error: %s\n", yio_strerror(ret));
@@ -19,11 +19,11 @@ int main() {
     }
 
     // 2. Alignment, precision, and dynamic parameters
-    yio_printf("Users={:<5} Load={:.{}f}\n", 42, 0.123, 2); 
+    yio_print("Users={:<5} Load={:.{}f}\n", 42, 0.123, 2); 
     // Output: "Users=42    Load=0.12"
 
     // 3. Positional arguments {index} for easy localization
-    yio_printf("{1} {0} {1}!\n", "World", "Hello"); 
+    yio_print("{1} {0} {1}!\n", "World", "Hello"); 
     // Output: "Hello World Hello!"
 
     // 4. The "Cool" Part: Type-safe streaming (No format string required!)
@@ -37,15 +37,15 @@ int main() {
 ## 2. Functional Categories
 
 ### Standard I/O (Standard Streams)
-- **`int yio_printf(const char *fmt, ...)`**: Output to `stdout`.
-- **`int yio_fprintf(FILE *file, const char *fmt, ...)`**: Output to a C stream.
-- **`int yio_dprintf(int fd, const char *fmt, ...)`**: Output to a POSIX file descriptor.
+- **`int yio_print(const char *fmt, ...)`**: Output to `stdout`.
+- **`int yio_fprint(FILE *file, const char *fmt, ...)`**: Output to a C stream.
+- **`int yio_dprint(int fd, const char *fmt, ...)`**: Output to a POSIX file descriptor.
 
 ### Buffer Management (Fixed Size)
-- **`int yio_snprintf(char *dest, size_t size, const char *fmt, ...)`**: Formats into `dest`. Guaranteed null-termination.
+- **`int yio_snprint(char *dest, size_t size, const char *fmt, ...)`**: Formats into `dest`. Guaranteed null-termination.
 
 ### Dynamic Allocation (Heap)
-- **`int yio_asprintf(char **strp, const char *fmt, ...)`**: Formats into a heap-allocated string. If `*strp` is non-NULL, it **reuses** the existing buffer and overwrites from the start.
+- **`int yio_asprint(char **strp, const char *fmt, ...)`**: Formats into a heap-allocated string. If `*strp` is non-NULL, it **reuses** the existing buffer and overwrites from the start.
 - **`int yio_append(char **strp, const char *fmt, ...)`**: Appends formatted output to the end of the string in `*strp`.
 
 ### Custom Output (Abstract)
@@ -64,17 +64,17 @@ static int my_buffer_cb(void *arg, const char *data, size_t count) {
 
 int main() {
     char buf[128] = {0};
-    yio_bprintf(my_buffer_cb, buf, "Value: {}\n", 42);
+    yio_bprint(my_buffer_cb, buf, "Value: {}\n", 42);
     // buf now contains "Value: 42\n"
 }
 ```
 
-- **`int yio_bprintf(int (*callback)(void *arg, const char *data, size_t count), void *arg, const char *fmt, ...)`**: Executes formatting via a user-defined write callback. All other formatting functions (like `yio_printf`) are built on top of this.
+- **`int yio_bprint(int (*callback)(void *arg, const char *data, size_t count), void *arg, const char *fmt, ...)`**: Executes formatting via a user-defined write callback. All other formatting functions (like `yio_print`) are built on top of this.
 
 ### Type-Safe Streaming (No Format String)
 - **`int yio_stream(...)`**: Stream to `stdout`.
 - **`int yio_fstream(FILE *file, ...)`**: Stream to a C stream.
-- **`int yio_dprint(int fd, ...)`**: Stream to a file descriptor.
+- **`int yio_dstream(int fd, ...)`**: Stream to a file descriptor.
 - **`int yio_asstream(char **strp, ...)`**: Stream into a heap-allocated string.
 - **`int yio_bstream(int (*callback)(void *arg, const char *data, size_t count), void *arg, ...)`**: Streaming via write callback.
 
@@ -85,13 +85,13 @@ int main() {
 ### Positional Arguments
 Use `{n}` to access the $n$-th argument (0-indexed).
 ```c
-yio_printf("{1} comes before {0}\n", "first", "second");
+yio_print("{1} comes before {0}\n", "first", "second");
 ```
 
 ### Dynamic Parameters
 Width and precision can be passed as runtime arguments using nested braces.
 ```c
-yio_printf("{:{}.{}f}\n", 3.14159, 10, 2);
+yio_print("{:{}.{}f}\n", 3.14159, 10, 2);
 ```
 
 ---
@@ -107,7 +107,7 @@ int my_formatter(yio_printctx_t *t) {
     return yio_printctx_put(t, val->name, strlen(val->name));
 }
 
-yio_printf("Custom: {}\n", yio_callback(my_formatter, &my_obj));
+yio_print("Custom: {}\n", yio_callback(my_formatter, &my_obj));
 ```
 
 ---
@@ -117,13 +117,13 @@ yio_printf("Custom: {}\n", yio_callback(my_formatter, &my_obj));
 ### Monetary (`yio_mon`)
 Formats `double` values as currency using system locale.
 ```c
-yio_printf("Price: {}\n", yio_mon(1234.56));
+yio_print("Price: {}\n", yio_mon(1234.56));
 ```
 
 ### Time (`yio_localtime`, `yio_gmtime`)
 Formats `time_t` values as `struct tm`.
 ```c
-yio_printf("Current time: {}\n", yio_localtime(time(NULL)));
+yio_print("Current time: {}\n", yio_localtime(time(NULL)));
 ```
 
 ### Representation (`yio_repr`)
@@ -137,21 +137,21 @@ Provides escaped, C-readable output for debugging or logging. These modifiers tr
 - **`yio_repr_U(val)`**: Escapes non-printables using large Unicode sequences (`\U0000001`).
 
 ```c
-yio_printf("Hex: {}\n", yio_repr_hex("Feed\x01"));   // -> "Feed\x1"
-yio_printf("Caret: {}\n", yio_repr_caret("Feed\x01")); // -> "Feed^A"
+yio_print("Hex: {}\n", yio_repr_hex("Feed\x01"));   // -> "Feed\x1"
+yio_print("Caret: {}\n", yio_repr_caret("Feed\x01")); // -> "Feed^A"
 ```
 
 ### Wide Characters (`yio_pwchar`, `yio_pwstring`)
 Explicitly formats wide character types by converting them to multibyte strings (UTF-8).
 ```c
-yio_printf("Wide: {}\n", yio_pwstring(L"Wide String"));
+yio_print("Wide: {}\n", yio_pwstring(L"Wide String"));
 ```
 
 ### Character Count (`yio_count`)
 Stores bytes written so far into an `int *`.
 ```c
 int n;
-yio_printf("Progress: {}{}\n", data, yio_count(&n));
+yio_print("Progress: {}{}\n", data, yio_count(&n));
 ```
 
 ---

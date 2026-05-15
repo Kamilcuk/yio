@@ -184,12 +184,12 @@ int YIO_inttest_ ## suffix(void) { \
 						\
 		memset(buf, 0, sizeof(buf)); \
 		if (1) { \
-			fprintf(stderr, "Testing yio_printf(\"%""s""\", %d) -> %d\"%""s""\"\n", \
+			fprintf(stderr, "Testing yio_print(\"%""s""\", %d) -> %d\"%""s""\"\n", \
 					YIO_inttests[i].fmt, YIO_inttests[i].arg, \
 					(int)strlen(YIO_inttests[i].output), YIO_inttests[i].output); \
 		} \
  \
-		const int ret = yio_snprintf(buf, sizeof(buf), YIO_inttests[i].fmt, (type)YIO_inttests[i].arg); \
+		const int ret = yio_snprint(buf, sizeof(buf), YIO_inttests[i].fmt, (type)YIO_inttests[i].arg); \
  \
 		if (ret < 0) { \
 			fprintf(stderr, "%s:%d: %d: printf(\"%""s""\", %d) -> %d\n", \

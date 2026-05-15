@@ -19,7 +19,7 @@ int main() {
 #ifdef YIO_STDFIX_$3
 	{
 		const $2 a = 0.125;
-		yio_fprintf(stderr, "{}\n", "$2");
+		yio_fprint(stderr, "{}\n", "$2");
 		YIO_TEST((.rgx="[0-9a-f]+"), "{:x}", a);
 		YIO_TEST((.rgx="0\\.[0-9][0-9][0-9][0-9][0-9][0-9]"), "{}", a);
 		YIO_TEST((.rgx="0x[0-9a-f].?[0-9a-f]*p[-+][0-9]*"), "{:a}", a);

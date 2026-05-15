@@ -108,7 +108,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 
 	static char str[10000];
 	errno = 0;
-	int err = yio_snprintf(str, sizeof(str), format, in);
+	int err = yio_snprint(str, sizeof(str), format, in);
 
 	if (strstr(instr, "_MAX") != NULL && (
 			err == YIO_ERROR_ENOMEM ||
@@ -121,7 +121,7 @@ void test_onefloat_$1(const char *instr, TYPE$1 in,
 		return;
 	}
 	if (err < 0) {
-		printf("yio_snprintf failed: err=%d %s, errno=%d %s, in=%g, format=%s, instr=%s\n",
+		printf("yio_snprint failed: err=%d %s, errno=%d %s, in=%g, format=%s, instr=%s\n",
 				err, yio_strerror(err), errno, strerror(errno), (double)in, format, instr);
 	}
 	YIO_TESTEXPR_ASSERT(err >= 0);
@@ -200,7 +200,7 @@ int main() {
 	// Anyway, call it here, so it doesn't return errno=2 later.
 #if YIO_ENABLE_MALLOC
 	char *tmp_fmt = NULL;
-	yio_asprintf(&tmp_fmt, "{}", "{}");
+	yio_asprint(&tmp_fmt, "{}", "{}");
 	free(tmp_fmt);
 #endif
 

@@ -9,10 +9,10 @@
 #include <stdlib.h>
 
 static int (* const f_vpnt)(char **strp, const yio_printdata_t *, const char *fmt, va_list *va) = yio_vasprintf;
-static int (* const f_pnt)(const yio_printdata_t *, const char *fmt, ...) = YIO_yio_printf;
+static int (* const f_pnt)(const yio_printdata_t *, const char *fmt, ...) = YIO_yio_print;
 
 static void _dbgln(const char file[], int line, const char func[], const yio_printdata_t *data, const char *fmt, ...) {
-	yio_printf("{}:{}:{}: ", file, line, func);
+	yio_print("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
 	char *ret = NULL;
@@ -21,9 +21,9 @@ static void _dbgln(const char file[], int line, const char func[], const yio_pri
 	if (err < 0 || ret == NULL) {
 		exit(EXIT_FAILURE);
 	}
-	yio_printf("{}", ret);
+	yio_print("{}", ret);
 	free(ret);
-	yio_printf("\n");
+	yio_print("\n");
 	fflush(stdout);
 }
 

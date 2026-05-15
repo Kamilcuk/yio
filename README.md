@@ -15,14 +15,14 @@ The library exposes its features using the header `yio.h`. For a full API refere
 
 int main(void) {
     // Standard formatting with automatic type dispatch
-    yio_printf("Hello, {}! Local time: {:%Y-%m-%d %H:%M:%S}\n", 
+    yio_print("Hello, {}! Local time: {:%Y-%m-%d %H:%M:%S}\n", 
                "World", yio_localtime(time(NULL)));
 
     // Type-safe streaming: No format string, no mistakes.
     yio_stream("Users: ", 42, " Load: ", 0.123, "\n");
 
     // Positional and nested arguments
-    yio_printf("{1}: {0:{2}.{3}f}\n", 3.14159, "Value", 10, 2);
+    yio_print("{1}: {0:{2}.{3}f}\n", 3.14159, "Value", 10, 2);
 }
 ```
 
@@ -128,10 +128,10 @@ Detailed usage patterns can be found in the [examples/](examples/) and [test/](t
 void demo() {
     // Working with time
     time_t now = time(NULL);
-    yio_printf("Local time: {}\n", yio_localtime(now));
+    yio_print("Local time: {}\n", yio_localtime(now));
 
     // Monetary formatting
-    yio_printf("Price: {:%n}\n", yio_mon(1234.56));
+    yio_print("Price: {:%n}\n", yio_mon(1234.56));
 }
 ```
 

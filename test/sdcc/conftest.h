@@ -97,7 +97,7 @@ struct testparam {
 extern YIO_TEST_BUF_ATTR YIO_TEST_BUF_AT char yyio_test_buf[32];
 
 #define YIO_TEST(shouldbe, fmt, ...)  do { \
-		const int err = yio_snprintf(yyio_test_buf, sizeof(yyio_test_buf), fmt, ## __VA_ARGS__); \
+		const int err = yio_snprint(yyio_test_buf, sizeof(yyio_test_buf), fmt, ## __VA_ARGS__); \
 		in_YIO_TEST(shouldbe, fmt, yyio_test_buf, err); \
 	} while(0)
 

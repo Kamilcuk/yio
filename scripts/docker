@@ -27,7 +27,11 @@ parser.add_argument(
 args = parser.parse_args()
 
 # Detect container engine
-docker = shutil.which("podman") or shutil.which("docker") or "docker"
+docker: str = (
+    shlex.join([shutil.which("podman") or "", "--log-level", "error"])
+    or shutil.which("docker")
+    or "docker"
+)
 
 if args.arm:
     args.platform = "linux/arm64"

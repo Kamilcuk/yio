@@ -23,7 +23,7 @@
 
 /* YIO_yio_*printf ------------------------------------------------------------------------ */
 
-int YIO_yio_bprintf(YIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_bprint(YIO_printcb_t *out, void *arg, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vbprintf(out, arg, data, fmt, &va);
@@ -31,7 +31,7 @@ int YIO_yio_bprintf(YIO_printcb_t *out, void *arg, const yio_printdata_t *data, 
 	return ret;
 }
 
-int YIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_print(const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vprintf(data, fmt, &va);
@@ -39,7 +39,7 @@ int YIO_yio_printf(const yio_printdata_t *data, const char *fmt, ...) {
 	return ret;
 }
 
-int YIO_yio_snprintf(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_snprint(char *dest, size_t size, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vsprintf(dest, size, data, fmt, &va);
@@ -82,7 +82,7 @@ int yio_vprintf(const yio_printdata_t *data, const char *fmt, va_list *va) {
 #if YIO_OUTPUT_BACKEND_PUTCHAR
 	return yio_vbprintf(sdcc_putchar_cb, NULL, data, fmt, va);
 #elif YIO_OUTPUT_BACKEND_FD
-	return yio_vdprintf(1, data, fmt, va);
+	return yio_vdprint(1, data, fmt, va);
 #elif YIO_HAS_FILE
 	return yio_vfprintf(stdout, data, fmt, va);
 #else
@@ -106,7 +106,7 @@ int yio_vsprintf(char *dest, size_t size, const yio_printdata_t *data, const cha
 
 #if YIO_ENABLE_MALLOC
 
-int YIO_yio_asprintf(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_asprint(char **strp, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vasprintf(strp, data, fmt, &va);

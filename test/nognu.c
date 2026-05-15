@@ -3,7 +3,7 @@
 int main() {
 	yio_stream(1);
 	yio_stream(1, 2);
-	yio_printf("{}", 1);
-	yio_printf("{} {}", 1, 2);
+	yio_print("{}", 1);
+	yio_print("{} {}", 1, 2);
 }
 

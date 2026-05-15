@@ -13,7 +13,7 @@ static void streamed() {
 
 static void formatted() {
     int number = 3;
-    yio_printf("number: {}\n", number);
+    yio_print("number: {}\n", number);
 }
 
 int main() {

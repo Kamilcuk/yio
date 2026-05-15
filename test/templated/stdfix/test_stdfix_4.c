@@ -19,7 +19,7 @@ int main() {
 		const $2 eps = YIO_$3_EPSILON;
 		const $2 zero = 0;
 		
-		yio_fprintf(stderr, "Testing type: $2 ($3)\n");
+		yio_fprint(stderr, "Testing type: $2 ($3)\n");
 
 		// Zero and basic formatting
 		YIO_TEST("0.000000", "{}", zero);

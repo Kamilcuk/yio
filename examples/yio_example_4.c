@@ -8,8 +8,8 @@ int main() {
    	yio_stream(yio_pfmt("{:>10}"), "time", " ", yio_pfmt("{:<10}"), "value", "\n");
    	yio_stream(yio_pfmt("{:>10}"), mytime, " ", yio_pfmt("{:<10}"), value, "\n");
 
-   	yio_printf("{:>10} {:<10}\n", "time", "value");
-   	yio_printf("{:>10} {:<10}\n", mytime, value);
+   	yio_print("{:>10} {:<10}\n", "time", "value");
+   	yio_print("{:>10} {:<10}\n", mytime, value);
 }
 // PASS_REGULAR_EXPRESSION       time value[ ]*
 // PASS_REGULAR_EXPRESSION        123 456[ ]*

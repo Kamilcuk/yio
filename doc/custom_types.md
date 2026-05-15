@@ -52,7 +52,7 @@ Format the data and write to the output stream. All output functions return an `
 ## 2. Integration Mechanisms
 
 ### A. Global Dispatch (`YIO_ADD_TYPE`)
-Integrates the type into the library's `_Generic` dispatcher. This allows `yio_printf` to automatically detect and print your type without explicit wrappers.
+Integrates the type into the library's `_Generic` dispatcher. This allows `yio_print` to automatically detect and print your type without explicit wrappers.
 
 ```c
 #include <yio.h>
@@ -75,7 +75,7 @@ YIO_ADD_TYPE(struct point, point_printer)
 int main() {
     struct point p = {10, 20};
     // 4. Use it directly in any Yio function
-    yio_printf("Current point: {}\n", p);
+    yio_print("Current point: {}\n", p);
     return 0;
 }
 ```
@@ -88,7 +88,7 @@ Each inclusion:
 2.  **Appends** your new type mapping (e.g., `struct my_type: my_type_printer`) to the list of types handled by the core `_Generic` dispatcher.
 3.  **Redefines** `YIO_PRINT_FUNC_GENERIC_SLOTS` to contain all types registered so far.
 
-This effectively "stitches" your user-defined types into the library's type-detection logic at compile time, allowing `yio_printf` to recognize them as if they were built-in types. The maximum number of available slots is defined by `YIO_MAX_CUSTOM_SLOTS` in CMake (default: 100).
+This effectively "stitches" your user-defined types into the library's type-detection logic at compile time, allowing `yio_print` to recognize them as if they were built-in types. The maximum number of available slots is defined by `YIO_MAX_CUSTOM_SLOTS` in CMake (default: 100).
 
 ### B. Explicit Callbacks (`yio_callback`)
 Used for one-off formatting or when a single type requires multiple formatting strategies (e.g., `yio_mon(v)` or `yio_repr_hex(v)`).
@@ -113,13 +113,13 @@ static int my_type_printer(yio_printctx_t *t) {
 int main() {
     struct my_type obj = {42};
     // 4. Use the wrapper in a formatting call
-    yio_printf("Custom: {}\n", yio_my_custom(obj));
+    yio_print("Custom: {}\n", yio_my_custom(obj));
     return 0;
 }
 ```
 
 #### Behavior:
-`yio_callback` is a macro that "wraps" a value and a specific handler function. At compile-time, it marks the argument with a unique signature that Yio's variadic macro engine recognizes. When `yio_printf` processes this argument, it bypasses the global `_Generic` dispatcher and directly executes the provided handler.
+`yio_callback` is a macro that "wraps" a value and a specific handler function. At compile-time, it marks the argument with a unique signature that Yio's variadic macro engine recognizes. When `yio_print` processes this argument, it bypasses the global `_Generic` dispatcher and directly executes the provided handler.
 
 #### Why use `_Generic` in the wrapper?
 While `yio_callback` itself is variadic and accepts any type, the handler function (`my_type_printer`) is hardcoded to expect a specific type in its `yio_printctx_va_arg(t, struct my_type)` call.

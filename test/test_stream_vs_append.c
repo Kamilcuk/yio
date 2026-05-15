@@ -12,7 +12,7 @@ int main() {
     char *str = NULL;
     int ret;
 
-    /* 1. yio_asstream vs yio_asprintf */
+    /* 1. yio_asstream vs yio_asprint */
     
     // asstream should NOT format (it treats placeholders as literal strings)
     ret = yio_asstream(&str, "literal {}", 123);
@@ -25,7 +25,7 @@ int main() {
 
     // asprintf MUST format
     free(str); str = NULL;
-    ret = yio_asprintf(&str, "val={}", 123);
+    ret = yio_asprint(&str, "val={}", 123);
     YIO_TESTEXPR(strcmp(str, "val=123") == 0, "Got: %s", str);
     
     /* 2. yio_appendstream vs yio_append */

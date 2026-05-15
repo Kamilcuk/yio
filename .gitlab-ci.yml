@@ -16,9 +16,16 @@ variables:
 
 .buildah_test:
   image: quay.io/buildah/stable
-  variables:
-    STORAGE_DRIVER: vfs
   script:
+    - |
+      # Attempt to use overlay, check if it actually works
+      if buildah --storage-driver overlay info > /dev/null 2>&1; then
+        export STORAGE_DRIVER=overlay
+        echo "Successfully using high-performance OVERLAY driver"
+      else
+        export STORAGE_DRIVER=vfs
+        echo "Overlay not supported (missing fuse-overlayfs or kernel support). Falling back to VFS."
+      fi
     - buildah build --target "${TARGET}" .
 
 docker_target_tests:

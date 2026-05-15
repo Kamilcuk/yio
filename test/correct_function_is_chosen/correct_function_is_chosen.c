@@ -76,21 +76,21 @@ DEFINE_WRAPS(D128)
 
 int main() {
 #if YIO_HAS_FLOATf
-	yio_printf("{}", 1.0f);
+	yio_print("{}", 1.0f);
 #if YIO_RP_OF_f_IS_B32
 	CHECK(f, B32);
 #endif
 #endif
 
 #if YIO_HAS_FLOATd
-	yio_printf("{}", 1.0);
+	yio_print("{}", 1.0);
 #if YIO_RP_OF_d_IS_B64
 	CHECK(d, B64);
 #endif
 #endif
 
 #if YIO_HAS_FLOATl
-	yio_printf("{}", 1.0l);
+	yio_print("{}", 1.0l);
 #if YIO_RP_OF_l_IS_B80
 	CHECK(l, B80);
 #elif YIO_RP_OF_l_IS_B128

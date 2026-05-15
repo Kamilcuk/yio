@@ -10,7 +10,7 @@
 
 #if YIO_ENABLE_MALLOC
 static void _dbgln(const char file[], int line, const char func[], const yio_printdata_t *data, const char *fmt, ...) {
-	yio_printf("{}:{}:{}: ", file, line, func);
+	yio_print("{}:{}:{}: ", file, line, func);
 	va_list va;
 	va_start(va, fmt);
 	char *ret = NULL;
@@ -19,9 +19,9 @@ static void _dbgln(const char file[], int line, const char func[], const yio_pri
 	if (err < 0 || ret == NULL) {
 		exit(EXIT_FAILURE);
 	}
-	yio_printf("{}", ret);
+	yio_print("{}", ret);
 	free(ret);
-	yio_printf("\n");
+	yio_print("\n");
 }
 
 #define dbgln(...)  _dbgln(__FILE__, __LINE__, __func__, YIO_PRINT_ARGUMENTS(NULL, ##__VA_ARGS__))

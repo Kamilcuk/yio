@@ -2,14 +2,6 @@
 #include <math.h>
 #include <float.h>
 
-#ifdef __SDCC
-#ifndef INFINITY
-#define INFINITY (1.0f / 0.0f)
-#endif
-static const union { unsigned long i; float f; } __yio_nan_u = { 0x7FC00000UL };
-#define NAN (__yio_nan_u.f)
-#endif
-
 int main() {
 	char c = 120;
 

@@ -20,7 +20,7 @@ int main() {
 #if YIO_HAS_UNISTRING && YIO_ENABLE_MALLOC
         // This needs unistring support from u8_width
         char *str = NULL;
-        int err = yio_asprintf(&str, "{:5s}", "Ω");
+        int err = yio_asprint(&str, "{:5s}", "Ω");
         YIO_TESTEXPR(err > 0, "err=%d", err);
         YIO_TESTEXPR(strcmp(str, "Ω    ") == 0, "'%s'", str);
         YIO_TESTEXPR(strlen(str) == strlen("Ω    "));

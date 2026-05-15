@@ -27,7 +27,7 @@ int YIO_yio_vfprintf_cb(void *arg, const char *ptr, size_t size) {
 }
 
 
-int YIO_yio_fprintf(FILE *file, const yio_printdata_t *data, const char *fmt, ...) {
+int YIO_yio_fprint(FILE *file, const yio_printdata_t *data, const char *fmt, ...) {
 	va_list va;
 	va_start(va, fmt);
 	const int ret = yio_vfprintf(file, data, fmt, &va);

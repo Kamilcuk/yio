@@ -22,37 +22,37 @@ int main() {
     int err;
 
     // Basic types
-    err = yio_printf("Ints: {} {} {} {} {} {}\n", 
+    err = yio_print("Ints: {} {} {} {} {} {}\n", 
                      (signed char)1, (short)2, 3, 4L, 5LL, (bool)true);
     assert(err >= 0);
 
-    err = yio_printf("UInts: {} {} {} {} {}\n", 
+    err = yio_print("UInts: {} {} {} {} {}\n", 
                      (unsigned char)1, (unsigned short)2, 3U, 4UL, 5ULL);
     assert(err >= 0);
 
-    err = yio_printf("Floats: {:f} {:e} {:g}\n", 1.1f, 2.2, 3.3L);
+    err = yio_print("Floats: {:f} {:e} {:g}\n", 1.1f, 2.2, 3.3L);
     assert(err >= 0);
 
     // Strings and chars
-    err = yio_printf("Chars: {} {} {}\n", 'A', (signed char)'B', (unsigned char)'C');
+    err = yio_print("Chars: {} {} {}\n", 'A', (signed char)'B', (unsigned char)'C');
     assert(err >= 0);
 
     const char *str = "const char pointer";
     char str_mut[] = "mutable char array";
-    err = yio_printf("Strings: {} | {}\n", str, str_mut);
+    err = yio_print("Strings: {} | {}\n", str, str_mut);
     assert(err >= 0);
 
     // Wide chars
-    err = yio_printf("Wide char: {}\n", L'X');
+    err = yio_print("Wide char: {}\n", L'X');
     assert(err >= 0);
     // Wide string: {}
-    err = yio_printf("Wide string: {}\n", L"Wide string literal");
+    err = yio_print("Wide string: {}\n", L"Wide string literal");
     assert(err >= 0);
 
     #if YIO_ENABLE_MALLOC
     // Positional arguments
     char *pos_str = NULL;
-    err = yio_asprintf(&pos_str, "{1} {0} {1}\n", "first", "second");
+    err = yio_asprint(&pos_str, "{1} {0} {1}\n", "first", "second");
     assert(err >= 0);
     assert(pos_str != NULL);
     assert(std::string(pos_str) == "second first second\n");
@@ -61,7 +61,7 @@ int main() {
     // Custom type
     MyPoint p = {10, 20};
     char *p_str = NULL;
-    err = yio_asprintf(&p_str, "Point: {}\n", p);
+    err = yio_asprint(&p_str, "Point: {}\n", p);
     assert(err >= 0);
     assert(p_str != NULL);
     assert(std::string(p_str) == "Point: (10, 20)\n");
@@ -71,14 +71,14 @@ int main() {
     // yio_count
 
     int count = 0;
-    err = yio_printf("Count this: {}{}\n", "abc", yio_count(&count));
+    err = yio_print("Count this: {}{}\n", "abc", yio_count(&count));
     assert(err >= 0);
     assert(count == 15);
     
 #if YIO_HAS_INT128
     __int128 i128 = 1234567890123456789;
     i128 *= 1000000;
-    err = yio_printf("Int128: {}\n", i128);
+    err = yio_print("Int128: {}\n", i128);
     assert(err >= 0);
 #endif
 

@@ -4,10 +4,10 @@
 #include <stdlib.h>
 
 int main() {
-    // Test dynamic growth in yio_asprintf
+    // Test dynamic growth in yio_asprint
     // Initial capacity is small. We will append many chunks to trigger multiple reallocs.
     char *str = NULL;
-    int err = yio_asprintf(&str, "{}{}{}{}{}{}{}{}{}{}", 
+    int err = yio_asprint(&str, "{}{}{}{}{}{}{}{}{}{}", 
                            "0123456789", "0123456789", "0123456789", "0123456789", "0123456789",
                            "0123456789", "0123456789", "0123456789", "0123456789", "0123456789");
     
@@ -25,7 +25,7 @@ int main() {
     large_src[1024] = '\0';
     
     char *large_res = NULL;
-    err = yio_asprintf(&large_res, "{}", large_src);
+    err = yio_asprint(&large_res, "{}", large_src);
     YIO_TESTEXPR(err == 1024);
     YIO_TESTEXPR(large_res != NULL);
     YIO_TESTEXPR(strlen(large_res) == 1024);

@@ -27,22 +27,22 @@ int main() {
 	}
 	int err = 0;
 
-	err |= yio_printf("{:Lf}\n", 1.125);
-	err |= yio_printf("{:Lf}\n", 21.125);
-	err |= yio_printf("{:Lf}\n", 321.125);
-	err |= yio_printf("{:Lf}\n", 4321.125);
-	err |= yio_printf("{:Lf}\n", 54321.125);
-	err |= yio_printf("{:Lf}\n", 654321.125);
-	err |= yio_printf("{:Lf}\n", 7654321.125);
-	err |= yio_printf("{:Lf}\n", 87654321.125);
-	err |= yio_printf("{:Lf}\n", 987654321.125);
-	err |= yio_printf("{:Lf}\n", 1987654321.125);
-	err |= yio_printf("{:Lf}\n", 21987654321.125);
-	err |= yio_printf("{:Lf}\n", 321987654321.125);
-	err |= yio_printf("{:Lf}\n", 4321987654321.125);
-	err |= yio_printf("{:Lf}\n", 54321987654321.125);
-	err |= yio_printf("{:Lf}\n", 654321987654321.125);
-	err |= yio_printf("{:Lf}\n", 7654321987654321.000);
+	err |= yio_print("{:Lf}\n", 1.125);
+	err |= yio_print("{:Lf}\n", 21.125);
+	err |= yio_print("{:Lf}\n", 321.125);
+	err |= yio_print("{:Lf}\n", 4321.125);
+	err |= yio_print("{:Lf}\n", 54321.125);
+	err |= yio_print("{:Lf}\n", 654321.125);
+	err |= yio_print("{:Lf}\n", 7654321.125);
+	err |= yio_print("{:Lf}\n", 87654321.125);
+	err |= yio_print("{:Lf}\n", 987654321.125);
+	err |= yio_print("{:Lf}\n", 1987654321.125);
+	err |= yio_print("{:Lf}\n", 21987654321.125);
+	err |= yio_print("{:Lf}\n", 321987654321.125);
+	err |= yio_print("{:Lf}\n", 4321987654321.125);
+	err |= yio_print("{:Lf}\n", 54321987654321.125);
+	err |= yio_print("{:Lf}\n", 654321987654321.125);
+	err |= yio_print("{:Lf}\n", 7654321987654321.000);
 	return !(err > 0);
 
 	// https://lh.2xlibre.net/locale/unm_US/

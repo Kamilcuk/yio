@@ -20,7 +20,7 @@ The `YIO_FLOAT_BACKEND` option determines the internal engine used to transform 
 If `YIO_FLOAT_BACKEND` is set to `STRFROM` but the environment check fails, it automatically downgrades to **`RYU`**, and then to **`NAIVE`**.
 
 ### Default Output (`YIO_OUTPUT_BACKEND`)
-Configures where `yio_printf` and `yio_stream` send their bytes by default.
+Configures where `yio_print` and `yio_stream` send their bytes by default.
 
 *   **`STDOUT`**: Wraps standard C `stdout`. Requires `stdio.h`.
 *   **`FD`**: Writes directly to file descriptor `1` using `write()`. Efficient on POSIX.
@@ -61,7 +61,7 @@ These options allow you to remove complex logic to reduce the binary footprint.
 
 These options affect the complexity of generated headers and compilation speed.
 
-*   **`YIO_MAX_ARGS`**: Maximum arguments per `yio_printf` call. This value determines the depth of the variadic macro expansion in the library headers.
+*   **`YIO_MAX_ARGS`**: Maximum arguments per `yio_print` call. This value determines the depth of the variadic macro expansion in the library headers.
 *   **`YIO_MAX_CUSTOM_SLOTS`**: Maximum number of `YIO_ADD_TYPE` calls allowed for custom type overloads.
 
 ---

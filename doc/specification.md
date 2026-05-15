@@ -28,13 +28,13 @@ type_specific_format_spec ::= <any characters parsed by the type-specific format
 
 > **Note on Parsing:** The parsing of the `format_spec` (the string after the `:`) is **solely dependent on the argument type**. While most types follow the `standard_format_spec` grammar, some types (like `struct tm`) define their own specialized mini-languages.
 
-> **Note on Macros:** Since `yio_printf` and related functions are C macros, arguments containing commas (like compound literals) must be wrapped in additional parentheses.
+> **Note on Macros:** Since `yio_print` and related functions are C macros, arguments containing commas (like compound literals) must be wrapped in additional parentheses.
 > 
 > **Important Constraint:** An expression parsed by the library can contain **at most 62 commas**. This hardcoded limit is used by the preprocessor to detect and handle `yio_callback` invocations.
 > 
-> *Incorrect:* `yio_printf("{}", (struct timespec){.tv_sec=1, .tv_nsec=0})`
+> *Incorrect:* `yio_print("{}", (struct timespec){.tv_sec=1, .tv_nsec=0})`
 > 
-> *Correct:* `yio_printf("{}", ((struct timespec){.tv_sec=1, .tv_nsec=0}))`
+> *Correct:* `yio_print("{}", ((struct timespec){.tv_sec=1, .tv_nsec=0}))`
 
 ---
 

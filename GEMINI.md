@@ -37,7 +37,7 @@ make build
 ### Quick Test
 For quick one-liner tests:
 ```bash
-./scripts/compile_test_run.sh 'yio_printf("{}\n", 123);'
+./scripts/compile_test_run.sh 'yio_print("{}\n", 123);'
 ```
 
 ### Advanced Tasks
@@ -75,7 +75,7 @@ Most of the codebase is generated from templates in `src/yio/yio/`. When editing
 - **Large Test Output:** Tests for `float` and `decimal` produce extremely high-volume output. When running these, always redirect to a file or pipe through `tail`/`grep` to avoid overwhelming the session context.
 
 ### Namespace Guidelines
-- `yio_printf`, `yio_print`: Primary type-safe API.
+- `yio_print`, `yio_print`: Primary type-safe API.
 - `yio_count`, `yio_mon`: Standardized modifier naming.
 - `yio_callback`: Custom callback registration.
 - `yio_*`: Public internal functions and custom modifier symbols.

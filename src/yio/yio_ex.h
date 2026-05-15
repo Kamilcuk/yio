@@ -31,7 +31,7 @@ extern "C" {
  * @example
  *
  *    int var = 1;
- *    yio_printf(F("{var=:4d}"));  // -> yio_printf("var={:4d}", var);
+ *    yio_print(F("{var=:4d}"));  // -> yio_print("var={:4d}", var);
  */
 #define F(...)  __VA_ARGS__
 #else

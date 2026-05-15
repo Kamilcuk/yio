@@ -24,7 +24,7 @@ int main() {
 	char16_t s[] = u"hello";
 	const char16_t s2[] = u"hello";
 	const int ret1 = yio_stream(s, " world", a++, "\n");
-	const int ret2 = yio_printf("{} {}{}{:.1}", s2, "world", a++, nl);
+	const int ret2 = yio_print("{} {}{}{:.1}", s2, "world", a++, nl);
 	YIO_TESTEXPR(ret1 > 0 && ret2 > 0, "ret1=%d ret2=%d\n", ret1, ret2);
 #else
 	yio_stream("hello world", a++, "\n");

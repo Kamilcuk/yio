@@ -13,34 +13,34 @@ int main() {
 	char buf[200];
 	int err = 0;
 
-	err = yio_snprintf(buf, sizeof(buf)/sizeof(*buf), "123");
+	err = yio_snprint(buf, sizeof(buf)/sizeof(*buf), "123");
 	YIO_TESTEXPR(err > 0, "err=%s", yio_strerror(err));
 	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = yio_snprintf(buf, SIZE_MAX, "123");
+	err = yio_snprint(buf, SIZE_MAX, "123");
 	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = yio_snprintf(buf, 2, "123");
+	err = yio_snprint(buf, 2, "123");
 	YIO_TESTEXPR(err < 0);
 	YIO_TESTEXPR(strcmp(buf, "1") == 0);
 
-	err = yio_snprintf(buf, 3, "123");
+	err = yio_snprint(buf, 3, "123");
 	YIO_TESTEXPR(err < 0);
 	YIO_TESTEXPR(strcmp(buf, "12") == 0);
 
-	err = yio_snprintf(buf, 4, "123");
+	err = yio_snprint(buf, 4, "123");
 	YIO_TESTEXPR(err > 0);
 	YIO_TESTEXPR(strcmp(buf, "123") == 0);
 
-	err = yio_snprintf(buf, 1, "123");
+	err = yio_snprint(buf, 1, "123");
 	YIO_TESTEXPR(err < 0);
 	YIO_TESTEXPR(strcmp(buf, "") == 0);
 
 	{
 		char buf2[11];
 		buf2[10] = 'A'; // Canary
-		err = yio_snprintf(buf2, 10, "{}{}", "12345", "67890123");
+		err = yio_snprint(buf2, 10, "{}{}", "12345", "67890123");
 		YIO_TESTEXPR(err < 0);
 		YIO_TESTEXPR(buf2[10] == 'A', "Buffer overflow detected! Canary corrupted.");
 		YIO_TESTEXPR(strlen(buf2) == 9);

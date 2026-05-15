@@ -4,7 +4,7 @@
 
 static void test_align(const char *expected, const char *fmt, int val, int width) {
     char buf[256];
-    int err = yio_snprintf(buf, sizeof(buf), fmt, val, width);
+    int err = yio_snprint(buf, sizeof(buf), fmt, val, width);
     YIO_TESTEXPR(err > 0, "fmt='%s' width=%d err=%d", fmt, width, err);
     YIO_TESTEXPR(strcmp(buf, expected) == 0, "Expected '%s', got '%s' (width %d)", expected, buf, width);
 }

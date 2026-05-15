@@ -16,9 +16,9 @@ int main() {
 	a[2] = 3;
 	a[3] = 2;
 	a[4] = 1;
-	yio_printf("{}\n", a[0]);
-	yio_printf("{} {}\n", a[1], a[2]);
-	yio_printf("{} {} {} {} {}\n", a[3], a[4], a[0], a[1], a[2]);
+	yio_print("{}\n", a[0]);
+	yio_print("{} {}\n", a[1], a[2]);
+	yio_print("{} {} {} {} {}\n", a[3], a[4], a[0], a[1], a[2]);
 	yio_stream(a[0], "\n");
 	yio_stream(a[1], " ", a[2], "\n");
 	yio_stream(a[3], " ", a[4], " ", a[0], " ", a[1], " ", a[2], "\n");

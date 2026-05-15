@@ -5,7 +5,7 @@
 ###############################################################################
 
 set(YIO_OUTPUT_BACKEND_COMMENT [=[
-Configure the default output destination for yio_printf and yio_stream.
+Configure the default output destination for yio_print and yio_stream.
 Valid options are:
 - STDOUT: Uses standard C 'FILE * stdout'. Requires a functional standard library.
 - FD: Writes directly to file descriptor 1. More efficient on POSIX systems, bypasses FILE overhead.
@@ -88,7 +88,7 @@ yio_config_gen_add_value(YIO_BITINT_MAXWIDTH "${YIO_BITINT_MAXWIDTH}")
 ###############################################################################
 
 set(YIO_MAX_ARGS_COMMENT [=[
-The maximum number of arguments that can be passed to yio_printf and similar functions.
+The maximum number of arguments that can be passed to yio_print and similar functions.
 This value determines the depth of the variadic macro expansion in the library headers.
 32 is a reasonable default for most projects.
 ]=])

@@ -7,7 +7,7 @@
 
 int main() {
 #ifdef __BITINT_MAXWIDTH__
-	yio_printf("BitInt support detected, maxwidth: {}\n", (int)__BITINT_MAXWIDTH__);
+	yio_print("BitInt support detected, maxwidth: {}\n", (int)__BITINT_MAXWIDTH__);
 
 #if __BITINT_MAXWIDTH__ >= 1
 	{
@@ -62,7 +62,7 @@ int main() {
 #endif
 
 #else
-	yio_printf("BitInt not supported by compiler\n");
+	yio_print("BitInt not supported by compiler\n");
 #endif
 	return 0;
 }

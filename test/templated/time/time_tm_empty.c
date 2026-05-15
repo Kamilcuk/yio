@@ -18,8 +18,8 @@ int main() {
 		.tm_sec  = 0,
 	};
 	setlocale(LC_ALL, "C");
-	yio_printf("{}\n", t);
-	yio_printf("{:}\n", t);
+	yio_print("{}\n", t);
+	yio_print("{:}\n", t);
 }
 // PASS_REGULAR_EXPRESSION Sun Jan  1 20:00:00 1900
 // PASS_REGULAR_EXPRESSION Sun Jan  1 20:00:00 1900

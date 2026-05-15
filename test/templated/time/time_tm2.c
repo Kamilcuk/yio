@@ -17,14 +17,14 @@ int main() {
 		.tm_sec  = 0,
 	};
 	int err = 0;
-	err |= yio_printf("@{:%Y-%m-%d %H:%M:%S}@\n", t);
+	err |= yio_print("@{:%Y-%m-%d %H:%M:%S}@\n", t);
 // PASS_REGULAR_EXPRESSION @1900-01-01 20:00:00@
-	err |= yio_printf("@{:%D}@\n", t);
+	err |= yio_print("@{:%D}@\n", t);
 // PASS_REGULAR_EXPRESSION @01/01/00@
 	const struct tm t2 = t;
-	err |= yio_printf("@{:%F %T}@\n", t2);
+	err |= yio_print("@{:%F %T}@\n", t2);
 // PASS_REGULAR_EXPRESSION @1900-01-01 20:00:00@
-	err |= yio_printf("@{:%y %w %u}@\n", t2);
+	err |= yio_print("@{:%y %w %u}@\n", t2);
 // PASS_REGULAR_EXPRESSION @00 0 7@
 	return err < 0;
 }

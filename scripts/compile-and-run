@@ -17,11 +17,11 @@ If no arguments are provided and stdin is not a terminal, CODE is read from stdi
 Otherwise, this help message is printed.
 
 Examples:
-  scripts/compile-and-run 'yio_printf("{}\n", 123);'    # Snippet Mode
+  scripts/compile-and-run 'yio_print("{}\n", 123);'    # Snippet Mode
   scripts/compile-and-run <<'EX'                        # Full Source Mode
 #include <yio.h>
 int main() {
-    yio_printf("{}\n", "Hello World");
+    yio_print("{}\n", "Hello World");
     return 0;
 }
 EX

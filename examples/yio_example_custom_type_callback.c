@@ -46,12 +46,12 @@ int main() {
 	// The custom printing modifier is applied "on top" the argument.
 	// It calls the function given in the callback.
 	char *str = NULL;
-	yio_asprintf(&str, "{}\n", yprint_A(var_a));
-	yio_printf("{}\n", str);
+	yio_asprint(&str, "{}\n", yprint_A(var_a));
+	yio_print("{}\n", str);
 
 	// This uses the PRINT_SLOT_100 above.
 	yio_append(&str, "{}\n", var_a);
-	yio_printf("{}\n", str);
+	yio_print("{}\n", str);
 
 	if (str == NULL) abort();
 	free(str);
