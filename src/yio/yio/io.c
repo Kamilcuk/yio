@@ -166,6 +166,7 @@ int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_
 	}
 	if (ctx.str != NULL) {
 		ctx.str[ctx.size] = '\0';
+		assert(ctx.size < SIZE_MAX);
 		void * const pnt = realloc(ctx.str, sizeof(*ctx.str) * (ctx.size + 1));
 		if (pnt != NULL) {
 			ctx.str = pnt;
@@ -187,6 +188,7 @@ int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_li
 	}
 	if (ctx.str != NULL) {
 		ctx.str[ctx.size] = '\0';
+		assert(ctx.size < SIZE_MAX);
 		void * const pnt = realloc(ctx.str, sizeof(*ctx.str) * (ctx.size + 1));
 		if (pnt != NULL) {
 			ctx.str = pnt;

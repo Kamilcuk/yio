@@ -20,6 +20,7 @@
 int YIO_buf_reserve(YIO_buf *t, size_t newsize) {
 	const size_t size = YIO_buf_capacity(t);
 	if (newsize <= size) return 0;
+	newsize |= 1;
 	const size_t len = YIO_buf_len(t);
 	const bool dynamic = YIO_buf_is_dynamic(t);
 	void *const p = realloc(dynamic ? t->h.ptr : NULL, newsize);
@@ -27,7 +28,7 @@ int YIO_buf_reserve(YIO_buf *t, size_t newsize) {
 	if (!dynamic) memcpy(p, t->buf, len);
 	t->h.ptr = p;
 	t->h.len = len;
-	t->info = (newsize << 1) | 1;
+	t->info = newsize;
 	return 0;
 }
 

@@ -4,7 +4,7 @@ This directory contains a GCC plugin for the `yio` library.
 
 ## Architectural Mandates
 
-- **Attribute-based Validation**: Validation of format strings must be triggered by the `yio_format` attribute. Do not hardcode function names like `yio_print` for validation logic.
+- **Attribute-based Validation**: Validation of format strings must be triggered by the `fstring_format` attribute. Do not hardcode function names like `yio_print` for validation logic.
 - **Compile-time Validation**: The plugin operates at the `PRE_GENERICIZE` phase to perform deep validation of format strings against provided arguments.
 
 ## Technical Gotchas

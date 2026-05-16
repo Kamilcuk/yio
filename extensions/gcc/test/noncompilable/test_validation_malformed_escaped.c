@@ -2,9 +2,8 @@
 
 FSTRING_FORMAT(1) static void print(const char *fmt, ...) {}
 
-//// COMPILATION PASS_REGULAR_EXPRESSION too few arguments
-
+//// COMPILATION PASS_REGULAR_EXPRESSION unmatched.*}
 int main() {
-    print("TEST {} {}", 1);
+    print("{{}:}", 42);
     return 0;
 }

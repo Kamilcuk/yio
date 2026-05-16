@@ -71,7 +71,7 @@ typedef struct YIO_buf {
 #if YIO_ENABLE_MALLOC
 		struct {
 			size_t len;  /* Used only in Heap mode */
-			char * __sized_by(info >> 1) ptr;   /* Used only in Heap mode */
+			char * __sized_by(info) ptr;   /* Used only in Heap mode */
 		} h;
 #endif
 		char buf[YIO_SSO_SIZE];
@@ -110,7 +110,7 @@ YIO_wur static inline char * __indexable YIO_buf_data(YIO_buf *t) {
 
 YIO_wur static inline size_t YIO_buf_capacity(const YIO_buf *t) {
 	#if YIO_ENABLE_MALLOC
-	return YIO_buf_is_dynamic(t) ? (t->info >> 1) : sizeof(t->buf);
+	return YIO_buf_is_dynamic(t) ? t->info : sizeof(t->buf);
 	#else
 	return sizeof(t->buf);
 	#endif

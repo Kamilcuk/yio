@@ -2,9 +2,8 @@
 
 FSTRING_FORMAT(1) static void print(const char *fmt, ...) {}
 
-//// COMPILATION PASS_REGULAR_EXPRESSION too few arguments
-
+//// COMPILATION PASS_REGULAR_EXPRESSION invalid dynamic field index.*=
 int main() {
-    print("TEST {} {}", 1);
+    print("{:{=}}", 42, 10);
     return 0;
 }

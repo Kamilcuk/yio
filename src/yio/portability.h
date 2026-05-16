@@ -9,8 +9,13 @@ extern "C" {
 #endif
 
 #if defined(__has_attribute)
-#if __has_attribute(yio_format)
-#define YIO_FORMAT(N) __attribute__((yio_format(N)))
+#if __has_attribute(fstring_format)
+#define YIO_FORMAT(N) __attribute__((fstring_format(N)))
+const void *__builtin_fstring(const char *, ...);
+#define YIO_F_OVERLOAD_TYPE_FUNC(TYPE, FUNC) , (TYPE *)0, FUNC
+#define YIO_F_OVERLOAD_TYPE_FUNC_ALIAS(TYPE, FUNC, ALIAS) YIO_F_OVERLOAD_TYPE_FUNC(TYPE, FUNC)
+#define yio_f(str)  (const yio_printdata_t *)__builtin_fstring(str YIO_PRINT_FUNC_GENERIC_CASES(YIO_F_OVERLOAD_TYPE_FUNC, YIO_F_OVERLOAD_TYPE_FUNC_ALIAS)), ""
+#define yio_print_f(str) YIO_yio_print(yio_f(str))
 #endif
 #endif
 #ifndef YIO_FORMAT

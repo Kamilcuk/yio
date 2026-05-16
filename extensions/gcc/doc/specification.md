@@ -1,10 +1,10 @@
 # Yio GCC Plugin Specification
 
-The Yio GCC plugin provides compile-time validation for the Yio formatting language. It ensures that format strings provided to functions marked with the `yio_format` attribute are syntactically correct and compatible with the provided arguments.
+The Yio GCC plugin provides compile-time validation for the Yio formatting language. It ensures that format strings provided to functions marked with the `fstring_format` attribute are syntactically correct and compatible with the provided arguments.
 
 ## Core Mechanism
 
-The plugin operates during the `PRE_GENERICIZE` phase of GCC, allowing it to inspect the AST before it is simplified. It identifies calls to functions possessing the `yio_format` attribute and parses the format string argument.
+The plugin operates during the `PRE_GENERICIZE` phase of GCC, allowing it to inspect the AST before it is simplified. It identifies calls to functions possessing the `fstring_format` attribute and parses the format string argument.
 
 ### Validation Rules
 
@@ -16,10 +16,10 @@ The plugin operates during the `PRE_GENERICIZE` phase of GCC, allowing it to ins
 
 ## Attribute Trigger
 
-Format validation is triggered by the `yio_format` attribute. The attribute takes an integer argument specifying the 1-based index of the format string argument.
+Format validation is triggered by the `fstring_format` attribute. The attribute takes an integer argument specifying the 1-based index of the format string argument.
 
 ```c
-__attribute__((yio_format(1)))
+__attribute__((fstring_format(1)))
 void my_print(const char *fmt, ...);
 ```
 

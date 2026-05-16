@@ -46,11 +46,6 @@ list(APPEND CMAKE_REQUIRED_LIBRARIES
 	m
 )
 
-# Mandatory types
-set(YIO_HAS_FLOATf 1 CACHE INTERNAL "")
-set(YIO_HAS_FLOATd 1 CACHE INTERNAL "")
-set(YIO_HAS_FLOATl 1 CACHE INTERNAL "")
-
 # Fast path for macro-based detection
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|Icx|Intel")
 	execute_process(
@@ -137,6 +132,16 @@ foreach(ii IN LISTS _floats)
 	if(ii)
 		continue()
 	endif()
+
+	if(suffix MATCHES "^(f|d|l)$")
+		yio_config_gen_add_default(YIO_HAS_FLOAT${suffix} 1)
+		if(YIO_HAS_FLOAT${suffix})
+			list(APPEND YIO_FLOAT_SUFFIXES ${suffix})
+			yio_config_gen_add_value(YIO_FLOAT${suffix} ${type})
+		endif()
+		continue()
+	endif()
+
 	if(NOT DEFINED YIO_HAS_FLOAT${suffix} AND NOT DEFINED HAVE_YIO_HAS_FLOAT${suffix})
 		message(STATUS "Detecting type: '${type}'")
 	endif()

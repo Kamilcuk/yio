@@ -13,6 +13,17 @@ string(APPEND yio_config_gen_content [=[
  */
 ]=])
 
+# @brief Adds a configuration symbol with a default value if not already defined.
+#
+# @param symbol The name of the configuration symbol.
+# @param default_value The default value to assign if not defined.
+macro(yio_config_gen_add_default symbol default_value)
+	if(NOT DEFINED "${symbol}")
+		set("${symbol}" "${default_value}" CACHE INTERNAL "")
+	endif()
+	yio_config_gen_add("${symbol}")
+endmacro()
+
 # @brief Finalizes the generated configuration file.
 #
 # Closes the Doxygen group and writes the accumulated configuration content to the
