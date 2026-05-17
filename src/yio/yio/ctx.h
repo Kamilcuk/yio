@@ -50,6 +50,8 @@ struct yio_printfmt_s {
 	char type;
 	/// Use of alternate form.
 	bool hash;
+	/// Coerce negative zero to positive zero.
+	bool coerce_z;
 };
 
 static const struct yio_printfmt_s YIO_printfmt_zero = {0};

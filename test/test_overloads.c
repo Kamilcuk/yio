@@ -149,11 +149,11 @@ int main() {
 	YIO_TEST_EQ("hello", "{}", "hello");
 
 	/* Floats - default is 'g' format */
-	YIO_TEST_EQ("1", "{}", 1.0f);
+	YIO_TEST_EQ("1", "{}", 1.0F);
 	YIO_TEST_EQ("1", "{}", 1.0);
 	YIO_TEST_EQ("1", "{}", 1.0L);
 
-	YIO_TEST_EQ("1.000000", "{:f}", 1.0f);
+	YIO_TEST_EQ("1.000000", "{:f}", 1.0F);
 	YIO_TEST_EQ("1.000000", "{:f}", 1.0);
 	YIO_TEST_EQ("1.000000", "{:f}", 1.0L);
 
@@ -178,6 +178,10 @@ int main() {
 #endif
 
 #ifdef MY_HAS_EXTINT
+#if __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-type"
+#endif
 	YIO_TEST_EQ("1", "{}", (unsigned _ExtInt(1))1);
 	YIO_TEST_EQ("1", "{}", (_ExtInt(2))1);
 	YIO_TEST_EQ("1", "{}", (_ExtInt(37))1);

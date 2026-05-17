@@ -12,6 +12,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|IntelLLVM")
 		-Wno-unused-function
 		-Wno-unused-parameter
 		-Werror=vla
+		-Werror
 		-ffunction-sections
 		-fdata-sections
 		-fdiagnostics-color=always
@@ -19,10 +20,10 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|IntelLLVM")
 		-D_FORTIFY_SOURCE=2
 		-D_GLIBCXX_ASSERTIONS
 	)
-	
+
 	# Architecture-specific optimizations and hardening
 	if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|i386|aarch64")
-		list(APPEND dev_flags 
+		list(APPEND dev_flags
 			-march=native
 			-fstack-clash-protection
 			-fcf-protection
@@ -33,7 +34,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|IntelLLVM")
 
 	# GCC-specific hardening and debug info switches
 	if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-		list(APPEND dev_flags 
+		list(APPEND dev_flags
 			-fasynchronous-unwind-tables
 			-fexceptions
 			-grecord-gcc-switches

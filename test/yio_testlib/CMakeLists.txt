@@ -38,8 +38,6 @@ if(DFP)
 		${DFP}
 	)
 endif()
-if(CMAKE_COMPILER_IS_GNUCC)
-  target_compile_options(${PROJECT_NAME} INTERFACE
-    -Wno-missing-field-initializers
-  )
+if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|IntelLLVM")
+	target_compile_options(${PROJECT_NAME} PUBLIC -Wno-missing-field-initializers)
 endif()

@@ -163,6 +163,9 @@ int YIO_pfmt_parse(struct YIO_printctx_s *t, struct yio_printfmt_s *pf,
 		case '#':
 			pf->hash = true;
 			break;
+		case 'z':
+			pf->coerce_z = true;
+			break;
 		case '0':
 			if (pf->align == '\0') {
 				pf->fill = '0';

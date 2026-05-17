@@ -119,9 +119,25 @@ static int postprocess(yio_printctx_t *t, YIO_buf *o, int err) {
         err = YIO_float_apply_alternate_form(t, o);
         if (err) goto EXIT;
     }
-    const char *const result = YIO_buf_data(o);
-    const size_t length = YIO_buf_len(o);
-    const bool is_negative = (length > 0 && result[0] == '-');
+    const char *result = YIO_buf_data(o);
+    size_t length = YIO_buf_len(o);
+    bool is_negative = (length > 0 && result[0] == '-');
+
+    if (is_negative && t->pf.coerce_z) {
+        bool only_zeros = true;
+        for (size_t i = 1; i < length; ++i) {
+            if (result[i] >= '1' && result[i] <= '9') {
+                only_zeros = false;
+                break;
+            }
+        }
+        if (only_zeros) {
+            is_negative = false;
+            ++result;
+            --length;
+        }
+    }
+
     err = yio_printctx_put_number(t, result + is_negative, length - is_negative, !is_negative);
 EXIT:
     YIO_buf_fini(o);

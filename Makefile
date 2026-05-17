@@ -21,7 +21,7 @@ _ := $(shell hash renice >/dev/null 2>&1 && renice -n 19 -p $$PPID >/dev/null)
 # 2. Throttles Disk I/O priority to Idle (class 3) for the parent 'make' process
 _ := $(shell hash ionice >/dev/null 2>&1 && ionice -c 3 -p $$PPID >/dev/null)
 # 3. Changes scheduling policy to Idle (SCHED_IDLE, -i 0) for the parent 'make' process
-_ := $(shell hash chrt >/dev/null 2>&1 && chrt -i 0 -p $$PPID >/dev/null)
+_ := $(shell hash chrt >/dev/null 2>&1 && chrt -i -p 0 $$PPID >/dev/null)
 # Set max core dump size (core) to 0 for the parent Make process
 _ := $(shell hash prlimit >/dev/null 2>&1 && prlimit --pid $$PPID --core=0)
 
@@ -75,7 +75,7 @@ B ?= _build/$(_BNAME)
 # Default cmake and other flags
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += $(if $(value CMAKE_C_FLAGS),-DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)")
-CMAKEFLAGS += --log-level=TRACE
+# CMAKEFLAGS += --log-level=TRACE
 
 SED_FIX_PATHS = sed -u 's@^[^ ]*/gen/@src/@; s@^\.\./\.\./test@test@'
 GEN_TO_SRC = 2> >($(SED_FIX_PATHS) >&2) > >($(SED_FIX_PATHS))

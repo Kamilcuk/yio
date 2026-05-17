@@ -41,7 +41,8 @@ int YIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const 
 
 #define YIO_PRINT_ARR_DEFINE_IN(T, FUNCNAME, PRINTER) \
   static inline int FUNCNAME(yio_printctx_t *t, const void *pnt, size_t elemsize) { \
-    const T *v = (const T *)pnt; \
+    typedef T yio_T; \
+    const yio_T *const v = (const yio_T *)pnt; \
     assert(sizeof(T) == elemsize); \
     if (!v) return yio_printctx_put(t, "null", 4); \
     const yio_printdata_t funcs[] = {PRINTER, NULL}; \
@@ -58,9 +59,7 @@ int YIO_printctx_print_in(yio_printctx_t *t, const yio_printdata_t *data, const 
   , T : YIO_XCONCAT(YIO_print_arr_, FUNC##SUFFIX)
 
 #define YIO_PRINT_FUNC_GENERIC_ARR(arg) \
-  _Generic((arg)YIO_PRINT_FUNC_GENERIC_CASES( \
-      YIO_PRINT_ARR_DISPATCH, YIO_PRINT_ARR_DISPATCH_ALIAS \
-  ))
+  _Generic((arg)YIO_PRINT_FUNC_GENERIC_CASES(YIO_PRINT_ARR_DISPATCH, YIO_PRINT_ARR_DISPATCH_ALIAS))
 #endif
 
 #if (defined(__GNUC__) || defined(__clang__)) && !defined(__cplusplus)
@@ -121,9 +120,7 @@ YIO_nn() static inline struct YIO_yio_arr_s *YIO_yio_arr_mk_count(
 }
 
 #define YIO_yio_arr_1(obj, A) \
-  YIO_yio_arr_mk( \
-      obj, A, sizeof((A)[0]), YIO_COUNTOF(A), NULL, YIO_PRINT_FUNC_GENERIC_ARR((A)[0]) \
-  )
+  YIO_yio_arr_mk(obj, A, sizeof((A)[0]), YIO_COUNTOF(A), NULL, YIO_PRINT_FUNC_GENERIC_ARR((A)[0]))
 #define YIO_yio_arr_2(obj, A, B) \
   _Generic((B), char *: YIO_yio_arr_mk, const char *: YIO_yio_arr_mk, default: YIO_yio_arr_mk_count)( \
       obj, A, sizeof((A)[0]), YIO_COUNTOF_BUT_SEP(A, B), B, YIO_PRINT_FUNC_GENERIC_ARR((A)[0]) \
