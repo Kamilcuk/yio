@@ -6,6 +6,7 @@
 int main() {
     int x = 42;
     // Using the direct function call to bypass macro expansion issues
-    YIO_yio_print(yio_f("x: {x}\n"));
+    int err = YIO_yio_print(yio_f("x: {x}\n"));
+    assert(err > 0);
     return 0;
 }

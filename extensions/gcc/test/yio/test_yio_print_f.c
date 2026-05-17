@@ -5,6 +5,7 @@
 
 int main() {
     int x = 42;
-    yio_print_f("x: {x}\n");
+    int err = yio_print_f("x: {x}\n");
+    assert(err > 0);
     return 0;
 }

@@ -8,7 +8,7 @@
 #include <string.h>
 
 typedef va_list ftest_ctx;
-typedef int (*ftest_handler)(ftest_ctx *ctx);
+typedef void (*ftest_handler)(ftest_ctx *ctx);
 
 #if defined(__has_attribute)
 #if __has_attribute(fstring_format)
@@ -30,7 +30,42 @@ static void ftest_call(ftest_handler handlers[], const char *fmt, ...) {
   for (ftest_handler *i = handlers; *i; ++i) {
     (*i)(&va);
   }
+  va_end(va);
 }
+
+static void ftest_h_int(ftest_ctx *ctx) {
+  assert(ctx);
+  int val = va_arg(*ctx, int);
+  printf("h_int: %d\n", val);
+}
+
+static void ftest_h_double(ftest_ctx *ctx) {
+  assert(ctx);
+  double val = va_arg(*ctx, double);
+  printf("h_double: %f\n", val);
+}
+
+static void ftest_h_float(ftest_ctx *ctx) {
+  assert(ctx);
+  // float is promoted to double in variadic arguments
+  double val = va_arg(*ctx, double);
+  printf("h_float: %f\n", val);
+}
+
+static void ftest_h_ptr(ftest_ctx *ctx) {
+  assert(ctx);
+  void *val = va_arg(*ctx, void *);
+  printf("h_ptr: %p\n", val);
+}
+
+#define FTEST_HANDLERS \
+  (int *)0, ftest_h_int, \
+  (double *)0, ftest_h_double, \
+  (float *)0, ftest_h_float, \
+  (void *)0, ftest_h_ptr
+
+#define FTEST_F(str, ...) test_f(str, FTEST_HANDLERS, ##__VA_ARGS__)
+#define FTEST_PRINT_F(str, ...) ftest_call(FTEST_F(str, ##__VA_ARGS__), ##__VA_ARGS__)
 
 #define FTEST_ASSERT(expr) \
   do { \

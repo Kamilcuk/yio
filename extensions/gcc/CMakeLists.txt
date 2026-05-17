@@ -99,10 +99,11 @@ function(add_yio_test name file)
     endif()
 endfunction()
 
-file(GLOB_RECURSE TEST_FILES "test/**/test_*.c")
+file(GLOB_RECURSE TEST_FILES "test/test_*.c" "test/**/test_*.c")
 foreach(test_path ${TEST_FILES})
-    get_filename_component(test_name ${test_path} NAME_WE)
     file(RELATIVE_PATH rel_path ${CMAKE_CURRENT_SOURCE_DIR} ${test_path})
+    string(REPLACE "/" "_" test_name ${rel_path})
+    string(REPLACE ".c" "" test_name ${test_name})
     add_yio_test(${test_name} ${rel_path})
 endforeach()
 
@@ -112,7 +113,7 @@ add_test(NAME test_plugin_flag_disable
         -I ${YIO_GEN_DIR}
         -I ${YIO_GEN_DIR}/yio
         -I ${CMAKE_CURRENT_SOURCE_DIR}/test 
-        -c ${CMAKE_CURRENT_SOURCE_DIR}/test/test_plugin_flags.c -o /dev/null
+        -c ${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c -o /dev/null
 )
 
 add_test(NAME test_plugin_flag_error
@@ -121,9 +122,9 @@ add_test(NAME test_plugin_flag_error
         -I ${YIO_GEN_DIR}
         -I ${YIO_GEN_DIR}/yio
         -I ${CMAKE_CURRENT_SOURCE_DIR}/test 
-        -c ${CMAKE_CURRENT_SOURCE_DIR}/test/test_plugin_flags.c -o /dev/null
+        -c ${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c -o /dev/null
 )
-test_extract_properties_from_file(fstring_plugin test_plugin_flag_error ${CMAKE_CURRENT_SOURCE_DIR}/test/test_plugin_flags.c PREFIX "//// COMPILATION")
+test_extract_properties_from_file(fstring_plugin test_plugin_flag_error ${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c PREFIX "//// COMPILATION")
 
 # Reuse testprogram logic for the plugin
 set_from_env(TESTPROGRAM)
