@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <optional>
 #include "coretypes.h"
 #include "c-family/c-common.h"
 #include "gcc-plugin.h"
@@ -24,6 +25,9 @@ int plugin_is_GPL_compatible;
 
 static bool warn_fstring_format = true;
 static bool error_fstring_format = false;
+static bool fstring_optimizations = false;
+
+static std::map<std::vector<tree>, tree> global_handler_cache;
 
 static void report_fstring_problem(location_t loc, const char *msg, ...) {
   if (!warn_fstring_format && !error_fstring_format) { return; }
@@ -61,35 +65,75 @@ static tree find_var_in_scope(tree fndecl, const char *name) {
 }
 
 struct FStringToken {
-  bool is_text;
+  bool is_text = false;
   std::string text;      // Literal text or full placeholder string
   std::string expr;      // Variable/expression name
   std::string spec;      // Format specifier excluding colon
-  std::string width;     // Extracted nested expression for width
-  std::string precision; // Extracted nested expression for precision
-  bool has_width = false;
-  bool has_precision = false;
+  std::optional<std::string> width;     // Extracted nested expression for width
+  std::optional<std::string> precision; // Extracted nested expression for precision
+
+  // Python-style format specifier components
+  char fill = '\0';
+  char align = '\0';
+  char sign = '\0';
+  bool z = false;
+  bool hash = false;
+  bool zero = false;
+  char grouping_option = '\0';
+  bool locale = false;
+  char type = '\0';
+  bool parsed_to_end = false;
 };
 
-static void validate_type_spec(tree type, std::string spec, location_t loc) {
-  if (spec.empty()) { return; }
-  const char *p = spec.c_str();
+static bool is_optimizable_type(tree type) {
+  if (!type) return false;
+  type = TYPE_MAIN_VARIANT(type);
+  if (INTEGRAL_TYPE_P(type) || SCALAR_FLOAT_TYPE_P(type))
+    return true;
+  if (POINTER_TYPE_P(type)) {
+    tree target = TREE_TYPE(type);
+    if (!target) return true; // void*
+    target = TYPE_MAIN_VARIANT(target);
+    if (target == char_type_node || target == void_type_node)
+      return true;
+  }
+  return false;
+}
+
+static void parse_specifier(FStringToken &tok, location_t loc) {
+  if (tok.spec.empty()) {
+    tok.parsed_to_end = true;
+    return;
+  }
+  const char *p = tok.spec.c_str();
 
   // Python-style format specifier validation:
   // [[fill]align][sign][z][#][0][width][grouping_option][.precision][type]
 
   // [[fill]align]
   if (*p && *(p + 1) && strchr("<>=^", *(p + 1))) {
+    tok.fill = *p;
+    tok.align = *(p + 1);
     if (*p == '{' || *p == '}') {
       report_fstring_problem(loc, "brace %qc is not allowed as a fill character", *p);
     }
     p += 2;
   } else if (*p && strchr("<>=^", *p)) {
+    tok.align = *p;
     p++;
   }
 
   // [sign][z][#][0]
   while (*p && strchr("+- z#0", *p)) {
+    if (*p == '+' || *p == '-' || *p == ' ') {
+      tok.sign = *p;
+    } else if (*p == 'z') {
+      tok.z = true;
+    } else if (*p == '#') {
+      tok.hash = true;
+    } else if (*p == '0') {
+      tok.zero = true;
+    }
     p++;
   }
 
@@ -100,6 +144,7 @@ static void validate_type_spec(tree type, std::string spec, location_t loc) {
 
   // [grouping_option]
   if (*p && strchr("_,", *p)) {
+    tok.grouping_option = *p;
     p++;
   }
 
@@ -111,17 +156,28 @@ static void validate_type_spec(tree type, std::string spec, location_t loc) {
     }
   }
 
-  char type_char = '\0';
-  if (*p && ISALPHA(*p)) {
-    type_char = *p;
+  // [L]
+  if (*p == 'L') {
+    tok.locale = true;
     p++;
   }
 
-  if (*p != '\0') {
-    report_fstring_problem(loc, "invalid format specification");
-    return;
+  if (*p && ISALPHA(*p)) {
+    tok.type = *p;
+    p++;
   }
 
+  tok.parsed_to_end = (*p == '\0');
+}
+
+static void validate_type_spec(tree type, const FStringToken &tok, location_t loc) {
+  if (tok.spec.empty()) { return; }
+
+  if (type != NULL_TREE && is_optimizable_type(type) && !tok.parsed_to_end) {
+    report_fstring_problem(loc, "invalid format specification");
+  }
+
+  char type_char = tok.type;
   if (type == NULL_TREE) { return; }
 
   if (INTEGRAL_TYPE_P(type)) {
@@ -131,7 +187,7 @@ static void validate_type_spec(tree type, std::string spec, location_t loc) {
       report_fstring_problem(loc, "invalid format specifier %s for %qT. use one of %qs instead", tc, type, integral_specs);
     }
   } else if (SCALAR_FLOAT_TYPE_P(type)) {
-    const char *float_specs = "fegafEGA";
+    const char *float_specs = "fegaFEGA";
     if (type_char != '\0' && !strchr(float_specs, type_char)) {
       char tc[2] = {type_char, '\0'};
       report_fstring_problem(loc, "invalid format specifier %s for %qT. use one of %qs instead", tc, type, float_specs);
@@ -165,10 +221,12 @@ static std::vector<FStringToken> parse_fstring(const char *str, location_t loc) 
     if (*p == '{') {
       p++;
       if (*p == '{') {
-        tokens.push_back({true, "{", "", "", "", ""});
+        tokens.push_back({true, "{"});
         p++;
       } else {
-        FStringToken tok = {false, "{", "", "", "", ""};
+        FStringToken tok;
+        tok.is_text = false;
+        tok.text = "{";
         while (*p && *p != '}' && *p != ':' && *p != '!') {
           if (*p == '{') { break; }
           tok.expr += *p;
@@ -238,10 +296,8 @@ static std::vector<FStringToken> parse_fstring(const char *str, location_t loc) 
 
                 if (is_precision) {
                   tok.precision = inner;
-                  tok.has_precision = true;
                 } else {
                   tok.width = inner;
-                  tok.has_width = true;
                 }
                 tok.text += *p++;
               }
@@ -250,7 +306,8 @@ static std::vector<FStringToken> parse_fstring(const char *str, location_t loc) 
               tok.text += *p++;
             }
           }
-          validate_type_spec(NULL_TREE, tok.spec, loc);
+          parse_specifier(tok, loc);
+          validate_type_spec(NULL_TREE, tok, loc);
         }
         if (*p == '}') {
           tok.text += *p++;
@@ -262,7 +319,7 @@ static std::vector<FStringToken> parse_fstring(const char *str, location_t loc) 
     } else if (*p == '}') {
       p++;
       if (*p == '}') {
-        tokens.push_back({true, "}", "", "", "", ""});
+        tokens.push_back({true, "}"});
         p++;
       } else {
         report_fstring_problem(loc, "unmatched %<}%> in f-string. remove it or escape as %<}}%>");
@@ -270,7 +327,7 @@ static std::vector<FStringToken> parse_fstring(const char *str, location_t loc) 
     } else {
       std::string text;
       while (*p && *p != '{' && *p != '}') { text += *p++; }
-      tokens.push_back({true, text, "", "", "", ""});
+      tokens.push_back({true, text});
     }
   }
   return tokens;
@@ -334,6 +391,11 @@ static tree get_fstring_elem_type(tree call, location_t loc, int nargs) {
 }
 
 static tree create_handler_array(location_t loc, tree elem_type, const std::vector<tree> &handlers) {
+  auto it = global_handler_cache.find(handlers);
+  if (it != global_handler_cache.end()) {
+    return build1(ADDR_EXPR, build_pointer_type(elem_type), it->second);
+  }
+
   tree decl;
   static int counter = 0;
   char name[64];
@@ -359,6 +421,7 @@ static tree create_handler_array(location_t loc, tree elem_type, const std::vect
   TREE_PUBLIC(decl) = 0;
 
   varpool_node::finalize_decl(decl);
+  global_handler_cache[handlers] = decl;
   return build1(ADDR_EXPR, build_pointer_type(elem_type), decl);
 }
 
@@ -373,6 +436,7 @@ struct VarResolver {
   tree fndecl;
   location_t loc;
   std::vector<tree> &vars;
+  bool fold_constants;
 
   tree resolve(const std::string &name, std::string &out_fmt) {
     if (name.empty()) { return NULL_TREE; }
@@ -393,12 +457,12 @@ struct VarResolver {
     }
     if (var) {
       tree val_tree = var;
-      if (TREE_CODE(var) == VAR_DECL && TREE_READONLY(var) && DECL_INITIAL(var) &&
+      if (fold_constants && TREE_CODE(var) == VAR_DECL && TREE_READONLY(var) && DECL_INITIAL(var) &&
           TREE_CODE(DECL_INITIAL(var)) == INTEGER_CST) {
         val_tree = DECL_INITIAL(var);
       }
 
-      if (TREE_CODE(val_tree) == INTEGER_CST) {
+      if (fold_constants && TREE_CODE(val_tree) == INTEGER_CST) {
         out_fmt += std::to_string(TREE_INT_CST_LOW(val_tree));
       } else {
         out_fmt += "{}";
@@ -418,45 +482,81 @@ static void check_negative_constant(tree val, location_t loc, const char *name) 
   }
 }
 
-static void append_reconstructed_spec(std::string &new_fmt, const FStringToken &tok, VarResolver &resolver) {
-  if (tok.spec.empty() && !tok.has_width && !tok.has_precision) { return; }
+static void append_reconstructed_spec(std::string &new_fmt, const FStringToken &tok, VarResolver &resolver, tree type) {
+  if (tok.spec.empty() && !tok.width && !tok.precision) { return; }
   new_fmt += ":";
-  const char *s = tok.spec.c_str();
-  const char *p_dot = strchr(s, '.');
-  if (tok.has_width) {
-    if (p_dot) {
-      new_fmt.append(s, p_dot - s);
-      tree w_tree = resolver.resolve(tok.width, new_fmt);
-      check_negative_constant(w_tree, resolver.loc, "width");
-      new_fmt += ".";
-      if (tok.has_precision) {
-        tree p_tree = resolver.resolve(tok.precision, new_fmt);
-        check_negative_constant(p_tree, resolver.loc, "precision");
-        new_fmt += (p_dot + 1);
-      } else {
-        new_fmt += (p_dot + 1);
-      }
-    } else {
-      tree w_tree = resolver.resolve(tok.width, new_fmt);
-      check_negative_constant(w_tree, resolver.loc, "width");
-      new_fmt += tok.spec;
-    }
-  } else if (tok.has_precision) {
-    if (p_dot) {
-      new_fmt.append(s, p_dot - s);
-      new_fmt += ".";
-      tree p_tree = resolver.resolve(tok.precision, new_fmt);
-      check_negative_constant(p_tree, resolver.loc, "precision");
-      new_fmt += (p_dot + 1);
-    } else {
-      new_fmt += tok.spec;
-      new_fmt += ".";
-      tree p_tree = resolver.resolve(tok.precision, new_fmt);
-      check_negative_constant(p_tree, resolver.loc, "precision");
-    }
-  } else {
+
+  if (type && !is_optimizable_type(type)) {
     new_fmt += tok.spec;
+    return;
   }
+
+  if (tok.fill != '\0' || tok.align != '\0') {
+    if (tok.fill != '\0') new_fmt += tok.fill;
+    if (tok.align != '\0') new_fmt += tok.align;
+  }
+  if (tok.sign != '\0') new_fmt += tok.sign;
+  if (tok.z) { new_fmt += "z"; }
+  if (tok.hash) { new_fmt += "#"; }
+  if (tok.zero) { new_fmt += "0"; }
+
+  if (tok.width) {
+    tree w_tree = resolver.resolve(*tok.width, new_fmt);
+    check_negative_constant(w_tree, resolver.loc, "width");
+  } else {
+    // If not dynamic width, we might have literal width in spec
+    const char *p = tok.spec.c_str();
+    // Skip already handled parts to find literal width
+    if (tok.fill != '\0' || tok.align != '\0') {
+      if (tok.fill != '\0') p++;
+      if (tok.align != '\0') p++;
+    }
+    while (*p && strchr("+- z#0", *p)) { p++; }
+    while (*p && ISDIGIT(*p)) { new_fmt += *p++; }
+  }
+
+  if (tok.grouping_option != '\0') new_fmt += tok.grouping_option;
+
+  if (tok.precision) {
+    new_fmt += ".";
+    tree p_tree = resolver.resolve(*tok.precision, new_fmt);
+    check_negative_constant(p_tree, resolver.loc, "precision");
+  } else {
+    const char *p = strchr(tok.spec.c_str(), '.');
+    if (p) {
+      new_fmt += ".";
+      p++;
+      while (*p && ISDIGIT(*p)) { new_fmt += *p++; }
+    }
+  }
+
+  if (tok.locale) {
+    new_fmt += "L";
+  }
+
+  if (tok.type != '\0') {
+    new_fmt += tok.type;
+  }
+}
+
+static std::map<tree, tree> parse_call_handlers(tree call, location_t loc) {
+  std::map<tree, tree> call_handlers;
+  int nargs = call_expr_nargs(call);
+  for (int i = 1; i + 1 < nargs; i += 2) {
+    tree t_ptr = CALL_EXPR_ARG(call, i);
+    tree h_fn = CALL_EXPR_ARG(call, i + 1);
+    STRIP_NOPS(t_ptr);
+    tree type = TREE_TYPE(t_ptr);
+    if (type && TREE_CODE(type) == POINTER_TYPE) { type = TREE_TYPE(type); }
+    if (type) {
+      type = TYPE_MAIN_VARIANT(type);
+      if (call_handlers.count(type)) {
+        report_fstring_problem(loc, "duplicate handler for type %qT. remove the redundant handler registration", type);
+      }
+      call_handlers[type] = h_fn;
+    }
+  }
+  return call_handlers;
 }
 
 static void expand_fstring_builtin(tree call, tree fndecl, std::vector<tree> &out_args) {
@@ -474,28 +574,14 @@ static void expand_fstring_builtin(tree call, tree fndecl, std::vector<tree> &ou
   }
   std::string merged_str = TREE_STRING_POINTER(str_arg);
 
-  std::map<tree, tree> call_handlers;
-  for (int i = 1; i + 1 < nargs; i += 2) {
-    tree t_ptr = CALL_EXPR_ARG(call, i);
-    tree h_fn = CALL_EXPR_ARG(call, i + 1);
-    STRIP_NOPS(t_ptr);
-    tree type = TREE_TYPE(t_ptr);
-    if (type && TREE_CODE(type) == POINTER_TYPE) { type = TREE_TYPE(type); }
-    if (type) {
-      type = TYPE_MAIN_VARIANT(type);
-      if (call_handlers.count(type)) {
-        report_fstring_problem(loc, "duplicate handler for type %qT. remove the redundant handler registration", type);
-      }
-      call_handlers[type] = h_fn;
-    }
-  }
-
+  std::map<tree, tree> call_handlers = parse_call_handlers(call, loc);
   tree elem_type = get_fstring_elem_type(call, loc, nargs);
 
   std::vector<FStringToken> tokens = parse_fstring(merged_str.c_str(), loc);
+
   std::string new_fmt;
   std::vector<tree> vars;
-  VarResolver resolver = {fndecl, loc, vars};
+  VarResolver resolver = {fndecl, loc, vars, fstring_optimizations};
 
   for (const auto &tok : tokens) {
     if (tok.is_text) {
@@ -520,14 +606,17 @@ static void expand_fstring_builtin(tree call, tree fndecl, std::vector<tree> &ou
           }
         }
       }
+
+      tree type = NULL_TREE;
       if (var) {
         vars.push_back(var);
-        validate_type_spec(TREE_TYPE(var), tok.spec, loc);
+        type = TREE_TYPE(var);
+        validate_type_spec(type, tok, loc);
       } else {
         report_fstring_problem(loc, "variable or literal %qs not found for f-string", tok.expr.c_str());
       }
 
-      append_reconstructed_spec(new_fmt, tok, resolver);
+      append_reconstructed_spec(new_fmt, tok, resolver, type);
       new_fmt += "}";
     }
   }
@@ -617,12 +706,12 @@ static void validate_fstring_format(tree call, int fmt_idx) {
     int main_idx = get_idx(tok.expr, "replacement field");
     if (main_idx >= 0 && arg_offset + main_idx < nargs) {
       tree arg = CALL_EXPR_ARG(call, arg_offset + main_idx);
-      validate_type_spec(TREE_TYPE(arg), tok.spec, loc);
+      validate_type_spec(TREE_TYPE(arg), tok, loc);
     }
 
-    if (tok.has_width) {
+    if (tok.width) {
       width_count++;
-      int w_idx = get_idx(tok.width, "width");
+      int w_idx = get_idx(*tok.width, "width");
       if (w_idx >= 0 && arg_offset + w_idx < nargs) {
         tree arg = CALL_EXPR_ARG(call, arg_offset + w_idx);
         if (!INTEGRAL_TYPE_P(TREE_TYPE(arg))) {
@@ -634,9 +723,9 @@ static void validate_fstring_format(tree call, int fmt_idx) {
       }
     }
 
-    if (tok.has_precision) {
+    if (tok.precision) {
       precision_count++;
-      int p_idx = get_idx(tok.precision, "precision");
+      int p_idx = get_idx(*tok.precision, "precision");
       if (p_idx >= 0 && arg_offset + p_idx < nargs) {
         tree arg = CALL_EXPR_ARG(call, arg_offset + p_idx);
         if (!INTEGRAL_TYPE_P(TREE_TYPE(arg))) {
@@ -764,13 +853,21 @@ static void register_attributes(void *event_data, void *data) {
 int plugin_init(struct plugin_name_args *plugin_info, struct plugin_gcc_version *version) {
   if (!plugin_default_version_check(version, &gcc_version)) { return 1; }
 
+  int opt_mode = 1;
   for (int i = 0; i < plugin_info->argc; i++) {
     if (strcmp(plugin_info->argv[i].key, "Wfstring-format") == 0) {
       if (plugin_info->argv[i].value) { warn_fstring_format = atoi(plugin_info->argv[i].value); }
     } else if (strcmp(plugin_info->argv[i].key, "Werror-fstring-format") == 0) {
       if (plugin_info->argv[i].value) { error_fstring_format = atoi(plugin_info->argv[i].value); }
+    } else if (strcmp(plugin_info->argv[i].key, "ffstring-optimizations") == 0) {
+      if (plugin_info->argv[i].value) { opt_mode = atoi(plugin_info->argv[i].value); }
+      else { opt_mode = 1; }
     }
   }
+
+  if (opt_mode == 2) fstring_optimizations = true;
+  else if (opt_mode == 1) fstring_optimizations = (optimize >= 1);
+  else fstring_optimizations = false;
 
   register_callback(plugin_info->base_name, PLUGIN_ATTRIBUTES, register_attributes, NULL);
   register_callback(plugin_info->base_name, PLUGIN_PRE_GENERICIZE, plugin_pre_genericize, NULL);

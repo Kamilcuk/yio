@@ -62,9 +62,15 @@ endif()
 # Find include dir
 set(YIO_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/yio/gen)
 
-function(add_yio_test name file)
-    set(comp_test "${name}_comp")
+function(add_yio_test name file opt_mode)
+    set(full_name "${name}")
+    if(opt_mode STREQUAL "0")
+        set(full_name "${name}_unopt")
+    endif()
+
+    set(comp_test "${full_name}_comp")
     set(cmd ${CMAKE_C_COMPILER} ${COMMON_FLAGS} -fplugin=$<TARGET_FILE:fstring_plugin> 
+            -fplugin-arg-fstring_plugin-ffstring-optimizations=${opt_mode}
             -I ${YIO_GEN_DIR}
             -I ${YIO_GEN_DIR}/yio
             -I ${CMAKE_CURRENT_SOURCE_DIR}/test 
@@ -81,7 +87,7 @@ function(add_yio_test name file)
     # Check if the test should also be run
     file(READ "${CMAKE_CURRENT_SOURCE_DIR}/${file}" content)
     if(NOT content MATCHES "WILL_FAIL" AND NOT file MATCHES "noncompilable/|too_few|too_many")
-        set(exec_name "${name}_exe")
+        set(exec_name "${full_name}_exe")
         add_executable(${exec_name} ${file} test/conftest.c)
         add_dependencies(${exec_name} yio_gen fstring_plugin_ready_target)
         set_source_files_properties(${file} test/conftest.c PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/fstring_plugin_ready)
@@ -92,10 +98,13 @@ function(add_yio_test name file)
         )
         set_target_properties(${exec_name} PROPERTIES C_STANDARD 11)
         target_link_libraries(${exec_name} PRIVATE yio)
-        target_compile_options(${exec_name} PRIVATE ${COMMON_FLAGS} "-fplugin=$<TARGET_FILE:fstring_plugin>")
+        target_compile_options(${exec_name} PRIVATE ${COMMON_FLAGS} 
+            "-fplugin=$<TARGET_FILE:fstring_plugin>"
+            "-fplugin-arg-fstring_plugin-ffstring-optimizations=${opt_mode}"
+        )
         
-        add_test(NAME ${name} COMMAND ${exec_name})
-        test_extract_properties_from_file(${exec_name} ${name} ${CMAKE_CURRENT_SOURCE_DIR}/${file} PREFIX "//// RUN")
+        add_test(NAME ${full_name} COMMAND ${exec_name})
+        test_extract_properties_from_file(${exec_name} ${full_name} ${CMAKE_CURRENT_SOURCE_DIR}/${file} PREFIX "//// RUN")
     endif()
 endfunction()
 
@@ -104,7 +113,15 @@ foreach(test_path ${TEST_FILES})
     file(RELATIVE_PATH rel_path ${CMAKE_CURRENT_SOURCE_DIR} ${test_path})
     string(REPLACE "/" "_" test_name ${rel_path})
     string(REPLACE ".c" "" test_name ${test_name})
-    add_yio_test(${test_name} ${rel_path})
+    
+    if(rel_path MATCHES "^test/optimized/")
+        add_yio_test(${test_name} ${rel_path} "2")
+    elseif(rel_path MATCHES "^test/unoptimized/")
+        add_yio_test(${test_name} ${rel_path} "0")
+    else()
+        add_yio_test(${test_name} ${rel_path} "2")
+        add_yio_test(${test_name} ${rel_path} "0")
+    endif()
 endforeach()
 
 add_test(NAME test_plugin_flag_disable

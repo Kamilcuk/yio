@@ -45,6 +45,11 @@ The plugin reports diagnostics for mappings between C types and format specifier
 - Floating-point: Allowed specifiers are `fegafEGA`.
 - Any other trailing alphabetic character in a specifier will trigger a diagnostic for these types.
 
+### Handler Array Merging
+To minimize binary size, the plugin merges identical handler arrays across the entire compilation unit:
+- The plugin caches all generated static handler arrays in a global map.
+- If multiple f-strings result in the same sequence of handler functions (e.g., both use `int` and `float` in the same order), they will share the same underlying static `__fstring_handlers_N` variable.
+
 ### Diagnostic Reporting vs. Transformation
 - Attribute-based Functions: Functions with the `fstring_format` attribute only report diagnostics for format string errors. The plugin does not modify the source code or arguments for these calls.
 - `__builtin_fstring`: Calls to this builtin are transformed into a static array of handlers and a new format string, effectively rewriting the call site in addition to reporting diagnostics.
@@ -144,4 +149,8 @@ Compile with: `gcc -fplugin=build/fstring_plugin.so demo.c -o demo`
 make test
 ```
 
-The test suite validates both `fstring_format` attributes and `__builtin_fstring` behavior, including specialized tests for diagnostic control flags.
+The test suite validates both `fstring_format` attributes and `__builtin_fstring` behavior. Tests are organized into:
+- `test/`: General tests run in both optimized and unoptimized modes.
+- `test/optimized/`: Tests specifically for optimization side-effects (e.g. constant baking).
+- `test/unoptimized/`: Tests verified without optimizations.
+- `test/noncompilable/`: Negative tests ensuring correct diagnostic reporting.

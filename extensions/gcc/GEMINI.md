@@ -16,3 +16,12 @@ This directory contains a GCC plugin for the `yio` library.
 
 - Always use the provided `CMakeLists.txt` which handles multiarch include paths for system headers (like GMP).
 - The `Makefile` provides a convenient wrapper for `cmake -B build` and `ctest`.
+
+## Testing Conventions
+- Use `add_yio_test` in `CMakeLists.txt` for all new f-string tests.
+- Test Directory Structure:
+  - `test/`: General tests run in both optimized (`-O1+` or flag set to 2) and unoptimized modes. This includes most functional tests.
+  - `test/optimized/`: Tests that specifically verify optimization side-effects, such as constant folding nested fields into the format string (e.g., `{:10}` instead of `{:{}}`).
+  - `test/unoptimized/`: Tests that should only be run without optimizations.
+  - `test/noncompilable/`: General negative tests (errors) verified in both modes.
+- Always verify your changes with `make test` before submitting.
