@@ -36,8 +36,9 @@ if(GCC_MULTIARCH)
 endif()
 include_directories(/usr/include/x86_64-linux-gnu)
 
-add_library(fstring_plugin SHARED src/fstring_plugin.cc)
+add_library(fstring_plugin SHARED src/fstring_plugin.cpp)
 target_compile_options(fstring_plugin PRIVATE ${COMMON_FLAGS} -fPIC -fno-rtti -fno-exceptions -Wno-literal-suffix)
+target_link_libraries(fstring_plugin PRIVATE yio)
 set_target_properties(fstring_plugin PROPERTIES PREFIX "")
 add_dependencies(fstring_plugin yio_gen)
 
@@ -62,14 +63,14 @@ endif()
 # Find include dir
 set(YIO_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR}/yio/gen)
 
-function(add_yio_test name file opt_mode)
+function(add_yio_test name file opt_mode extra_flags)
     set(full_name "${name}")
     if(opt_mode STREQUAL "0")
         set(full_name "${name}_unopt")
     endif()
 
     set(comp_test "${full_name}_comp")
-    set(cmd ${CMAKE_C_COMPILER} ${COMMON_FLAGS} -fplugin=$<TARGET_FILE:fstring_plugin> 
+    set(cmd ${CMAKE_C_COMPILER} ${COMMON_FLAGS} ${extra_flags} -fplugin=$<TARGET_FILE:fstring_plugin> 
             -fplugin-arg-fstring_plugin-ffstring-optimizations=${opt_mode}
             -I ${YIO_GEN_DIR}
             -I ${YIO_GEN_DIR}/yio
@@ -97,8 +98,10 @@ function(add_yio_test name file opt_mode)
             ${CMAKE_CURRENT_SOURCE_DIR}/test 
         )
         set_target_properties(${exec_name} PROPERTIES C_STANDARD 11)
-        target_link_libraries(${exec_name} PRIVATE yio)
-        target_compile_options(${exec_name} PRIVATE ${COMMON_FLAGS} 
+        if(file MATCHES "^test/yio/")
+            target_link_libraries(${exec_name} PRIVATE yio)
+        endif()
+        target_compile_options(${exec_name} PRIVATE ${COMMON_FLAGS} ${extra_flags}
             "-fplugin=$<TARGET_FILE:fstring_plugin>"
             "-fplugin-arg-fstring_plugin-ffstring-optimizations=${opt_mode}"
         )
@@ -108,6 +111,9 @@ function(add_yio_test name file opt_mode)
     endif()
 endfunction()
 
+set(OPT_LEVELS "-O1" "-O2" "-O3" "-Os" "-Og")
+set(OPT_COUNTER 0)
+
 file(GLOB_RECURSE TEST_FILES "test/test_*.c" "test/**/test_*.c")
 foreach(test_path ${TEST_FILES})
     file(RELATIVE_PATH rel_path ${CMAKE_CURRENT_SOURCE_DIR} ${test_path})
@@ -115,12 +121,20 @@ foreach(test_path ${TEST_FILES})
     string(REPLACE ".c" "" test_name ${test_name})
     
     if(rel_path MATCHES "^test/optimized/")
-        add_yio_test(${test_name} ${rel_path} "2")
+        # Optimization tests: Run with round-robin opt level and plugin opt ENABLED
+        list(GET OPT_LEVELS ${OPT_COUNTER} CURRENT_OPT)
+        add_yio_test(${test_name} ${rel_path} "1" "${CURRENT_OPT}")
+        math(EXPR OPT_COUNTER "(${OPT_COUNTER} + 1) % 5")
     elseif(rel_path MATCHES "^test/unoptimized/")
-        add_yio_test(${test_name} ${rel_path} "0")
+        # Unoptimized tests: Run with -O0 and plugin opt DISABLED
+        add_yio_test(${test_name} ${rel_path} "0" "")
     else()
-        add_yio_test(${test_name} ${rel_path} "2")
-        add_yio_test(${test_name} ${rel_path} "0")
+        # General tests: Run once without optimizations and once with them.
+        # Both must produce identical runtime results.
+        add_yio_test(${test_name} ${rel_path} "0" "")
+        list(GET OPT_LEVELS ${OPT_COUNTER} CURRENT_OPT)
+        add_yio_test(${test_name}_opt ${rel_path} "1" "${CURRENT_OPT}")
+        math(EXPR OPT_COUNTER "(${OPT_COUNTER} + 1) % 5")
     endif()
 endforeach()
 
@@ -142,6 +156,11 @@ add_test(NAME test_plugin_flag_error
         -c ${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c -o /dev/null
 )
 test_extract_properties_from_file(fstring_plugin test_plugin_flag_error ${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c PREFIX "//// COMPILATION")
+
+add_test(NAME check_test_prefixes
+    COMMAND grep -r "^//// PASS_REGULAR_EXPRESSION" ${CMAKE_CURRENT_SOURCE_DIR}/test
+)
+set_tests_properties(check_test_prefixes PROPERTIES WILL_FAIL TRUE)
 
 # Reuse testprogram logic for the plugin
 set_from_env(TESTPROGRAM)

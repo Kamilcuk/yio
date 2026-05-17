@@ -4,7 +4,7 @@
 #include "conftest.h"
 
 //// RUN
-//// PASS_REGULAR_EXPRESSION "Time: 2023-10-27 12:34:56"
+//// RUN PASS_REGULAR_EXPRESSION "Time: 2023-10-27 12:34:56"
 
 int main() {
     struct tm t;

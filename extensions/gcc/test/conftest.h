@@ -52,6 +52,18 @@ static void ftest_h_float(ftest_ctx *ctx) {
   printf("h_float: %f\n", val);
 }
 
+static void ftest_h_long(ftest_ctx *ctx) {
+  assert(ctx);
+  long val = va_arg(*ctx, long);
+  printf("h_long: %ld\n", val);
+}
+
+static void ftest_h_llong(ftest_ctx *ctx) {
+  assert(ctx);
+  long long val = va_arg(*ctx, long long);
+  printf("h_llong: %lld\n", val);
+}
+
 static void ftest_h_ptr(ftest_ctx *ctx) {
   assert(ctx);
   void *val = va_arg(*ctx, void *);
@@ -60,6 +72,8 @@ static void ftest_h_ptr(ftest_ctx *ctx) {
 
 #define FTEST_HANDLERS \
   (int *)0, ftest_h_int, \
+  (long *)0, ftest_h_long, \
+  (long long *)0, ftest_h_llong, \
   (double *)0, ftest_h_double, \
   (float *)0, ftest_h_float, \
   (void *)0, ftest_h_ptr

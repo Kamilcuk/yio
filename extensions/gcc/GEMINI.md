@@ -24,4 +24,5 @@ This directory contains a GCC plugin for the `yio` library.
   - `test/optimized/`: Tests that specifically verify optimization side-effects, such as constant folding nested fields into the format string (e.g., `{:10}` instead of `{:{}}`).
   - `test/unoptimized/`: Tests that should only be run without optimizations.
   - `test/noncompilable/`: General negative tests (errors) verified in both modes.
+- **Testing**: Always use `make test` to verify your changes. This command builds the plugin and runs the full test suite.
 - Always verify your changes with `make test` before submitting.

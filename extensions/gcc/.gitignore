@@ -2,3 +2,4 @@ build
 Testing
 tmp
 a.out
+/test_*

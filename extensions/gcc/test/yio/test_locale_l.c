@@ -3,7 +3,7 @@
 #include "conftest.h"
 
 //// RUN
-//// PASS_REGULAR_EXPRESSION "Val: 1234"
+//// RUN PASS_REGULAR_EXPRESSION "Val: 1234"
 
 int main() {
     int val = 1234;

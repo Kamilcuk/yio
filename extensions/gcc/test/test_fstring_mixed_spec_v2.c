@@ -10,8 +10,8 @@ static void test_call(ftest_handler handlers[], const char *fmt, ...) {
 
 int main() {
     float f = 3.14159;
-    int w = 10;
-    int p = 2;
+    volatile int w = 10;
+    volatile int p = 2;
 
     //// RUN PASS_REGULAR_EXPRESSION fmt: {:10.2f}
     //// RUN PASS_REGULAR_EXPRESSION h_double: 3.141590
