@@ -32,10 +32,9 @@ void YIO_create_format_string_generic(char *restrict fmt, size_t fmtsize,
 	*fmtpnt++ = '%';
 	if (precision0 >= 0) {
 		*fmtpnt++ = '.';
-		const int len = yio_snstream(fmtpnt, INT_MAX, precision0);
-		(void)len;
-		assert(len > 0);
-		assert((size_t)len < fmtsize - 2);
+		const size_t rem = fmtsize - (size_t)(fmtpnt - fmt);
+		const int len = yio_snstream(fmtpnt, rem, precision0);
+		assert(len > 0 && (size_t)len < rem);
 		fmtpnt += len;
 	}
 	memcpy(fmtpnt, pri, prisize);

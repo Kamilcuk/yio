@@ -46,7 +46,7 @@ extern "C" {
  *
  * @see https://stackoverflow.com/questions/1100311/what-is-the-ideal-growth-rate-for-a-dynamically-allocated-array
  */
-#define YIO_GOLDEN_INCREASE(x) ((x) * 13 / 8)
+#define YIO_GOLDEN_INCREASE(x) ((size_t)(x) > (size_t)SIZE_MAX / 13 ? (size_t)SIZE_MAX : (size_t)(x) * 13 / 8)
 
 /**
  * @brief Calculates the maximum number of decimal digits required to represent

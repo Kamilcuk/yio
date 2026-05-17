@@ -140,7 +140,6 @@ int yio_vbprintf(YIO_printcb_t *out, void *arg, const yio_printdata_t *data, con
 	va_end(startva);
 #endif
 	if (err) return -abs(err);
-	assert(t->writtencnt <= (unsigned)INT_MAX);
-	return (int)t->writtencnt;
+	return t->writtencnt > (unsigned)INT_MAX ? INT_MAX : (int)t->writtencnt;
 }
 

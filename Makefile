@@ -16,11 +16,14 @@ define nicecmd
 $(patsubst #%,,$(strip $(subst %{\n},${space},${${1}})))
 endef
 
-# check if we have nice
-NICE += $(shell hash nice >/dev/null 2>&1 && echo nice -n 39)
-# check if we have ionice from util-linux
-NICE += $(shell hash ionice >/dev/null 2>&1 && echo ionice -c 3)
-NICE += $(shell hash chrt >/dev/null 2>&1 && echo chrt -i 0)
+# 1. Throttles CPU priority of the parent 'make' process (clamped to max 19)
+_ := $(shell hash renice >/dev/null 2>&1 && renice -n 19 -p $$PPID >/dev/null)
+# 2. Throttles Disk I/O priority to Idle (class 3) for the parent 'make' process
+_ := $(shell hash ionice >/dev/null 2>&1 && ionice -c 3 -p $$PPID >/dev/null)
+# 3. Changes scheduling policy to Idle (SCHED_IDLE, -i 0) for the parent 'make' process
+_ := $(shell hash chrt >/dev/null 2>&1 && chrt -i 0 -p $$PPID >/dev/null)
+# Set max core dump size (core) to 0 for the parent Make process
+_ := $(shell hash prlimit >/dev/null 2>&1 && prlimit --pid $$PPID --core=0)
 
 HELP_VAR +=~ NPROC - Number of cores to use
 NPROC = $(shell echo $$(( $$(grep -c processor /proc/cpuinfo) * 100 / 75)) )
@@ -70,8 +73,6 @@ HELP_VAR +=~ B - Build directory location
 B ?= _build/$(_BNAME)
 
 # Default cmake and other flags
-CMAKE = $(NICE) cmake
-CTEST = $(NICE) ctest
 CMAKEFLAGS += -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 CMAKEFLAGS += $(if $(value CMAKE_C_FLAGS),-DCMAKE_C_FLAGS="$(CMAKE_C_FLAGS)")
 CMAKEFLAGS += --log-level=TRACE
@@ -111,12 +112,12 @@ all: help
 HELP +=~ configure - Configure the project
 .PHONY: conf config configure
 conf config configure $(B) $(B)/compile_commands.json:
-	$(CMAKE) --preset=$(PRESET) -B$(B) -S. $(CMAKEFLAGS)
+	cmake --preset=$(PRESET) -B$(B) -S. $(CMAKEFLAGS)
 
 HELP +=~ .build_% - Generic target build
 .build_%: unexport MAKEFLAGS
 .build_%: conf
-	$(CMAKE) --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep '$(R)' || echo all),$(if $(value T),$T,$*)) -j $(NPROC) <&-
+	cmake --build $(B) $(BUILDFLAGS) --target $(if $(value R),$(shell cd $(B) && ninja -t targets | cut -d: -f1 | grep -v / | grep '$(R)' || echo all),$(if $(value T),$T,$*)) -j $(NPROC) <&-
 
 HELP +=~ build_gen - Only generate the files from m4 preprocessor
 build_gen: .build_yio_gen
@@ -131,7 +132,7 @@ HELP +=~ test - Run tests using ctest
 test: build testonly
 
 testonly:
-	ulimit -c 0 ; cd $(B) && $(CTEST) $(TESTFLAGS) $(CTESTFLAGS)
+	cd $(B) && ctest $(TESTFLAGS) $(CTESTFLAGS)
 
 HELP +=~ benchmark_setup - Setup environment for hardware counters (requires sudo)
 benchmark_setup:
@@ -280,11 +281,11 @@ doxygen_open:
 HELP +=~ test_project - Test sample cmake project
 test_project: CMAKEFLAGS += -D BUILD_TESTING=NO -D CMAKE_INSTALL_PREFIX=$(B)/testinstall
 test_project: build
-	$(CMAKE) --build $(B) --target install
+	cmake --build $(B) --target install
 	MAKEFLAGS= $(MAKE) -C test/cmake_proj_tests/cmake_example \
 		YIODIR=$(PWD)/$(B)/testinstall \
 		B=$(PWD)/_build/test_project
-	$(CMAKE) --build $(B) --target yio_uninstall
+	cmake --build $(B) --target yio_uninstall
 
 HELP +=~ test_project_add_subdirectory - Test cmake project that uses add_subdirectory
 test_project_add_subdirectory:
@@ -295,10 +296,10 @@ test_project_add_subdirectory:
 HELP +=~ test_project_add_subdirectory - Install globally cmake project and tests add_subdirectory
 test_project_install_add_subdirectory: CMAKEFLAGS += -D BUILD_TESTING=NO -D CMAKE_INSTALL_PREFIX=/usr/local/
 test_project_install_add_subdirectory: build
-	sudo $(CMAKE) --build $(B) --target install
+	sudo cmake --build $(B) --target install
 	MAKEFLAGS= $(MAKE) -C test/cmake_proj_tests/cmake_example \
 		B=$(PWD)/_build/test_project_install_add_subdirectory
-	sudo $(CMAKE) --build $(B) --target yio_uninstall
+	sudo cmake --build $(B) --target yio_uninstall
 
 HELP +=~ test_project_no_install - Test cmake project using system wide yio installation
 test_project_no_install: clean_test_project

@@ -131,6 +131,7 @@ struct YIO_yio_vappend_ctx_s {
 static
 int YIO_yio_vappend_cb(void *arg, const char *ptr, size_t size) {
 	struct YIO_yio_vappend_ctx_s *p = arg;
+	if (size > SIZE_MAX - p->size - 1) return YIO_ERROR_ENOMEM;
 	const size_t count = p->size + size + 1;
 	assert(count < SIZE_MAX / sizeof(*p->str));
 	if (count > p->capacity) {
@@ -139,10 +140,6 @@ int YIO_yio_vappend_cb(void *arg, const char *ptr, size_t size) {
 		if (new_cap < count) new_cap = count;
 		void * const pnt = realloc(p->str, sizeof(*p->str) * new_cap);
 		if (pnt == NULL) {
-			free(p->str);
-			p->str = NULL;
-			p->size = 0;
-			p->capacity = 0;
 			return YIO_ERROR_ENOMEM;
 		}
 		p->str = pnt;
@@ -154,26 +151,29 @@ int YIO_yio_vappend_cb(void *arg, const char *ptr, size_t size) {
 	return 0;
 }
 
+static
+int YIO_yio_vappend_core(struct YIO_yio_vappend_ctx_s *ctx, char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
+	const int ret =  yio_vbprintf(YIO_yio_vappend_cb, ctx, data, fmt, va);
+	if (ctx->str != NULL) {
+		ctx->str[ctx->size] = '\0';
+		if (ret >= 0) {
+			assert(ctx->size < SIZE_MAX);
+			void * const pnt = realloc(ctx->str, sizeof(*ctx->str) * (ctx->size + 1));
+			if (pnt != NULL) {
+				ctx->str = pnt;
+			}
+		}
+	}
+	*strp = ctx->str;
+	return ret;
+}
+
 int yio_vasprintf(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
 	struct YIO_yio_vappend_ctx_s ctx;
 	ctx.str = *strp;
 	ctx.size = 0;
 	ctx.capacity = (*strp != NULL) ? strlen(*strp) : 0;
-	const int ret =  yio_vbprintf(YIO_yio_vappend_cb, &ctx, data, fmt, va);
-	if (ret < 0) {
-		free(ctx.str);
-		ctx.str = NULL;
-	}
-	if (ctx.str != NULL) {
-		ctx.str[ctx.size] = '\0';
-		assert(ctx.size < SIZE_MAX);
-		void * const pnt = realloc(ctx.str, sizeof(*ctx.str) * (ctx.size + 1));
-		if (pnt != NULL) {
-			ctx.str = pnt;
-		}
-	}
-	*strp = ctx.str;
-	return ret;
+	return YIO_yio_vappend_core(&ctx, strp, data, fmt, va);
 }
 
 int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_list *va) {
@@ -181,21 +181,7 @@ int yio_vappend(char **strp, const yio_printdata_t *data, const char *fmt, va_li
 	ctx.str = *strp;
 	ctx.size = (*strp != NULL) ? strlen(*strp) : 0;
 	ctx.capacity = ctx.size;
-	const int ret =  yio_vbprintf(YIO_yio_vappend_cb, &ctx, data, fmt, va);
-	if (ret < 0) {
-		free(ctx.str);
-		ctx.str = NULL;
-	}
-	if (ctx.str != NULL) {
-		ctx.str[ctx.size] = '\0';
-		assert(ctx.size < SIZE_MAX);
-		void * const pnt = realloc(ctx.str, sizeof(*ctx.str) * (ctx.size + 1));
-		if (pnt != NULL) {
-			ctx.str = pnt;
-		}
-	}
-	*strp = ctx.str;
-	return ret;
+	return YIO_yio_vappend_core(&ctx, strp, data, fmt, va);
 }
 
 #endif // YIO_ENABLE_MALLOC

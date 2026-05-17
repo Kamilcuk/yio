@@ -170,10 +170,13 @@ static inline
 int ascii_encode_do(YIO_buf *out, int (*encoder)(struct ss_s *ss, char cc, char next) YIO_REENTRANT,
 										const char *str, size_t str_len, bool use_esc) {
 	int err;
-	struct ss_s ss_mem = {out}, *ss = &ss_mem;
-	const char *end = str + str_len;
-	for (char prev = '\0', next = *str, cc = next; str != end; prev = cc, cc = next) {
-		next = *(++str);
+	struct ss_s ss_mem = {out};
+	struct ss_s *ss = &ss_mem;
+	const char *const end = str + str_len;
+	char prev = '\0';
+	char cc = *str;
+	for (; str != end; ++str) {
+		char next = (str + 1 != end) ? *(str + 1) : '\0';
 		//
 		const char esc = use_esc ? ascii_encode_get_esc(prev, cc) : '\0';
 		if (esc != '\0') {
@@ -190,6 +193,8 @@ int ascii_encode_do(YIO_buf *out, int (*encoder)(struct ss_s *ss, char cc, char 
 			err = encoder(ss, cc, next);
 			if (err) return err;
 		}
+		prev = cc;
+		cc = next;
 	}
 	return 0;
 }
@@ -208,7 +213,21 @@ int YIO_print_repr_$1(yio_printctx_t *t) {
 	YIO_buf str;
 	YIO_buf_init(&str);
 	const yio_printdata_t data[] = {*t->ifunc++, 0};
-	err = yio_vbprintf(print_repr_$1_in, &str, data, 0, t->va);
+	const size_t precision0 = t->pf.precision;
+	if (precision0) {
+		// If precision is passed, we need to use only that much characters from the string.
+		// Bottom line, it needs to be passed along to the nested formatter.
+		YIO_buf fmt;
+		YIO_buf_init(&fmt);
+		if (!err) err = YIO_buf_putsn(&fmt, "{:.", 3);
+		const struct yio_printfmt_s printfmt = {0};
+		if (!err) err = YIO_buf_print_u_in(&fmt, printfmt, precision0 - 1);
+		if (!err) err = YIO_buf_putsn(&fmt, "}", 2);  // include zero byte.
+		if (!err) err = yio_vbprintf(print_repr_$1_in, &str, data, YIO_buf_data(&fmt), t->va);
+		YIO_buf_fini(&fmt);
+	} else {
+		err = yio_vbprintf(print_repr_$1_in, &str, data, 0, t->va);
+	}
 	if (err < 0) goto EXIT;
 	err = yio_printctx_put(t, YIO_buf_data(&str), YIO_buf_len(&str));
 EXIT:
