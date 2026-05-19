@@ -41,27 +41,6 @@ extern "C" {
 
 extern int plugin_is_GPL_compatible;
 
-struct FStringToken {
-  bool is_text = false;
-  std::string text;      // Literal text or full placeholder string
-  std::string expr;      // Variable/expression name
-  std::string spec;      // Format specifier excluding colon
-  std::optional<std::string> width;     // Extracted nested expression for width
-  std::optional<std::string> precision; // Extracted nested expression for precision
-
-  // Python-style format specifier components
-  char fill = '\0';
-  char align = '\0';
-  char sign = '\0';
-  bool z = false;
-  bool hash = false;
-  bool zero = false;
-  char grouping_option = '\0';
-  bool locale = false;
-  char type = '\0';
-  bool parsed_to_end = false;
-};
-
 // Global flags
 extern bool warn_fstring_format;
 extern bool error_fstring_format;

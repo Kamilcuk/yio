@@ -42,3 +42,5 @@
 **/*.dep
 **/compile_commands.json
 **/local_makefile.mk
+
+!godbolt/**

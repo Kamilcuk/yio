@@ -135,16 +135,51 @@ int YIO_yio_dprint(int fd, const yio_printdata_t *__null_terminated data, const 
  * @{
  */
 #define yio_bprint(cb, arg, ...)     YIO_yio_bprint(cb, arg, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_bprintln(cb, arg, fmt, ...) YIO_yio_bprint(cb, arg, YIO_PRINT_ARGUMENTS(fmt "\n", ##__VA_ARGS__))
+#ifdef YIO_F_
+#define yio_bprint_f(cb, arg, str)   YIO_yio_bprint(cb, arg, YIO_F_(str))
+#define yio_bprintln_f(cb, arg, str) YIO_yio_bprint(cb, arg, YIO_F_(str "\n"))
+#endif
 #define yio_print(...)               YIO_yio_print(YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_println(fmt, ...)        YIO_yio_print(YIO_PRINT_ARGUMENTS(fmt "\n", ##__VA_ARGS__))
+#ifdef YIO_F_
+#define yio_print_f(str)             YIO_yio_print(YIO_F_(str))
+#define yio_println_f(str)           YIO_yio_print(YIO_F_(str "\n"))
+#endif
 #if YIO_HAS_FILE
 #define yio_fprint(file, ...)        YIO_yio_fprint(file, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_fprintln(file, fmt, ...) YIO_yio_fprint(file, YIO_PRINT_ARGUMENTS(fmt "\n", ##__VA_ARGS__))
+#ifdef YIO_F_
+#define yio_fprint_f(file, str)      YIO_yio_fprint(file, YIO_F_(str))
+#define yio_fprintln_f(file, str)    YIO_yio_fprint(file, YIO_F_(str "\n"))
+#endif
 #endif
 #define yio_snprint(dest, size, ...)  YIO_yio_snprint(dest, size, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_snprintln(dest, size, fmt, ...) YIO_yio_snprint(dest, size, YIO_PRINT_ARGUMENTS(fmt "\n", ##__VA_ARGS__))
+#ifdef YIO_F_
+#define yio_snprint_f(dest, size, str) YIO_yio_snprint(dest, size, YIO_F_(str))
+#define yio_snprintln_f(dest, size, str) YIO_yio_snprint(dest, size, YIO_F_(str "\n"))
+#endif
 #if YIO_ENABLE_MALLOC
 #define yio_asprint(strp, ...)       YIO_yio_asprint(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_asprintln(strp, fmt, ...) YIO_yio_asprint(strp, YIO_PRINT_ARGUMENTS(fmt "\n", ##__VA_ARGS__))
+#ifdef YIO_F_
+#define yio_asprint_f(strp, str)     YIO_yio_asprint(strp, YIO_F_(str))
+#define yio_asprintln_f(strp, str)   YIO_yio_asprint(strp, YIO_F_(str "\n"))
+#endif
 #define yio_append(strp, ...)         YIO_yio_append(strp, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_appendln(strp, fmt, ...)  YIO_yio_append(strp, YIO_PRINT_ARGUMENTS(fmt "\n", ##__VA_ARGS__))
+#ifdef YIO_F_
+#define yio_append_f(strp, str)       YIO_yio_append(strp, YIO_F_(str))
+#define yio_appendln_f(strp, str)     YIO_yio_append(strp, YIO_F_(str "\n"))
+#endif
 #endif
 #define yio_dprint(fd, ...)          YIO_yio_dprint(fd, YIO_PRINT_ARGUMENTS(__VA_ARGS__))
+#define yio_dprintln(fd, fmt, ...)   YIO_yio_dprint(fd, YIO_PRINT_ARGUMENTS(fmt "\n", ##__VA_ARGS__))
+#ifdef YIO_F_
+#define yio_dprint_f(fd, str)        YIO_yio_dprint(fd, YIO_F_(str))
+#define yio_dprintln_f(fd, str)      YIO_yio_dprint(fd, YIO_F_(str "\n"))
+#endif
 /**
  * @}
  */
@@ -157,17 +192,24 @@ int YIO_yio_dprint(int fd, const yio_printdata_t *__null_terminated data, const 
  * @{
  */
 #define yio_bstream(cb, arg, ...)    YIO_yio_bprint(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_bstreamln(cb, arg, ...)  YIO_yio_bprint(cb, arg, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__,"\n"))
 #define yio_stream(...)              YIO_yio_print(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_streamln(...)            YIO_yio_print(YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__,"\n"))
 #if YIO_HAS_FILE
 #define yio_fstream(file, ...)       YIO_yio_fprint(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_fstreamln(file, ...)     YIO_yio_fprint(file, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__,"\n"))
 #endif
 #define yio_snstream(dest, size, ...)  YIO_yio_snprint(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_snstreamln(dest, size, ...) YIO_yio_snprint(dest, size, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__,"\n"))
 #if YIO_ENABLE_MALLOC
 #define yio_asstream(strp, ...)       YIO_yio_asprint(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_asstreamln(strp, ...)     YIO_yio_asprint(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__,"\n"))
 #define yio_appendstream(strp, ...)   YIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_appendstreamln(strp, ...) YIO_yio_append(strp, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__,"\n"))
 #endif
 
 #define yio_dstream(fd, ...)          YIO_yio_dprint(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__))
+#define yio_dstreamln(fd, ...)        YIO_yio_dprint(fd, YIO_PRINT_ARGUMENTS(NULL,__VA_ARGS__,"\n"))
 /**
  * @}
  */
