@@ -7,6 +7,7 @@
 static inline void report_fstring_problem(location_t loc, const char *msg, ...) {
   if (!warn_fstring_format && !error_fstring_format) { return; }
 
+  auto_diagnostic_group d;
   va_list ap;
   va_start(ap, msg);
   if (error_fstring_format) {
