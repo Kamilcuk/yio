@@ -1,16 +1,13 @@
-IMAGE_NAME = yio-godbolt
-PORT = 10240
-
 .PHONY: build run stop clean
 
 build:
-	docker build -t $(IMAGE_NAME) -f Dockerfile ..
+	docker compose build
 
-run: build
-	docker run --rm -p $(PORT):$(PORT) --name $(IMAGE_NAME) $(IMAGE_NAME)
+run:
+	docker compose up
 
 stop:
-	docker stop $(IMAGE_NAME)
+	docker compose down
 
 clean:
-	docker rmi $(IMAGE_NAME)
+	docker compose down --rmi all

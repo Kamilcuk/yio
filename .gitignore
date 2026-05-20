@@ -25,7 +25,7 @@ __pycache__
 .vim
 coverage
 tmp/
-plan.md
+plan*.md
 _build*
 newplan.md
 mynewplan.md
@@ -34,3 +34,5 @@ _tmp/
 /test_*
 .gemini/dist
 build/
+third_party/sdcc
+third_party/compiler-explorer

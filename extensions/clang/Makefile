@@ -1,4 +1,4 @@
-.PHONY: all build test clean
+.PHONY: all build test clean pack install
 
 all: build
 

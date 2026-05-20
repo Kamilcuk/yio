@@ -8,9 +8,8 @@ add_library(extensions_common_conftest INTERFACE)
 target_include_directories(extensions_common_conftest INTERFACE test)
 
 if(NOT TARGET yio)
-	add_subdirectory(../../ yio EXCLUDE_FROM_ALL)
+        add_subdirectory(../../ yio)
 endif()
-
 # Include the test extraction tool
 include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/k/test_extract_properties_from_file.cmake)
 
@@ -49,8 +48,8 @@ function(add_fstring_plugin_test)
 	set_target_properties(${exec_name} PROPERTIES C_STANDARD 11)
 	add_dependencies(${exec_name} fstring_plugin fstring_plugin_ready_target)
 	set_source_files_properties(${T_FILE} PROPERTIES OBJECT_DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/fstring_plugin_ready)
-	target_link_libraries(${exec_name} PRIVATE ${T_PLUGIN_TARGET} extensions_common_conftest)
 	target_compile_options(${exec_name} PRIVATE ${T_EXTRA_FLAGS})
+	target_link_libraries(${exec_name} PRIVATE ${T_PLUGIN_TARGET} extensions_common_conftest)
 
 	if(T_FILE MATCHES "yio")
 		target_link_libraries(${exec_name} PRIVATE yio)

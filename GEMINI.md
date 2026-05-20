@@ -58,6 +58,7 @@ For quick one-liner tests:
 Most of the codebase is generated from templates in `src/yio/yio/`. When editing implementation:
 - Edit the files in `src/yio/yio/`, NOT the generated files in the build directory.
 - `preprocess.py` is invoked during the build process to generate the actual C source files.
+- **Generated Files:** Preprocessed results and generated source files are stored in the `./gen/` directory.
 - **NOLINE:** To disable automatic `#line` directive generation for a template, add `// NOLINE` to the file. This is useful when `#line` directives cause syntax errors due to complex Jinja2 logic or line joining.
 
 ### Format Specification

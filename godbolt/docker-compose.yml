@@ -1,0 +1,42 @@
+services:
+  godbolt:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: godbolt
+    ports:
+      - "10240:10240"
+    restart: unless-stopped
+    # Security: Run as non-root user (defined in Dockerfile as 'ce')
+    # and limit resources to prevent DoS.
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    # Further hardening
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    # Hardening: Read-only root filesystem
+    read_only: true
+    # Provide writable space for temp files
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
+      - /home/ce:rw,noexec,nosuid
+      - /compiler-explorer/out:rw,noexec,nosuid
+      - /compiler-explorer/lib/storage/data:rw,noexec,nosuid
+    # Network: Isolated internal network
+    networks:
+      - isolated
+networks:
+  isolated:
+    internal: true

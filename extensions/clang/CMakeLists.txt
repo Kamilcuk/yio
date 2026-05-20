@@ -7,12 +7,12 @@ find_package(Clang REQUIRED CONFIG)
 
 enable_testing()
 
-add_subdirectory(../common common EXCLUDE_FROM_ALL)
+add_subdirectory(../common common)
 
 add_library(fstring_plugin MODULE src/fstring_plugin.cpp)
 target_include_directories(fstring_plugin PRIVATE ${LLVM_INCLUDE_DIRS} ${CLANG_INCLUDE_DIRS} ../common/src)
 target_compile_definitions(fstring_plugin PRIVATE ${LLVM_DEFINITIONS})
-set_target_properties(fstring_plugin PROPERTIES PREFIX "")
+set_target_properties(fstring_plugin PROPERTIES PREFIX "" OUTPUT_NAME yio_clang_fstring_plugin)
 if(APPLE)
 	set_target_properties(fstring_plugin PROPERTIES LINK_FLAGS "-undefined dynamic_lookup")
 endif()
@@ -28,6 +28,8 @@ target_link_libraries(
 					extensions_common
 					yio
 )
+
+install(TARGETS fstring_plugin LIBRARY DESTINATION lib)
 
 add_library(fstring_plugin_test_base INTERFACE)
 target_compile_options(

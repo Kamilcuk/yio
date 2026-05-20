@@ -21,13 +21,15 @@ execute_process(
 )
 message(STATUS "GCC Plugin directory: ${GCC_PLUGIN_DIR}")
 
-add_subdirectory(../common common EXCLUDE_FROM_ALL)
+add_subdirectory(../common common)
 
 add_library(fstring_plugin SHARED src/fstring_plugin.cpp)
 target_compile_options(fstring_plugin PRIVATE ${COMMON_FLAGS} -fPIC -fno-rtti -fno-exceptions -Wno-literal-suffix)
 target_include_directories(fstring_plugin PRIVATE "${GCC_PLUGIN_DIR}/include")
 target_link_libraries(fstring_plugin PRIVATE yio extensions_common)
-set_target_properties(fstring_plugin PROPERTIES PREFIX "")
+set_target_properties(fstring_plugin PROPERTIES PREFIX "" OUTPUT_NAME yio_gcc_fstring_plugin)
+
+install(TARGETS fstring_plugin LIBRARY DESTINATION lib)
 
 # Plugin configuration targets
 add_library(fstring_plugin_test_base INTERFACE)
@@ -37,14 +39,14 @@ add_library(fstring_plugin_unopt INTERFACE)
 target_link_libraries(fstring_plugin_unopt INTERFACE fstring_plugin_test_base)
 target_compile_options(
 	fstring_plugin_unopt
-	INTERFACE "SHELL:-fplugin=$<TARGET_FILE:fstring_plugin> -fplugin-arg-fstring_plugin-ffstring-optimizations=0"
+	INTERFACE "SHELL:-fplugin=$<TARGET_FILE:fstring_plugin> -fplugin-arg-yio_gcc_fstring_plugin-ffstring-optimizations=0"
 )
 
 add_library(fstring_plugin_opt INTERFACE)
 target_link_libraries(fstring_plugin_opt INTERFACE fstring_plugin_test_base)
 target_compile_options(
 	fstring_plugin_opt
-	INTERFACE "SHELL:-fplugin=$<TARGET_FILE:fstring_plugin> -fplugin-arg-fstring_plugin-ffstring-optimizations=1"
+	INTERFACE "SHELL:-fplugin=$<TARGET_FILE:fstring_plugin> -fplugin-arg-yio_gcc_fstring_plugin-ffstring-optimizations=1"
 )
 
 add_fstring_plugin_test_dir("${CMAKE_CURRENT_SOURCE_DIR}/test")
@@ -54,7 +56,7 @@ add_test(
 	NAME test_plugin_flag_disable
 	COMMAND
 		${CMAKE_C_COMPILER} ${COMMON_FLAGS} -fplugin=$<TARGET_FILE:fstring_plugin>
-		-fplugin-arg-fstring_plugin-Wfstring-format=0 -I ${CMAKE_CURRENT_SOURCE_DIR}/test -c
+		-fplugin-arg-yio_gcc_fstring_plugin-Wfstring-format=0 -I ${CMAKE_CURRENT_SOURCE_DIR}/test -c
 		${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c -o /dev/null
 )
 
@@ -62,7 +64,7 @@ add_test(
 	NAME test_plugin_flag_error
 	COMMAND
 		sh -c "! \"$@\"" -- ${CMAKE_C_COMPILER} -fplugin=$<TARGET_FILE:fstring_plugin>
-		-fplugin-arg-fstring_plugin-Werror-fstring-format=1 -I ${CMAKE_CURRENT_SOURCE_DIR}/test -c
+		-fplugin-arg-yio_gcc_fstring_plugin-Werror-fstring-format=1 -I ${CMAKE_CURRENT_SOURCE_DIR}/test -c
 		${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c -o /dev/null
 )
 test_extract_properties_from_file(

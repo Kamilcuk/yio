@@ -7,10 +7,19 @@
 !cmake/**
 !examples/**
 !benchmark/**
-!third_party/**
 !kcmakelib/**
 !m4/**
 !scripts/**
+!extensions/**
+!godbolt/**
+
+# Selective third_party inclusion
+third_party/**
+!third_party/CMakeLists.txt
+!third_party/tiny-regex-c/**
+!third_party/ryu/**
+third_party/ryu/third_party/**
+!third_party/libdfp/**
 
 # Allow root configuration files
 !CMakeLists.txt
@@ -29,6 +38,7 @@
 !doc/Doxyfile
 
 # Exclude build artifacts and caches even if they are in allowed directories
+**/build/**
 **/_build/**
 **/.cache/**
 **/.git/**
@@ -43,4 +53,6 @@
 **/compile_commands.json
 **/local_makefile.mk
 
-!godbolt/**
+# Third-party specific build artifacts
+third_party/libdfp/config.log
+third_party/libdfp/config.status
