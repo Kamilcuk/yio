@@ -21,7 +21,7 @@ int main() {
 	YIO_TEST_EQ(s, "456\n");
 	free(s); s = NULL;
 
-#ifdef YIO_F_
+#if YIO_HAS_FSTRING
 	// Testing f-strings if supported
 	yio_print("Testing f-strings\n");
 	int a = 1;

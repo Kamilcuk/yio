@@ -10,6 +10,7 @@ extern "C" {
 
 #if defined(__has_attribute)
 #if __has_attribute(fstring_format)
+#define YIO_HAS_FSTRING 1
 #define YIO_FORMAT(N) __attribute__((fstring_format(N)))
 const void *__builtin_fstring(const char *, ...);
 #define YIO_F_OVERLOAD_TYPE_FUNC(TYPE, FUNC) , (TYPE *)0, FUNC
@@ -18,7 +19,8 @@ const void *__builtin_fstring(const char *, ...);
 #define yio_print_f(str) YIO_yio_print(YIO_F_(str))
 #endif
 #endif
-#ifndef YIO_FORMAT
+#ifndef YIO_HAS_FSTRING
+#define YIO_HAS_FSTRING 0
 #define YIO_FORMAT(N)
 #endif
 
