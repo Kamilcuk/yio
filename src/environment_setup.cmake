@@ -111,7 +111,7 @@ include(src/environment_floats.cmake)
 # If two types are the same, set YIO_HAS_FLOAT${suffix} to 0, to exclude the second type from _Generic.
 function(exclude_same type1 type2 suffix)
 	check_c_source_compiles(
-		"int main() { _Generic((${type1})0, ${type1}: 0, ${type2}: 0); }"
+		"int main() { return _Generic((${type1})0, ${type1}: 0, ${type2}: 1); }"
 		YIO_samecompiles_FLOAT${suffix}
 	)
 	if(NOT YIO_samecompiles_FLOAT${suffix})

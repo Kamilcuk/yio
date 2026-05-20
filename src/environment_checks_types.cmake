@@ -35,13 +35,13 @@ yio_config_gen_check_include_file("uchar.h"  YIO_HAS_UCHAR_H)
 
 # Check if signed char is unique (vs char).
 yio_config_gen_check_c_source_compiles(
-	"int main() { _Generic((signed char)0, char: 0, signed char: 1); }"
+	"int main() { return _Generic((signed char)0, char: 0, signed char: 1); }"
 	YIO_HAS_UNIQUE_SCHAR
 )
 
 # Check if unsigned char is unique (vs char).
 yio_config_gen_check_c_source_compiles(
-	"int main() { _Generic((unsigned char)0, char: 0, unsigned char: 1); }"
+	"int main() { return _Generic((unsigned char)0, char: 0, unsigned char: 1); }"
 	YIO_HAS_UNIQUE_UCHAR
 )
 
@@ -57,7 +57,7 @@ if(YIO_HAS_WCHAR_H)
   yio_config_gen_check_c_source_compiles("
   #include <wchar.h>
   int main() {
-      _Generic((wchar_t)0,
+      return _Generic((wchar_t)0,
           char: 0,
           ${add}
           short: 0,
@@ -92,7 +92,7 @@ endif()
 
 # Does _Generic differentiate between pointers to const and non-const elements?
 yio_config_gen_check_C_source_compiles(
-	"int main() { _Generic((const char *)0, char *: 0, const char *: 0); }"
+	"int main() { return _Generic((const char *)0, char *: 0, const char *: 1); }"
 	YIO_HAS_UNIQUE_CONSTPOINTER
 )
 
