@@ -33,10 +33,13 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 	yio_compat
 )
 target_compile_definitions(${PROJECT_NAME} INTERFACE EXIT_SKIP=77)
-if(DFP)
-  target_link_libraries(${PROJECT_NAME} INTERFACE
-		${DFP}
-	)
+if(DFP OR TARGET dfp)
+  target_compile_definitions(${PROJECT_NAME} PUBLIC YIO_HAS_LIBDFP=1)
+  if(DFP)
+    target_link_libraries(${PROJECT_NAME} INTERFACE
+		  ${DFP}
+	  )
+  endif()
 endif()
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang|IntelLLVM")
 	target_compile_options(${PROJECT_NAME} PUBLIC -Wno-missing-field-initializers)

@@ -73,20 +73,27 @@ if(YIO_HAS_ANY_DECIMAL_FLOAT)
             message(STATUS "Building libdfp from source via ExternalProject.")
             include(ExternalProject)
             set(LIBDFP_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/libdfp_install")
+            set(LIBDFP_SOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/libdfp_src")
             file(MAKE_DIRECTORY "${LIBDFP_INSTALL_DIR}/include")
-            
+
             ExternalProject_Add(libdfp_ext
-                SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libdfp"
+                SOURCE_DIR "${LIBDFP_SOURCE_DIR}"
+                # Copy source to build dir
+                DOWNLOAD_COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/libdfp" "${LIBDFP_SOURCE_DIR}"
                 PREFIX "${CMAKE_CURRENT_BINARY_DIR}/libdfp_build"
                 INSTALL_DIR "${LIBDFP_INSTALL_DIR}"
-                CONFIGURE_COMMAND "${CMAKE_COMMAND}" -E env "CC=${CMAKE_C_COMPILER}" "AR=${CMAKE_AR}" "RANLIB=${CMAKE_RANLIB}" "${CMAKE_CURRENT_SOURCE_DIR}/libdfp/configure" "--prefix=${LIBDFP_INSTALL_DIR}" "--enable-static" "--disable-shared"
-                BUILD_COMMAND "${CMAKE_COMMAND}" -E env "AR=${CMAKE_AR}" "RANLIB=${CMAKE_RANLIB}" make
-                INSTALL_COMMAND "${CMAKE_COMMAND}" -E env "AR=${CMAKE_AR}" "RANLIB=${CMAKE_RANLIB}" make install-headers install-doc
+                # Run configure as ./configure to ensure in-source build in the copy
+                CONFIGURE_COMMAND "./configure" "--prefix=${LIBDFP_INSTALL_DIR}" "--enable-static" "--disable-shared"
+                BUILD_COMMAND make
+                INSTALL_COMMAND make install-headers install-doc
                 COMMAND "${CMAKE_COMMAND}" -E make_directory "${LIBDFP_INSTALL_DIR}/lib"
                 COMMAND "${CMAKE_COMMAND}" -E copy "libdfp.a" "${LIBDFP_INSTALL_DIR}/lib/"
                 COMMAND "${CMAKE_COMMAND}" -E copy "libdecnumber/libdecnumber.a" "${LIBDFP_INSTALL_DIR}/lib/"
-                BUILD_BYPRODUCTS "${LIBDFP_INSTALL_DIR}/lib/libdfp.a"
+                # Ensure we are in the source dir for configure/build
+                BUILD_IN_SOURCE 1
+                BUILD_BYPRODUCTS "${LIBDFP_INSTALL_DIR}/lib/libdfp.a" "${LIBDFP_INSTALL_DIR}/lib/libdecnumber.a"
             )
+
             
             add_library(dfp STATIC IMPORTED GLOBAL)
             add_dependencies(dfp libdfp_ext)
