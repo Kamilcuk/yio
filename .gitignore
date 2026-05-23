@@ -36,3 +36,6 @@ _tmp/
 build/
 third_party/sdcc
 third_party/compiler-explorer
+/debian
+/build-native
+/build-arm

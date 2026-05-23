@@ -8,7 +8,9 @@ add_library(extensions_common_conftest INTERFACE)
 target_include_directories(extensions_common_conftest INTERFACE test)
 
 if(NOT TARGET yio)
-        add_subdirectory(../../ yio)
+	link_libraries(m)
+  add_subdirectory(../../ yio)
+  set_target_properties(yio PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif()
 # Include the test extraction tool
 include(${CMAKE_CURRENT_LIST_DIR}/../../cmake/k/test_extract_properties_from_file.cmake)

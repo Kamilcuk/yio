@@ -1,0 +1,264 @@
+---
+- name: Provision Compiler Explorer
+  hosts: all
+  become: true
+
+  vars:
+    ce_dir: /opt/compiler-explorer
+    ce_version: gh-9992
+    ce_user: ce
+    ce_uid: 10240
+    ce_gid: 10240
+
+    apt_packages:
+      - libprotobuf32t64
+      - libnl-route-3-200
+      - nodejs
+      - npm
+      - curl
+      - ca-certificates
+      - git
+      - gcc
+      - g++
+      - clang
+      - gcc-arm-none-eabi
+      - libstdc++-arm-none-eabi-newlib
+      - libnewlib-arm-none-eabi
+      - sdcc
+      - sdcc-ucsim
+      - gcc-15-plugin-dev
+      - libdfp-dev
+      - libclang-dev
+      - llvm-dev
+      - autoconf
+      - bison
+      - flex
+      - libtool
+      - pkg-config
+      - protobuf-compiler
+      - libprotobuf-dev
+      - libnl-route-3-dev
+      - build-essential
+      - cmake
+      - ninja-build
+      - python3
+      - python3-jinja2
+      - libunistring-dev
+      - cgroup-tools
+
+  tasks:
+    - name: Enable unprivileged user namespaces
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        state: present
+        sysctl_set: true
+      loop:
+        - { name: 'kernel.unprivileged_userns_clone', value: '1' }
+        - { name: 'kernel.apparmor_restrict_unprivileged_userns', value: '0' }
+      become: true
+
+    - name: Check if nsjail is installed
+      ansible.builtin.stat:
+        path: /bin/nsjail
+      register: nsjail_bin
+
+    - name: Build and install nsjail
+      when: not nsjail_bin.stat.exists
+      block:
+        - name: Install nsjail build dependencies
+          ansible.builtin.apt:
+            name:
+              - build-essential
+              - autoconf
+              - bison
+              - flex
+              - libtool
+              - pkg-config
+              - protobuf-compiler
+              - libprotobuf-dev
+              - libnl-route-3-dev
+            state: present
+            update_cache: true
+
+        - name: Clone nsjail
+          ansible.builtin.git:
+            repo: https://github.com/google/nsjail.git
+            dest: /tmp/nsjail
+            depth: 1
+
+        - name: Build nsjail
+          ansible.builtin.command:
+            cmd: make -j{{ ansible_facts['processor_vcpus'] | default(2) }}
+            chdir: /tmp/nsjail
+
+        - name: Install nsjail binary
+          ansible.builtin.copy:
+            src: /tmp/nsjail/nsjail
+            dest: /bin/nsjail
+            remote_src: true
+            mode: "0755"
+
+        - name: Cleanup nsjail source
+          ansible.builtin.file:
+            path: /tmp/nsjail
+            state: absent
+
+    - name: Remove ubuntu user
+      ansible.builtin.user:
+        name: ubuntu
+        state: absent
+        remove: true
+
+    - name: Remove admin user
+      ansible.builtin.user:
+        name: admin
+        state: absent
+        remove: true
+
+    - name: Install packages
+      ansible.builtin.apt:
+        name: "{{ apt_packages }}"
+        state: present
+        update_cache: true
+        install_recommends: false
+
+    - name: Create ce-compile cgroup
+      ansible.builtin.command:
+        cmd: cgcreate -a {{ ce_user }}:{{ ce_user }} -g memory,pids,cpu:ce-compile
+      become: true
+
+    - name: Create ce-sandbox cgroup
+      ansible.builtin.command:
+        cmd: cgcreate -a {{ ce_user }}:{{ ce_user }} -g memory,pids,cpu:ce-sandbox
+      become: true
+
+    - name: Change ownership of root cgroup.procs
+      ansible.builtin.file:
+        path: /sys/fs/cgroup/cgroup.procs
+        owner: "{{ ce_user }}"
+        group: root
+        state: file
+      become: true
+
+    - name: Configure git safe directory
+      ansible.builtin.command:
+        cmd: git config --global --add safe.directory /opt/yio
+
+    - name: Create compiler explorer directory
+      ansible.builtin.file:
+        path: "{{ ce_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Download Compiler Explorer
+      ansible.builtin.unarchive:
+        src: "https://github.com/compiler-explorer/compiler-explorer/archive/refs/tags/{{ ce_version }}.tar.gz"
+        dest: "{{ ce_dir }}"
+        remote_src: true
+        creates: "{{ ce_dir }}/package.json"
+        extra_opts:
+          - --strip-components=1
+
+    - name: Run npm install
+      community.general.npm:
+        path: "{{ ce_dir }}"
+
+    - name: Build webpack assets
+      ansible.builtin.command:
+        cmd: npm run webpack
+        chdir: "{{ ce_dir }}"
+
+    - name: Create static directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: directory
+      loop:
+        - "{{ ce_dir }}/out/dist/static"
+        - "{{ ce_dir }}/static"
+
+    - name: Copy webpack static assets
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ ce_dir }}/out/webpack/static/"
+        dest: "{{ item }}/"
+      loop:
+        - "{{ ce_dir }}/out/dist/static"
+        - "{{ ce_dir }}/static"
+
+    - name: Create manifest symlink
+      ansible.builtin.file:
+        src: "{{ ce_dir }}/out/dist/manifest.json"
+        dest: "{{ ce_dir }}/manifest.json"
+        state: link
+
+    - name: Create storage directory
+      ansible.builtin.file:
+        path: "{{ ce_dir }}/lib/storage/data"
+        state: directory
+        mode: "0755"
+
+    - name: Delete unused property files
+      ansible.builtin.shell:
+        cmd: >
+          find etc/config -name "*.properties"
+          ! -name "c.defaults.properties"
+          ! -name "compiler-explorer.defaults.properties"
+          ! -name "c.yio.properties"
+          ! -name "execution.defaults.properties"
+          -delete
+        chdir: "{{ ce_dir }}"
+
+    - name: Remove example files
+      ansible.builtin.file:
+        path: "{{ ce_dir }}/examples"
+        state: absent
+
+    - name: Create examples directory
+      ansible.builtin.file:
+        path: "{{ ce_dir }}/examples/c"
+        state: directory
+
+    - name: Create compiler cache directory
+      ansible.builtin.file:
+        path: "{{ ce_dir }}/out/compiler-cache"
+        state: directory
+        owner: "{{ ce_user }}"
+        group: "{{ ce_user }}"
+        mode: "0755"
+
+    - name: Create systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/godbolt.service
+        mode: "0644"
+        content: |
+          [Unit]
+          Description=Compiler Explorer
+          [Service]
+          User={{ ce_user }}
+          Group={{ ce_user }}
+          WorkingDirectory={{ ce_dir }}
+          Environment=NODE_ENV=production
+          ExecStart=/usr/bin/node --no-warnings=ExperimentalWarning --loader ts-node/esm app.ts --port 10240 --host 0.0.0.0
+          Restart=always
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and start godbolt
+      ansible.builtin.systemd:
+        name: godbolt
+        enabled: true
+        state: started
+
+    - name: Wait for Godbolt to be healthy
+      ansible.builtin.uri:
+        url: http://localhost:10240/
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 12
+      delay: 5

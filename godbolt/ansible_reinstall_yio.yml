@@ -1,0 +1,26 @@
+---
+- name: Reinstall YIO
+  hosts: all
+  become: true
+
+  vars:
+    yio_dir: /opt/yio
+
+  tasks:
+    - name: Ensure yio directory exists
+      ansible.builtin.file:
+        path: "{{ yio_dir }}"
+        state: directory
+        mode: "0755"
+
+    - name: Build clang extension
+      ansible.builtin.command:
+        cmd: "make -C extensions/clang install B=/build_extensions_clang"
+        chdir: "{{ yio_dir }}"
+      changed_when: true
+
+    - name: Build gcc extension
+      ansible.builtin.command:
+        cmd: "make -C extensions/gcc install B=/build_extensions_gcc"
+        chdir: "{{ yio_dir }}"
+      changed_when: true

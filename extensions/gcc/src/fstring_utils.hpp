@@ -3,6 +3,14 @@
 
 #include "fstring.hpp"
 #include <stdarg.h>
+#include "diagnostic.h"
+
+// GCC 16 compatibility layer for diagnostic keys
+#if __GNUC__>=16
+#include "diagnostics/kinds.h"
+#define DK_ERROR diagnostics::kind::error
+#define DK_WARNING diagnostics::kind::warning
+#endif
 
 static inline void report_fstring_problem(location_t loc, const char *msg, ...) {
   if (!warn_fstring_format && !error_fstring_format) { return; }

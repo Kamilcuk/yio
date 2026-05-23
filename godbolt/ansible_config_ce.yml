@@ -1,0 +1,87 @@
+---
+- name: Update Compiler Explorer configuration
+  hosts: all
+  become: true
+
+  vars:
+    ce_dir: /opt/compiler-explorer
+    yio_dir: /opt/yio
+
+  tasks:
+    - name: Configure c.defaults.properties
+      ansible.builtin.lineinfile:
+        path: "{{ ce_dir }}/etc/config/c.defaults.properties"
+        regexp: "^compilers="
+        line: "compilers=yio_gcc"
+
+    - name: Configure default compiler
+      ansible.builtin.lineinfile:
+        path: "{{ ce_dir }}/etc/config/c.defaults.properties"
+        regexp: "^defaultCompiler="
+        line: "defaultCompiler=yio_gcc"
+
+    - name: Remove unwanted config lines
+      ansible.builtin.replace:
+        path: "{{ ce_dir }}/etc/config/c.defaults.properties"
+        regexp: "{{ item }}"
+        replace: ""
+      loop:
+        - "^group\\..*$"
+        - "^compiler\\.cg.*$"
+        - "^compiler\\.cclang.*$"
+
+    - name: Append yio compiler config
+      ansible.builtin.blockinfile:
+        path: "{{ ce_dir }}/etc/config/c.defaults.properties"
+        block: "{{ lookup('ansible.builtin.file', 'c.yio.properties') }}"
+        marker: "# {mark} YIO COMPILER CONFIG"
+
+    - name: Configure compiler explorer defaults
+      ansible.builtin.blockinfile:
+        path: "{{ ce_dir }}/etc/config/compiler-explorer.defaults.properties"
+        marker: ""
+        block: |
+          languages=c
+          suppressCloudWarnings=true
+          loadAllProperties=false
+
+    - name: Configure execution defaults
+      ansible.builtin.blockinfile:
+        path: "{{ ce_dir }}/etc/config/execution.defaults.properties"
+        marker: ""
+        block: |
+          sandboxType=nsjail
+          executionType=nsjail
+          nsjail.config.execute={{ yio_dir }}/godbolt/nsjail/compilers-and-tools.cfg
+          nsjail.config.sandbox={{ yio_dir }}/godbolt/nsjail/user-execution.cfg
+
+    - name: Create examples directory
+      ansible.builtin.file:
+        path: "{{ ce_dir }}/examples/c"
+        state: directory
+
+    - name: Symlink default example
+      ansible.builtin.file:
+        src: "{{ yio_dir }}/godbolt/default.c"
+        dest: "{{ ce_dir }}/examples/c/default.c"
+        state: link
+
+    - name: Copy example sources
+      ansible.builtin.copy:
+        remote_src: true
+        src: "{{ yio_dir }}/examples/"
+        dest: "{{ ce_dir }}/examples/c/"
+
+    - name: Restart godbolt service
+      ansible.builtin.systemd:
+        name: godbolt
+        state: restarted
+
+    - name: Wait for Godbolt to be healthy
+      ansible.builtin.uri:
+        url: http://localhost:10240/
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 12
+      delay: 5
