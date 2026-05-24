@@ -56,7 +56,8 @@ add_test(
 	NAME test_plugin_flag_disable
 	COMMAND
 		${CMAKE_C_COMPILER} ${COMMON_FLAGS} -fplugin=$<TARGET_FILE:fstring_plugin>
-		-fplugin-arg-yio_gcc_fstring_plugin-Wfstring-format=0 -I ${CMAKE_CURRENT_SOURCE_DIR}/test -c
+		-fplugin-arg-yio_gcc_fstring_plugin-Wfstring-format=0 -I ${CMAKE_CURRENT_SOURCE_DIR}/test 
+		-I ${CMAKE_CURRENT_SOURCE_DIR}/../common/test -c
 		${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c -o /dev/null
 )
 
@@ -64,7 +65,8 @@ add_test(
 	NAME test_plugin_flag_error
 	COMMAND
 		sh -c "! \"$@\"" -- ${CMAKE_C_COMPILER} -fplugin=$<TARGET_FILE:fstring_plugin>
-		-fplugin-arg-yio_gcc_fstring_plugin-Werror-fstring-format=1 -I ${CMAKE_CURRENT_SOURCE_DIR}/test -c
+		-fplugin-arg-yio_gcc_fstring_plugin-Werror-fstring-format=1 -I ${CMAKE_CURRENT_SOURCE_DIR}/test 
+		-I ${CMAKE_CURRENT_SOURCE_DIR}/../common/test -c
 		${CMAKE_CURRENT_SOURCE_DIR}/test/plugin_flags.c -o /dev/null
 )
 test_extract_properties_from_file(

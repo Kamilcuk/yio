@@ -8,7 +8,7 @@
 #include <string.h>
 
 typedef va_list ftest_ctx;
-typedef void (*ftest_handler)(ftest_ctx *ctx);
+typedef int (*ftest_handler)(ftest_ctx *ctx);
 
 #if defined(__has_attribute)
 #if __has_attribute(fstring_format)
@@ -24,6 +24,7 @@ const void *__builtin_fstring(const char *str, ...);
 
 FSTRING_FORMAT(2)
 static void ftest_call(ftest_handler handlers[], const char *fmt, ...) {
+  if (!handlers) return;
   va_list va;
   va_start(va, fmt);
   printf("fmt: %s\n", fmt);
@@ -33,41 +34,47 @@ static void ftest_call(ftest_handler handlers[], const char *fmt, ...) {
   va_end(va);
 }
 
-static void ftest_h_int(ftest_ctx *ctx) {
+static int ftest_h_int(ftest_ctx *ctx) {
   assert(ctx);
   int val = va_arg(*ctx, int);
   printf("h_int: %d\n", val);
+  return 0;
 }
 
-static void ftest_h_double(ftest_ctx *ctx) {
+static int ftest_h_double(ftest_ctx *ctx) {
   assert(ctx);
   double val = va_arg(*ctx, double);
   printf("h_double: %f\n", val);
+  return 0;
 }
 
-static void ftest_h_float(ftest_ctx *ctx) {
+static int ftest_h_float(ftest_ctx *ctx) {
   assert(ctx);
   // float is promoted to double in variadic arguments
   double val = va_arg(*ctx, double);
   printf("h_float: %f\n", val);
+  return 0;
 }
 
-static void ftest_h_long(ftest_ctx *ctx) {
+static int ftest_h_long(ftest_ctx *ctx) {
   assert(ctx);
   long val = va_arg(*ctx, long);
   printf("h_long: %ld\n", val);
+  return 0;
 }
 
-static void ftest_h_llong(ftest_ctx *ctx) {
+static int ftest_h_llong(ftest_ctx *ctx) {
   assert(ctx);
   long long val = va_arg(*ctx, long long);
   printf("h_llong: %lld\n", val);
+  return 0;
 }
 
-static void ftest_h_ptr(ftest_ctx *ctx) {
+static int ftest_h_ptr(ftest_ctx *ctx) {
   assert(ctx);
   void *val = va_arg(*ctx, void *);
   printf("h_ptr: %p\n", val);
+  return 0;
 }
 
 #define FTEST_HANDLERS \
@@ -76,7 +83,7 @@ static void ftest_h_ptr(ftest_ctx *ctx) {
   (long long *)0, ftest_h_llong, \
   (double *)0, ftest_h_double, \
   (float *)0, ftest_h_float, \
-  (void *)0, ftest_h_ptr
+  (void **)0, ftest_h_ptr
 
 #define FTEST_F(str, ...) test_f(str, FTEST_HANDLERS, ##__VA_ARGS__)
 #define FTEST_PRINT_F(str, ...) ftest_call(FTEST_F(str, ##__VA_ARGS__), ##__VA_ARGS__)

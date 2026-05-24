@@ -13,13 +13,14 @@
 //// RUN PASS_REGULAR_EXPRESSION FMT: 42  
 //// RUN PASS_REGULAR_EXPRESSION HANDLERS: 0
 
-void test_case_impl(ftest_handler *handlers, const char *fmt) {
+int test_case_impl(ftest_handler *handlers, const char *fmt, ...) {
     printf("FMT: %s\n", fmt);
     int count = 0;
     if (handlers) {
         while (handlers[count] != NULL) count++;
     }
     printf("HANDLERS: %d\n", count);
+    return 0;
 }
 
 #define test_case(str) test_case_impl(test_f(str, FTEST_HANDLERS))

@@ -160,6 +160,9 @@ static inline std::map<tree, tree> parse_call_handlers(tree call, location_t loc
     if (type && TREE_CODE(type) == POINTER_TYPE) { type = TREE_TYPE(type); }
     if (type) {
       type = TYPE_MAIN_VARIANT(type);
+      if (VOID_TYPE_P(type)) {
+        report_fstring_problem(loc, "cannot use void as a target type for handler in %<__builtin_fstring%>. did you mean %<void *%>? use %<(void **)0%> instead");
+      }
       if (call_handlers.count(type)) {
         report_fstring_problem(loc, "duplicate handler for type %qT. remove the redundant handler registration", type);
       }
@@ -176,7 +179,6 @@ static inline void expand_fstring_builtin(tree call, tree fndecl, std::vector<tr
     report_fstring_problem(loc, "too few arguments to %<__builtin_fstring%>. add a format string literal as the first argument");
     return;
   }
-
   tree str_arg = get_string_cst(CALL_EXPR_ARG(call, 0));
   if (!str_arg) {
     report_fstring_problem(loc, "first argument to %<__builtin_fstring%> must be a string literal. pass a constant string literal instead of a variable");
@@ -240,7 +242,7 @@ static inline void expand_fstring_builtin(tree call, tree fndecl, std::vector<tr
   out_args.push_back(create_handler_array(loc, elem_type, selected_handlers));
   out_args.push_back(build_string_literal(new_fmt.length() + 1, new_fmt.c_str()));
   for (tree v : vars) {
-    out_args.push_back(default_conversion(v));
+    out_args.push_back(v);
   }
 }
 
@@ -352,12 +354,19 @@ static inline void validate_fstring_format(tree call, int fmt_idx) {
 }
 
 static inline tree rebuild_call(tree old_call, const std::vector<tree> &new_args) {
+  location_t loc = EXPR_LOCATION(old_call);
   vec<tree, va_gc> *v;
   vec_alloc(v, new_args.size());
   for (tree a : new_args) { v->quick_push(a); }
-  tree new_call = build_call_vec(TREE_TYPE(old_call), CALL_EXPR_FN(old_call), v);
-  SET_EXPR_LOCATION(new_call, EXPR_LOCATION(old_call));
-  return new_call;
+
+  auto_vec<location_t> arg_locs;
+  for (tree a : new_args) {
+    location_t aloc = EXPR_LOCATION(a);
+    if (aloc == UNKNOWN_LOCATION) aloc = loc;
+    arg_locs.safe_push(aloc);
+  }
+
+  return build_function_call_vec(loc, arg_locs.to_vec_legacy(), CALL_EXPR_FN(old_call), v, NULL);
 }
 
 static inline bool is_empty_string_literal(tree t) {
@@ -401,7 +410,7 @@ static inline tree walk_tree_callback(tree *tp, int *walk_subtrees, void *data) 
 
           if (has_magic_string) {
             for (tree a : expanded) {
-              new_args.push_back(default_conversion(a));
+              new_args.push_back(a);
             }
             modified = true;
             i++; // skip ""

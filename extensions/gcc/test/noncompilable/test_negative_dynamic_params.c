@@ -1,4 +1,4 @@
-#include "../conftest.h"
+#include "conftest.h"
 
 FSTRING_FORMAT(1) static void print(const char *fmt, ...) {}
 
