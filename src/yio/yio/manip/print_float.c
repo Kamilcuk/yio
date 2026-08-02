@@ -169,10 +169,10 @@ static int YIO_float_dispatch_{{R.name}}(yio_printctx_t *t, YIO_FLOAT_RP_{{R.nam
 #error YIO_has_float_astrfrom_printf_{{R.name}} is not defined
 #endif
 
-#if YIO_has_float_astrfrom_strfrom_{{R.name}}
-    err = YIO_float_astrfrom_strfrom_{{R.name}}(&res, precision, spec, val);
-#elif YIO_has_float_astrfrom_ryu_{{R.name}}
+#if YIO_has_float_astrfrom_ryu_{{R.name}}
     err = YIO_float_astrfrom_ryu_{{R.name}}(&res, precision, spec, val);
+#elif YIO_has_float_astrfrom_strfrom_{{R.name}}
+    err = YIO_float_astrfrom_strfrom_{{R.name}}(&res, precision, spec, val);
 #elif YIO_has_float_astrfrom_printf_{{R.name}}
     err = YIO_float_astrfrom_printf_{{R.name}}(&res, precision, spec, val);
 #else
